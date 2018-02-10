@@ -542,7 +542,7 @@ proc shutdown*() {.importc:"sg_shutdown",cdecl.}
 proc isvalid*(): bool {.importc:"sg_isvalid",cdecl.}
 proc query_feature*(feature: feature): bool {.importc:"sg_query_feature",cdecl.}
 proc reset_state_cache*() {.importc:"sg_reset_state_cache",cdecl.} 
-proc make_buffer(desc: var buffer_desc): buffer = return sg_make_buffer(addr(desc))
+proc make_buffer*(desc: var buffer_desc): buffer = return sg_make_buffer(addr(desc))
 proc make_image*(desc: var image_desc): image = return sg_make_image(addr(desc))
 proc make_shader*(desc: var shader_desc): shader = return sg_make_shader(addr(desc))
 proc make_pipeline*(desc: var pipeline_desc): pipeline = return sg_make_pipeline(addr(desc))
