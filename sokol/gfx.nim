@@ -537,16 +537,28 @@ proc sg_init_pipeline(pip_id: pipeline; desc: ptr pipeline_desc) {.importc:"sg_i
 proc sg_init_pass(pass_id: pass; desc: ptr pass_desc) {.importc:"sg_init_pass",cdecl.}
 
 # public functions
-proc setup*(desc: var desc) = sg_setup(addr(desc))
+proc setup*(desc: desc) =
+    var desc_var = desc
+    sg_setup(addr(desc_var))
 proc shutdown*() {.importc:"sg_shutdown",cdecl.}
 proc isvalid*(): bool {.importc:"sg_isvalid",cdecl.}
 proc query_feature*(feature: feature): bool {.importc:"sg_query_feature",cdecl.}
 proc reset_state_cache*() {.importc:"sg_reset_state_cache",cdecl.} 
-proc make_buffer*(desc: var buffer_desc): buffer = return sg_make_buffer(addr(desc))
-proc make_image*(desc: var image_desc): image = return sg_make_image(addr(desc))
-proc make_shader*(desc: var shader_desc): shader = return sg_make_shader(addr(desc))
-proc make_pipeline*(desc: var pipeline_desc): pipeline = return sg_make_pipeline(addr(desc))
-proc make_pass*(desc: var pass_desc): pass = return sg_make_pass(addr(desc))
+proc make_buffer*(desc: buffer_desc): buffer = 
+    var desc_var = desc
+    result = sg_make_buffer(addr(desc_var))
+proc make_image*(desc: image_desc): image =
+    var desc_var = desc
+    result = sg_make_image(addr(desc_var))
+proc make_shader*(desc: shader_desc): shader =
+    var desc_var = desc
+    result = sg_make_shader(addr(desc_var))
+proc make_pipeline*(desc: pipeline_desc): pipeline =
+    var desc_var = desc
+    result = sg_make_pipeline(addr(desc_var))
+proc make_pass*(desc: pass_desc): pass =
+    var desc_var = desc
+    result = sg_make_pass(addr(desc_var))
 proc destroy_buffer*(buf: buffer) {.importc:"sg_destry_buffer",cdecl.}
 proc destroy_image*(img: image) {.importc:"sg_destroy_image",cdecl.}
 proc destroy_shader*(shd: shader) {.importc:"sg_destroy_shader",cdecl.}
@@ -559,11 +571,17 @@ proc query_image_state*(img: image): resource_state {.importc:"sg_query_image_st
 proc query_shader_state*(shd: shader): resource_state {.importc:"sg_query_shader_state",cdecl.}
 proc query_pipeline_state*(pip: pipeline): resource_state {.importc:"sg_query_pipeline_state",cdecl.}
 proc query_pass_state*(pass: pass): resource_state {.importc:"sg_query_pass_state",cdecl.}
-proc begin_default_pass*(pass_action: var pass_action, width: cint, height: cint) = sg_begin_default_pass(addr(pass_action), width, height)
-proc begin_pass*(pass: pass, pass_action: var pass_action) = sg_begin_pass(pass, addr(pass_action))
+proc begin_default_pass*(pass_action: pass_action, width: cint, height: cint) =
+    var pass_action_var = pass_action
+    sg_begin_default_pass(addr(pass_action_var), width, height)
+proc begin_pass*(pass: pass, pass_action: var pass_action) =
+    var pass_action_var = pass_action
+    sg_begin_pass(pass, addr(pass_action_var))
 proc apply_viewport*(x: cint, y: cint, width: cint, height: cint, origin_top_left: bool) {.importc:"sg_apply_viewport",cdecl.}
 proc apply_scissor_rect*(x: cint, y: cint, width: cint, height: cint, origin_top_left: bool) {.importc:"sg_apply_scissor_rect",cdecl.}
-proc apply_draw_state*(ds: var draw_state) = sg_apply_draw_state(addr(ds))
+proc apply_draw_state*(ds: draw_state) =
+    var ds_var = ds
+    sg_apply_draw_state(addr(ds_var))
 proc apply_uniform_block*(stage: shader_stage; ub_index: cint; data: pointer; num_bytes: cint) {.importc:"sg_apply_uniform_block",cdecl.}
 proc draw*(base_element: cint; num_elements: cint; num_instances: cint) {.importc:"sg_draw",cdecl.}
 proc end_pass*() {.importc:"sg_end_pass",cdecl.}
@@ -573,11 +591,21 @@ proc alloc_image*(): image {.importc:"sg_alloc_image",cdecl.}
 proc alloc_shader*(): shader {.importc:"sg_alloc_shader",cdecl.}
 proc alloc_pipeline*(): pipeline {.importc:"sg_alloc_pipeline",cdecl.}
 proc alloc_pass*(): pass {.importc:"sg_alloc_pass",cdecl.}
-proc init_buffer*(buf_id: buffer, desc: var buffer_desc) = sg_init_buffer(buf_id, addr(desc))
-proc init_image*(img_id: image; desc: var image_desc) = sg_init_image(img_id, addr(desc))
-proc init_shader*(shd_id: shader; desc: var shader_desc) = sg_init_shader(shd_id, addr(desc))
-proc init_pipeline*(pip_id: pipeline; desc: var pipeline_desc) = sg_init_pipeline(pip_id, addr(desc))
-proc init_pass*(pass_id: pass; desc: var pass_desc) = sg_init_pass(pass_id, addr(desc))
+proc init_buffer*(buf_id: buffer, desc: buffer_desc) =
+    var desc_var = desc
+    sg_init_buffer(buf_id, addr(desc_var))
+proc init_image*(img_id: image; desc: var image_desc) =
+    var desc_var = desc
+    sg_init_image(img_id, addr(desc_var))
+proc init_shader*(shd_id: shader; desc: shader_desc) =
+    var desc_var = desc
+    sg_init_shader(shd_id, addr(desc_var))
+proc init_pipeline*(pip_id: pipeline; desc: pipeline_desc) =
+    var desc_var = desc
+    sg_init_pipeline(pip_id, addr(desc_var))
+proc init_pass*(pass_id: pass; desc: var pass_desc) =
+    var desc_var = desc
+    sg_init_pass(pass_id, addr(desc_var))
 proc fail_buffer*(buf_id: buffer) {.importc:"sg_fail_buffer",cdecl.}
 proc fail_image*(img_id: image) {.importc:"sg_fail_image",cdecl.}
 proc fail_shader*(shd_id: shader) {.importc:"sg_fail_shader",cdecl.}
