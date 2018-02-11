@@ -47,8 +47,7 @@ glfw.WindowHint(OPENGL_PROFILE, OPENGL_CORE_PROFILE)
 glfw.WindowHint(OPENGL_FORWARD_COMPAT, GL_TRUE.cint)
 let win = glfw.CreateWindow(640, 480, "Triangle (sokol-nim)", nil, nil)
 glfw.MakeContextCurrent(win)
-var desc = sg.desc()
-sg.setup(desc)
+sg.setup(sg.desc())
 
 # a vertex buffer
 var vertices = [
@@ -57,14 +56,13 @@ var vertices = [
     0.5f, -0.5f, 0.5f,     0.0f, 1.0f, 0.0f, 1.0f,
     -0.5f, -0.5f, 0.5f,    0.0f, 0.0f, 1.0f, 1.0f     
 ]
-var vbuf_desc = sg.buffer_desc(
+let vbuf = sg.make_buffer(sg.buffer_desc(
     size: sizeof(vertices).cint,
     content: addr(vertices)
-)
-let vbuf = sg.make_buffer(vbuf_desc)
+))
 
 # a shader
-var shd_desc = sg.shader_desc(
+let shd = sg.make_shader(sg.shader_desc(
     vs: stage_desc(
         source: """
             #version 330
@@ -85,11 +83,10 @@ var shd_desc = sg.shader_desc(
                 frag_color = color;
             }
         """)
-    )
-let shd = sg.make_shader(shd_desc)
+))
 
 # a pipeline state object
-var pip_desc = sg.pipeline_desc(
+let pip = sg.make_pipeline(sg.pipeline_desc(
     shader: shd,
     layout: layout_desc(
         attrs: %[
@@ -97,17 +94,16 @@ var pip_desc = sg.pipeline_desc(
             attr_desc(name: "color0", format: VERTEXFORMAT_FLOAT4)
         ]
     )
-)
-let pip = sg.make_pipeline(pip_desc)
+))
 
 # a draw state with the resource bindings
-var draw_state = sg.draw_state(
+let draw_state = sg.draw_state(
     pipeline: pip,
     vertex_buffers: %[vbuf]
 )
 
 # a default pass action (clears to grey)
-var pass_action = sg.pass_action()
+let pass_action = sg.pass_action()
 
 # draw loop
 while glfw.WindowShouldClose(win) == 0:
