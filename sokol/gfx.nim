@@ -575,7 +575,7 @@ proc query_pass_state*(pass: pass): resource_state {.importc:"sg_query_pass_stat
 proc begin_default_pass*(pass_action: pass_action, width: cint, height: cint) =
     var pass_action_var = pass_action
     sg_begin_default_pass(addr(pass_action_var), width, height)
-proc begin_pass*(pass: pass, pass_action: var pass_action) =
+proc begin_pass*(pass: pass, pass_action: pass_action) =
     var pass_action_var = pass_action
     sg_begin_pass(pass, addr(pass_action_var))
 proc apply_viewport*(x: cint, y: cint, width: cint, height: cint, origin_top_left: bool) {.importc:"sg_apply_viewport",cdecl.}
@@ -647,5 +647,9 @@ proc `%`*(items: openArray[color_attachment_action]): array[MAX_COLOR_ATTACHMENT
         result[index] = item
     
 proc `%`*(items: openArray[subimage_content]): array[MAX_CUBEMAP_FACES*MAX_MIPMAPS, subimage_content] =
+    for index, item in items.pairs:
+        result[index] = item
+
+proc `%`*(items: openArray[attachment_desc]): array[MAX_COLOR_ATTACHMENTS, attachment_desc] =
     for index, item in items.pairs:
         result[index] = item
