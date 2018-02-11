@@ -407,31 +407,31 @@ type
     end_canary: uint32
 
 type
-  shader_uniform_desc* {.bycopy.} = object
+  uniform_desc* {.bycopy.} = object
     name*: cstring
     `type`*: uniform_type
     array_count*: cint
 
-  shader_uniform_block_desc* {.bycopy.} = object
+  uniform_block_desc* {.bycopy.} = object
     size*: cint
-    uniforms*: array[MAX_UB_MEMBERS, shader_uniform_desc]
+    uniforms*: array[MAX_UB_MEMBERS, uniform_desc]
 
   shader_image_desc* {.bycopy.} = object
     name*: cstring
     `type`*: image_type
 
-  shader_stage_desc* {.bycopy.} = object
+  stage_desc* {.bycopy.} = object
     source*: cstring
     byte_code*: ptr uint8
     byte_code_size*: cint
     entry*: cstring
-    uniform_blocks*: array[MAX_SHADERSTAGE_UBS, shader_uniform_block_desc]
+    uniform_blocks*: array[MAX_SHADERSTAGE_UBS, uniform_block_desc]
     images*: array[MAX_SHADERSTAGE_IMAGES, shader_image_desc]
 
   shader_desc* {.bycopy.} = object
     start_canary: uint32
-    vs*: shader_stage_desc
-    fs*: shader_stage_desc
+    vs*: stage_desc
+    fs*: stage_desc
     end_canary: uint32
 
 type
@@ -440,7 +440,7 @@ type
     step_func*: vertex_step
     step_rate*: cint
 
-  vertex_attr_desc* {.bycopy.} = object
+  attr_desc* {.bycopy.} = object
     name*: cstring
     sem_name*: cstring
     sem_index*: cint
@@ -450,17 +450,17 @@ type
 
   layout_desc* {.bycopy.} = object
     buffers*: array[MAX_SHADERSTAGE_BUFFERS, buffer_layout_desc]
-    attrs*: array[MAX_VERTEX_ATTRIBUTES, vertex_attr_desc]
+    attrs*: array[MAX_VERTEX_ATTRIBUTES, attr_desc]
 
-  stencil_state* {.bycopy.} = object
+  stencil_desc* {.bycopy.} = object
     fail_op*: stencil_op
     depth_fail_op*: stencil_op
     pass_op*: stencil_op
     compare_func*: compare_func
 
-  depth_stencil_state* {.bycopy.} = object
-    stencil_front*: stencil_state
-    stencil_back*: stencil_state
+  depth_stencil_desc* {.bycopy.} = object
+    stencil_front*: stencil_desc
+    stencil_back*: stencil_desc
     depth_compare_func*: compare_func
     depth_write_enabled*: bool
     stencil_enabled*: bool
@@ -468,7 +468,7 @@ type
     stencil_write_mask*: uint8
     stencil_ref*: uint8
 
-  blend_state* {.bycopy.} = object
+  blend_desc* {.bycopy.} = object
     enabled*: bool
     src_factor_rgb*: blend_factor
     dst_factor_rgb*: blend_factor
@@ -482,7 +482,7 @@ type
     depth_format*: pixel_format
     blend_color*: array[4, cfloat]
 
-  rasterizer_state* {.bycopy.} = object
+  rasterizer_desc* {.bycopy.} = object
     alpha_to_coverage_enabled*: bool
     cull_mode*: cull_mode
     face_winding*: face_winding
@@ -497,9 +497,9 @@ type
     shader*: shader
     primitive_type*: primitive_type
     index_type*: index_type
-    depth_stencil*: depth_stencil_state
-    blend*: blend_state
-    rasterizer*: rasterizer_state
+    depth_stencil*: depth_stencil_desc
+    blend*: blend_desc
+    rasterizer*: rasterizer_desc
     end_canary: uint32
 
 type
@@ -583,3 +583,32 @@ proc fail_image*(img_id: image) {.importc:"sg_fail_image",cdecl.}
 proc fail_shader*(shd_id: shader) {.importc:"sg_fail_shader",cdecl.}
 proc fail_pipeline*(pip_id: pipeline) {.importc:"sg_fail_pipeline",cdecl.}
 proc fail_pass*(pass_id: pass) {.importc:"sg_fail_pass",cdecl.}
+
+# construction helpers
+proc `%`*(items: openArray[uniform_block_desc]): array[MAX_SHADERSTAGE_UBS, uniform_block_desc] =
+    for index,item in items.pairs:
+        result[index] = item
+
+proc `%`*(items: openArray[uniform_desc]): array[MAX_UB_MEMBERS, uniform_desc] =
+    for index,item in items.pairs:
+        result[index] = item
+
+proc `%`*(items: openArray[buffer_layout_desc]): array[MAX_SHADERSTAGE_BUFFERS, buffer_layout_desc] =
+    for index,item in items.pairs:
+        result[index] = item
+
+proc `%`*(items: openArray[attr_desc]): array[MAX_VERTEX_ATTRIBUTES, attr_desc] =
+    for index, item in items.pairs:
+        result[index] = item
+
+proc `%`*(items: openArray[buffer]): array[MAX_SHADERSTAGE_BUFFERS, buffer] =
+    for index, item in items.pairs:
+        result[index] = item
+
+proc `%`*(items: openArray[image]): array[MAX_SHADERSTAGE_IMAGES, image] =
+    for index, item in items.pairs:
+        result[index] = item
+
+proc `%`*(items: openArray[color_attachment_action]): array[MAX_COLOR_ATTACHMENTS, color_attachment_action] =
+    for index, item in items.pairs:
+        result[index] = item
