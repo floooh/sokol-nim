@@ -29,6 +29,7 @@ const
   MAX_UB_MEMBERS* = 16
   MAX_VERTEX_ATTRIBUTES* = 16
   MAX_MIPMAPS* = 16
+  MAX_CUBEMAP_FACES* = 6
   MAX_TEXTUREARRAY_LAYERS* = 128
 
 type
@@ -369,12 +370,12 @@ type
 
 type
   subimage_content* {.bycopy.} = object
-    `ptr`*: pointer            ##  pointer to subimage data
+    content*: pointer          ##  pointer to subimage data
     size*: cint                ##  size in bytes of pointed-to subimage data
   
 type
   image_content* {.bycopy.} = object
-    subimage*: array[CUBEFACE_NUM, array[MAX_MIPMAPS, subimage_content]]
+    subimage*: array[MAX_MIPMAPS*MAX_CUBEMAP_FACES, subimage_content]
 
 type
   INNER_C_UNION_3509626565* {.bycopy.} = object {.union.}
@@ -621,6 +622,10 @@ proc `%`*(items: openArray[uniform_desc]): array[MAX_UB_MEMBERS, uniform_desc] =
     for index,item in items.pairs:
         result[index] = item
 
+proc `%`*(items: openArray[shader_image_desc]): array[MAX_SHADERSTAGE_IMAGES, shader_image_desc] =
+    for index,item in items.pairs:
+        result[index] = item
+
 proc `%`*(items: openArray[buffer_layout_desc]): array[MAX_SHADERSTAGE_BUFFERS, buffer_layout_desc] =
     for index,item in items.pairs:
         result[index] = item
@@ -638,5 +643,9 @@ proc `%`*(items: openArray[image]): array[MAX_SHADERSTAGE_IMAGES, image] =
         result[index] = item
 
 proc `%`*(items: openArray[color_attachment_action]): array[MAX_COLOR_ATTACHMENTS, color_attachment_action] =
+    for index, item in items.pairs:
+        result[index] = item
+    
+proc `%`*(items: openArray[subimage_content]): array[MAX_CUBEMAP_FACES*MAX_MIPMAPS, subimage_content] =
     for index, item in items.pairs:
         result[index] = item
