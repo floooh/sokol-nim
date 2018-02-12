@@ -1,6 +1,8 @@
 {.deadCodeElim: on.}
-{.compile: "native/sokol.c".}
+when not defined(release):
+    {.passC: "-D_DEBUG".}
 {.passL: "-framework OpenGL -framework Foundation".}
+{.compile: "native/sokol.c".}
 type
   buffer* {.bycopy.} = object
     id*: uint32
