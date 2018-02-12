@@ -568,7 +568,9 @@ proc destroy_shader*(shd: shader) {.importc:"sg_destroy_shader",cdecl.}
 proc destroy_pipeline*(pip: pipeline) {.importc:"sg_destroy_pipeline",cdecl.}
 proc destroy_pass*(pass: pass) {.importc:"sg_destroy_pass",cdecl.}
 proc update_buffer*(buf: buffer, data_ptr: pointer, data_size: cint) {.importc:"sg_update_buffer",cdecl.}
-proc update_image*(img: image, data: var image_content) = sg_update_image(img, addr(data))
+proc update_image*(img: image, data: image_content) = 
+    var data_var = data
+    sg_update_image(img, addr(data_var))
 proc query_buffer_state*(buf: buffer): resource_state {.importc:"sg_query_buffer_state",cdecl.}
 proc query_image_state*(img: image): resource_state {.importc:"sg_query_image_state",cdecl.}
 proc query_shader_state*(shd: shader): resource_state {.importc:"sg_query_shader_state",cdecl.}
