@@ -559,6 +559,8 @@ proc destroy_shader*(shd: shader) {.importc:"sg_destroy_shader",cdecl.}
 proc destroy_pipeline*(pip: pipeline) {.importc:"sg_destroy_pipeline",cdecl.}
 proc destroy_pass*(pass: pass) {.importc:"sg_destroy_pass",cdecl.}
 proc update_buffer*(buf: buffer, data_ptr: pointer, data_size: cint) {.importc:"sg_update_buffer",cdecl.}
+proc update_buffer*(buf: buffer, data_ptr: pointer, data_size: int) =
+    update_buffer(buf, data_ptr, data_size.cint)
 proc update_image*(img: image, data: image_content) = 
     var data_var = data
     sg_update_image(img, addr(data_var))
@@ -570,6 +572,9 @@ proc query_pass_state*(pass: pass): resource_state {.importc:"sg_query_pass_stat
 proc begin_default_pass*(pass_action: pass_action, width: cint, height: cint) =
     var pass_action_var = pass_action
     sg_begin_default_pass(addr(pass_action_var), width, height)
+proc begin_default_pass*(pass_action: pass_action, width: int, height: int) =
+    var pass_action_var = pass_action
+    sg_begin_default_pass(addr(pass_action_var), width.cint, height.cint)
 proc begin_pass*(pass: pass, pass_action: pass_action) =
     var pass_action_var = pass_action
     sg_begin_pass(pass, addr(pass_action_var))
@@ -583,7 +588,11 @@ proc apply_draw_state*(ds: draw_state) =
     var ds_var = ds
     sg_apply_draw_state(addr(ds_var))
 proc apply_uniform_block*(stage: shader_stage; ub_index: cint; data: pointer; num_bytes: cint) {.importc:"sg_apply_uniform_block",cdecl.}
+proc apply_uniform_block*(stage: shader_stage; ub_index: int; data: pointer; num_bytes: int) =
+    apply_uniform_block(stage, ub_index.cint, data, num_bytes.cint)
 proc draw*(base_element: cint; num_elements: cint; num_instances: cint) {.importc:"sg_draw",cdecl.}
+proc draw*(base_element: int; num_elements: int; num_instances: int) =
+    draw(base_element.cint, num_elements.cint, num_instances.cint)
 proc end_pass*() {.importc:"sg_end_pass",cdecl.}
 proc commit*() {.importc:"sg_commit",cdecl.}
 proc alloc_buffer*(): buffer {.importc:"sg_alloc_buffer",cdecl.}
