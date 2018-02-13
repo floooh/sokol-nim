@@ -583,7 +583,11 @@ proc begin_pass*(pass: pass, pass_action: pass_action) =
     var pass_action_var = pass_action
     sg_begin_pass(pass, addr(pass_action_var))
 proc apply_viewport*(x: cint, y: cint, width: cint, height: cint, origin_top_left: bool) {.importc:"sg_apply_viewport",cdecl.}
+proc apply_viewport*(x: int, y: int, width: int, height: int, origin_top_left: bool) =
+    apply_viewport(x.cint, y.cint, width.cint, height.cint, origin_top_left)
 proc apply_scissor_rect*(x: cint, y: cint, width: cint, height: cint, origin_top_left: bool) {.importc:"sg_apply_scissor_rect",cdecl.}
+proc apply_scissor_rect*(x: int, y: int, width: int, height: int, origin_top_left: bool) =
+    apply_scissor_rect(x.cint, y.cint, width.cint, height.cint, origin_top_left)
 proc apply_draw_state*(ds: draw_state) =
     var ds_var = ds
     sg_apply_draw_state(addr(ds_var))
