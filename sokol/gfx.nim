@@ -380,17 +380,13 @@ type
     subimage*: array[MAX_MIPMAPS*MAX_CUBEMAP_FACES, subimage_content]
 
 type
-  INNER_C_UNION_3509626565* {.bycopy.} = object {.union.}
-    depth*: cint
-    layers*: cint
-
   image_desc* {.bycopy.} = object
     start_canary: uint32
     `type`*: image_type
     render_target*: bool
     width*: cint
     height*: cint
-    ano_4199846771*: INNER_C_UNION_3509626565
+    slices*: cint
     num_mipmaps*: cint
     usage*: usage
     pixel_format*: pixel_format
@@ -506,15 +502,10 @@ type
     end_canary: uint32
 
 type
-  INNER_C_UNION_221963591* {.bycopy.} = object {.union.}
-    face*: cint
-    layer*: cint
-    slice*: cint
-
   attachment_desc* {.bycopy.} = object
     image*: image
     mip_level*: cint
-    ano_1019651058*: INNER_C_UNION_221963591
+    slice: cint
 
   pass_desc* {.bycopy.} = object
     start_canary: uint32
