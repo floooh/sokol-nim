@@ -1,7 +1,12 @@
 {.deadCodeElim: on.}
 when not defined(release):
     {.passC: "-D_DEBUG".}
-{.passL: "-framework OpenGL -framework Foundation".}
+when defined(macosx):
+    {.passL: "-framework OpenGL -framework Foundation".}
+elif defined(windows):
+    discard
+else:
+    {.passL: "-lGL".}
 {.compile: "native/sokol.c".}
 type
   buffer* {.bycopy.} = object
