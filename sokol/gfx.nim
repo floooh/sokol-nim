@@ -338,7 +338,9 @@ type
     start_canary: uint32
     pipeline*: pipeline
     vertex_buffers*: array[MAX_SHADERSTAGE_BUFFERS, buffer]
+    vertex_buffer_offsets*: array[MAX_SHADERSTAGE_BUFFERS, uint32]
     index_buffer*: buffer
+    index_buffer_offset*: uint32
     vs_images*: array[MAX_SHADERSTAGE_IMAGES, image]
     fs_images*: array[MAX_SHADERSTAGE_IMAGES, image]
     end_canary: uint32
