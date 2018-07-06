@@ -23,7 +23,9 @@ type
 
   pass* {.bycopy.} = object
     id*: uint32
-
+  
+  context* {.bycopy.} = object
+    id*: uint32
 
 const
   INVALID_ID* = 0
@@ -355,6 +357,7 @@ type
     pass_pool_size*: cint      ##  GL specific
     gl_force_gles2*: bool      ##  Metal-specific
     mtl_device*: pointer
+    context_pool_size*: cint 
     mtl_renderpass_descriptor_cb*: proc (): pointer
     mtl_drawable_cb*: proc (): pointer
     mtl_global_uniform_buffer_size*: cint
@@ -560,7 +563,7 @@ proc make_pipeline*(desc: pipeline_desc): pipeline =
 proc make_pass*(desc: pass_desc): pass =
     var desc_var = desc
     result = sg_make_pass(addr(desc_var))
-proc destroy_buffer*(buf: buffer) {.importc:"sg_destry_buffer",cdecl.}
+proc destroy_buffer*(buf: buffer) {.importc:"sg_destroy_buffer",cdecl.}
 proc destroy_image*(img: image) {.importc:"sg_destroy_image",cdecl.}
 proc destroy_shader*(shd: shader) {.importc:"sg_destroy_shader",cdecl.}
 proc destroy_pipeline*(pip: pipeline) {.importc:"sg_destroy_pipeline",cdecl.}
@@ -627,6 +630,9 @@ proc fail_image*(img_id: image) {.importc:"sg_fail_image",cdecl.}
 proc fail_shader*(shd_id: shader) {.importc:"sg_fail_shader",cdecl.}
 proc fail_pipeline*(pip_id: pipeline) {.importc:"sg_fail_pipeline",cdecl.}
 proc fail_pass*(pass_id: pass) {.importc:"sg_fail_pass",cdecl.}
+proc setup_context*(): context {.importc:"sg_setup_context", cdecl.}
+proc activate_context*(ctx_id: context) {.importc:"sg_activate_context", cdecl.}
+proc discard_context*(ctx_id: context) {.importc:"sg_discard_context", cdecl.}
 
 # construction helpers
 proc `%`*(items: openArray[uniform_block_desc]): array[MAX_SHADERSTAGE_UBS, uniform_block_desc] =
