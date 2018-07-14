@@ -4,7 +4,9 @@ when not defined(release):
 when defined(macosx):
     {.passL: "-framework OpenGL -framework Foundation".}
 elif defined(windows):
-    discard
+    {.compile: "native/glad.c".}
+
+    proc gladLoadGL*(): cint {.importc: "gladLoadGL",cdecl.}
 else:
     {.passL: "-lGL".}
 {.compile: "native/sokol.c".}
