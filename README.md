@@ -7,7 +7,7 @@ Example code is here: https://github.com/floooh/sokol-nim-samples
 
 ## Current Limitations
 
-- only tested on MacOS
+- currently only tested on macOS and Windows
 - hardwired to the sokol-gfx GL backend
 - I'm still a Nim noob, some things may not be proper Nim-style
 
