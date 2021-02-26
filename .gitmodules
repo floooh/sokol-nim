@@ -1,3 +1,0 @@
-[submodule "sokol/private/sokol"]
-	path = sokol/native/sokol
-	url = https://github.com/floooh/sokol
