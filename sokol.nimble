@@ -1,12 +1,12 @@
 # Package
 
-version       = "0.1.0"
-author        = "Andre Weissflog"
-description   = "nim bindings for sokol C headers"
+version       = "0.3.0"
+author        = "Andre Weissflog, Garett Bass"
+description   = "Nim bindings for sokol C headers"
 license       = "MIT"
-skipDirs      = @["examples"]
+srcDir        = "src"
+skipDirs      = @[]
 
 # Dependencies
 
-requires "nim >= 0.17.2"
-
+requires "nim >= 1.4.2"
