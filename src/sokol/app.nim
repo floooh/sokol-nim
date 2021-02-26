@@ -219,13 +219,16 @@ type Desc* = object
   enableDragndrop*:bool
   maxDroppedFiles*:int32
   maxDroppedFilePathLength*:int32
+  glForceGles2*:bool
+  win32ConsoleUtf8*:bool
+  win32ConsoleCreate*:bool
+  win32ConsoleAttach*:bool
   html5CanvasName*:cstring
   html5CanvasResize*:bool
   html5PreserveDrawingBuffer*:bool
   html5PremultipliedAlpha*:bool
   html5AskLeaveSite*:bool
   iosKeyboardResizesCanvas*:bool
-  glForceGles2*:bool
 
 type Html5FetchError* {.pure.} = enum
   FetchErrorNoError,
