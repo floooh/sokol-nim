@@ -2,21 +2,37 @@ Auto-generated Nim bindings for the [sokol headers](https://github.com/floooh/so
 
 ## Tested platform/compiler combinations
 
-* Windows, Nim 1.4.2
-  * cl 19.28.29336
-  * clang 11.0.1
-  * gcc 6.3.0 (Nim default on windows)
+* Windows, Nim 1.4.4
+  ```sh
+  # clang 11.0.1
+  nim c --cc:clang
+
+  # gcc 6.3.0
+  nim c --cc:gcc
+
+  # Microsoft cl 19.28.29336
+  nim c --cc:vcc
+  ```
 
 ## Examples
 
-Examples are found in `src/examples`, and can be compiled and run as follows:
+Examples are found in the `examples` subdirectory, and can be compiled and run as follows:
 
 ```sh
-# compile & run cube.nim using the platform's native graphics API
-$ nim c --run --noMain src/examples/cube.nim
+# install sokol
+$ cd path/to/sokol-nim
+$ nimble install
 
-# compile & run cube.nim for OpenGL or OpenGL ES explicitly (-d:gl)
-$ nim c --run --noMain -d:gl src/examples/cube.nim
+# install glm
+$ nimble install glm
+
+# compile & run cube.nim using the platform's
+# native graphics API
+$ nim c --run --noMain examples/cube.nim
+
+# compile & run cube.nim using OpenGL or OpenGL ES
+# explicitly (-d:gl)
+$ nim c --run --noMain -d:gl examples/cube.nim
 ```
 
 You should pass the `--noMain` option to the Nim compiler, because the
