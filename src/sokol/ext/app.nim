@@ -48,6 +48,10 @@ elif defined(ios):
   const gl*    = false
   const d3d11* = false
   const metal* = true
+else:
+  const gl*    = true
+  const d3d11* = false
+  const metal* = false
 
 # Platform specific compilation ------------------------------------------------
 
