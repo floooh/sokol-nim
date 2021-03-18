@@ -13,6 +13,14 @@ Auto-generated Nim bindings for the [sokol headers](https://github.com/floooh/so
   # Microsoft cl 19.28.29336
   nim c --cc:vcc
   ```
+* Linux, Nim 1.4.4
+  ```sh
+  # clang 10.0.0
+  nim c --cc:clang
+
+  # gcc 7.5.0
+  nim c --cc:gcc
+  ```
 
 ## Examples
 
