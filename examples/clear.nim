@@ -30,7 +30,7 @@ app.fail = proc(s:string) =
 
 app.frame = proc() =
   var g = passAction.colors[0].value.g + 0.01.float32
-  passAction.colors[0].value.g = if g > 1.f: 0.f else: g
+  passAction.colors[0].value.g = if g > 1f: 0f else: g
   gfx.beginDefaultPass(passAction, app.width(), app.height())
   gfx.endPass()
   gfx.commit()
