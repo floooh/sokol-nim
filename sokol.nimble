@@ -5,8 +5,8 @@ author        = "Andre Weissflog, Garett Bass"
 description   = "Nim bindings for sokol C headers"
 license       = "MIT"
 srcDir        = "src"
-skipDirs      = @[]
+skipDirs      = @["examples"]
 
 # Dependencies
 
-requires "nim >= 1.4.2"
+requires "nim >= 1.4.4"

@@ -1,3 +1,5 @@
 .vscode/
 nimcache/
-
+*.exe
+*.ilk
+*.pdb
