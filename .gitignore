@@ -3,3 +3,7 @@ nimcache/
 *.exe
 *.ilk
 *.pdb
+examples/clear
+examples/cube
+examples/blend
+

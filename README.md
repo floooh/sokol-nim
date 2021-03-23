@@ -22,6 +22,11 @@ Auto-generated Nim bindings for the [sokol headers](https://github.com/floooh/so
   nim c --cc:gcc
   ```
 
+* Apple, Nim 1.4.4
+  ```
+  Nim Compiler Version 1.4.4 [MacOSX: amd64]
+  ```
+
 ## Examples
 
 Examples are found in the `examples` subdirectory, and can be compiled and run as follows:
