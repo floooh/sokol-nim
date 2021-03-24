@@ -39,8 +39,10 @@ type FsUniforms = object
   tick:float32
 
 let bgShader = gfx.makeShader(ShaderDesc(
+  attrs:[
+    ShaderAttrDesc(semName:"POS")
+  ],
   vs:ShaderStageDesc(
-    # FIXME: D3D11
     source:
       when app.gl:
         """
@@ -65,6 +67,20 @@ let bgShader = gfx.makeShader(ShaderDesc(
           out.pos = float4(in.position, 0.5, 1.0);
           return out;
         }
+        """
+      elif app.d3d11:
+        """
+        struct vs_in {
+          float2 pos: POS;
+        };
+        struct vs_out {
+          float4 pos: SV_Position;
+        };
+        vs_out main(vs_in inp) {
+          vs_out outp;
+          outp.pos = float4(inp.pos, 0.5, 1.0);
+          return outp;
+        };
         """
       else:nil,
   ),
@@ -100,6 +116,17 @@ let bgShader = gfx.makeShader(ShaderDesc(
           return float4(float3(xy.x*xy.y), 1.0);
         }
         """
+      elif app.d3d11:
+        """
+        cbuffer params: register(b0) {
+          float tick;
+        };
+        float4 main(float4 frag_coord: SV_Position): SV_Target0 {
+          float2 xy = frac((frag_coord.xy-float2(tick,tick)) / 50.0);
+          float c = xy.x * xy.y;
+          return float4(c, c, c, 1.0);
+        };
+        """
       else:nil,
   )
 ))
@@ -122,6 +149,10 @@ type VsUniforms = object
   mvp:Mat4f
 
 let quadShader = gfx.makeShader(ShaderDesc(
+  attrs:[
+    ShaderAttrDesc(semName:"POS"),
+    ShaderAttrDesc(semName:"COLOR")
+  ],
   vs:ShaderStageDesc(
     uniformBlocks:[
       ShaderUniformBlockDesc(
@@ -132,7 +163,6 @@ let quadShader = gfx.makeShader(ShaderDesc(
       ),
     ],
     source:
-      # FIXME: D3D11
       when app.gl: 
           """
           #version 330
@@ -167,6 +197,26 @@ let quadShader = gfx.makeShader(ShaderDesc(
             return out;
           }
           """
+        elif app.d3d11:
+          """
+          cbuffer params: register(b0) {
+            float4x4 mvp;
+          };
+          struct vs_in {
+            float4 pos: POS;
+            float4 color: COLOR;
+          };
+          struct vs_out {
+            float4 color: COLOR;
+            float4 pos: SV_Position;
+          };
+          vs_out main(vs_in inp) {
+            vs_out outp;
+            outp.pos = mul(mvp, inp.pos);
+            outp.color = inp.color;
+            return outp;
+          }
+          """
         else:nil,
   ),
   fs:ShaderStageDesc(
@@ -189,6 +239,12 @@ let quadShader = gfx.makeShader(ShaderDesc(
         };
         fragment float4 _main(fs_in in [[stage_in]]) {
           return in.color;
+        }
+        """
+      elif app.d3d11:
+        """
+        float4 main(float4 color: COLOR): SV_Target0 {
+          return color;
         }
         """
       else:nil,
