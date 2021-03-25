@@ -1,23 +1,29 @@
-##------------------------------------------------------------------------------
-##  blend.nim
-##  Test/demonstrate blend modes.
-##------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
+# blend.nim
+# Test/demonstrate blend modes.
+#-------------------------------------------------------------------------------
+
 import glm
-import sokol/[app,gfx]
-import sugar
+import sokol/[app,appgfx,gfx]
+
+# statements at module scope are executed by sokol/app's init callback
+app.setWindowTitle("blend")
+
+# the app.cleanup callback will be invoked when the app window is closed
+app.cleanup = proc() = gfx.shutdown()
+
+# the app.event callback will be invoked for each user input event
+app.event = proc(e:app.Event) = echo(e.type)
+
+# the app.fail callback will be called in case of any app startup errors
+app.fail = proc(s:string) = echo("err: " & s)
 
 const NUM_BLEND_FACTORS = 15
 
 gfx.setup(gfx.Desc(
+  context:context(),
   pipelinePoolSize: NUM_BLEND_FACTORS * NUM_BLEND_FACTORS + 1,
-  context:app.gfxContext(),
 ))
-
-app.cleanup = () => gfx.shutdown()
-
-# app.event = (e:app.Event) => echo(e.type)
-
-app.fail = (s:string) => echo("err: " & s)
 
 # quad vertex buffer
 var vertices = [

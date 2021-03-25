@@ -1,23 +1,24 @@
-# just clears the framebuffer:
-#
-#   - basic initialization and draw loop
-#   - clearing through a pass action
+#-------------------------------------------------------------------------------
+# cube.nim
+# Shader with uniform data.
+#-------------------------------------------------------------------------------
 
 import glm
-import sokol/[app,gfx]
-import sugar
-
-# the app.cleanup callback will be invoked when the app window is closed
-app.cleanup = () => gfx.shutdown()
-
-# the app.event callback will be invoked for each user input event
-app.event = (e:app.Event) => echo(e.type)
-
-# the app.fail callback will be called in case of any app startup errors
-app.fail = (s:string) => echo("err: " & s)
+import sokol/[app,appgfx,gfx]
 
 # statements at module scope are executed by sokol/app's init callback
-gfx.setup(gfx.Desc(context:app.gfxContext()))
+app.setWindowTitle("cube")
+
+# the app.cleanup callback will be invoked when the app window is closed
+app.cleanup = proc() = gfx.shutdown()
+
+# the app.event callback will be invoked for each user input event
+app.event = proc(e:app.Event) = echo(e.type)
+
+# the app.fail callback will be called in case of any app startup errors
+app.fail = proc(s:string) = echo("err: " & s)
+
+gfx.setup(gfx.Desc(context:context()))
 
 # cube vertices and vertex buffer
 var vertices:array[168, float32] = [

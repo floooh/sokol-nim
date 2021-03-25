@@ -1,9 +1,3 @@
-# Sokol app/gfx glue -----------------------------------------------------------
-
-import "../gfx"
-
-proc gfxContext*():gfx.ContextDesc {.cdecl, importc:"sapp_sgcontext".}
-
 # Syntax sugar for Nim ---------------------------------------------------------
 
 var cleanup*: proc ()
@@ -87,4 +81,4 @@ else:
 # Implementation ---------------------------------------------------------------
 
 {.passc:"-DSOKOL_IMPL".}
-{.compile:"../c/sokol_app_gfx.c".}
+{.compile:"../c/sokol_app.c".}

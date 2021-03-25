@@ -178,3 +178,8 @@ proc initPipeline*(pipId:Pipeline; desc:PipelineDesc) =
 
 proc initPass*(passId:Pass; desc:PassDesc) =
   initPass(passId, unsafeAddr(desc))
+
+# Implementation ---------------------------------------------------------------
+
+{.passc:"-DSOKOL_IMPL".}
+{.compile:"../c/sokol_gfx.c".}

@@ -1,14 +1,24 @@
-# just clears the framebuffer:
-#
-#   - basic initialization and draw loop
-#   - clearing through a pass action
+#-------------------------------------------------------------------------------
+# clear.nim
+# Clear the framebuffer.
+#-------------------------------------------------------------------------------
 
-import sokol/app as app
-import sokol/gfx as gfx
+import sokol/[app,appgfx,gfx]
 
-gfx.setup(gfx.Desc(
-  context:app.gfxContext()
-))
+
+# statements at module scope are executed by sokol/app's init callback
+app.setWindowTitle("clear")
+
+# the app.cleanup callback will be invoked when the app window is closed
+app.cleanup = proc() = gfx.shutdown()
+
+# the app.event callback will be invoked for each user input event
+app.event = proc(e:app.Event) = echo(e.type)
+
+# the app.fail callback will be called in case of any app startup errors
+app.fail = proc(s:string) = echo("err: " & s)
+
+gfx.setup(gfx.Desc(context:context()))
 
 var passAction = gfx.PassAction(
   colors:[
@@ -18,15 +28,6 @@ var passAction = gfx.PassAction(
     ),
   ]
 )
-
-app.cleanup = proc() =
-  gfx.shutdown()
-
-app.event = proc(e:app.Event) =
-  echo(e.type)
-
-app.fail = proc(s:string) =
-  echo("err: " & s)
 
 app.frame = proc() =
   var g = passAction.colors[0].value.g + 0.01.float32
