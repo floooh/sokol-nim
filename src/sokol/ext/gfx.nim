@@ -1,3 +1,61 @@
+# Graphics backend selection ---------------------------------------------------
+
+when defined(gl):
+  const gl*    = true
+  const d3d11* = false
+  const metal* = false
+elif defined(windows):
+  const gl*    = false
+  const d3d11* = true
+  const metal* = false
+elif defined(macosx):
+  const gl*    = false
+  const d3d11* = false
+  const metal* = true
+elif defined(ios):
+  const gl*    = false
+  const d3d11* = false
+  const metal* = true
+elif defined(linux):
+  const gl*    = true
+  const d3d11* = false
+  const metal* = false
+else:
+  error("unsupported platform")
+
+# Platform specific compilation ------------------------------------------------
+
+when defined(windows):
+  {.passl:"-lgdi32 -lshell32 -luser32".}
+  when defined(gl):
+    {.passc:"-DSOKOL_GLCORE33".}
+  else:
+    {.passc:"-DSOKOL_D3D11".}
+    {.passl:"-ld3d11 -ldxgi -ldxguid".}
+elif defined(macosx):
+  {.passc:"-x objective-c".}
+  {.passl:"-framework Cocoa -framework QuartzCore".}
+  when defined(gl):
+    {.passc:"-DSOKOL_GLCORE33".}
+    {.passl:"-framework OpenGL".}
+  else:
+    {.passc:"-DSOKOL_METAL".}
+    {.passl:"-framework Metal -framework MetalKit".}
+elif defined(ios):
+  {.passc:"-x objective-c".}
+  {.passl:"-framework Foundation -framework UIKit".}
+  when defined(gl):
+    {.passc:"-DSOKOL_GLES3".}
+    {.passl:"-framework OpenGLES -framework GLKit".}
+  else:
+    {.passc:"-DSOKOL_METAL".}
+    {.passl:"-framework Metal -framework MetalKit".}
+elif defined(linux):
+  {.passc:"-DSOKOL_GLCORE33".}
+  {.passl:"-lX11 -lXi -lXcursor -lGL -ldl -lpthread -lm".}
+else:
+  error("unsupported platform")
+
 # Conversions ------------------------------------------------------------------
 
 ## Convert a 4-element tuple of numbers to a gfx.Color

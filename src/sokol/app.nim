@@ -198,13 +198,13 @@ type Desc* = object
   frameCb*:proc() {.cdecl.}
   cleanupCb*:proc() {.cdecl.}
   eventCb*:proc(a1:ptr Event) {.cdecl.}
-  failCb*:proc(a1:ptr uint8) {.cdecl.}
+  failCb*:proc(a1:cstring) {.cdecl.}
   userData*:pointer
   initUserdataCb*:proc(a1:pointer) {.cdecl.}
   frameUserdataCb*:proc(a1:pointer) {.cdecl.}
   cleanupUserdataCb*:proc(a1:pointer) {.cdecl.}
   eventUserdataCb*:proc(a1:ptr Event, a2:pointer) {.cdecl.}
-  failUserdataCb*:proc(a1:ptr uint8, a2:pointer) {.cdecl.}
+  failUserdataCb*:proc(a1:cstring, a2:pointer) {.cdecl.}
   width*:int32
   height*:int32
   sampleCount*:int32

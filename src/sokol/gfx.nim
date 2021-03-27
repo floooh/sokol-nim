@@ -596,7 +596,7 @@ type TraceHooks* = object
   failShader*:proc(a1:Shader, a2:pointer) {.cdecl.}
   failPipeline*:proc(a1:Pipeline, a2:pointer) {.cdecl.}
   failPass*:proc(a1:Pass, a2:pointer) {.cdecl.}
-  pushDebugGroup*:proc(a1:ptr uint8, a2:pointer) {.cdecl.}
+  pushDebugGroup*:proc(a1:cstring, a2:pointer) {.cdecl.}
   popDebugGroup*:proc(a1:pointer) {.cdecl.}
   errBufferPoolExhausted*:proc(a1:pointer) {.cdecl.}
   errImagePoolExhausted*:proc(a1:pointer) {.cdecl.}

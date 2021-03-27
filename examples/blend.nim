@@ -5,18 +5,19 @@
 
 import glm
 import sokol/[app,appgfx,gfx]
+import main
 
 # statements at module scope are executed by sokol/app's init callback
 app.setWindowTitle("blend")
 
-# the app.cleanup callback will be invoked when the app window is closed
-app.cleanup = proc() = gfx.shutdown()
+# the main.cleanup callback will be invoked when the app window is closed
+main.cleanup = proc() = gfx.shutdown()
 
-# the app.event callback will be invoked for each user input event
-app.event = proc(e:app.Event) = echo(e.type)
+# the main.event callback will be invoked for each user input event
+main.event = proc(e:app.Event) = echo(e.type)
 
-# the app.fail callback will be called in case of any app startup errors
-app.fail = proc(s:string) = echo("err: " & s)
+# the main.fail callback will be called in case of any app startup errors
+main.fail = proc(s:string) = echo("err: " & s)
 
 const NUM_BLEND_FACTORS = 15
 
@@ -50,7 +51,7 @@ let bgShader = gfx.makeShader(ShaderDesc(
   ],
   vs:ShaderStageDesc(
     source:
-      when app.gl:
+      when gfx.gl:
         """
         #version 330
         layout(location=0) in vec2 position;
@@ -58,7 +59,7 @@ let bgShader = gfx.makeShader(ShaderDesc(
             gl_Position = vec4(position, 0.5, 1.0);
         }
         """
-      elif app.metal:
+      elif gfx.metal:
         """
         #include <metal_stdlib>
         using namespace metal;
@@ -74,7 +75,7 @@ let bgShader = gfx.makeShader(ShaderDesc(
           return out;
         }
         """
-      elif app.d3d11:
+      elif gfx.d3d11:
         """
         struct vs_in {
           float2 pos: POS;
@@ -100,7 +101,7 @@ let bgShader = gfx.makeShader(ShaderDesc(
       ),
     ],
     source:
-      when app.gl:
+      when gfx.gl:
         """
         #version 330
         uniform float tick;
@@ -110,7 +111,7 @@ let bgShader = gfx.makeShader(ShaderDesc(
             frag_color = vec4(vec3(xy.x*xy.y), 1.0);
         }
         """
-      elif app.metal:
+      elif gfx.metal:
         """
         #include <metal_stdlib>
         using namespace metal;
@@ -122,7 +123,7 @@ let bgShader = gfx.makeShader(ShaderDesc(
           return float4(float3(xy.x*xy.y), 1.0);
         }
         """
-      elif app.d3d11:
+      elif gfx.d3d11:
         """
         cbuffer params: register(b0) {
           float tick;
@@ -169,7 +170,7 @@ let quadShader = gfx.makeShader(ShaderDesc(
       ),
     ],
     source:
-      when app.gl: 
+      when gfx.gl: 
           """
           #version 330
           uniform mat4 mvp;
@@ -181,7 +182,7 @@ let quadShader = gfx.makeShader(ShaderDesc(
               color = color0;
           }
           """
-        elif app.metal:
+        elif gfx.metal:
           """
           #include <metal_stdlib>
           using namespace metal;
@@ -203,7 +204,7 @@ let quadShader = gfx.makeShader(ShaderDesc(
             return out;
           }
           """
-        elif app.d3d11:
+        elif gfx.d3d11:
           """
           cbuffer params: register(b0) {
             float4x4 mvp;
@@ -227,7 +228,7 @@ let quadShader = gfx.makeShader(ShaderDesc(
   ),
   fs:ShaderStageDesc(
     source:
-      when app.gl:
+      when gfx.gl:
         """
         #version 330
         in vec4 color;
@@ -236,7 +237,7 @@ let quadShader = gfx.makeShader(ShaderDesc(
             frag_color = color;
         }
         """
-      elif app.metal:
+      elif gfx.metal:
         """
         #include <metal_stdlib>
         using namespace metal;
@@ -247,7 +248,7 @@ let quadShader = gfx.makeShader(ShaderDesc(
           return in.color;
         }
         """
-      elif app.d3d11:
+      elif gfx.d3d11:
         """
         float4 main(float4 color: COLOR): SV_Target0 {
           return color;
@@ -302,7 +303,7 @@ var vsUniforms = VsUniforms()
 var fsUniforms = FsUniforms()
 var r = 0f
 
-app.frame = proc() =
+main.frame = proc() =
   let proj = perspective(radians(60f), app.widthf()/app.heightf(), 0.01f, 100f)
   let view = lookAt(vec3(0f, 0f, 25f), vec3(0f, 0f, 0f), vec3(0f, 1f, 0f))
   let viewProj = proj * view;
@@ -336,4 +337,4 @@ app.frame = proc() =
   gfx.commit()
   r += 0.06f
   fsUniforms.tick += 1f
-# app.frame
+# main.frame

@@ -5,18 +5,19 @@
 
 import glm
 import sokol/[app,appgfx,gfx]
+import main
 
 # statements at module scope are executed by sokol/app's init callback
 app.setWindowTitle("cube")
 
-# the app.cleanup callback will be invoked when the app window is closed
-app.cleanup = proc() = gfx.shutdown()
+# the main.cleanup callback will be invoked when the app window is closed
+main.cleanup = proc() = gfx.shutdown()
 
-# the app.event callback will be invoked for each user input event
-app.event = proc(e:app.Event) = echo(e.type)
+# the main.event callback will be invoked for each user input event
+main.event = proc(e:app.Event) = echo(e.type)
 
-# the app.fail callback will be called in case of any app startup errors
-app.fail = proc(s:string) = echo("err: " & s)
+# the main.fail callback will be called in case of any app startup errors
+main.fail = proc(s:string) = echo("err: " & s)
 
 gfx.setup(gfx.Desc(context:context()))
 
@@ -92,7 +93,7 @@ let shader = gfx.makeShader(ShaderDesc(
       )
     ],
     source:
-      when app.gl: # compiled for OpenGL or OpenGL ES
+      when gfx.gl: # compiled for OpenGL or OpenGL ES
         """
         #version 330
         uniform mat4 mvp;
@@ -107,7 +108,7 @@ let shader = gfx.makeShader(ShaderDesc(
             color = color0;
         }
         """
-      elif app.d3d11: # compiled for Windows Direct3D 11
+      elif gfx.d3d11: # compiled for Windows Direct3D 11
         """
         cbuffer Uniforms {
           float4x4 mvp;
@@ -130,7 +131,7 @@ let shader = gfx.makeShader(ShaderDesc(
           return f;
         }
         """
-      elif app.metal: # compiled for macOS Metal
+      elif gfx.metal: # compiled for macOS Metal
         """
         #include <metal_stdlib>
         using namespace metal;
@@ -156,7 +157,7 @@ let shader = gfx.makeShader(ShaderDesc(
   ),
   fs:ShaderStageDesc(
     source:
-      when app.gl:
+      when gfx.gl:
         """
         #version 330
 
@@ -168,7 +169,7 @@ let shader = gfx.makeShader(ShaderDesc(
             frag_color = color;
         }
         """
-      elif app.d3d11:
+      elif gfx.d3d11:
         """
         struct fragment {
           float4 position :SV_Position;
@@ -179,7 +180,7 @@ let shader = gfx.makeShader(ShaderDesc(
           return f.color;
         }
         """
-      elif app.metal:
+      elif gfx.metal:
         """
         #include <metal_stdlib>
         using namespace metal;
@@ -228,7 +229,7 @@ var passAction = gfx.PassAction(
 var uniforms = Uniforms()
 var rx, ry = 0f
 
-app.frame = proc() =
+main.frame = proc() =
   let proj = perspective(
     fovy   = radians(60f),
     aspect = app.widthf()/app.heightf(),
@@ -257,4 +258,4 @@ app.frame = proc() =
   gfx.draw(0, 36, 1)
   gfx.endPass()
   gfx.commit()
-# app.frame
+# main.frame
