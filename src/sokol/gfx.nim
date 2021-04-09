@@ -115,7 +115,6 @@ type PixelFormat* {.pure, size:4.} = enum
   Etc2Rgba8,
   Etc2Rg11,
   Etc2Rg11sn,
-  Num,
 
 type PixelFormatInfo* = object
   sample*:bool
@@ -156,20 +155,17 @@ type Usage* {.pure, size:4.} = enum
   Immutable,
   Dynamic,
   Stream,
-  Num,
 
 type BufferType* {.pure, size:4.} = enum
   Default,
   VertexBuffer,
   IndexBuffer,
-  Num,
 
 type IndexType* {.pure, size:4.} = enum
   Default,
   None,
   Uint16,
   Uint32,
-  Num,
 
 type ImageType* {.pure, size:4.} = enum
   Default,
@@ -177,7 +173,6 @@ type ImageType* {.pure, size:4.} = enum
   Cube,
   Volume,
   Array,
-  Num,
 
 type SamplerType* {.pure.} = enum
   Default,
@@ -192,7 +187,6 @@ type CubeFace* {.pure, size:4.} = enum
   NegY,
   PosZ,
   NegZ,
-  Num,
 
 type ShaderStage* {.pure, size:4.} = enum
   Vertex,
@@ -205,7 +199,6 @@ type PrimitiveType* {.pure, size:4.} = enum
   LineStrip,
   Triangles,
   TriangleStrip,
-  Num,
 
 type Filter* {.pure, size:4.} = enum
   Default,
@@ -215,7 +208,6 @@ type Filter* {.pure, size:4.} = enum
   NearestMipmapLinear,
   LinearMipmapNearest,
   LinearMipmapLinear,
-  Num,
 
 type Wrap* {.pure, size:4.} = enum
   Default,
@@ -223,14 +215,12 @@ type Wrap* {.pure, size:4.} = enum
   ClampToEdge,
   ClampToBorder,
   MirroredRepeat,
-  Num,
 
 type BorderColor* {.pure, size:4.} = enum
   Default,
   TransparentBlack,
   OpaqueBlack,
   OpaqueWhite,
-  Num,
 
 type VertexFormat* {.pure, size:4.} = enum
   Invalid,
@@ -249,13 +239,11 @@ type VertexFormat* {.pure, size:4.} = enum
   Short4n,
   Ushort4n,
   Uint10N2,
-  Num,
 
 type VertexStep* {.pure, size:4.} = enum
   Default,
   PerVertex,
   PerInstance,
-  Num,
 
 type UniformType* {.pure, size:4.} = enum
   Invalid,
@@ -264,20 +252,17 @@ type UniformType* {.pure, size:4.} = enum
   Float3,
   Float4,
   Mat4,
-  Num,
 
 type CullMode* {.pure, size:4.} = enum
   Default,
   None,
   Front,
   Back,
-  Num,
 
 type FaceWinding* {.pure, size:4.} = enum
   Default,
   Ccw,
   Cw,
-  Num,
 
 type CompareFunc* {.pure, size:4.} = enum
   Default,
@@ -289,7 +274,6 @@ type CompareFunc* {.pure, size:4.} = enum
   NotEqual,
   GreaterEqual,
   Always,
-  Num,
 
 type StencilOp* {.pure, size:4.} = enum
   Default,
@@ -301,7 +285,6 @@ type StencilOp* {.pure, size:4.} = enum
   Invert,
   IncrWrap,
   DecrWrap,
-  Num,
 
 type BlendFactor* {.pure, size:4.} = enum
   Default,
@@ -320,14 +303,12 @@ type BlendFactor* {.pure, size:4.} = enum
   OneMinusBlendColor,
   BlendAlpha,
   OneMinusBlendAlpha,
-  Num,
 
 type BlendOp* {.pure, size:4.} = enum
   Default,
   Add,
   Subtract,
   ReverseSubtract,
-  Num,
 
 type ColorMask* {.pure, size:4.} = enum
   Default = 0,
@@ -353,7 +334,6 @@ type Action* {.pure, size:4.} = enum
   Clear,
   Load,
   DontCare,
-  Num,
 
 type ColorAttachmentAction* = object
   action*:Action
@@ -863,4 +843,4 @@ proc mtlDevice*():pointer {.cdecl, importc:"sg_mtl_device".}
 proc mtlRenderCommandEncoder*():pointer {.cdecl, importc:"sg_mtl_render_command_encoder".}
 
 # Nim-specific API extensions
-include ext/gfx
+include nim/gfx

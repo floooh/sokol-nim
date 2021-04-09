@@ -94,4 +94,4 @@ proc puts*(str:cstring):void {.cdecl, importc:"sdtx_puts".}
 proc putr*(str:cstring, len:int32):void {.cdecl, importc:"sdtx_putr".}
 
 # Nim-specific API extensions
-include ext/debugtext
+include nim/debugtext

@@ -137,4 +137,4 @@ proc mat4*(m:ptr float32):Mat4 {.cdecl, importc:"sshape_mat4".}
 proc mat4Transpose*(m:ptr float32):Mat4 {.cdecl, importc:"sshape_mat4_transpose".}
 
 # Nim-specific API extensions
-include ext/shape
+include nim/shape

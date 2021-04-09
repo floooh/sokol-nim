@@ -31,4 +31,4 @@ proc expect*():int32 {.cdecl, importc:"saudio_expect".}
 proc push*(frames:ptr float32, num_frames:int32):int32 {.cdecl, importc:"saudio_push".}
 
 # Nim-specific API extensions
-include ext/audio
+include nim/audio

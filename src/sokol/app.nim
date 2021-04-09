@@ -29,7 +29,6 @@ type EventType* {.pure, size:4.} = enum
   QuitRequested,
   ClipboardPasted,
   FilesDropped,
-  Num,
 
 type Keycode* {.pure.} = enum
   Invalid = 0,
@@ -352,4 +351,4 @@ proc wgpuGetDepthStencilView*():pointer {.cdecl, importc:"sapp_wgpu_get_depth_st
 proc androidGetNativeActivity*():pointer {.cdecl, importc:"sapp_android_get_native_activity".}
 
 # Nim-specific API extensions
-include ext/app
+include nim/app
