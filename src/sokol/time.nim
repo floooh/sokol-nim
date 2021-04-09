@@ -21,4 +21,4 @@ proc us*(ticks:uint64):float64 {.cdecl, importc:"stm_us".}
 proc ns*(ticks:uint64):float64 {.cdecl, importc:"stm_ns".}
 
 # Nim-specific API extensions
-include ext/time
+include nim/time

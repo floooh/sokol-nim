@@ -171,4 +171,4 @@ proc end*():void {.cdecl, importc:"sgl_end".}
 proc draw*():void {.cdecl, importc:"sgl_draw".}
 
 # Nim-specific API extensions
-include ext/gl
+include nim/gl
