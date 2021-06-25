@@ -8,6 +8,10 @@ elif defined(macosx):
 elif defined(ios):
   {.passc:"-x objective-c".}
   {.passl:"-framework Foundation -framework UIKit".}
+elif defined(emscripten):
+  {.passc:"-DSOKOL_GLES3".}
+  {.passL: "-s USE_WEBGL2=1".}
+  {.passl:"-lGL -ldl".}
 else:
   {.passl:"-lX11 -lXi -lXcursor -ldl -lpthread -lm".}
 
