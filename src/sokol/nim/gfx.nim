@@ -4,22 +4,32 @@ when defined(gl):
   const gl*    = true
   const d3d11* = false
   const metal* = false
+  const emscripten* = false
 elif defined(windows):
   const gl*    = false
   const d3d11* = true
   const metal* = false
+  const emscripten* = false
 elif defined(macosx):
   const gl*    = false
   const d3d11* = false
   const metal* = true
+  const emscripten* = false
 elif defined(ios):
   const gl*    = false
   const d3d11* = false
   const metal* = true
+  const emscripten* = false
 elif defined(linux):
   const gl*    = true
   const d3d11* = false
   const metal* = false
+  const emscripten* = false
+elif defined(emscripten):
+  const gl*    = false
+  const d3d11* = false
+  const metal* = false
+  const emscripten* = true
 else:
   error("unsupported platform")
 
