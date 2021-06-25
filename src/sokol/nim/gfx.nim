@@ -20,16 +20,16 @@ elif defined(ios):
   const d3d11* = false
   const metal* = true
   const emscripten* = false
-elif defined(linux):
-  const gl*    = true
-  const d3d11* = false
-  const metal* = false
-  const emscripten* = false
 elif defined(emscripten):
   const gl*    = false
   const d3d11* = false
   const metal* = false
   const emscripten* = true
+elif defined(linux):
+  const gl*    = true
+  const d3d11* = false
+  const metal* = false
+  const emscripten* = false
 else:
   error("unsupported platform")
 
@@ -60,6 +60,10 @@ elif defined(ios):
   else:
     {.passc:"-DSOKOL_METAL".}
     {.passl:"-framework Metal -framework MetalKit".}
+elif defined(emscripten):
+  {.passc:"-DSOKOL_GLES3".}
+  {.passL: "-s USE_WEBGL2=1".}
+  {.passl:"-lGL -ldl".}
 elif defined(linux):
   {.passc:"-DSOKOL_GLCORE33".}
   {.passl:"-lX11 -lXi -lXcursor -lGL -ldl -lpthread -lm".}
