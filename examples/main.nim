@@ -12,7 +12,7 @@ var fail*: proc(s: string)
 
 var frame*: proc()
 
-proc sokol_main():app.Desc {.cdecl, exportc:"sokol_main".} =
+proc sokol_main(argc, argv: cint): app.Desc {.cdecl, exportc:"sokol_main".} =
   proc NimMain() {.importc.}
   app.Desc(
     # callbacks

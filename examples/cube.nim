@@ -93,7 +93,23 @@ let shader = gfx.makeShader(ShaderDesc(
       )
     ],
     source:
-      when gfx.gl: # compiled for OpenGL or OpenGL ES
+      when gfx.emscripten:
+        """
+        precision mediump float;
+
+        uniform mat4 mvp;
+
+        attribute vec4 position;
+        attribute vec4 color0;
+
+        varying vec4 color;
+
+        void main() {
+            gl_Position = mvp * position;
+            color = color0;
+        }
+        """
+      elif gfx.gl: # compiled for OpenGL or OpenGL ES
         """
         #version 330
         uniform mat4 mvp;
@@ -157,7 +173,17 @@ let shader = gfx.makeShader(ShaderDesc(
   ),
   fs:ShaderStageDesc(
     source:
-      when gfx.gl:
+      when gfx.emscripten:
+        """
+        precision mediump float;
+
+        varying vec4 color;
+
+        void main() {
+            gl_FragColor = color;
+        }
+        """
+      elif gfx.gl:
         """
         #version 330
 
