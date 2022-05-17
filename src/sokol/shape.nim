@@ -3,24 +3,24 @@
 import gfx
 
 type Range* = object
-  source*:pointer
-  size*:int
+  `ptr`*:pointer
+  size*:csize_t
 
 type Mat4* = object
-  m*:array[4, array[4, float32]]
+  m*:array[4, array[4, cfloat]]
 
 type Vertex* = object
-  x*:float32
-  y*:float32
-  z*:float32
+  x*:cfloat
+  y*:cfloat
+  z*:cfloat
   normal*:uint32
   u*:uint16
   v*:uint16
   color*:uint32
 
 type ElementRange* = object
-  baseElement*:int32
-  numElements*:int32
+  baseElement*:cint
+  numElements*:cint
 
 type SizesItem* = object
   num*:uint32
@@ -32,8 +32,8 @@ type Sizes* = object
 
 type BufferItem* = object
   buffer*:Range
-  dataSize*:int
-  shapeOffset*:int
+  dataSize*:csize_t
+  shapeOffset*:csize_t
 
 type Buffer* = object
   valid*:bool
@@ -41,8 +41,8 @@ type Buffer* = object
   indices*:BufferItem
 
 type Plane* = object
-  width*:float32
-  depth*:float32
+  width*:cfloat
+  depth*:cfloat
   tiles*:uint16
   color*:uint32
   randomColors*:bool
@@ -50,9 +50,9 @@ type Plane* = object
   transform*:Mat4
 
 type Box* = object
-  width*:float32
-  height*:float32
-  depth*:float32
+  width*:cfloat
+  height*:cfloat
+  depth*:cfloat
   tiles*:uint16
   color*:uint32
   randomColors*:bool
@@ -60,7 +60,7 @@ type Box* = object
   transform*:Mat4
 
 type Sphere* = object
-  radius*:float32
+  radius*:cfloat
   slices*:uint16
   stacks*:uint16
   color*:uint32
@@ -69,8 +69,8 @@ type Sphere* = object
   transform*:Mat4
 
 type Cylinder* = object
-  radius*:float32
-  height*:float32
+  radius*:cfloat
+  height*:cfloat
   slices*:uint16
   stacks*:uint16
   color*:uint32
@@ -79,8 +79,8 @@ type Cylinder* = object
   transform*:Mat4
 
 type Torus* = object
-  radius*:float32
-  ringRadius*:float32
+  radius*:cfloat
+  ringRadius*:cfloat
   sides*:uint16
   rings*:uint16
   color*:uint32
@@ -110,31 +110,31 @@ proc torusSizes*(sides:uint32, rings:uint32):Sizes {.cdecl, importc:"sshape_toru
 
 proc elementRange*(buf:ptr Buffer):ElementRange {.cdecl, importc:"sshape_element_range".}
 
-proc vertexBufferDesc*(buf:ptr Buffer):sg.BufferDesc {.cdecl, importc:"sshape_vertex_buffer_desc".}
+proc vertexBufferDesc*(buf:ptr Buffer):gfx.BufferDesc {.cdecl, importc:"sshape_vertex_buffer_desc".}
 
-proc indexBufferDesc*(buf:ptr Buffer):sg.BufferDesc {.cdecl, importc:"sshape_index_buffer_desc".}
+proc indexBufferDesc*(buf:ptr Buffer):gfx.BufferDesc {.cdecl, importc:"sshape_index_buffer_desc".}
 
-proc bufferLayoutDesc*():sg.BufferLayoutDesc {.cdecl, importc:"sshape_buffer_layout_desc".}
+proc bufferLayoutDesc*():gfx.BufferLayoutDesc {.cdecl, importc:"sshape_buffer_layout_desc".}
 
-proc positionAttrDesc*():sg.VertexAttrDesc {.cdecl, importc:"sshape_position_attr_desc".}
+proc positionAttrDesc*():gfx.VertexAttrDesc {.cdecl, importc:"sshape_position_attr_desc".}
 
-proc normalAttrDesc*():sg.VertexAttrDesc {.cdecl, importc:"sshape_normal_attr_desc".}
+proc normalAttrDesc*():gfx.VertexAttrDesc {.cdecl, importc:"sshape_normal_attr_desc".}
 
-proc texcoordAttrDesc*():sg.VertexAttrDesc {.cdecl, importc:"sshape_texcoord_attr_desc".}
+proc texcoordAttrDesc*():gfx.VertexAttrDesc {.cdecl, importc:"sshape_texcoord_attr_desc".}
 
-proc colorAttrDesc*():sg.VertexAttrDesc {.cdecl, importc:"sshape_color_attr_desc".}
+proc colorAttrDesc*():gfx.VertexAttrDesc {.cdecl, importc:"sshape_color_attr_desc".}
 
-proc color4f*(r:float32, g:float32, b:float32, a:float32):uint32 {.cdecl, importc:"sshape_color_4f".}
+proc color4f*(r:cfloat, g:cfloat, b:cfloat, a:cfloat):uint32 {.cdecl, importc:"sshape_color_4f".}
 
-proc color3f*(r:float32, g:float32, b:float32):uint32 {.cdecl, importc:"sshape_color_3f".}
+proc color3f*(r:cfloat, g:cfloat, b:cfloat):uint32 {.cdecl, importc:"sshape_color_3f".}
 
 proc color4b*(r:uint8, g:uint8, b:uint8, a:uint8):uint32 {.cdecl, importc:"sshape_color_4b".}
 
 proc color3b*(r:uint8, g:uint8, b:uint8):uint32 {.cdecl, importc:"sshape_color_3b".}
 
-proc mat4*(m:ptr float32):Mat4 {.cdecl, importc:"sshape_mat4".}
+proc mat4*(m:ptr cfloat):Mat4 {.cdecl, importc:"sshape_mat4".}
 
-proc mat4Transpose*(m:ptr float32):Mat4 {.cdecl, importc:"sshape_mat4_transpose".}
+proc mat4Transpose*(m:ptr cfloat):Mat4 {.cdecl, importc:"sshape_mat4_transpose".}
 
 # Nim-specific API extensions
-include nim/shape
+include extra/shape

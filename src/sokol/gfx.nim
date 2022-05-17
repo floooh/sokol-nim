@@ -19,104 +19,106 @@ type Context* = object
   id*:uint32
 
 type Range* = object
-  source*:pointer
-  size*:int
+  `ptr`*:pointer
+  size*:csize_t
 
 const
-  INVALID_ID* = 0
-  NUM_SHADER_STAGES* = 2
-  NUM_INFLIGHT_FRAMES* = 2
-  MAX_COLOR_ATTACHMENTS* = 4
-  MAX_SHADERSTAGE_BUFFERS* = 8
-  MAX_SHADERSTAGE_IMAGES* = 12
-  MAX_SHADERSTAGE_UBS* = 4
-  MAX_UB_MEMBERS* = 16
-  MAX_VERTEX_ATTRIBUTES* = 16
-  MAX_MIPMAPS* = 16
-  MAX_TEXTUREARRAY_LAYERS* = 128
+  invalidId* = 0
+  numShaderStages* = 2
+  numInflightFrames* = 2
+  maxColorAttachments* = 4
+  maxShaderstageBuffers* = 8
+  maxShaderstageImages* = 12
+  maxShaderstageUbs* = 4
+  maxUbMembers* = 16
+  maxVertexAttributes* = 16
+  maxMipmaps* = 16
+  maxTexturearrayLayers* = 128
 
 type Color* = object
-  r*:float32
-  g*:float32
-  b*:float32
-  a*:float32
+  r*:cfloat
+  g*:cfloat
+  b*:cfloat
+  a*:cfloat
 
-type Backend* {.pure.} = enum
-  Glcore33,
-  Gles2,
-  Gles3,
-  D3d11,
-  MetalIos,
-  MetalMacos,
-  MetalSimulator,
-  Wgpu,
-  Dummy,
+type
+  Backend* {.pure.} = enum
+    glcore33,
+    gles2,
+    gles3,
+    d3d11,
+    metalIos,
+    metalMacos,
+    metalSimulator,
+    wgpu,
+    dummy,
 
-type PixelFormat* {.pure, size:4.} = enum
-  Default,
-  None,
-  R8,
-  R8sn,
-  R8ui,
-  R8si,
-  R16,
-  R16sn,
-  R16ui,
-  R16si,
-  R16f,
-  Rg8,
-  Rg8sn,
-  Rg8ui,
-  Rg8si,
-  R32ui,
-  R32si,
-  R32f,
-  Rg16,
-  Rg16sn,
-  Rg16ui,
-  Rg16si,
-  Rg16f,
-  Rgba8,
-  Rgba8sn,
-  Rgba8ui,
-  Rgba8si,
-  Bgra8,
-  Rgb10a2,
-  Rg11b10f,
-  Rg32ui,
-  Rg32si,
-  Rg32f,
-  Rgba16,
-  Rgba16sn,
-  Rgba16ui,
-  Rgba16si,
-  Rgba16f,
-  Rgba32ui,
-  Rgba32si,
-  Rgba32f,
-  Depth,
-  DepthStencil,
-  Bc1Rgba,
-  Bc2Rgba,
-  Bc3Rgba,
-  Bc4R,
-  Bc4Rsn,
-  Bc5Rg,
-  Bc5Rgsn,
-  Bc6hRgbf,
-  Bc6hRgbuf,
-  Bc7Rgba,
-  PvrtcRgb2bpp,
-  PvrtcRgb4bpp,
-  PvrtcRgba2bpp,
-  PvrtcRgba4bpp,
-  Etc2Rgb8,
-  Etc2Rgb8a1,
-  Etc2Rgba8,
-  Etc2Rg11,
-  Etc2Rg11sn,
+type
+  PixelFormat* {.pure, size:sizeof(cint).} = enum
+    default,
+    none,
+    r8,
+    r8sn,
+    r8ui,
+    r8si,
+    r16,
+    r16sn,
+    r16ui,
+    r16si,
+    r16f,
+    rg8,
+    rg8sn,
+    rg8ui,
+    rg8si,
+    r32ui,
+    r32si,
+    r32f,
+    rg16,
+    rg16sn,
+    rg16ui,
+    rg16si,
+    rg16f,
+    rgba8,
+    rgba8sn,
+    rgba8ui,
+    rgba8si,
+    bgra8,
+    rgb10a2,
+    rg11b10f,
+    rg32ui,
+    rg32si,
+    rg32f,
+    rgba16,
+    rgba16sn,
+    rgba16ui,
+    rgba16si,
+    rgba16f,
+    rgba32ui,
+    rgba32si,
+    rgba32f,
+    depth,
+    depthStencil,
+    bc1Rgba,
+    bc2Rgba,
+    bc3Rgba,
+    bc4R,
+    bc4Rsn,
+    bc5Rg,
+    bc5Rgsn,
+    bc6hRgbf,
+    bc6hRgbuf,
+    bc7Rgba,
+    pvrtcRgb2bpp,
+    pvrtcRgb4bpp,
+    pvrtcRgba2bpp,
+    pvrtcRgba4bpp,
+    etc2Rgb8,
+    etc2Rgb8a1,
+    etc2Rgba8,
+    etc2Rg11,
+    etc2Rg11sn,
 
-type PixelFormatInfo* = object
+type PixelformatInfo* = object
   sample*:bool
   filter*:bool
   render*:bool
@@ -136,204 +138,238 @@ type Features* = object
   mrtIndependentWriteMask*:bool
 
 type Limits* = object
-  maxImageSize2d*:int32
-  maxImageSizeCube*:int32
-  maxImageSize3d*:int32
-  maxImageSizeArray*:int32
-  maxImageArrayLayers*:int32
-  maxVertexAttrs*:int32
+  maxImageSize2d*:cint
+  maxImageSizeCube*:cint
+  maxImageSize3d*:cint
+  maxImageSizeArray*:cint
+  maxImageArrayLayers*:cint
+  maxVertexAttrs*:cint
+  glMaxVertexUniformVectors*:cint
 
-type ResourceState* {.pure, size:4.} = enum
-  Initial,
-  Alloc,
-  Valid,
-  Failed,
-  Invalid,
+type
+  ResourceState* {.pure, size:sizeof(cint).} = enum
+    initial,
+    alloc,
+    valid,
+    failed,
+    invalid,
 
-type Usage* {.pure, size:4.} = enum
-  Default,
-  Immutable,
-  Dynamic,
-  Stream,
+type
+  Usage* {.pure, size:sizeof(cint).} = enum
+    default,
+    immutable,
+    dynamic,
+    stream,
 
-type BufferType* {.pure, size:4.} = enum
-  Default,
-  VertexBuffer,
-  IndexBuffer,
+type
+  BufferType* {.pure, size:sizeof(cint).} = enum
+    default,
+    vertexBuffer,
+    indexBuffer,
 
-type IndexType* {.pure, size:4.} = enum
-  Default,
-  None,
-  Uint16,
-  Uint32,
+type
+  IndexType* {.pure, size:sizeof(cint).} = enum
+    default,
+    none,
+    `uint16`,
+    `uint32`,
 
-type ImageType* {.pure, size:4.} = enum
-  Default,
-  Plane,
-  Cube,
-  Volume,
-  Array,
+type
+  ImageType* {.pure, size:sizeof(cint).} = enum
+    default,
+    plane,
+    cube,
+    volume,
+    array,
 
-type SamplerType* {.pure.} = enum
-  Default,
-  Float,
-  Sint,
-  Uint,
+type
+  SamplerType* {.pure.} = enum
+    default,
+    `float`,
+    sint,
+    `uint`,
 
-type CubeFace* {.pure, size:4.} = enum
-  PosX,
-  NegX,
-  PosY,
-  NegY,
-  PosZ,
-  NegZ,
+type
+  CubeFace* {.pure, size:sizeof(cint).} = enum
+    posX,
+    negX,
+    posY,
+    negY,
+    posZ,
+    negZ,
 
-type ShaderStage* {.pure, size:4.} = enum
-  Vertex,
-  Fragment,
+type
+  ShaderStage* {.pure, size:sizeof(cint).} = enum
+    vs,
+    fs,
 
-type PrimitiveType* {.pure, size:4.} = enum
-  Default,
-  Points,
-  Lines,
-  LineStrip,
-  Triangles,
-  TriangleStrip,
+type
+  PrimitiveType* {.pure, size:sizeof(cint).} = enum
+    default,
+    points,
+    lines,
+    lineStrip,
+    triangles,
+    triangleStrip,
 
-type Filter* {.pure, size:4.} = enum
-  Default,
-  Nearest,
-  Linear,
-  NearestMipmapNearest,
-  NearestMipmapLinear,
-  LinearMipmapNearest,
-  LinearMipmapLinear,
+type
+  Filter* {.pure, size:sizeof(cint).} = enum
+    default,
+    nearest,
+    linear,
+    nearestMipmapNearest,
+    nearestMipmapLinear,
+    linearMipmapNearest,
+    linearMipmapLinear,
 
-type Wrap* {.pure, size:4.} = enum
-  Default,
-  Repeat,
-  ClampToEdge,
-  ClampToBorder,
-  MirroredRepeat,
+type
+  Wrap* {.pure, size:sizeof(cint).} = enum
+    default,
+    repeat,
+    clampToEdge,
+    clampToBorder,
+    mirroredRepeat,
 
-type BorderColor* {.pure, size:4.} = enum
-  Default,
-  TransparentBlack,
-  OpaqueBlack,
-  OpaqueWhite,
+type
+  BorderColor* {.pure, size:sizeof(cint).} = enum
+    default,
+    transparentBlack,
+    opaqueBlack,
+    opaqueWhite,
 
-type VertexFormat* {.pure, size:4.} = enum
-  Invalid,
-  Float,
-  Float2,
-  Float3,
-  Float4,
-  Byte4,
-  Byte4n,
-  Ubyte4,
-  Ubyte4n,
-  Short2,
-  Short2n,
-  Ushort2n,
-  Short4,
-  Short4n,
-  Ushort4n,
-  Uint10N2,
+type
+  VertexFormat* {.pure, size:sizeof(cint).} = enum
+    invalid,
+    `float`,
+    float2,
+    float3,
+    float4,
+    byte4,
+    byte4n,
+    ubyte4,
+    ubyte4n,
+    short2,
+    short2n,
+    ushort2n,
+    short4,
+    short4n,
+    ushort4n,
+    uint10N2,
 
-type VertexStep* {.pure, size:4.} = enum
-  Default,
-  PerVertex,
-  PerInstance,
+type
+  VertexStep* {.pure, size:sizeof(cint).} = enum
+    default,
+    perVertex,
+    perInstance,
 
-type UniformType* {.pure, size:4.} = enum
-  Invalid,
-  Float,
-  Float2,
-  Float3,
-  Float4,
-  Mat4,
+type
+  UniformType* {.pure, size:sizeof(cint).} = enum
+    invalid,
+    `float`,
+    float2,
+    float3,
+    float4,
+    `int`,
+    int2,
+    int3,
+    int4,
+    mat4,
 
-type CullMode* {.pure, size:4.} = enum
-  Default,
-  None,
-  Front,
-  Back,
+type
+  UniformLayout* {.pure, size:sizeof(cint).} = enum
+    default,
+    native,
+    std140,
 
-type FaceWinding* {.pure, size:4.} = enum
-  Default,
-  Ccw,
-  Cw,
+type
+  CullMode* {.pure, size:sizeof(cint).} = enum
+    default,
+    none,
+    front,
+    back,
 
-type CompareFunc* {.pure, size:4.} = enum
-  Default,
-  Never,
-  Less,
-  Equal,
-  LessEqual,
-  Greater,
-  NotEqual,
-  GreaterEqual,
-  Always,
+type
+  FaceWinding* {.pure, size:sizeof(cint).} = enum
+    default,
+    ccw,
+    cw,
 
-type StencilOp* {.pure, size:4.} = enum
-  Default,
-  Keep,
-  Zero,
-  Replace,
-  IncrClamp,
-  DecrClamp,
-  Invert,
-  IncrWrap,
-  DecrWrap,
+type
+  CompareFunc* {.pure, size:sizeof(cint).} = enum
+    default,
+    never,
+    less,
+    equal,
+    lessEqual,
+    greater,
+    notEqual,
+    greaterEqual,
+    always,
 
-type BlendFactor* {.pure, size:4.} = enum
-  Default,
-  Zero,
-  One,
-  SrcColor,
-  OneMinusSrcColor,
-  SrcAlpha,
-  OneMinusSrcAlpha,
-  DstColor,
-  OneMinusDstColor,
-  DstAlpha,
-  OneMinusDstAlpha,
-  SrcAlphaSaturated,
-  BlendColor,
-  OneMinusBlendColor,
-  BlendAlpha,
-  OneMinusBlendAlpha,
+type
+  StencilOp* {.pure, size:sizeof(cint).} = enum
+    default,
+    keep,
+    zero,
+    replace,
+    incrClamp,
+    decrClamp,
+    invert,
+    incrWrap,
+    decrWrap,
 
-type BlendOp* {.pure, size:4.} = enum
-  Default,
-  Add,
-  Subtract,
-  ReverseSubtract,
+type
+  BlendFactor* {.pure, size:sizeof(cint).} = enum
+    default,
+    zero,
+    one,
+    srcColor,
+    oneMinusSrcColor,
+    srcAlpha,
+    oneMinusSrcAlpha,
+    dstColor,
+    oneMinusDstColor,
+    dstAlpha,
+    oneMinusDstAlpha,
+    srcAlphaSaturated,
+    blendColor,
+    oneMinusBlendColor,
+    blendAlpha,
+    oneMinusBlendAlpha,
 
-type ColorMask* {.pure, size:4.} = enum
-  Default = 0,
-  R = 1,
-  G = 2,
-  Rg = 3,
-  B = 4,
-  Rb = 5,
-  Gb = 6,
-  Rgb = 7,
-  A = 8,
-  Ra = 9,
-  Ga = 10,
-  Rga = 11,
-  Ba = 12,
-  Rba = 13,
-  Gba = 14,
-  Rgba = 15,
-  None = 16,
+type
+  BlendOp* {.pure, size:sizeof(cint).} = enum
+    default,
+    add,
+    subtract,
+    reverseSubtract,
 
-type Action* {.pure, size:4.} = enum
-  Default,
-  Clear,
-  Load,
-  DontCare,
+type
+  ColorMask* {.pure, size:sizeof(cint).} = enum
+    default = 0,
+    r = 1,
+    g = 2,
+    rg = 3,
+    b = 4,
+    rb = 5,
+    gb = 6,
+    rgb = 7,
+    a = 8,
+    ra = 9,
+    ga = 10,
+    rga = 11,
+    ba = 12,
+    rba = 13,
+    gba = 14,
+    rgba = 15,
+    none = 16,
+
+type
+  Action* {.pure, size:sizeof(cint).} = enum
+    default,
+    clear,
+    load,
+    dontCare,
 
 type ColorAttachmentAction* = object
   action*:Action
@@ -341,7 +377,7 @@ type ColorAttachmentAction* = object
 
 type DepthAttachmentAction* = object
   action*:Action
-  value*:float32
+  value*:cfloat
 
 type StencilAttachmentAction* = object
   action*:Action
@@ -357,16 +393,16 @@ type PassAction* = object
 type Bindings* = object
   startCanary:uint32
   vertexBuffers*:array[8, Buffer]
-  vertexBufferOffsets*:array[8, int32]
+  vertexBufferOffsets*:array[8, cint]
   indexBuffer*:Buffer
-  indexBufferOffset*:int32
+  indexBufferOffset*:cint
   vsImages*:array[12, Image]
   fsImages*:array[12, Image]
   endCanary:uint32
 
 type BufferDesc* = object
   startCanary:uint32
-  size*:int
+  size*:csize_t
   `type`*:BufferType
   usage*:Usage
   data*:Range
@@ -384,13 +420,13 @@ type ImageDesc* = object
   startCanary:uint32
   `type`*:ImageType
   renderTarget*:bool
-  width*:int32
-  height*:int32
-  numSlices*:int32
-  numMipmaps*:int32
+  width*:cint
+  height*:cint
+  numSlices*:cint
+  numMipmaps*:cint
   usage*:Usage
   pixelFormat*:PixelFormat
-  sampleCount*:int32
+  sampleCount*:cint
   minFilter*:Filter
   magFilter*:Filter
   wrapU*:Wrap
@@ -398,8 +434,8 @@ type ImageDesc* = object
   wrapW*:Wrap
   borderColor*:BorderColor
   maxAnisotropy*:uint32
-  minLod*:float32
-  maxLod*:float32
+  minLod*:cfloat
+  maxLod*:cfloat
   data*:ImageData
   label*:cstring
   glTextures*:array[2, uint32]
@@ -413,15 +449,16 @@ type ImageDesc* = object
 type ShaderAttrDesc* = object
   name*:cstring
   semName*:cstring
-  semIndex*:int32
+  semIndex*:cint
 
 type ShaderUniformDesc* = object
   name*:cstring
   `type`*:UniformType
-  arrayCount*:int32
+  arrayCount*:cint
 
 type ShaderUniformBlockDesc* = object
-  size*:int
+  size*:csize_t
+  layout*:UniformLayout
   uniforms*:array[16, ShaderUniformDesc]
 
 type ShaderImageDesc* = object
@@ -446,13 +483,13 @@ type ShaderDesc* = object
   endCanary:uint32
 
 type BufferLayoutDesc* = object
-  stride*:int32
+  stride*:cint
   stepFunc*:VertexStep
-  stepRate*:int32
+  stepRate*:cint
 
 type VertexAttrDesc* = object
-  bufferIndex*:int32
-  offset*:int32
+  bufferIndex*:cint
+  offset*:cint
   format*:VertexFormat
 
 type LayoutDesc* = object
@@ -477,9 +514,9 @@ type DepthState* = object
   pixelFormat*:PixelFormat
   compare*:CompareFunc
   writeEnabled*:bool
-  bias*:float32
-  biasSlopeScale*:float32
-  biasClamp*:float32
+  bias*:cfloat
+  biasSlopeScale*:cfloat
+  biasClamp*:cfloat
 
 type BlendState* = object
   enabled*:bool
@@ -501,13 +538,13 @@ type PipelineDesc* = object
   layout*:LayoutDesc
   depth*:DepthState
   stencil*:StencilState
-  colorCount*:int32
+  colorCount*:cint
   colors*:array[4, ColorState]
   primitiveType*:PrimitiveType
   indexType*:IndexType
   cullMode*:CullMode
   faceWinding*:FaceWinding
-  sampleCount*:int32
+  sampleCount*:cint
   blendColor*:Color
   alphaToCoverageEnabled*:bool
   label*:cstring
@@ -515,8 +552,8 @@ type PipelineDesc* = object
 
 type PassAttachmentDesc* = object
   image*:Image
-  mipLevel*:int32
-  slice*:int32
+  mipLevel*:cint
+  slice*:cint
 
 type PassDesc* = object
   startCanary:uint32
@@ -540,15 +577,15 @@ type TraceHooks* = object
   destroyPass*:proc(a1:Pass, a2:pointer) {.cdecl.}
   updateBuffer*:proc(a1:Buffer, a2:ptr Range, a3:pointer) {.cdecl.}
   updateImage*:proc(a1:Image, a2:ptr ImageData, a3:pointer) {.cdecl.}
-  appendBuffer*:proc(a1:Buffer, a2:ptr Range, a3:int32, a4:pointer) {.cdecl.}
-  beginDefaultPass*:proc(a1:ptr PassAction, a2:int32, a3:int32, a4:pointer) {.cdecl.}
+  appendBuffer*:proc(a1:Buffer, a2:ptr Range, a3:cint, a4:pointer) {.cdecl.}
+  beginDefaultPass*:proc(a1:ptr PassAction, a2:cint, a3:cint, a4:pointer) {.cdecl.}
   beginPass*:proc(a1:Pass, a2:ptr PassAction, a3:pointer) {.cdecl.}
-  applyViewport*:proc(a1:int32, a2:int32, a3:int32, a4:int32, a5:bool, a6:pointer) {.cdecl.}
-  applyScissorRect*:proc(a1:int32, a2:int32, a3:int32, a4:int32, a5:bool, a6:pointer) {.cdecl.}
+  applyViewport*:proc(a1:cint, a2:cint, a3:cint, a4:cint, a5:bool, a6:pointer) {.cdecl.}
+  applyScissorRect*:proc(a1:cint, a2:cint, a3:cint, a4:cint, a5:bool, a6:pointer) {.cdecl.}
   applyPipeline*:proc(a1:Pipeline, a2:pointer) {.cdecl.}
   applyBindings*:proc(a1:ptr Bindings, a2:pointer) {.cdecl.}
-  applyUniforms*:proc(a1:ShaderStage, a2:int32, a3:ptr Range, a4:pointer) {.cdecl.}
-  draw*:proc(a1:int32, a2:int32, a3:int32, a4:pointer) {.cdecl.}
+  applyUniforms*:proc(a1:ShaderStage, a2:cint, a3:ptr Range, a4:pointer) {.cdecl.}
+  draw*:proc(a1:cint, a2:cint, a3:cint, a4:pointer) {.cdecl.}
   endPass*:proc(a1:pointer) {.cdecl.}
   commit*:proc(a1:pointer) {.cdecl.}
   allocBuffer*:proc(a1:Buffer, a2:pointer) {.cdecl.}
@@ -597,18 +634,18 @@ type BufferInfo* = object
   slot*:SlotInfo
   updateFrameIndex*:uint32
   appendFrameIndex*:uint32
-  appendPos*:int32
+  appendPos*:cint
   appendOverflow*:bool
-  numSlots*:int32
-  activeSlot*:int32
+  numSlots*:cint
+  activeSlot*:cint
 
 type ImageInfo* = object
   slot*:SlotInfo
   updFrameIndex*:uint32
-  numSlots*:int32
-  activeSlot*:int32
-  width*:int32
-  height*:int32
+  numSlots*:cint
+  activeSlot*:cint
+  width*:cint
+  height*:cint
 
 type ShaderInfo* = object
   slot*:SlotInfo
@@ -652,23 +689,29 @@ type WgpuContextDesc* = object
 type ContextDesc* = object
   colorFormat*:PixelFormat
   depthFormat*:PixelFormat
-  sampleCount*:int32
+  sampleCount*:cint
   gl*:GlContextDesc
   metal*:MetalContextDesc
   d3d11*:D3d11ContextDesc
   wgpu*:WgpuContextDesc
 
+type Allocator* = object
+  alloc*:proc(a1:csize_t, a2:pointer):pointer {.cdecl.}
+  free*:proc(a1:pointer, a2:pointer) {.cdecl.}
+  userData*:pointer
+
 type Desc* = object
   startCanary:uint32
-  bufferPoolSize*:int32
-  imagePoolSize*:int32
-  shaderPoolSize*:int32
-  pipelinePoolSize*:int32
-  passPoolSize*:int32
-  contextPoolSize*:int32
-  uniformBufferSize*:int32
-  stagingBufferSize*:int32
-  samplerCacheSize*:int32
+  bufferPoolSize*:cint
+  imagePoolSize*:cint
+  shaderPoolSize*:cint
+  pipelinePoolSize*:cint
+  passPoolSize*:cint
+  contextPoolSize*:cint
+  uniformBufferSize*:cint
+  stagingBufferSize*:cint
+  samplerCacheSize*:cint
+  allocator*:Allocator
   context*:ContextDesc
   endCanary:uint32
 
@@ -710,31 +753,31 @@ proc updateBuffer*(buf:Buffer, data:ptr Range):void {.cdecl, importc:"sg_update_
 
 proc updateImage*(img:Image, data:ptr ImageData):void {.cdecl, importc:"sg_update_image".}
 
-proc appendBuffer*(buf:Buffer, data:ptr Range):int32 {.cdecl, importc:"sg_append_buffer".}
+proc appendBuffer*(buf:Buffer, data:ptr Range):cint {.cdecl, importc:"sg_append_buffer".}
 
 proc queryBufferOverflow*(buf:Buffer):bool {.cdecl, importc:"sg_query_buffer_overflow".}
 
-proc beginDefaultPass*(pass_action:ptr PassAction, width:int32, height:int32):void {.cdecl, importc:"sg_begin_default_pass".}
+proc beginDefaultPass*(pass_action:ptr PassAction, width:cint, height:cint):void {.cdecl, importc:"sg_begin_default_pass".}
 
-proc beginDefaultPassf*(pass_action:ptr PassAction, width:float32, height:float32):void {.cdecl, importc:"sg_begin_default_passf".}
+proc beginDefaultPassf*(pass_action:ptr PassAction, width:cfloat, height:cfloat):void {.cdecl, importc:"sg_begin_default_passf".}
 
 proc beginPass*(pass:Pass, pass_action:ptr PassAction):void {.cdecl, importc:"sg_begin_pass".}
 
-proc applyViewport*(x:int32, y:int32, width:int32, height:int32, origin_top_left:bool):void {.cdecl, importc:"sg_apply_viewport".}
+proc applyViewport*(x:cint, y:cint, width:cint, height:cint, origin_top_left:bool):void {.cdecl, importc:"sg_apply_viewport".}
 
-proc applyViewportf*(x:float32, y:float32, width:float32, height:float32, origin_top_left:bool):void {.cdecl, importc:"sg_apply_viewportf".}
+proc applyViewportf*(x:cfloat, y:cfloat, width:cfloat, height:cfloat, origin_top_left:bool):void {.cdecl, importc:"sg_apply_viewportf".}
 
-proc applyScissorRect*(x:int32, y:int32, width:int32, height:int32, origin_top_left:bool):void {.cdecl, importc:"sg_apply_scissor_rect".}
+proc applyScissorRect*(x:cint, y:cint, width:cint, height:cint, origin_top_left:bool):void {.cdecl, importc:"sg_apply_scissor_rect".}
 
-proc applyScissorRectf*(x:float32, y:float32, width:float32, height:float32, origin_top_left:bool):void {.cdecl, importc:"sg_apply_scissor_rectf".}
+proc applyScissorRectf*(x:cfloat, y:cfloat, width:cfloat, height:cfloat, origin_top_left:bool):void {.cdecl, importc:"sg_apply_scissor_rectf".}
 
 proc applyPipeline*(pip:Pipeline):void {.cdecl, importc:"sg_apply_pipeline".}
 
 proc applyBindings*(bindings:ptr Bindings):void {.cdecl, importc:"sg_apply_bindings".}
 
-proc applyUniforms*(stage:ShaderStage, ub_index:int32, data:ptr Range):void {.cdecl, importc:"sg_apply_uniforms".}
+proc applyUniforms*(stage:ShaderStage, ub_index:cint, data:ptr Range):void {.cdecl, importc:"sg_apply_uniforms".}
 
-proc draw*(base_element:int32, num_elements:int32, num_instances:int32):void {.cdecl, importc:"sg_draw".}
+proc draw*(base_element:cint, num_elements:cint, num_instances:cint):void {.cdecl, importc:"sg_draw".}
 
 proc endPass*():void {.cdecl, importc:"sg_end_pass".}
 
@@ -748,7 +791,7 @@ proc queryFeatures*():Features {.cdecl, importc:"sg_query_features".}
 
 proc queryLimits*():Limits {.cdecl, importc:"sg_query_limits".}
 
-proc queryPixelformat*(fmt:PixelFormat):PixelFormatInfo {.cdecl, importc:"sg_query_pixelformat".}
+proc queryPixelformat*(fmt:PixelFormat):PixelformatInfo {.cdecl, importc:"sg_query_pixelformat".}
 
 proc queryBufferState*(buf:Buffer):ResourceState {.cdecl, importc:"sg_query_buffer_state".}
 
@@ -843,4 +886,4 @@ proc mtlDevice*():pointer {.cdecl, importc:"sg_mtl_device".}
 proc mtlRenderCommandEncoder*():pointer {.cdecl, importc:"sg_mtl_render_command_encoder".}
 
 # Nim-specific API extensions
-include nim/gfx
+include extra/gfx

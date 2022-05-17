@@ -1,175 +1,186 @@
 ## machine generated, do not edit
 
 const
-  MAX_TOUCHPOINTS* = 8
-  MAX_MOUSEBUTTONS* = 3
-  MAX_KEYCODES* = 512
+  maxTouchpoints* = 8
+  maxMousebuttons* = 3
+  maxKeycodes* = 512
+  maxIconimages* = 8
 
-type EventType* {.pure, size:4.} = enum
-  Invalid,
-  KeyDown,
-  KeyUp,
-  Char,
-  MouseDown,
-  MouseUp,
-  MouseScroll,
-  MouseMove,
-  MouseEnter,
-  MouseLeave,
-  TouchesBegan,
-  TouchesMoved,
-  TouchesEnded,
-  TouchesCancelled,
-  Resized,
-  Iconified,
-  Restored,
-  Suspended,
-  Resumed,
-  UpdateCursor,
-  QuitRequested,
-  ClipboardPasted,
-  FilesDropped,
+type
+  EventType* {.pure, size:sizeof(cint).} = enum
+    invalid,
+    keyDown,
+    keyUp,
+    `char`,
+    mouseDown,
+    mouseUp,
+    mouseScroll,
+    mouseMove,
+    mouseEnter,
+    mouseLeave,
+    touchesBegan,
+    touchesMoved,
+    touchesEnded,
+    touchesCancelled,
+    resized,
+    iconified,
+    restored,
+    focused,
+    unfocused,
+    suspended,
+    resumed,
+    updateCursor,
+    quitRequested,
+    clipboardPasted,
+    filesDropped,
 
-type Keycode* {.pure.} = enum
-  Invalid = 0,
-  Space = 32,
-  Apostrophe = 39,
-  Comma = 44,
-  Minus = 45,
-  Period = 46,
-  Slash = 47,
-  N0 = 48,
-  N1 = 49,
-  N2 = 50,
-  N3 = 51,
-  N4 = 52,
-  N5 = 53,
-  N6 = 54,
-  N7 = 55,
-  N8 = 56,
-  N9 = 57,
-  Semicolon = 59,
-  Equal = 61,
-  A = 65,
-  B = 66,
-  C = 67,
-  D = 68,
-  E = 69,
-  F = 70,
-  G = 71,
-  H = 72,
-  I = 73,
-  J = 74,
-  K = 75,
-  L = 76,
-  M = 77,
-  N = 78,
-  O = 79,
-  P = 80,
-  Q = 81,
-  R = 82,
-  S = 83,
-  T = 84,
-  U = 85,
-  V = 86,
-  W = 87,
-  X = 88,
-  Y = 89,
-  Z = 90,
-  LeftBracket = 91,
-  Backslash = 92,
-  RightBracket = 93,
-  GraveAccent = 96,
-  World1 = 161,
-  World2 = 162,
-  Escape = 256,
-  Enter = 257,
-  Tab = 258,
-  Backspace = 259,
-  Insert = 260,
-  Delete = 261,
-  Right = 262,
-  Left = 263,
-  Down = 264,
-  Up = 265,
-  PageUp = 266,
-  PageDown = 267,
-  Home = 268,
-  End = 269,
-  CapsLock = 280,
-  ScrollLock = 281,
-  NumLock = 282,
-  PrintScreen = 283,
-  Pause = 284,
-  F1 = 290,
-  F2 = 291,
-  F3 = 292,
-  F4 = 293,
-  F5 = 294,
-  F6 = 295,
-  F7 = 296,
-  F8 = 297,
-  F9 = 298,
-  F10 = 299,
-  F11 = 300,
-  F12 = 301,
-  F13 = 302,
-  F14 = 303,
-  F15 = 304,
-  F16 = 305,
-  F17 = 306,
-  F18 = 307,
-  F19 = 308,
-  F20 = 309,
-  F21 = 310,
-  F22 = 311,
-  F23 = 312,
-  F24 = 313,
-  F25 = 314,
-  Kp0 = 320,
-  Kp1 = 321,
-  Kp2 = 322,
-  Kp3 = 323,
-  Kp4 = 324,
-  Kp5 = 325,
-  Kp6 = 326,
-  Kp7 = 327,
-  Kp8 = 328,
-  Kp9 = 329,
-  KpDecimal = 330,
-  KpDivide = 331,
-  KpMultiply = 332,
-  KpSubtract = 333,
-  KpAdd = 334,
-  KpEnter = 335,
-  KpEqual = 336,
-  LeftShift = 340,
-  LeftControl = 341,
-  LeftAlt = 342,
-  LeftSuper = 343,
-  RightShift = 344,
-  RightControl = 345,
-  RightAlt = 346,
-  RightSuper = 347,
-  Menu = 348,
+type
+  Keycode* {.pure.} = enum
+    invalid = 0,
+    space = 32,
+    apostrophe = 39,
+    comma = 44,
+    minus = 45,
+    period = 46,
+    slash = 47,
+    n0 = 48,
+    n1 = 49,
+    n2 = 50,
+    n3 = 51,
+    n4 = 52,
+    n5 = 53,
+    n6 = 54,
+    n7 = 55,
+    n8 = 56,
+    n9 = 57,
+    semicolon = 59,
+    equal = 61,
+    a = 65,
+    b = 66,
+    c = 67,
+    d = 68,
+    e = 69,
+    f = 70,
+    g = 71,
+    h = 72,
+    i = 73,
+    j = 74,
+    k = 75,
+    l = 76,
+    m = 77,
+    n = 78,
+    o = 79,
+    p = 80,
+    q = 81,
+    r = 82,
+    s = 83,
+    t = 84,
+    u = 85,
+    v = 86,
+    w = 87,
+    x = 88,
+    y = 89,
+    z = 90,
+    leftBracket = 91,
+    backslash = 92,
+    rightBracket = 93,
+    graveAccent = 96,
+    world1 = 161,
+    world2 = 162,
+    escape = 256,
+    enter = 257,
+    tab = 258,
+    backspace = 259,
+    insert = 260,
+    delete = 261,
+    right = 262,
+    left = 263,
+    down = 264,
+    up = 265,
+    pageUp = 266,
+    pageDown = 267,
+    home = 268,
+    `end` = 269,
+    capsLock = 280,
+    scrollLock = 281,
+    numLock = 282,
+    printScreen = 283,
+    pause = 284,
+    f1 = 290,
+    f2 = 291,
+    f3 = 292,
+    f4 = 293,
+    f5 = 294,
+    f6 = 295,
+    f7 = 296,
+    f8 = 297,
+    f9 = 298,
+    f10 = 299,
+    f11 = 300,
+    f12 = 301,
+    f13 = 302,
+    f14 = 303,
+    f15 = 304,
+    f16 = 305,
+    f17 = 306,
+    f18 = 307,
+    f19 = 308,
+    f20 = 309,
+    f21 = 310,
+    f22 = 311,
+    f23 = 312,
+    f24 = 313,
+    f25 = 314,
+    kp0 = 320,
+    kp1 = 321,
+    kp2 = 322,
+    kp3 = 323,
+    kp4 = 324,
+    kp5 = 325,
+    kp6 = 326,
+    kp7 = 327,
+    kp8 = 328,
+    kp9 = 329,
+    kpDecimal = 330,
+    kpDivide = 331,
+    kpMultiply = 332,
+    kpSubtract = 333,
+    kpAdd = 334,
+    kpEnter = 335,
+    kpEqual = 336,
+    leftShift = 340,
+    leftControl = 341,
+    leftAlt = 342,
+    leftSuper = 343,
+    rightShift = 344,
+    rightControl = 345,
+    rightAlt = 346,
+    rightSuper = 347,
+    menu = 348,
 
 type Touchpoint* = object
   identifier*:uint
-  posX*:float32
-  posY*:float32
+  posX*:cfloat
+  posY*:cfloat
   changed*:bool
 
-type Mousebutton* {.pure.} = enum
-  Left = 0,
-  Right = 1,
-  Middle = 2,
-  Invalid = 256,
+type
+  Mousebutton* {.pure.} = enum
+    left = 0,
+    right = 1,
+    middle = 2,
+    invalid = 256,
 
-const
-  MODIFIER_SHIFT* = 1
-  MODIFIER_CTRL* = 2
-  MODIFIER_ALT* = 4
-  MODIFIER_SUPER* = 8
+type
+  EventModifier* {.pure.} = enum
+    shift = 1,
+    ctrl = 2,
+    alt = 4,
+    super = 8,
+    lmb = 256,
+    rmb = 512,
+    mmb = 1024,
+  EventModifiers = set[EventModifier]
 
 type Event* = object
   frameCount*:uint64
@@ -177,20 +188,38 @@ type Event* = object
   keyCode*:Keycode
   charCode*:uint32
   keyRepeat*:bool
-  modifiers*:uint32
+  modifiers*:EventModifiers
   mouseButton*:Mousebutton
-  mouseX*:float32
-  mouseY*:float32
-  mouseDx*:float32
-  mouseDy*:float32
-  scrollX*:float32
-  scrollY*:float32
-  numTouches*:int32
+  mouseX*:cfloat
+  mouseY*:cfloat
+  mouseDx*:cfloat
+  mouseDy*:cfloat
+  scrollX*:cfloat
+  scrollY*:cfloat
+  numTouches*:cint
   touches*:array[8, Touchpoint]
-  windowWidth*:int32
-  windowHeight*:int32
-  framebufferWidth*:int32
-  framebufferHeight*:int32
+  windowWidth*:cint
+  windowHeight*:cint
+  framebufferWidth*:cint
+  framebufferHeight*:cint
+
+type Range* = object
+  `ptr`*:pointer
+  size*:csize_t
+
+type ImageDesc* = object
+  width*:cint
+  height*:cint
+  pixels*:Range
+
+type IconDesc* = object
+  sokolDefault*:bool
+  images*:array[8, ImageDesc]
+
+type Allocator* = object
+  alloc*:proc(a1:csize_t, a2:pointer):pointer {.cdecl.}
+  free*:proc(a1:pointer, a2:pointer) {.cdecl.}
+  userData*:pointer
 
 type Desc* = object
   initCb*:proc() {.cdecl.}
@@ -204,20 +233,22 @@ type Desc* = object
   cleanupUserdataCb*:proc(a1:pointer) {.cdecl.}
   eventUserdataCb*:proc(a1:ptr Event, a2:pointer) {.cdecl.}
   failUserdataCb*:proc(a1:cstring, a2:pointer) {.cdecl.}
-  width*:int32
-  height*:int32
-  sampleCount*:int32
-  swapInterval*:int32
+  width*:cint
+  height*:cint
+  sampleCount*:cint
+  swapInterval*:cint
   highDpi*:bool
   fullscreen*:bool
   alpha*:bool
   windowTitle*:cstring
   userCursor*:bool
   enableClipboard*:bool
-  clipboardSize*:int32
+  clipboardSize*:cint
   enableDragndrop*:bool
-  maxDroppedFiles*:int32
-  maxDroppedFilePathLength*:int32
+  maxDroppedFiles*:cint
+  maxDroppedFilePathLength*:cint
+  icon*:IconDesc
+  allocator*:Allocator
   glForceGles2*:bool
   win32ConsoleUtf8*:bool
   win32ConsoleCreate*:bool
@@ -229,22 +260,23 @@ type Desc* = object
   html5AskLeaveSite*:bool
   iosKeyboardResizesCanvas*:bool
 
-type Html5FetchError* {.pure.} = enum
-  FetchErrorNoError,
-  FetchErrorBufferTooSmall,
-  FetchErrorOther,
+type
+  Html5FetchError* {.pure.} = enum
+    fetchErrorNoError,
+    fetchErrorBufferTooSmall,
+    fetchErrorOther,
 
 type Html5FetchResponse* = object
   succeeded*:bool
   errorCode*:Html5FetchError
-  fileIndex*:int32
+  fileIndex*:cint
   fetchedSize*:uint32
   bufferPtr*:pointer
   bufferSize*:uint32
   userData*:pointer
 
 type Html5FetchRequest* = object
-  droppedFileIndex*:int32
+  droppedFileIndex*:cint
   callback*:proc(a1:ptr Html5FetchResponse) {.cdecl.}
   bufferPtr*:pointer
   bufferSize*:uint32
@@ -252,23 +284,23 @@ type Html5FetchRequest* = object
 
 proc isvalid*():bool {.cdecl, importc:"sapp_isvalid".}
 
-proc width*():int32 {.cdecl, importc:"sapp_width".}
+proc width*():cint {.cdecl, importc:"sapp_width".}
 
-proc widthf*():float32 {.cdecl, importc:"sapp_widthf".}
+proc widthf*():cfloat {.cdecl, importc:"sapp_widthf".}
 
-proc height*():int32 {.cdecl, importc:"sapp_height".}
+proc height*():cint {.cdecl, importc:"sapp_height".}
 
-proc heightf*():float32 {.cdecl, importc:"sapp_heightf".}
+proc heightf*():cfloat {.cdecl, importc:"sapp_heightf".}
 
-proc colorFormat*():int32 {.cdecl, importc:"sapp_color_format".}
+proc colorFormat*():cint {.cdecl, importc:"sapp_color_format".}
 
-proc depthFormat*():int32 {.cdecl, importc:"sapp_depth_format".}
+proc depthFormat*():cint {.cdecl, importc:"sapp_depth_format".}
 
-proc sampleCount*():int32 {.cdecl, importc:"sapp_sample_count".}
+proc sampleCount*():cint {.cdecl, importc:"sapp_sample_count".}
 
 proc highDpi*():bool {.cdecl, importc:"sapp_high_dpi".}
 
-proc dpiScale*():float32 {.cdecl, importc:"sapp_dpi_scale".}
+proc dpiScale*():cfloat {.cdecl, importc:"sapp_dpi_scale".}
 
 proc showKeyboard*(show:bool):void {.cdecl, importc:"sapp_show_keyboard".}
 
@@ -300,15 +332,19 @@ proc consumeEvent*():void {.cdecl, importc:"sapp_consume_event".}
 
 proc frameCount*():uint64 {.cdecl, importc:"sapp_frame_count".}
 
+proc frameDuration*():cdouble {.cdecl, importc:"sapp_frame_duration".}
+
 proc setClipboardString*(str:cstring):void {.cdecl, importc:"sapp_set_clipboard_string".}
 
 proc getClipboardString*():cstring {.cdecl, importc:"sapp_get_clipboard_string".}
 
 proc setWindowTitle*(str:cstring):void {.cdecl, importc:"sapp_set_window_title".}
 
-proc getNumDroppedFiles*():int32 {.cdecl, importc:"sapp_get_num_dropped_files".}
+proc setIcon*(icon_desc:ptr IconDesc):void {.cdecl, importc:"sapp_set_icon".}
 
-proc getDroppedFilePath*(index:int32):cstring {.cdecl, importc:"sapp_get_dropped_file_path".}
+proc getNumDroppedFiles*():cint {.cdecl, importc:"sapp_get_num_dropped_files".}
+
+proc getDroppedFilePath*(index:cint):cstring {.cdecl, importc:"sapp_get_dropped_file_path".}
 
 proc run*(desc:ptr Desc):void {.cdecl, importc:"sapp_run".}
 
@@ -316,7 +352,7 @@ proc gles2*():bool {.cdecl, importc:"sapp_gles2".}
 
 proc html5AskLeaveSite*(ask:bool):void {.cdecl, importc:"sapp_html5_ask_leave_site".}
 
-proc html5GetDroppedFileSize*(index:int32):uint32 {.cdecl, importc:"sapp_html5_get_dropped_file_size".}
+proc html5GetDroppedFileSize*(index:cint):uint32 {.cdecl, importc:"sapp_html5_get_dropped_file_size".}
 
 proc html5FetchDroppedFile*(request:ptr Html5FetchRequest):void {.cdecl, importc:"sapp_html5_fetch_dropped_file".}
 
@@ -333,6 +369,8 @@ proc iosGetWindow*():pointer {.cdecl, importc:"sapp_ios_get_window".}
 proc d3d11GetDevice*():pointer {.cdecl, importc:"sapp_d3d11_get_device".}
 
 proc d3d11GetDeviceContext*():pointer {.cdecl, importc:"sapp_d3d11_get_device_context".}
+
+proc d3d11GetSwapChain*():pointer {.cdecl, importc:"sapp_d3d11_get_swap_chain".}
 
 proc d3d11GetRenderTargetView*():pointer {.cdecl, importc:"sapp_d3d11_get_render_target_view".}
 
@@ -351,4 +389,4 @@ proc wgpuGetDepthStencilView*():pointer {.cdecl, importc:"sapp_wgpu_get_depth_st
 proc androidGetNativeActivity*():pointer {.cdecl, importc:"sapp_android_get_native_activity".}
 
 # Nim-specific API extensions
-include nim/app
+include extra/app

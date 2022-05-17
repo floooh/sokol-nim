@@ -51,8 +51,3 @@ $ nim c --run --noMain -d:gl examples/cube.nim
 You should pass the `--noMain` option to the Nim compiler, because the
 `sokol/app` module provides a platform-specific application entry point,
 and will call `NimMain` to execute module-level statements in your Nim modules.
-
-## Limitations
-
-Currently, it is assumed that `sokol/app` and `sokol/gfx` will be used together.
-Removing this dependency is a future goal.

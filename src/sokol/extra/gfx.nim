@@ -1,22 +1,22 @@
 # Graphics backend selection ---------------------------------------------------
 
-when defined(gl):
+when defined gl:
   const gl*    = true
   const d3d11* = false
   const metal* = false
-elif defined(windows):
+elif defined windows:
   const gl*    = false
   const d3d11* = true
   const metal* = false
-elif defined(macosx):
+elif defined macosx:
   const gl*    = false
   const d3d11* = false
   const metal* = true
-elif defined(ios):
+elif defined ios:
   const gl*    = false
   const d3d11* = false
   const metal* = true
-elif defined(linux):
+elif defined linux:
   const gl*    = true
   const d3d11* = false
   const metal* = false
@@ -25,32 +25,32 @@ else:
 
 # Platform specific compilation ------------------------------------------------
 
-when defined(windows):
+when defined windows:
   {.passl:"-lgdi32 -lshell32 -luser32".}
-  when defined(gl):
+  when defined gl:
     {.passc:"-DSOKOL_GLCORE33".}
   else:
     {.passc:"-DSOKOL_D3D11".}
     {.passl:"-ld3d11 -ldxgi -ldxguid".}
-elif defined(macosx):
+elif defined macosx:
   {.passc:"-x objective-c".}
   {.passl:"-framework Cocoa -framework QuartzCore".}
-  when defined(gl):
+  when defined gl:
     {.passc:"-DSOKOL_GLCORE33".}
     {.passl:"-framework OpenGL".}
   else:
     {.passc:"-DSOKOL_METAL".}
     {.passl:"-framework Metal -framework MetalKit".}
-elif defined(ios):
+elif defined ios:
   {.passc:"-x objective-c".}
   {.passl:"-framework Foundation -framework UIKit".}
-  when defined(gl):
+  when defined gl:
     {.passc:"-DSOKOL_GLES3".}
     {.passl:"-framework OpenGLES -framework GLKit".}
   else:
     {.passc:"-DSOKOL_METAL".}
     {.passl:"-framework Metal -framework MetalKit".}
-elif defined(linux):
+elif defined linux:
   {.passc:"-DSOKOL_GLCORE33".}
   {.passl:"-lX11 -lXi -lXcursor -lGL -ldl -lpthread -lm".}
 else:
@@ -88,63 +88,63 @@ converter toColor*[
   )
 
 ##  Convert any variable to a Range
-converter toRange*[T](source:var T):Range =
-  Range(source:addr(source), size:sizeof(source))
+converter toRange*[T](source: T): Range =
+  Range(`ptr`: source.unsafeAddr, size: source.sizeof.uint)
 
 # Accept partial initialization of arrays
 
 converter toColorAttachmentActions*[N:static[int]](
   actions:array[N, ColorAttachmentAction]
-):array[MAX_COLOR_ATTACHMENTS, ColorAttachmentAction] =
-  static: assert(N <= MAX_COLOR_ATTACHMENTS)
+):array[maxColorAttachments, ColorAttachmentAction] =
+  static: assert(N <= maxColorAttachments)
   for i,action in actions.pairs: result[i] = action
 
 converter toShaderUniformBlockDescs*[N:static[int]](
   descs:array[N, ShaderUniformBlockDesc]
-):array[MAX_SHADERSTAGE_UBS, ShaderUniformBlockDesc] =
-  static: assert(N <= MAX_SHADERSTAGE_UBS)
+):array[maxShaderstageUbs, ShaderUniformBlockDesc] =
+  static: assert(N <= maxShaderstageUbs)
   for i,desc in descs.pairs: result[i] = desc
 
 converter toShaderUniformDescs*[N:static[int]](
   descs:array[N, ShaderUniformDesc]
-):array[MAX_UB_MEMBERS, ShaderUniformDesc] =
-  static: assert(N <= MAX_UB_MEMBERS)
+):array[maxUbMembers, ShaderUniformDesc] =
+  static: assert(N <= maxUbMembers)
   for i,desc in descs.pairs: result[i] = desc
 
 converter toBufferLayoutDescs*[N:static[int]](
   descs:array[N, BufferLayoutDesc]
-):array[MAX_SHADERSTAGE_BUFFERS, BufferLayoutDesc] =
-  static: assert(N <= MAX_SHADERSTAGE_BUFFERS)
+):array[maxShaderStageBuffers, BufferLayoutDesc] =
+  static: assert(N <= maxShaderStageBuffers)
   for i,desc in descs.pairs: result[i] = desc
 
 converter toVertexAttrDescs*[N:static[int]](
   descs:array[N, VertexAttrDesc]
-):array[MAX_VERTEX_ATTRIBUTES, VertexAttrDesc] =
-  static: assert(N <= MAX_VERTEX_ATTRIBUTES)
+):array[maxVertexAttributes, VertexAttrDesc] =
+  static: assert(N <= maxVertexAttributes)
   for i,desc in descs.pairs: result[i] = desc
 
 converter toShaderAttrDescs*[N:static[int]](
   descs:array[N, ShaderAttrDesc]
-):array[MAX_VERTEX_ATTRIBUTES, ShaderAttrDesc] =
-  static: assert(N <= MAX_VERTEX_ATTRIBUTES)
+):array[maxVertexAttributes, ShaderAttrDesc] =
+  static: assert(N <= maxVertexAttributes)
   for i,desc in descs.pairs: result[i] = desc
 
 converter toBuffers*[N:static[int]](
   descs:array[N, Buffer]
-):array[MAX_SHADERSTAGE_BUFFERS, Buffer] =
-  static: assert(N <= MAX_SHADERSTAGE_BUFFERS)
+):array[maxShaderStageBuffers, Buffer] =
+  static: assert(N <= maxShaderStageBuffers)
   for i,desc in descs.pairs: result[i] = desc
 
 converter toImages*[N:static[int]](
   images:array[N, ShaderImageDesc]
-):array[MAX_SHADERSTAGE_IMAGES, ShaderImageDesc] =
-  static: assert(N <= MAX_SHADERSTAGE_IMAGES)
+):array[maxShaderstageImages, ShaderImageDesc] =
+  static: assert(N <= maxShaderstageImages)
   for i,image in images.pairs: result[i] = image
 
 converter toImages*[N:static[int]](
   images:array[N, Image]
-):array[MAX_SHADERSTAGE_IMAGES, Image] =
-  static: assert(N <= MAX_SHADERSTAGE_IMAGES)
+):array[maxShaderstageImages, Image] =
+  static: assert(N <= maxShaderstageImages)
   for i,image in images.pairs: result[i] = image
 
 converter toImageData*[N:static[int], M:static[int]](
@@ -159,8 +159,8 @@ converter toImageData*[N:static[int], M:static[int]](
 
 converter toColors*[N:static[int]](
   images:array[N, ColorState]
-):array[MAX_COLOR_ATTACHMENTS, ColorState] =
-  static: assert(N <= MAX_COLOR_ATTACHMENTS)
+):array[maxColorAttachments, ColorState] =
+  static: assert(N <= maxColorAttachments)
   for i,image in images.pairs: result[i] = image
 
 # Accept various pointers by value ---------------------------------------------
@@ -239,5 +239,5 @@ proc initPass*(passId:Pass; desc:PassDesc) =
 
 # Implementation ---------------------------------------------------------------
 
-{.passc:"-DSOKOL_IMPL".}
-{.compile:"../c/sokol_gfx.c".}
+{.passc:"-DSOKOL_NIM_IMPL".}
+{.compile:"../gen/sokol_gfx.c".}
