@@ -7,7 +7,7 @@ const
   maxIconimages* = 8
 
 type
-  EventType* {.pure, size:sizeof(cint).} = enum
+  EventType* {.pure, size:sizeof(uint32).} = enum
     invalid,
     keyDown,
     keyUp,
@@ -35,7 +35,7 @@ type
     filesDropped,
 
 type
-  Keycode* {.pure.} = enum
+  Keycode* {.pure, size:sizeof(cint).} = enum
     invalid = 0,
     space = 32,
     apostrophe = 39,
@@ -165,14 +165,14 @@ type Touchpoint* = object
   changed*:bool
 
 type
-  Mousebutton* {.pure.} = enum
+  Mousebutton* {.pure, size:sizeof(cint).} = enum
     left = 0,
     right = 1,
     middle = 2,
     invalid = 256,
 
 type
-  EventModifier* {.pure.} = enum
+  EventModifier* {.pure, size:sizeof(cint).} = enum
     shift = 1,
     ctrl = 2,
     alt = 4,
@@ -188,7 +188,7 @@ type Event* = object
   keyCode*:Keycode
   charCode*:uint32
   keyRepeat*:bool
-  modifiers*:EventModifiers
+  modifiers*:EventModifier
   mouseButton*:Mousebutton
   mouseX*:cfloat
   mouseY*:cfloat
@@ -261,7 +261,7 @@ type Desc* = object
   iosKeyboardResizesCanvas*:bool
 
 type
-  Html5FetchError* {.pure.} = enum
+  Html5FetchError* {.pure, size:sizeof(cint).} = enum
     fetchErrorNoError,
     fetchErrorBufferTooSmall,
     fetchErrorOther,

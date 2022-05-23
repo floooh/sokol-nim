@@ -42,7 +42,7 @@ type Color* = object
   a*:cfloat
 
 type
-  Backend* {.pure.} = enum
+  Backend* {.pure, size:sizeof(cint).} = enum
     glcore33,
     gles2,
     gles3,
@@ -54,7 +54,7 @@ type
     dummy,
 
 type
-  PixelFormat* {.pure, size:sizeof(cint).} = enum
+  PixelFormat* {.pure, size:sizeof(uint32).} = enum
     default,
     none,
     r8,
@@ -147,7 +147,7 @@ type Limits* = object
   glMaxVertexUniformVectors*:cint
 
 type
-  ResourceState* {.pure, size:sizeof(cint).} = enum
+  ResourceState* {.pure, size:sizeof(uint32).} = enum
     initial,
     alloc,
     valid,
@@ -155,27 +155,27 @@ type
     invalid,
 
 type
-  Usage* {.pure, size:sizeof(cint).} = enum
+  Usage* {.pure, size:sizeof(uint32).} = enum
     default,
     immutable,
     dynamic,
     stream,
 
 type
-  BufferType* {.pure, size:sizeof(cint).} = enum
+  BufferType* {.pure, size:sizeof(uint32).} = enum
     default,
     vertexBuffer,
     indexBuffer,
 
 type
-  IndexType* {.pure, size:sizeof(cint).} = enum
+  IndexType* {.pure, size:sizeof(uint32).} = enum
     default,
     none,
     `uint16`,
     `uint32`,
 
 type
-  ImageType* {.pure, size:sizeof(cint).} = enum
+  ImageType* {.pure, size:sizeof(uint32).} = enum
     default,
     plane,
     cube,
@@ -183,14 +183,14 @@ type
     array,
 
 type
-  SamplerType* {.pure.} = enum
+  SamplerType* {.pure, size:sizeof(cint).} = enum
     default,
     `float`,
     sint,
     `uint`,
 
 type
-  CubeFace* {.pure, size:sizeof(cint).} = enum
+  CubeFace* {.pure, size:sizeof(uint32).} = enum
     posX,
     negX,
     posY,
@@ -199,12 +199,12 @@ type
     negZ,
 
 type
-  ShaderStage* {.pure, size:sizeof(cint).} = enum
+  ShaderStage* {.pure, size:sizeof(uint32).} = enum
     vs,
     fs,
 
 type
-  PrimitiveType* {.pure, size:sizeof(cint).} = enum
+  PrimitiveType* {.pure, size:sizeof(uint32).} = enum
     default,
     points,
     lines,
@@ -213,7 +213,7 @@ type
     triangleStrip,
 
 type
-  Filter* {.pure, size:sizeof(cint).} = enum
+  Filter* {.pure, size:sizeof(uint32).} = enum
     default,
     nearest,
     linear,
@@ -223,7 +223,7 @@ type
     linearMipmapLinear,
 
 type
-  Wrap* {.pure, size:sizeof(cint).} = enum
+  Wrap* {.pure, size:sizeof(uint32).} = enum
     default,
     repeat,
     clampToEdge,
@@ -231,14 +231,14 @@ type
     mirroredRepeat,
 
 type
-  BorderColor* {.pure, size:sizeof(cint).} = enum
+  BorderColor* {.pure, size:sizeof(uint32).} = enum
     default,
     transparentBlack,
     opaqueBlack,
     opaqueWhite,
 
 type
-  VertexFormat* {.pure, size:sizeof(cint).} = enum
+  VertexFormat* {.pure, size:sizeof(uint32).} = enum
     invalid,
     `float`,
     float2,
@@ -257,13 +257,13 @@ type
     uint10N2,
 
 type
-  VertexStep* {.pure, size:sizeof(cint).} = enum
+  VertexStep* {.pure, size:sizeof(uint32).} = enum
     default,
     perVertex,
     perInstance,
 
 type
-  UniformType* {.pure, size:sizeof(cint).} = enum
+  UniformType* {.pure, size:sizeof(uint32).} = enum
     invalid,
     `float`,
     float2,
@@ -276,26 +276,26 @@ type
     mat4,
 
 type
-  UniformLayout* {.pure, size:sizeof(cint).} = enum
+  UniformLayout* {.pure, size:sizeof(uint32).} = enum
     default,
     native,
     std140,
 
 type
-  CullMode* {.pure, size:sizeof(cint).} = enum
+  CullMode* {.pure, size:sizeof(uint32).} = enum
     default,
     none,
     front,
     back,
 
 type
-  FaceWinding* {.pure, size:sizeof(cint).} = enum
+  FaceWinding* {.pure, size:sizeof(uint32).} = enum
     default,
     ccw,
     cw,
 
 type
-  CompareFunc* {.pure, size:sizeof(cint).} = enum
+  CompareFunc* {.pure, size:sizeof(uint32).} = enum
     default,
     never,
     less,
@@ -307,7 +307,7 @@ type
     always,
 
 type
-  StencilOp* {.pure, size:sizeof(cint).} = enum
+  StencilOp* {.pure, size:sizeof(uint32).} = enum
     default,
     keep,
     zero,
@@ -319,7 +319,7 @@ type
     decrWrap,
 
 type
-  BlendFactor* {.pure, size:sizeof(cint).} = enum
+  BlendFactor* {.pure, size:sizeof(uint32).} = enum
     default,
     zero,
     one,
@@ -338,14 +338,14 @@ type
     oneMinusBlendAlpha,
 
 type
-  BlendOp* {.pure, size:sizeof(cint).} = enum
+  BlendOp* {.pure, size:sizeof(uint32).} = enum
     default,
     add,
     subtract,
     reverseSubtract,
 
 type
-  ColorMask* {.pure, size:sizeof(cint).} = enum
+  ColorMask* {.pure, size:sizeof(uint32).} = enum
     default = 0,
     r = 1,
     g = 2,
@@ -365,7 +365,7 @@ type
     none = 16,
 
 type
-  Action* {.pure, size:sizeof(cint).} = enum
+  Action* {.pure, size:sizeof(uint32).} = enum
     default,
     clear,
     load,
