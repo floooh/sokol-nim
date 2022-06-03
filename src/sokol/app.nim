@@ -250,6 +250,8 @@ type Desc* = object
   icon*:IconDesc
   allocator*:Allocator
   glForceGles2*:bool
+  glMajorVersion*:cint
+  glMinorVersion*:cint
   win32ConsoleUtf8*:bool
   win32ConsoleCreate*:bool
   win32ConsoleAttach*:bool
