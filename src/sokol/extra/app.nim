@@ -52,4 +52,4 @@ template sokolMain*(desc: untyped, body: untyped) =
 # Implementation ---------------------------------------------------------------
 
 {.passc:"-DSOKOL_NIM_IMPL".}
-{.compile:"../gen/sokol_app.c".}
+{.compile:"../c/sokol_app.c".}

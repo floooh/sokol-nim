@@ -240,4 +240,4 @@ proc initPass*(passId:Pass; desc:PassDesc) =
 # Implementation ---------------------------------------------------------------
 
 {.passc:"-DSOKOL_NIM_IMPL".}
-{.compile:"../gen/sokol_gfx.c".}
+{.compile:"../c/sokol_gfx.c".}
