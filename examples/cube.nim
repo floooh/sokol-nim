@@ -134,8 +134,8 @@ sokolMain(desc):
   desc.failCb = fail
 
   desc.windowTitle = "cube"
-  desc.width = 400
-  desc.height = 300
+  desc.width = 640
+  desc.height = 480
   desc.highDpi = true
   desc.win32ConsoleAttach = true
   desc.win32ConsoleUtf8 = true

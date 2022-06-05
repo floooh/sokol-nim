@@ -1,4 +1,4 @@
 # Implementation ---------------------------------------------------------------
 
 {.passc:"-DSOKOL_NIM_IMPL".}
-{.compile:"../gen/sokol_gl.c".}
+{.compile:"../c/sokol_gl.c".}
