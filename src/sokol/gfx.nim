@@ -177,9 +177,9 @@ type
 type
   ImageType* {.pure, size:sizeof(uint32).} = enum
     default,
-    plane,
+    twoDee,
     cube,
-    volume,
+    threeDee,
     array,
 
 type

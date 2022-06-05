@@ -45,11 +45,11 @@ proc setup*(desc:ptr Desc):void {.cdecl, importc:"sgl_setup".}
 
 proc shutdown*():void {.cdecl, importc:"sgl_shutdown".}
 
-proc rad*(deg:cfloat):cfloat {.cdecl, importc:"sgl_rad".}
+proc asRadians*(deg:cfloat):cfloat {.cdecl, importc:"sgl_rad".}
 
-proc deg*(rad:cfloat):cfloat {.cdecl, importc:"sgl_deg".}
+proc asDegrees*(rad:cfloat):cfloat {.cdecl, importc:"sgl_deg".}
 
-proc error*():Error {.cdecl, importc:"sgl_error".}
+proc getError*():Error {.cdecl, importc:"sgl_error".}
 
 proc contextError*(ctx:Context):Error {.cdecl, importc:"sgl_context_error".}
 
