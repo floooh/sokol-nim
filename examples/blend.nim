@@ -180,15 +180,12 @@ proc cleanup() {.cdecl.} =
 proc fail(reason: cstring) {.cdecl.} =
   echo "sokol error: ", reason
 
-sokolMain(desc):
-  desc.initCb = init
-  desc.frameCb = frame
-  desc.cleanupCb = cleanup
-  desc.failCb = fail
-
-  desc.windowTitle = "blend"
-  desc.width = 400
-  desc.height = 300
-  desc.highDpi = true
-  desc.win32ConsoleAttach = true
-  desc.win32ConsoleUtf8 = true
+app.run(app.Desc(
+  initCb: init,
+  frameCb: frame,
+  cleanupCb: cleanup,
+  failCb: fail,
+  windowTitle: "blend.nim",
+  width: 640,
+  height: 480,
+))

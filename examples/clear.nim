@@ -33,16 +33,13 @@ proc cleanup() {.cdecl.} =
 proc fail(reason: cstring) {.cdecl.} =
   echo "sokol error: ", reason
 
-sokolMain(desc):
-  desc.initCb = init
-  desc.eventCb = event
-  desc.frameCb = frame
-  desc.cleanupCb = cleanup
-  desc.failCb = fail
-
-  desc.windowTitle = "clear"
-  desc.width = 400
-  desc.height = 300
-  desc.highDpi = true
-  desc.win32ConsoleAttach = true
-  desc.win32ConsoleUtf8 = true
+app.run(app.Desc(
+  initCb: init,
+  eventCb: event,
+  frameCb: frame,
+  cleanupCb: cleanup,
+  failCb: fail,
+  windowTitle: "clear.nim",
+  width: 400,
+  height: 300,
+))

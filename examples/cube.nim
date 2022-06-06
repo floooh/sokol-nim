@@ -13,7 +13,7 @@ type Uniforms = object
 var pipeline: Pipeline
 var bindings: Bindings
 
-const passAction* = PassAction(
+const passAction = PassAction(
   colors:[
     ColorAttachmentAction(
       action: Action.clear,
@@ -127,15 +127,14 @@ proc cleanup() {.cdecl.} =
 proc fail(reason: cstring) {.cdecl.} =
   echo "sokol error: ", reason
 
-sokolMain(desc):
-  desc.initCb = init
-  desc.frameCb = frame
-  desc.cleanupCb = cleanup
-  desc.failCb = fail
-
-  desc.windowTitle = "cube"
-  desc.width = 640
-  desc.height = 480
-  desc.highDpi = true
-  desc.win32ConsoleAttach = true
-  desc.win32ConsoleUtf8 = true
+app.run(app.Desc(
+  initCb: init,
+  frameCb: frame,
+  cleanupCb: cleanup,
+  failCb: fail,
+  windowTitle: "gfx.nim",
+  width: 640,
+  height: 480,
+  win32ConsoleAttach: true,
+  win32ConsoleUtf8: true,
+))

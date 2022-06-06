@@ -1,5 +1,5 @@
-# Graphics backend selection ---------------------------------------------------
 
+# FIXME: remove this when Nim output has been added to sokol-shdc?
 when defined gl:
   const gl*    = true
   const d3d11* = false
@@ -22,8 +22,6 @@ elif defined linux:
   const metal* = false
 else:
   error("unsupported platform")
-
-# Platform specific compilation ------------------------------------------------
 
 when defined windows:
   {.passl:"-lgdi32 -lshell32 -luser32".}
