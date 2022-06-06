@@ -88,53 +88,101 @@ type Torus* = object
   merge*:bool
   transform*:Mat4
 
-proc buildPlane*(buf:ptr Buffer, params:ptr Plane):Buffer {.cdecl, importc:"sshape_build_plane".}
+proc c_buildPlane(buf:ptr Buffer, params:ptr Plane):Buffer {.cdecl, importc:"sshape_build_plane".}
+proc buildPlane*(buf:Buffer, params:Plane):Buffer =
+    c_buildPlane(unsafeAddr(buf), unsafeAddr(params))
 
-proc buildBox*(buf:ptr Buffer, params:ptr Box):Buffer {.cdecl, importc:"sshape_build_box".}
+proc c_buildBox(buf:ptr Buffer, params:ptr Box):Buffer {.cdecl, importc:"sshape_build_box".}
+proc buildBox*(buf:Buffer, params:Box):Buffer =
+    c_buildBox(unsafeAddr(buf), unsafeAddr(params))
 
-proc buildSphere*(buf:ptr Buffer, params:ptr Sphere):Buffer {.cdecl, importc:"sshape_build_sphere".}
+proc c_buildSphere(buf:ptr Buffer, params:ptr Sphere):Buffer {.cdecl, importc:"sshape_build_sphere".}
+proc buildSphere*(buf:Buffer, params:Sphere):Buffer =
+    c_buildSphere(unsafeAddr(buf), unsafeAddr(params))
 
-proc buildCylinder*(buf:ptr Buffer, params:ptr Cylinder):Buffer {.cdecl, importc:"sshape_build_cylinder".}
+proc c_buildCylinder(buf:ptr Buffer, params:ptr Cylinder):Buffer {.cdecl, importc:"sshape_build_cylinder".}
+proc buildCylinder*(buf:Buffer, params:Cylinder):Buffer =
+    c_buildCylinder(unsafeAddr(buf), unsafeAddr(params))
 
-proc buildTorus*(buf:ptr Buffer, params:ptr Torus):Buffer {.cdecl, importc:"sshape_build_torus".}
+proc c_buildTorus(buf:ptr Buffer, params:ptr Torus):Buffer {.cdecl, importc:"sshape_build_torus".}
+proc buildTorus*(buf:Buffer, params:Torus):Buffer =
+    c_buildTorus(unsafeAddr(buf), unsafeAddr(params))
 
-proc planeSizes*(tiles:uint32):Sizes {.cdecl, importc:"sshape_plane_sizes".}
+proc c_planeSizes(tiles:uint32):Sizes {.cdecl, importc:"sshape_plane_sizes".}
+proc planeSizes*(tiles:uint32):Sizes =
+    c_planeSizes(tiles)
 
-proc boxSizes*(tiles:uint32):Sizes {.cdecl, importc:"sshape_box_sizes".}
+proc c_boxSizes(tiles:uint32):Sizes {.cdecl, importc:"sshape_box_sizes".}
+proc boxSizes*(tiles:uint32):Sizes =
+    c_boxSizes(tiles)
 
-proc sphereSizes*(slices:uint32, stacks:uint32):Sizes {.cdecl, importc:"sshape_sphere_sizes".}
+proc c_sphereSizes(slices:uint32, stacks:uint32):Sizes {.cdecl, importc:"sshape_sphere_sizes".}
+proc sphereSizes*(slices:uint32, stacks:uint32):Sizes =
+    c_sphereSizes(slices, stacks)
 
-proc cylinderSizes*(slices:uint32, stacks:uint32):Sizes {.cdecl, importc:"sshape_cylinder_sizes".}
+proc c_cylinderSizes(slices:uint32, stacks:uint32):Sizes {.cdecl, importc:"sshape_cylinder_sizes".}
+proc cylinderSizes*(slices:uint32, stacks:uint32):Sizes =
+    c_cylinderSizes(slices, stacks)
 
-proc torusSizes*(sides:uint32, rings:uint32):Sizes {.cdecl, importc:"sshape_torus_sizes".}
+proc c_torusSizes(sides:uint32, rings:uint32):Sizes {.cdecl, importc:"sshape_torus_sizes".}
+proc torusSizes*(sides:uint32, rings:uint32):Sizes =
+    c_torusSizes(sides, rings)
 
-proc elementRange*(buf:ptr Buffer):ElementRange {.cdecl, importc:"sshape_element_range".}
+proc c_elementRange(buf:ptr Buffer):ElementRange {.cdecl, importc:"sshape_element_range".}
+proc elementRange*(buf:Buffer):ElementRange =
+    c_elementRange(unsafeAddr(buf))
 
-proc vertexBufferDesc*(buf:ptr Buffer):gfx.BufferDesc {.cdecl, importc:"sshape_vertex_buffer_desc".}
+proc c_vertexBufferDesc(buf:ptr Buffer):gfx.BufferDesc {.cdecl, importc:"sshape_vertex_buffer_desc".}
+proc vertexBufferDesc*(buf:Buffer):gfx.BufferDesc =
+    c_vertexBufferDesc(unsafeAddr(buf))
 
-proc indexBufferDesc*(buf:ptr Buffer):gfx.BufferDesc {.cdecl, importc:"sshape_index_buffer_desc".}
+proc c_indexBufferDesc(buf:ptr Buffer):gfx.BufferDesc {.cdecl, importc:"sshape_index_buffer_desc".}
+proc indexBufferDesc*(buf:Buffer):gfx.BufferDesc =
+    c_indexBufferDesc(unsafeAddr(buf))
 
-proc bufferLayoutDesc*():gfx.BufferLayoutDesc {.cdecl, importc:"sshape_buffer_layout_desc".}
+proc c_bufferLayoutDesc():gfx.BufferLayoutDesc {.cdecl, importc:"sshape_buffer_layout_desc".}
+proc bufferLayoutDesc*():gfx.BufferLayoutDesc =
+    c_bufferLayoutDesc()
 
-proc positionAttrDesc*():gfx.VertexAttrDesc {.cdecl, importc:"sshape_position_attr_desc".}
+proc c_positionAttrDesc():gfx.VertexAttrDesc {.cdecl, importc:"sshape_position_attr_desc".}
+proc positionAttrDesc*():gfx.VertexAttrDesc =
+    c_positionAttrDesc()
 
-proc normalAttrDesc*():gfx.VertexAttrDesc {.cdecl, importc:"sshape_normal_attr_desc".}
+proc c_normalAttrDesc():gfx.VertexAttrDesc {.cdecl, importc:"sshape_normal_attr_desc".}
+proc normalAttrDesc*():gfx.VertexAttrDesc =
+    c_normalAttrDesc()
 
-proc texcoordAttrDesc*():gfx.VertexAttrDesc {.cdecl, importc:"sshape_texcoord_attr_desc".}
+proc c_texcoordAttrDesc():gfx.VertexAttrDesc {.cdecl, importc:"sshape_texcoord_attr_desc".}
+proc texcoordAttrDesc*():gfx.VertexAttrDesc =
+    c_texcoordAttrDesc()
 
-proc colorAttrDesc*():gfx.VertexAttrDesc {.cdecl, importc:"sshape_color_attr_desc".}
+proc c_colorAttrDesc():gfx.VertexAttrDesc {.cdecl, importc:"sshape_color_attr_desc".}
+proc colorAttrDesc*():gfx.VertexAttrDesc =
+    c_colorAttrDesc()
 
-proc color4f*(r:cfloat, g:cfloat, b:cfloat, a:cfloat):uint32 {.cdecl, importc:"sshape_color_4f".}
+proc c_color4f(r:cfloat, g:cfloat, b:cfloat, a:cfloat):uint32 {.cdecl, importc:"sshape_color_4f".}
+proc color4f*(r:cfloat, g:cfloat, b:cfloat, a:cfloat):uint32 =
+    c_color4f(r, g, b, a)
 
-proc color3f*(r:cfloat, g:cfloat, b:cfloat):uint32 {.cdecl, importc:"sshape_color_3f".}
+proc c_color3f(r:cfloat, g:cfloat, b:cfloat):uint32 {.cdecl, importc:"sshape_color_3f".}
+proc color3f*(r:cfloat, g:cfloat, b:cfloat):uint32 =
+    c_color3f(r, g, b)
 
-proc color4b*(r:uint8, g:uint8, b:uint8, a:uint8):uint32 {.cdecl, importc:"sshape_color_4b".}
+proc c_color4b(r:uint8, g:uint8, b:uint8, a:uint8):uint32 {.cdecl, importc:"sshape_color_4b".}
+proc color4b*(r:uint8, g:uint8, b:uint8, a:uint8):uint32 =
+    c_color4b(r, g, b, a)
 
-proc color3b*(r:uint8, g:uint8, b:uint8):uint32 {.cdecl, importc:"sshape_color_3b".}
+proc c_color3b(r:uint8, g:uint8, b:uint8):uint32 {.cdecl, importc:"sshape_color_3b".}
+proc color3b*(r:uint8, g:uint8, b:uint8):uint32 =
+    c_color3b(r, g, b)
 
-proc mat4*(m:ptr cfloat):Mat4 {.cdecl, importc:"sshape_mat4".}
+proc c_mat4(m:ptr cfloat):Mat4 {.cdecl, importc:"sshape_mat4".}
+proc mat4*(m:ptr cfloat):Mat4 =
+    c_mat4(m)
 
-proc mat4Transpose*(m:ptr cfloat):Mat4 {.cdecl, importc:"sshape_mat4_transpose".}
+proc c_mat4Transpose(m:ptr cfloat):Mat4 {.cdecl, importc:"sshape_mat4_transpose".}
+proc mat4Transpose*(m:ptr cfloat):Mat4 =
+    c_mat4Transpose(m)
 
 # Nim-specific API extensions
 include extra/shape

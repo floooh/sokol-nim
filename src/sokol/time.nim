@@ -1,24 +1,44 @@
 ## machine generated, do not edit
 
-proc setup*():void {.cdecl, importc:"stm_setup".}
+proc c_setup():void {.cdecl, importc:"stm_setup".}
+proc setup*():void =
+    c_setup()
 
-proc now*():uint64 {.cdecl, importc:"stm_now".}
+proc c_now():uint64 {.cdecl, importc:"stm_now".}
+proc now*():uint64 =
+    c_now()
 
-proc diff*(new_ticks:uint64, old_ticks:uint64):uint64 {.cdecl, importc:"stm_diff".}
+proc c_diff(new_ticks:uint64, old_ticks:uint64):uint64 {.cdecl, importc:"stm_diff".}
+proc diff*(new_ticks:uint64, old_ticks:uint64):uint64 =
+    c_diff(new_ticks, old_ticks)
 
-proc since*(start_ticks:uint64):uint64 {.cdecl, importc:"stm_since".}
+proc c_since(start_ticks:uint64):uint64 {.cdecl, importc:"stm_since".}
+proc since*(start_ticks:uint64):uint64 =
+    c_since(start_ticks)
 
-proc laptime*(last_time:ptr uint64):uint64 {.cdecl, importc:"stm_laptime".}
+proc c_laptime(last_time:ptr uint64):uint64 {.cdecl, importc:"stm_laptime".}
+proc laptime*(last_time:ptr uint64):uint64 =
+    c_laptime(last_time)
 
-proc roundToCommonRefreshRate*(frame_ticks:uint64):uint64 {.cdecl, importc:"stm_round_to_common_refresh_rate".}
+proc c_roundToCommonRefreshRate(frame_ticks:uint64):uint64 {.cdecl, importc:"stm_round_to_common_refresh_rate".}
+proc roundToCommonRefreshRate*(frame_ticks:uint64):uint64 =
+    c_roundToCommonRefreshRate(frame_ticks)
 
-proc sec*(ticks:uint64):cdouble {.cdecl, importc:"stm_sec".}
+proc c_sec(ticks:uint64):cdouble {.cdecl, importc:"stm_sec".}
+proc sec*(ticks:uint64):cdouble =
+    c_sec(ticks)
 
-proc ms*(ticks:uint64):cdouble {.cdecl, importc:"stm_ms".}
+proc c_ms(ticks:uint64):cdouble {.cdecl, importc:"stm_ms".}
+proc ms*(ticks:uint64):cdouble =
+    c_ms(ticks)
 
-proc us*(ticks:uint64):cdouble {.cdecl, importc:"stm_us".}
+proc c_us(ticks:uint64):cdouble {.cdecl, importc:"stm_us".}
+proc us*(ticks:uint64):cdouble =
+    c_us(ticks)
 
-proc ns*(ticks:uint64):cdouble {.cdecl, importc:"stm_ns".}
+proc c_ns(ticks:uint64):cdouble {.cdecl, importc:"stm_ns".}
+proc ns*(ticks:uint64):cdouble =
+    c_ns(ticks)
 
 # Nim-specific API extensions
 include extra/time

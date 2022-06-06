@@ -35,71 +35,137 @@ type Desc* = object
   context*:ContextDesc
   allocator*:Allocator
 
-proc setup*(desc:ptr Desc):void {.cdecl, importc:"sdtx_setup".}
+proc c_setup(desc:ptr Desc):void {.cdecl, importc:"sdtx_setup".}
+proc setup*(desc:Desc):void =
+    c_setup(unsafeAddr(desc))
 
-proc shutdown*():void {.cdecl, importc:"sdtx_shutdown".}
+proc c_shutdown():void {.cdecl, importc:"sdtx_shutdown".}
+proc shutdown*():void =
+    c_shutdown()
 
-proc fontKc853*():FontDesc {.cdecl, importc:"sdtx_font_kc853".}
+proc c_fontKc853():FontDesc {.cdecl, importc:"sdtx_font_kc853".}
+proc fontKc853*():FontDesc =
+    c_fontKc853()
 
-proc fontKc854*():FontDesc {.cdecl, importc:"sdtx_font_kc854".}
+proc c_fontKc854():FontDesc {.cdecl, importc:"sdtx_font_kc854".}
+proc fontKc854*():FontDesc =
+    c_fontKc854()
 
-proc fontZ1013*():FontDesc {.cdecl, importc:"sdtx_font_z1013".}
+proc c_fontZ1013():FontDesc {.cdecl, importc:"sdtx_font_z1013".}
+proc fontZ1013*():FontDesc =
+    c_fontZ1013()
 
-proc fontCpc*():FontDesc {.cdecl, importc:"sdtx_font_cpc".}
+proc c_fontCpc():FontDesc {.cdecl, importc:"sdtx_font_cpc".}
+proc fontCpc*():FontDesc =
+    c_fontCpc()
 
-proc fontC64*():FontDesc {.cdecl, importc:"sdtx_font_c64".}
+proc c_fontC64():FontDesc {.cdecl, importc:"sdtx_font_c64".}
+proc fontC64*():FontDesc =
+    c_fontC64()
 
-proc fontOric*():FontDesc {.cdecl, importc:"sdtx_font_oric".}
+proc c_fontOric():FontDesc {.cdecl, importc:"sdtx_font_oric".}
+proc fontOric*():FontDesc =
+    c_fontOric()
 
-proc makeContext*(desc:ptr ContextDesc):Context {.cdecl, importc:"sdtx_make_context".}
+proc c_makeContext(desc:ptr ContextDesc):Context {.cdecl, importc:"sdtx_make_context".}
+proc makeContext*(desc:ContextDesc):Context =
+    c_makeContext(unsafeAddr(desc))
 
-proc destroyContext*(ctx:Context):void {.cdecl, importc:"sdtx_destroy_context".}
+proc c_destroyContext(ctx:Context):void {.cdecl, importc:"sdtx_destroy_context".}
+proc destroyContext*(ctx:Context):void =
+    c_destroyContext(ctx)
 
-proc setContext*(ctx:Context):void {.cdecl, importc:"sdtx_set_context".}
+proc c_setContext(ctx:Context):void {.cdecl, importc:"sdtx_set_context".}
+proc setContext*(ctx:Context):void =
+    c_setContext(ctx)
 
-proc getContext*():Context {.cdecl, importc:"sdtx_get_context".}
+proc c_getContext():Context {.cdecl, importc:"sdtx_get_context".}
+proc getContext*():Context =
+    c_getContext()
 
-proc defaultContext*():Context {.cdecl, importc:"sdtx_default_context".}
+proc c_defaultContext():Context {.cdecl, importc:"sdtx_default_context".}
+proc defaultContext*():Context =
+    c_defaultContext()
 
-proc draw*():void {.cdecl, importc:"sdtx_draw".}
+proc c_draw():void {.cdecl, importc:"sdtx_draw".}
+proc draw*():void =
+    c_draw()
 
-proc font*(font_index:cint):void {.cdecl, importc:"sdtx_font".}
+proc c_font(font_index:cint):void {.cdecl, importc:"sdtx_font".}
+proc font*(font_index:cint):void =
+    c_font(font_index)
 
-proc canvas*(w:cfloat, h:cfloat):void {.cdecl, importc:"sdtx_canvas".}
+proc c_canvas(w:cfloat, h:cfloat):void {.cdecl, importc:"sdtx_canvas".}
+proc canvas*(w:cfloat, h:cfloat):void =
+    c_canvas(w, h)
 
-proc origin*(x:cfloat, y:cfloat):void {.cdecl, importc:"sdtx_origin".}
+proc c_origin(x:cfloat, y:cfloat):void {.cdecl, importc:"sdtx_origin".}
+proc origin*(x:cfloat, y:cfloat):void =
+    c_origin(x, y)
 
-proc home*():void {.cdecl, importc:"sdtx_home".}
+proc c_home():void {.cdecl, importc:"sdtx_home".}
+proc home*():void =
+    c_home()
 
-proc pos*(x:cfloat, y:cfloat):void {.cdecl, importc:"sdtx_pos".}
+proc c_pos(x:cfloat, y:cfloat):void {.cdecl, importc:"sdtx_pos".}
+proc pos*(x:cfloat, y:cfloat):void =
+    c_pos(x, y)
 
-proc posX*(x:cfloat):void {.cdecl, importc:"sdtx_pos_x".}
+proc c_posX(x:cfloat):void {.cdecl, importc:"sdtx_pos_x".}
+proc posX*(x:cfloat):void =
+    c_posX(x)
 
-proc posY*(y:cfloat):void {.cdecl, importc:"sdtx_pos_y".}
+proc c_posY(y:cfloat):void {.cdecl, importc:"sdtx_pos_y".}
+proc posY*(y:cfloat):void =
+    c_posY(y)
 
-proc move*(dx:cfloat, dy:cfloat):void {.cdecl, importc:"sdtx_move".}
+proc c_move(dx:cfloat, dy:cfloat):void {.cdecl, importc:"sdtx_move".}
+proc move*(dx:cfloat, dy:cfloat):void =
+    c_move(dx, dy)
 
-proc moveX*(dx:cfloat):void {.cdecl, importc:"sdtx_move_x".}
+proc c_moveX(dx:cfloat):void {.cdecl, importc:"sdtx_move_x".}
+proc moveX*(dx:cfloat):void =
+    c_moveX(dx)
 
-proc moveY*(dy:cfloat):void {.cdecl, importc:"sdtx_move_y".}
+proc c_moveY(dy:cfloat):void {.cdecl, importc:"sdtx_move_y".}
+proc moveY*(dy:cfloat):void =
+    c_moveY(dy)
 
-proc crlf*():void {.cdecl, importc:"sdtx_crlf".}
+proc c_crlf():void {.cdecl, importc:"sdtx_crlf".}
+proc crlf*():void =
+    c_crlf()
 
-proc color3b*(r:uint8, g:uint8, b:uint8):void {.cdecl, importc:"sdtx_color3b".}
+proc c_color3b(r:uint8, g:uint8, b:uint8):void {.cdecl, importc:"sdtx_color3b".}
+proc color3b*(r:uint8, g:uint8, b:uint8):void =
+    c_color3b(r, g, b)
 
-proc color3f*(r:cfloat, g:cfloat, b:cfloat):void {.cdecl, importc:"sdtx_color3f".}
+proc c_color3f(r:cfloat, g:cfloat, b:cfloat):void {.cdecl, importc:"sdtx_color3f".}
+proc color3f*(r:cfloat, g:cfloat, b:cfloat):void =
+    c_color3f(r, g, b)
 
-proc color4b*(r:uint8, g:uint8, b:uint8, a:uint8):void {.cdecl, importc:"sdtx_color4b".}
+proc c_color4b(r:uint8, g:uint8, b:uint8, a:uint8):void {.cdecl, importc:"sdtx_color4b".}
+proc color4b*(r:uint8, g:uint8, b:uint8, a:uint8):void =
+    c_color4b(r, g, b, a)
 
-proc color4f*(r:cfloat, g:cfloat, b:cfloat, a:cfloat):void {.cdecl, importc:"sdtx_color4f".}
+proc c_color4f(r:cfloat, g:cfloat, b:cfloat, a:cfloat):void {.cdecl, importc:"sdtx_color4f".}
+proc color4f*(r:cfloat, g:cfloat, b:cfloat, a:cfloat):void =
+    c_color4f(r, g, b, a)
 
-proc color1i*(rgba:uint32):void {.cdecl, importc:"sdtx_color1i".}
+proc c_color1i(rgba:uint32):void {.cdecl, importc:"sdtx_color1i".}
+proc color1i*(rgba:uint32):void =
+    c_color1i(rgba)
 
-proc putc*(c:cchar):void {.cdecl, importc:"sdtx_putc".}
+proc c_putc(c:cchar):void {.cdecl, importc:"sdtx_putc".}
+proc putc*(c:cchar):void =
+    c_putc(c)
 
-proc puts*(str:cstring):void {.cdecl, importc:"sdtx_puts".}
+proc c_puts(str:cstring):void {.cdecl, importc:"sdtx_puts".}
+proc puts*(str:cstring):void =
+    c_puts(str)
 
-proc putr*(str:cstring, len:cint):void {.cdecl, importc:"sdtx_putr".}
+proc c_putr(str:cstring, len:cint):void {.cdecl, importc:"sdtx_putr".}
+proc putr*(str:cstring, len:cint):void =
+    c_putr(str, len)
 
 # Nim-specific API extensions
 include extra/debugtext
