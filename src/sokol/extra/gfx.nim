@@ -91,6 +91,78 @@ converter toColor*[
 converter toRange*[T](source: T): Range =
   Range(`ptr`: source.unsafeAddr, size: source.sizeof.uint)
 
+# Accept partial initialization of arrays
+
+converter toColorAttachmentActions*[N:static[int]](
+  actions:array[N, ColorAttachmentAction]
+):array[maxColorAttachments, ColorAttachmentAction] =
+  static: assert(N <= maxColorAttachments)
+  for i,action in actions.pairs: result[i] = action
+
+converter toShaderUniformBlockDescs*[N:static[int]](
+  descs:array[N, ShaderUniformBlockDesc]
+):array[maxShaderstageUbs, ShaderUniformBlockDesc] =
+  static: assert(N <= maxShaderstageUbs)
+  for i,desc in descs.pairs: result[i] = desc
+
+converter toShaderUniformDescs*[N:static[int]](
+  descs:array[N, ShaderUniformDesc]
+):array[maxUbMembers, ShaderUniformDesc] =
+  static: assert(N <= maxUbMembers)
+  for i,desc in descs.pairs: result[i] = desc
+
+converter toBufferLayoutDescs*[N:static[int]](
+  descs:array[N, BufferLayoutDesc]
+):array[maxShaderStageBuffers, BufferLayoutDesc] =
+  static: assert(N <= maxShaderStageBuffers)
+  for i,desc in descs.pairs: result[i] = desc
+
+converter toVertexAttrDescs*[N:static[int]](
+  descs:array[N, VertexAttrDesc]
+):array[maxVertexAttributes, VertexAttrDesc] =
+  static: assert(N <= maxVertexAttributes)
+  for i,desc in descs.pairs: result[i] = desc
+
+converter toShaderAttrDescs*[N:static[int]](
+  descs:array[N, ShaderAttrDesc]
+):array[maxVertexAttributes, ShaderAttrDesc] =
+  static: assert(N <= maxVertexAttributes)
+  for i,desc in descs.pairs: result[i] = desc
+
+converter toBuffers*[N:static[int]](
+  descs:array[N, Buffer]
+):array[maxShaderStageBuffers, Buffer] =
+  static: assert(N <= maxShaderStageBuffers)
+  for i,desc in descs.pairs: result[i] = desc
+
+converter toImages*[N:static[int]](
+  images:array[N, ShaderImageDesc]
+):array[maxShaderstageImages, ShaderImageDesc] =
+  static: assert(N <= maxShaderstageImages)
+  for i,image in images.pairs: result[i] = image
+
+converter toImages*[N:static[int]](
+  images:array[N, Image]
+):array[maxShaderstageImages, Image] =
+  static: assert(N <= maxShaderstageImages)
+  for i,image in images.pairs: result[i] = image
+
+converter toImageData*[N:static[int], M:static[int]](
+  layers:array[N, array[M, Range]]
+):ImageData =
+  static:
+    assert(N <= ord(CubeFace.Num))
+    assert(M <= MAX_MIPMAPS)
+  for i,layer in layers:
+    for j,image in layer:
+      result.subimage[i][j] = image
+
+converter toColors*[N:static[int]](
+  images:array[N, ColorState]
+):array[maxColorAttachments, ColorState] =
+  static: assert(N <= maxColorAttachments)
+  for i,image in images.pairs: result[i] = image
+
 # Implementation ---------------------------------------------------------------
 
 {.passc:"-DSOKOL_NIM_IMPL".}
