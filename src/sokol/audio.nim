@@ -61,7 +61,8 @@ proc push*(frames:ptr cfloat, num_frames:cint):cint =
     c_push(frames, num_frames)
 
 when defined windows:
-  {.passl:"-lkernel32 -lole32".}
+  when not defined vcc:
+    {.passl:"-lkernel32 -lole32".}
 elif defined macosx:
   {.passl:"-framework AudioToolbox".}
 elif defined linux:

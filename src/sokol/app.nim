@@ -505,12 +505,14 @@ proc androidGetNativeActivity*():pointer =
     c_androidGetNativeActivity()
 
 when defined windows:
-  {.passl:"-lkernel32 -luser32 -lshell32 -lgdi32".}
+  when not defined vcc:
+    {.passl:"-lkernel32 -luser32 -lshell32 -lgdi32".}
   when defined gl:
     {.passc:"-DSOKOL_GLCORE33".}
   else:
     {.passc:"-DSOKOL_D3D11".}
-    {.passl:"-ld3d11 -ldxgi".}
+    when not defined vcc:
+      {.passl:"-ld3d11 -ldxgi".}
 elif defined macosx:
   {.passc:"-x objective-c".}
   {.passl:"-framework Cocoa -framework QuartzCore".}
