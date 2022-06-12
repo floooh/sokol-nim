@@ -43,13 +43,9 @@ $ nimble install glm
 
 # compile & run cube.nim using the platform's
 # native graphics API
-$ nim c --run --noMain examples/cube.nim
+$ nim c --run examples/cube.nim
 
 # compile & run cube.nim using OpenGL or OpenGL ES
 # explicitly (-d:gl)
-$ nim c --run --noMain -d:gl examples/cube.nim
+$ nim c --run -d:gl examples/cube.nim
 ```
-
-You should pass the `--noMain` option to the Nim compiler, because the
-`sokol/app` module provides a platform-specific application entry point,
-and will call `NimMain` to execute module-level statements in your Nim modules.
