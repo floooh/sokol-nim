@@ -1,3 +1,5 @@
+[![build](https://github.com/floooh/sokol-nim/actions/workflows/main.yml/badge.svg)](https://github.com/floooh/sokol-nim/actions/workflows/main.yml)
+
 Auto-generated Nim bindings for the [sokol headers](https://github.com/floooh/sokol).
 
 ## Tested platform/compiler combinations
