@@ -60,5 +60,14 @@ proc c_push(frames:ptr cfloat, num_frames:cint):cint {.cdecl, importc:"saudio_pu
 proc push*(frames:ptr cfloat, num_frames:cint):cint =
     c_push(frames, num_frames)
 
-# Nim-specific API extensions
-include extra/audio
+when defined windows:
+  {.passl:"-lkernel32 -lole32".}
+elif defined macosx:
+  {.passl:"-framework AudioToolbox".}
+elif defined linux:
+  {.passl:"-lasound -lm -lpthread".}
+else:
+  error("unsupported platform")
+
+{.passc:"-DSOKOL_NIM_IMPL".}
+{.compile:"c/sokol_audio.c".}

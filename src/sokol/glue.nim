@@ -6,5 +6,5 @@ proc c_context():gfx.ContextDesc {.cdecl, importc:"sapp_sgcontext".}
 proc context*():gfx.ContextDesc =
     c_context()
 
-# Nim-specific API extensions
-include extra/glue
+{.passc:"-DSOKOL_NIM_IMPL".}
+{.compile:"c/sokol_glue.c".}

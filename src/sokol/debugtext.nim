@@ -35,6 +35,10 @@ type Desc* = object
   context*:ContextDesc
   allocator*:Allocator
 
+converter to_Desc_fonts*[N:static[int]](items: array[N, FontDesc]): array[8, FontDesc] =
+  static: assert(N < 8)
+  for index,item in items.pairs: result[index]=item
+
 proc c_setup(desc:ptr Desc):void {.cdecl, importc:"sdtx_setup".}
 proc setup*(desc:Desc):void =
     c_setup(unsafeAddr(desc))
@@ -167,5 +171,9 @@ proc c_putr(str:cstring, len:cint):void {.cdecl, importc:"sdtx_putr".}
 proc putr*(str:cstring, len:cint):void =
     c_putr(str, len)
 
-# Nim-specific API extensions
-include extra/debugtext
+# helper function to convert "anything" into a Range
+converter to_Range*[T](source: T): Range =
+  Range(`ptr`: source.unsafeAddr, size: source.sizeof.uint)
+
+{.passc:"-DSOKOL_NIM_IMPL".}
+{.compile:"c/sokol_debugtext.c".}

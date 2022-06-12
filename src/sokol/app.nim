@@ -203,6 +203,10 @@ type Event* = object
   framebufferWidth*:cint
   framebufferHeight*:cint
 
+converter to_Event_touches*[N:static[int]](items: array[N, Touchpoint]): array[8, Touchpoint] =
+  static: assert(N < 8)
+  for index,item in items.pairs: result[index]=item
+
 type Range* = object
   `ptr`*:pointer
   size*:csize_t
@@ -215,6 +219,10 @@ type ImageDesc* = object
 type IconDesc* = object
   sokolDefault*:bool
   images*:array[8, ImageDesc]
+
+converter to_IconDesc_images*[N:static[int]](items: array[N, ImageDesc]): array[8, ImageDesc] =
+  static: assert(N < 8)
+  for index,item in items.pairs: result[index]=item
 
 type Allocator* = object
   alloc*:proc(a1:csize_t, a2:pointer):pointer {.cdecl.}
@@ -496,5 +504,27 @@ proc c_androidGetNativeActivity():pointer {.cdecl, importc:"sapp_android_get_nat
 proc androidGetNativeActivity*():pointer =
     c_androidGetNativeActivity()
 
-# Nim-specific API extensions
-include extra/app
+when defined windows:
+  {.passl:"-lkernel32 -luser32 -lshell32 -lgdi32".}
+  when defined gl:
+    {.passc:"-DSOKOL_GLCORE33".}
+  else:
+    {.passc:"-DSOKOL_D3D11".}
+    {.passl:"-ld3d11 -ldxgi".}
+elif defined macosx:
+  {.passc:"-x objective-c".}
+  {.passl:"-framework Cocoa -framework QuartzCore".}
+  when defined gl:
+    {.passc:"-DSOKOL_GLCORE33".}
+    {.passl:"-framework OpenGL".}
+  else:
+    {.passc:"-DSOKOL_METAL".}
+    {.passl:"-framework Metal -framework MetalKit".}
+elif defined linux:
+  {.passc:"-DSOKOL_GLCORE33".}
+  {.passl:"-lX11 -lXi -lXcursor -lGL -lm -ldl -lpthread".}
+else:
+  error("unsupported platform")
+
+{.passc:"-DSOKOL_NIM_IMPL".}
+{.compile:"c/sokol_app.c".}

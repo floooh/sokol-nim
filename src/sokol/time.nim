@@ -40,5 +40,5 @@ proc c_ns(ticks:uint64):cdouble {.cdecl, importc:"stm_ns".}
 proc ns*(ticks:uint64):cdouble =
     c_ns(ticks)
 
-# Nim-specific API extensions
-include extra/time
+{.passc:"-DSOKOL_NIM_IMPL".}
+{.compile:"c/sokol_time.c".}

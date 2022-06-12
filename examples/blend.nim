@@ -44,7 +44,7 @@ proc init() {.cdecl.} =
   let vbuf = makeBuffer(
     BufferDesc(
       type: BufferType.vertexBuffer,
-      data: toRange(quadVertices),
+      data: quadVertices,
       label: "quad-vertices",
     )
   )

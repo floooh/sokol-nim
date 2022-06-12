@@ -390,6 +390,10 @@ type PassAction* = object
   stencil*:StencilAttachmentAction
   endCanary:uint32
 
+converter to_PassAction_colors*[N:static[int]](items: array[N, ColorAttachmentAction]): array[4, ColorAttachmentAction] =
+  static: assert(N < 4)
+  for index,item in items.pairs: result[index]=item
+
 type Bindings* = object
   startCanary:uint32
   vertexBuffers*:array[8, Buffer]
@@ -399,6 +403,22 @@ type Bindings* = object
   vsImages*:array[12, Image]
   fsImages*:array[12, Image]
   endCanary:uint32
+
+converter to_Bindings_vertexBuffers*[N:static[int]](items: array[N, Buffer]): array[8, Buffer] =
+  static: assert(N < 8)
+  for index,item in items.pairs: result[index]=item
+
+converter to_Bindings_vertexBufferOffsets*[N:static[int]](items: array[N, cint]): array[8, cint] =
+  static: assert(N < 8)
+  for index,item in items.pairs: result[index]=item
+
+converter to_Bindings_vsImages*[N:static[int]](items: array[N, Image]): array[12, Image] =
+  static: assert(N < 12)
+  for index,item in items.pairs: result[index]=item
+
+converter to_Bindings_fsImages*[N:static[int]](items: array[N, Image]): array[12, Image] =
+  static: assert(N < 12)
+  for index,item in items.pairs: result[index]=item
 
 type BufferDesc* = object
   startCanary:uint32
@@ -413,8 +433,23 @@ type BufferDesc* = object
   wgpuBuffer*:pointer
   endCanary:uint32
 
+converter to_BufferDesc_glBuffers*[N:static[int]](items: array[N, uint32]): array[2, uint32] =
+  static: assert(N < 2)
+  for index,item in items.pairs: result[index]=item
+
+converter to_BufferDesc_mtlBuffers*[N:static[int]](items: array[N, pointer]): array[2, pointer] =
+  static: assert(N < 2)
+  for index,item in items.pairs: result[index]=item
+
 type ImageData* = object
   subimage*:array[6, array[16, Range]]
+
+converter to_ImageData_subimage*[Y:static[int], X:static[int]](items: array[Y, array[X, Range]]): array[6, array[16, Range]] =
+  static: assert(X < 16)
+  static: assert(Y < 6)
+  for indexY,itemY in items.pairs:
+    for indexX, itemX in itemY.pairs:
+      result[indexY][indexX] = itemX
 
 type ImageDesc* = object
   startCanary:uint32
@@ -446,6 +481,14 @@ type ImageDesc* = object
   wgpuTexture*:pointer
   endCanary:uint32
 
+converter to_ImageDesc_glTextures*[N:static[int]](items: array[N, uint32]): array[2, uint32] =
+  static: assert(N < 2)
+  for index,item in items.pairs: result[index]=item
+
+converter to_ImageDesc_mtlTextures*[N:static[int]](items: array[N, pointer]): array[2, pointer] =
+  static: assert(N < 2)
+  for index,item in items.pairs: result[index]=item
+
 type ShaderAttrDesc* = object
   name*:cstring
   semName*:cstring
@@ -461,6 +504,10 @@ type ShaderUniformBlockDesc* = object
   layout*:UniformLayout
   uniforms*:array[16, ShaderUniformDesc]
 
+converter to_ShaderUniformBlockDesc_uniforms*[N:static[int]](items: array[N, ShaderUniformDesc]): array[16, ShaderUniformDesc] =
+  static: assert(N < 16)
+  for index,item in items.pairs: result[index]=item
+
 type ShaderImageDesc* = object
   name*:cstring
   imageType*:ImageType
@@ -474,6 +521,14 @@ type ShaderStageDesc* = object
   uniformBlocks*:array[4, ShaderUniformBlockDesc]
   images*:array[12, ShaderImageDesc]
 
+converter to_ShaderStageDesc_uniformBlocks*[N:static[int]](items: array[N, ShaderUniformBlockDesc]): array[4, ShaderUniformBlockDesc] =
+  static: assert(N < 4)
+  for index,item in items.pairs: result[index]=item
+
+converter to_ShaderStageDesc_images*[N:static[int]](items: array[N, ShaderImageDesc]): array[12, ShaderImageDesc] =
+  static: assert(N < 12)
+  for index,item in items.pairs: result[index]=item
+
 type ShaderDesc* = object
   startCanary:uint32
   attrs*:array[16, ShaderAttrDesc]
@@ -481,6 +536,10 @@ type ShaderDesc* = object
   fs*:ShaderStageDesc
   label*:cstring
   endCanary:uint32
+
+converter to_ShaderDesc_attrs*[N:static[int]](items: array[N, ShaderAttrDesc]): array[16, ShaderAttrDesc] =
+  static: assert(N < 16)
+  for index,item in items.pairs: result[index]=item
 
 type BufferLayoutDesc* = object
   stride*:cint
@@ -495,6 +554,14 @@ type VertexAttrDesc* = object
 type LayoutDesc* = object
   buffers*:array[8, BufferLayoutDesc]
   attrs*:array[16, VertexAttrDesc]
+
+converter to_LayoutDesc_buffers*[N:static[int]](items: array[N, BufferLayoutDesc]): array[8, BufferLayoutDesc] =
+  static: assert(N < 8)
+  for index,item in items.pairs: result[index]=item
+
+converter to_LayoutDesc_attrs*[N:static[int]](items: array[N, VertexAttrDesc]): array[16, VertexAttrDesc] =
+  static: assert(N < 16)
+  for index,item in items.pairs: result[index]=item
 
 type StencilFaceState* = object
   compare*:CompareFunc
@@ -550,6 +617,10 @@ type PipelineDesc* = object
   label*:cstring
   endCanary:uint32
 
+converter to_PipelineDesc_colors*[N:static[int]](items: array[N, ColorState]): array[4, ColorState] =
+  static: assert(N < 4)
+  for index,item in items.pairs: result[index]=item
+
 type PassAttachmentDesc* = object
   image*:Image
   mipLevel*:cint
@@ -561,6 +632,10 @@ type PassDesc* = object
   depthStencilAttachment*:PassAttachmentDesc
   label*:cstring
   endCanary:uint32
+
+converter to_PassDesc_colorAttachments*[N:static[int]](items: array[N, PassAttachmentDesc]): array[4, PassAttachmentDesc] =
+  static: assert(N < 4)
+  for index,item in items.pairs: result[index]=item
 
 type TraceHooks* = object
   userData*:pointer
@@ -1055,5 +1130,58 @@ proc c_mtlRenderCommandEncoder():pointer {.cdecl, importc:"sg_mtl_render_command
 proc mtlRenderCommandEncoder*():pointer =
     c_mtlRenderCommandEncoder()
 
-# Nim-specific API extensions
-include extra/gfx
+when defined gl:
+  const gl*    = true
+  const d3d11* = false
+  const metal* = false
+elif defined windows:
+  const gl*    = false
+  const d3d11* = true
+  const metal* = false
+elif defined macosx:
+  const gl*    = false
+  const d3d11* = false
+  const metal* = true
+elif defined linux:
+  const gl*    = true
+  const d3d11* = false
+  const metal* = false
+else:
+  error("unsupported platform")
+
+when defined windows:
+  {.passl:"-lkernel32 -luser32 -lshell32 -lgdi32".}
+  when defined gl:
+    {.passc:"-DSOKOL_GLCORE33".}
+  else:
+    {.passc:"-DSOKOL_D3D11".}
+    {.passl:"-ld3d11 -ldxgi".}
+elif defined macosx:
+  {.passc:"-x objective-c".}
+  {.passl:"-framework Cocoa -framework QuartzCore".}
+  when defined gl:
+    {.passc:"-DSOKOL_GLCORE33".}
+    {.passl:"-framework OpenGL".}
+  else:
+    {.passc:"-DSOKOL_METAL".}
+    {.passl:"-framework Metal -framework MetalKit".}
+elif defined linux:
+  {.passc:"-DSOKOL_GLCORE33".}
+  {.passl:"-lX11 -lXi -lXcursor -lGL -lm -ldl -lpthread".}
+else:
+  error("unsupported platform")
+
+# helper function to convert "anything" into a Range
+converter to_Range*[T](source: T): Range =
+  Range(`ptr`: source.unsafeAddr, size: source.sizeof.uint)
+
+## Convert a 4-element tuple of numbers to a gfx.Color
+converter toColor*[R:SomeNumber,G:SomeNumber,B:SomeNumber,A:SomeNumber](rgba: tuple [r:R,g:G,b:B,a:A]):Color =
+  Color(r:rgba.r.float32, g:rgba.g.float32, b:rgba.b.float32, a:rgba.a.float32)
+
+## Convert a 3-element tuple of numbers to a gfx.Color
+converter toColor*[R:SomeNumber,G:SomeNumber,B:SomeNumber](rgba: tuple [r:R,g:G,b:B]):Color =
+  Color(r:rgba.r.float32, g:rgba.g.float32, b:rgba.b.float32, a:1.float32)
+
+{.passc:"-DSOKOL_NIM_IMPL".}
+{.compile:"c/sokol_gfx.c".}

@@ -9,6 +9,13 @@ type Range* = object
 type Mat4* = object
   m*:array[4, array[4, cfloat]]
 
+converter to_Mat4_m*[Y:static[int], X:static[int]](items: array[Y, array[X, cfloat]]): array[4, array[4, cfloat]] =
+  static: assert(X < 4)
+  static: assert(Y < 4)
+  for indexY,itemY in items.pairs:
+    for indexX, itemX in itemY.pairs:
+      result[indexY][indexX] = itemX
+
 type Vertex* = object
   x*:cfloat
   y*:cfloat
@@ -184,5 +191,9 @@ proc c_mat4Transpose(m:ptr cfloat):Mat4 {.cdecl, importc:"sshape_mat4_transpose"
 proc mat4Transpose*(m:ptr cfloat):Mat4 =
     c_mat4Transpose(m)
 
-# Nim-specific API extensions
-include extra/shape
+# helper function to convert "anything" into a Range
+converter to_Range*[T](source: T): Range =
+  Range(`ptr`: source.unsafeAddr, size: source.sizeof.uint)
+
+{.passc:"-DSOKOL_NIM_IMPL".}
+{.compile:"c/sokol_shape.c".}

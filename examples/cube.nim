@@ -28,7 +28,7 @@ proc init() {.cdecl.} =
   let vbuf = makeBuffer(
     BufferDesc(
       type: BufferType.vertexBuffer,
-      data: toRange(vertices),
+      data: vertices,
       label: "cube-vertices",
     )
   )
@@ -36,7 +36,7 @@ proc init() {.cdecl.} =
   let ibuf = makeBuffer(
     BufferDesc(
       type: BufferType.indexBuffer,
-      data: toRange(indices),
+      data: indices,
       label: "cube-indices",
     )
   )
@@ -116,7 +116,7 @@ proc frame() {.cdecl.} =
   beginDefaultPass(passAction, app.width(), app.height())
   applyPipeline(pipeline)
   applyBindings(bindings)
-  applyUniforms(ShaderStage.vs, 0, toRange(uniforms))
+  applyUniforms(ShaderStage.vs, 0, uniforms)
   draw(0, 36, 1)
   endPass()
   commit()

@@ -373,5 +373,5 @@ proc c_contextDraw(ctx:Context):void {.cdecl, importc:"sgl_context_draw".}
 proc contextDraw*(ctx:Context):void =
     c_contextDraw(ctx)
 
-# Nim-specific API extensions
-include extra/gl
+{.passc:"-DSOKOL_NIM_IMPL".}
+{.compile:"c/sokol_gl.c".}
