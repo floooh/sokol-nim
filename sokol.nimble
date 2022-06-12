@@ -18,3 +18,12 @@ task cube, "Runs the cube example":
 
 task blend, "Runs the blend example":
   exec "nim r examples/blend"
+
+task build_all, "Build all examples":
+  # hmm, is there a better way?
+  let examples = [ "clear", "cube", "blend" ]
+  for example in examples:
+    when defined windows:
+      exec "nim c --cc:vcc examples/" & example
+    else:
+      exec "nim c examples/" & example
