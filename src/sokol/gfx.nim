@@ -180,7 +180,7 @@ type
     twoDee,
     cube,
     threeDee,
-    array,
+    `array`,
 
 type
   SamplerType* {.pure, size:sizeof(cint).} = enum
