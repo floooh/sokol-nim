@@ -4,8 +4,8 @@
 #-------------------------------------------------------------------------------
 
 import glm
-import sokol/[app,gfx,glue]
-from cube_data import vertices, indices, vertexShader, fragmentShader
+import sokol/[gfx, app, glue]
+import shaders/cube as shd
 
 type Uniforms = object
   mvp: Mat4f
@@ -23,12 +23,43 @@ const passAction = PassAction(
 )
 
 proc init() {.cdecl.} =
-  setup(gfx.Desc(context: context()))
+  setup(gfx.Desc(context: glue.context()))
 
   let vbuf = makeBuffer(
     BufferDesc(
       type: BufferType.vertexBuffer,
-      data: vertices,
+      data: [
+        # position             color0
+        -1.0'f32, -1.0, -1.0,  1.0, 0.0, 0.0, 1.0,
+         1.0, -1.0, -1.0,      1.0, 0.0, 0.0, 1.0,
+         1.0,  1.0, -1.0,      1.0, 0.0, 0.0, 1.0,
+        -1.0,  1.0, -1.0,      1.0, 0.0, 0.0, 1.0,
+
+        -1.0, -1.0,  1.0,      0.0, 1.0, 0.0, 1.0,
+         1.0, -1.0,  1.0,      0.0, 1.0, 0.0, 1.0,
+         1.0,  1.0,  1.0,      0.0, 1.0, 0.0, 1.0,
+        -1.0,  1.0,  1.0,      0.0, 1.0, 0.0, 1.0,
+
+        -1.0, -1.0, -1.0,      0.0, 0.0, 1.0, 1.0,
+        -1.0,  1.0, -1.0,      0.0, 0.0, 1.0, 1.0,
+        -1.0,  1.0,  1.0,      0.0, 0.0, 1.0, 1.0,
+        -1.0, -1.0,  1.0,      0.0, 0.0, 1.0, 1.0,
+
+         1.0, -1.0, -1.0,      1.0, 0.5, 0.0, 1.0,
+         1.0,  1.0, -1.0,      1.0, 0.5, 0.0, 1.0,
+         1.0,  1.0,  1.0,      1.0, 0.5, 0.0, 1.0,
+         1.0, -1.0,  1.0,      1.0, 0.5, 0.0, 1.0,
+
+        -1.0, -1.0, -1.0,      0.0, 0.5, 1.0, 1.0,
+        -1.0, -1.0,  1.0,      0.0, 0.5, 1.0, 1.0,
+         1.0, -1.0,  1.0,      0.0, 0.5, 1.0, 1.0,
+         1.0, -1.0, -1.0,      0.0, 0.5, 1.0, 1.0,
+
+        -1.0,  1.0, -1.0,      1.0, 0.0, 0.5, 1.0,
+        -1.0,  1.0,  1.0,      1.0, 0.0, 0.5, 1.0,
+         1.0,  1.0,  1.0,      1.0, 0.0, 0.5, 1.0,
+         1.0,  1.0, -1.0,      1.0, 0.0, 0.5, 1.0,
+      ],
       label: "cube-vertices",
     )
   )
@@ -36,33 +67,19 @@ proc init() {.cdecl.} =
   let ibuf = makeBuffer(
     BufferDesc(
       type: BufferType.indexBuffer,
-      data: indices,
+      data: [
+        0'u16, 1, 2,  0, 2, 3,
+        6, 5, 4,      7, 6, 4,
+        8, 9, 10,     8, 10, 11,
+        14, 13, 12,   15, 14, 12,
+        16, 17, 18,   16, 18, 19,
+        22, 21, 20,   23, 22, 20,
+      ],
       label: "cube-indices",
     )
   )
 
-  let shader = makeShader(
-    ShaderDesc(
-      attrs: [
-        ShaderAttrDesc(semName: "POSITION"),
-        ShaderAttrDesc(semName: "COLOR", semIndex: 0),
-      ],
-      vs: ShaderStageDesc(
-        uniformBlocks: [
-          ShaderUniformBlockDesc(
-            size: Uniforms.sizeof.uint,
-            uniforms: [
-              ShaderUniformDesc(name: "mvp", type: UniformType.mat4)
-            ]
-          )
-        ],
-        source: vertexShader
-      ),
-      fs: ShaderStageDesc(
-        source: fragmentShader
-      )
-    )
-  )
+  let shader = makeShader(shd.cubeShaderDesc(queryBackend()))
 
   pipeline = makePipeline(
     PipelineDesc(
@@ -132,9 +149,10 @@ app.run(app.Desc(
   frameCb: frame,
   cleanupCb: cleanup,
   failCb: fail,
-  windowTitle: "gfx.nim",
+  windowTitle: "cube.nim",
   width: 640,
   height: 480,
+  sampleCount: 4,
   win32ConsoleAttach: true,
   win32ConsoleUtf8: true,
 ))
