@@ -14,6 +14,9 @@ import strformat
 task clear, "Runs the clear example":
   exec "nim r examples/clear"
 
+task triangle, "Runs the triangle example":
+  exec "nim r examples/triangle"
+
 task cube, "Runs the cube example":
   exec "nim r examples/cube"
 
@@ -24,17 +27,19 @@ task build_all, "Build all examples":
   # hmm, is there a better way?
   let examples = [
     "clear",
+    "triangle",
     "cube",
     "blend"
   ]
   for example in examples:
     when defined(windows):
-      exec &"nim c --cc:vcc examples/{example}"
+      exec &"nim c --cc:vcc --debugger:native examples/{example}"
     else:
-      exec &"nim c examples/{example}"
+      exec &"nim c --debugger:native examples/{example}"
 
 task shaders, "Compile all shaders (requires ../sokol-tools-bin)":
-  let shaders = [ 
+  let shaders = [
+    "triangle",
     "cube",
     "blend"
   ]

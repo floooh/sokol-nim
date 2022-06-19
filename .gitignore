@@ -3,7 +3,9 @@ nimcache/
 *.exe
 *.ilk
 *.pdb
+*.dSYM
 examples/clear
 examples/cube
 examples/blend
+examples/triangle
 
