@@ -1,5 +1,5 @@
-@cimport glm
-@ctype mat4 Mat4f
+@cimport ../math/mat4
+@ctype mat4 Mat4
 
 @vs vs
 uniform vs_params {

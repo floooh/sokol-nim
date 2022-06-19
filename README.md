@@ -38,9 +38,6 @@ Examples are found in the `examples` subdirectory, and can be compiled and run a
 $ cd path/to/sokol-nim
 $ nimble install
 
-# install glm
-$ nimble install glm
-
 # compile & run cube.nim using the platform's
 # native graphics API
 $ nim c --run examples/cube.nim

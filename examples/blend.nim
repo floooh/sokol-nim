@@ -2,30 +2,25 @@
 # blend.nim
 # Test/demonstrate blend modes.
 #-------------------------------------------------------------------------------
+import sokol/gfx as sg
+import sokol/app as sapp
+import sokol/glue as glue
+import std/math
+import math/Vec3
+import math/Mat4
+import shaders/blend as shd
 
-import glm
-import sokol/[app,gfx,glue]
-from blend_data import
-  quadVertices, quadVertexShader, quadFragmentShader,
-  bgVertexShader, bgFragmentShader
+import typetraits
 
 const numBlendFactors = 15
 
-type VsUniforms = object
-  mvp: Mat4f
+var
+  bgPip: Pipeline
+  pip: array[numBlendFactors, array[numBlendFactors, Pipeline]]
+  bindings: Bindings
+  r = 0f
+  tick = 0f
 
-type FsUniforms = object
-  tick: float32
-
-var bgPipeline: Pipeline
-var pipelines: array[numBlendFactors, array[numBlendFactors, Pipeline]]
-var bindings: Bindings
-
-var vsUniforms = VsUniforms()
-var fsUniforms = FsUniforms()
-var r = 0f
-
-# pass action does not clear because the entire screen will be overwritten
 const passAction = PassAction(
   colors: [ColorAttachmentAction(action: Action.dontCare)],
   depth: DepthAttachmentAction(action: Action.dontCare),
@@ -33,159 +28,100 @@ const passAction = PassAction(
 )
 
 proc init() {.cdecl.} =
-  setup(
-    gfx.Desc(
-      context:context(),
+  echo numBlendFactors.type.name
+  sg.setup(sg.Desc(
       pipelinePoolSize: numBlendFactors * numBlendFactors + 1,
-    )
-  )
+      context:context(),
+    ))
 
   # quad vertex buffer
-  let vbuf = makeBuffer(
-    BufferDesc(
+  bindings.vertexBuffers[0] = sg.makeBuffer(BufferDesc(
       type: BufferType.vertexBuffer,
-      data: quadVertices,
-      label: "quad-vertices",
-    )
-  )
-
-  let bgShader = makeShader(
-    ShaderDesc(
-      attrs:[
-        ShaderAttrDesc(semName: "POS")
+      data: [
+        # position             color0
+        -1.0f, -1.0f, 0.0f,    1.0f, 0.0f, 0.0f, 0.5f,
+        +1.0f, -1.0f, 0.0f,    0.0f, 1.0f, 0.0f, 0.5f,
+        -1.0f, +1.0f, 0.0f,    0.0f, 0.0f, 1.0f, 0.5f,
+        +1.0f, +1.0f, 0.0f,    1.0f, 1.0f, 0.0f, 0.5f
       ],
-      vs: ShaderStageDesc(
-        source: bgVertexShader
-      ),
-      fs: ShaderStageDesc(
-        uniformBlocks: [
-          ShaderUniformBlockDesc(
-            size: FsUniforms.sizeof.uint,
-            uniforms: [
-              ShaderUniformDesc(name: "tick", type: UniformType.float),
-            ],
-          ),
-        ],
-        source: bgFragmentShader
-      )
-    )
-  )
+    ))
 
-  bgPipeline = makePipeline(
-    PipelineDesc(
-      layout: LayoutDesc(
-        buffers: [
-          BufferLayoutDesc(stride: 28),
-        ],
-        attrs: [
-          VertexAttrDesc(offset: 0, format: VertexFormat.float2),
-        ],
-      ),
-      shader: bgShader,
-      primitiveType: PrimitiveType.triangleStrip,
-      label: "bgPipeline",
-    )
-  )
+  # pipeline object for rendering the background
+  bgPip = sg.makePipeline(PipelineDesc(
+    layout: LayoutDesc(
+      buffers: [ BufferLayoutDesc(stride: 28) ],
+      attrs: [ VertexAttrDesc(offset: 0, format: VertexFormat.float2 )]
+    ),
+    shader: sg.makeShader(shd.bgShaderDesc(sg.queryBackend())),
+    primitiveType: PrimitiveType.triangleStrip,
+  ))
 
-  let quadShader = makeShader(
-    ShaderDesc(
+  # lot of pipeline objects for rendering the blended quads
+  var pipDesc = PipelineDesc(
+    layout: LayoutDesc(
       attrs: [
-        ShaderAttrDesc(semName: "POS"),
-        ShaderAttrDesc(semName: "COLOR")
-      ],
-      vs: ShaderStageDesc(
-        uniformBlocks: [
-          ShaderUniformBlockDesc(
-            size: VsUniforms.sizeof.uint,
-            uniforms: [
-              ShaderUniformDesc(name: "mvp", type: UniformType.mat4),
-            ],
-          ),
-        ],
-        source: quadVertexShader
-      ),
-      fs: ShaderStageDesc(
-        source: quadFragmentShader
-      )
-    )
+        VertexAttrDesc(format: VertexFormat.float3),
+        VertexAttrDesc(format: VertexFormat.float4)
+      ]
+    ),
+    shader: sg.makeShader(shd.quadShaderDesc(sg.queryBackend())),
+    primitiveType: PrimitiveType.triangleStrip,
+    blendColor: (1.0, 0.0, 0.0, 1.0),
+    colors: [
+      ColorState(blend: BlendState(enabled: true, srcFactorAlpha: BlendFactor.one, dstFactorAlpha: BlendFactor.zero))
+    ]
   )
-
-  block:
-    var pipelineDesc = PipelineDesc(
-      layout:LayoutDesc(
-          attrs:[
-              VertexAttrDesc(offset: 0,  format: VertexFormat.float3),
-              VertexAttrDesc(offset: 12, format: VertexFormat.float4),
-          ],
-      ),
-      shader: quadShader,
-      primitiveType: PrimitiveType.triangleStrip,
-      colors: [
-        ColorState(
-          blend: BlendState(
-            enabled: true,
-            srcFactorAlpha: BlendFactor.one,
-            dstFactorAlpha: BlendFactor.zero,
-          ),
-        ),
-      ],
-      blendColor:(1f, 0f, 0f, 1f),
-    )
-    for src in 0..<numBlendFactors:
-      for dst in 0..<numBlendFactors:
-        pipelineDesc.colors[0].blend.srcFactorRgb = (src+1).BlendFactor
-        pipelineDesc.colors[0].blend.dstFactorRgb = (dst+1).BlendFactor
-        pipelines[src][dst] = makePipeline(pipelineDesc)
-
-  bindings = Bindings(
-    vertexBuffers:[vbuf],
-  )
+  for src in 0..<numBlendFactors:
+    for dst in 0..<numBlendFactors:
+      pipDesc.colors[0].blend.srcFactorRgb = (src+1).BlendFactor
+      pipDesc.colors[0].blend.dstFactorRgb = (dst+1).BlendFactor
+      pip[src][dst] = sg.makePipeline(pipDesc)
 
 proc frame() {.cdecl.} =
-  let proj = perspective(radians(60f), app.widthf()/app.heightf(), 0.01f, 100f)
-  let view = lookAt(vec3(0f, 0f, 25f), vec3(0f, 0f, 0f), vec3(0f, 1f, 0f))
+  let time = sapp.frameDuration() * 60.0
+
+  sg.beginDefaultPass(passAction, sapp.width(), sapp.height());
+
+  # draw background
+  tick += 1.0 * time;
+  sg.applyPipeline(bgPip);
+  sg.applyBindings(bindings);
+  sg.applyUniforms(ShaderStage.fs, shd.slotBgFsParams, BgFsParams(tick: tick));
+  sg.draw(0, 4, 1);
+
+  # draw the blended quads
+  let proj = persp(90f, sapp.widthf() / sapp.heightf(), 0.01f, 100f);
+  let view = lookat(vec3(0f, 0f, 25f), vec3.zero(), vec3.up());
   let viewProj = proj * view;
 
-  beginDefaultPass(passAction, app.width(), app.height())
-
-  # the background quad
-  applyPipeline(bgPipeline)
-  applyBindings(bindings)
-  applyUniforms(ShaderStage.fs, 0, fsUniforms)
-  draw(0, 4, 1)
-
-  # the blended quads
+  r += 0.6 * time
   var r0 = r
   for src in 0..<numBlendFactors:
     for dst in 0..<numBlendFactors:
-      r0 += 0.06f
-      let rm = rotate(mat4(1.0f), r0, 0.0f, 1.0f, 0.0f)
-      let x = (dst.float32 - numBlendFactors/2) * 3.0f
-      let y = (src.float32 - numBlendFactors/2) * 2.2f
-      let model = translate(mat4(1.0f), x, y, 0.0f) * rm
-      vsUniforms.mvp = viewProj * model
-      applyPipeline(pipelines[src][dst])
-      applyBindings(bindings)
-      applyUniforms(ShaderStage.vs, 0, vsUniforms)
-      draw(0, 4, 1)
-
-  endPass()
-  commit()
-  r += 0.06f
-  fsUniforms.tick += 1f
+      # compute model-view-proj matrix
+      let t = vec3(
+        (dst.float32 - trunc(numBlendFactors/2)) * 3.0,
+        (src.float32 - trunc(numBlendFactors/2)) * 2.2,
+        0f
+      )
+      let model = translate(t) * rotate(r0, vec3.up())
+      sg.applyPipeline(pip[src][dst])
+      sg.applyBindings(bindings)
+      sg.applyUniforms(ShaderStage.vs, shd.slotQuadVsParams, QuadVsParams(mvp: viewProj * model))
+      sg.draw(0, 4, 1)
+      r0 += 0.6
+  sg.endPass();
+  sg.commit();
 
 proc cleanup() {.cdecl.} =
-  shutdown()
+  sg.shutdown()
 
-proc fail(reason: cstring) {.cdecl.} =
-  echo "sokol error: ", reason
-
-app.run(app.Desc(
+sapp.run(sapp.Desc(
   initCb: init,
   frameCb: frame,
   cleanupCb: cleanup,
-  failCb: fail,
   windowTitle: "blend.nim",
-  width: 640,
-  height: 480,
+  width: 800,
+  height: 600,
+  sampleCount: 4,
 ))

@@ -2,43 +2,31 @@
 # clear.nim
 # Clear the framebuffer.
 #-------------------------------------------------------------------------------
-
-import sokol/[app,gfx,glue]
+import sokol/app as sapp
+import sokol/gfx as sg
+import sokol/glue as glue
 
 var passAction = PassAction(
-  colors: [
-    ColorAttachmentAction(
-      action: Action.clear,
-      value: (1, 0, 0, 0),
-    ),
-  ]
+  colors: [ ColorAttachmentAction( action: Action.clear, value: (1, 0, 0, 0)) ]
 )
 
 proc init() {.cdecl.} =
-  setup(gfx.Desc(context: context()))
-
-proc event(e: ptr app.Event) {.cdecl.} =
-  echo e.type
+  sg.setup(sg.Desc(context: glue.context()))
 
 proc frame() {.cdecl.} =
   var g = passAction.colors[0].value.g + 0.01
   passAction.colors[0].value.g = if g > 1.0: 0.0 else: g
-  beginDefaultPass(passAction, app.width(), app.height())
+  beginDefaultPass(passAction, sapp.width(), sapp.height())
   endPass()
   commit()
 
 proc cleanup() {.cdecl.} =
-  shutdown()
+  sg.shutdown()
 
-proc fail(reason: cstring) {.cdecl.} =
-  echo "sokol error: ", reason
-
-app.run(app.Desc(
+sapp.run(sapp.Desc(
   initCb: init,
-  eventCb: event,
   frameCb: frame,
   cleanupCb: cleanup,
-  failCb: fail,
   windowTitle: "clear.nim",
   width: 400,
   height: 300,

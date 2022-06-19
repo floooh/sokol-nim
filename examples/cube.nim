@@ -2,12 +2,15 @@
 # cube.nim
 # Shader with uniform data
 #-------------------------------------------------------------------------------
-import glm
-import sokol/[gfx, app, glue]
+import sokol/gfx as sg
+import sokol/app as sapp
+import sokol/glue
+import math/vec3
+import math/mat4
 import shaders/cube as shd
 
 var
-  pipeline: Pipeline
+  pip: Pipeline
   bindings: Bindings
   rx: float32 = 0
   ry: float32 = 0
@@ -20,9 +23,9 @@ const
   )
 
 proc init() {.cdecl.} =
-  setup(gfx.Desc(context: glue.context()))
+  sg.setup(sg.Desc(context: glue.context()))
 
-  let vbuf = makeBuffer(BufferDesc(
+  let vbuf = sg.makeBuffer(BufferDesc(
     data: [
       # position             color0
       -1.0'f32, -1.0, -1.0,  1.0, 0.0, 0.0, 1.0,
@@ -57,7 +60,7 @@ proc init() {.cdecl.} =
     ]
   ))
 
-  let ibuf = makeBuffer(BufferDesc(
+  let ibuf = sg.makeBuffer(BufferDesc(
     type: BufferType.indexBuffer,
     data: [
       0'u16, 1, 2,  0, 2, 3,
@@ -69,8 +72,8 @@ proc init() {.cdecl.} =
     ]
   ))
 
-  pipeline = makePipeline(PipelineDesc(
-    shader: makeShader(shd.cubeShaderDesc(queryBackend())),
+  pip = sg.makePipeline(PipelineDesc(
+    shader: sg.makeShader(shd.cubeShaderDesc(sg.queryBackend())),
     layout: LayoutDesc(
       buffers: [
         BufferLayoutDesc(stride: 28),
@@ -92,42 +95,33 @@ proc init() {.cdecl.} =
 
 
 proc frame() {.cdecl.} =
-  let dt = frameDuration() * 60f;
+  let dt = sapp.frameDuration() * 60f;
   rx += 1f * dt;
   ry += 2f * dt;
-  let proj = perspective(
-    fovy   = radians(60.0f),
-    aspect = app.widthf()/app.heightf(),
-    zNear  = 0.01f,
-    zFar   = 100.0f)
-  let view = lookAt(
-    eye    = vec3(0.0f, 1.5f, 6.0f),
-    center = vec3(0.0f, 0.0f, 0.0f),
-    up     = vec3(0.0f, 1.0f, 0.0f))
-  let rxm = rotate(mat4f(1.0f), radians(rx), 1.0f, 0.0f, 0.0f)
-  let rym = rotate(mat4f(1.0f), radians(ry), 0.0f, 1.0f, 0.0f)
+  let proj = persp(60.0f, sapp.widthf()/sapp.heightf(), 0.01f, 10.0f)
+  let view = lookat(vec3(0.0f, 1.5f, 6.0f), vec3.zero(), vec3.up())
+  let rxm = rotate(rx, vec3(1f, 0f, 0f))
+  let rym = rotate(ry, vec3(0f, 1f, 0f))
   let model = rxm * rym
   let uniforms = VsParams(mvp: proj * view * model)
 
-  beginDefaultPass(passAction, app.width(), app.height())
-  applyPipeline(pipeline)
-  applyBindings(bindings)
-  applyUniforms(ShaderStage.vs, 0, uniforms)
-  draw(0, 36, 1)
-  endPass()
-  commit()
+  sg.beginDefaultPass(passAction, sapp.width(), sapp.height())
+  sg.applyPipeline(pip)
+  sg.applyBindings(bindings)
+  sg.applyUniforms(ShaderStage.vs, 0, uniforms)
+  sg.draw(0, 36, 1)
+  sg.endPass()
+  sg.commit()
 
 proc cleanup() {.cdecl.} =
-  shutdown()
+  sg.shutdown()
 
-app.run(app.Desc(
+sapp.run(sapp.Desc(
   initCb: init,
   frameCb: frame,
   cleanupCb: cleanup,
   windowTitle: "cube.nim",
-  width: 640,
-  height: 480,
+  width: 800,
+  height: 600,
   sampleCount: 4,
-  win32ConsoleAttach: true,
-  win32ConsoleUtf8: true,
 ))
