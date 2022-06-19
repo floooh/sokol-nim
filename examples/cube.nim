@@ -93,22 +93,22 @@ proc init() {.cdecl.} =
 
   bindings = Bindings(vertexBuffers: [vbuf], indexBuffer: ibuf)
 
-
-proc frame() {.cdecl.} =
-  let dt = sapp.frameDuration() * 60f;
-  rx += 1f * dt;
-  ry += 2f * dt;
+proc computeVsParams(): shd.VsParams =
   let proj = persp(60.0f, sapp.widthf()/sapp.heightf(), 0.01f, 10.0f)
   let view = lookat(vec3(0.0f, 1.5f, 6.0f), vec3.zero(), vec3.up())
   let rxm = rotate(rx, vec3(1f, 0f, 0f))
   let rym = rotate(ry, vec3(0f, 1f, 0f))
   let model = rxm * rym
-  let uniforms = VsParams(mvp: proj * view * model)
+  result = VsParams(mvp: proj * view * model)
 
+proc frame() {.cdecl.} =
+  let dt = sapp.frameDuration() * 60f;
+  rx += 1f * dt;
+  ry += 2f * dt;
   sg.beginDefaultPass(passAction, sapp.width(), sapp.height())
   sg.applyPipeline(pip)
   sg.applyBindings(bindings)
-  sg.applyUniforms(ShaderStage.vs, 0, uniforms)
+  sg.applyUniforms(ShaderStage.vs, shd.slotVsParams, computeVsParams())
   sg.draw(0, 36, 1)
   sg.endPass()
   sg.commit()
