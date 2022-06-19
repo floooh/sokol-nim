@@ -6,8 +6,8 @@ import sokol/gfx as sg
 import sokol/app as sapp
 import sokol/glue as glue
 import std/math
-import math/Vec3
-import math/Mat4
+import math/vec3
+import math/mat4
 import shaders/blend as shd
 
 import typetraits
