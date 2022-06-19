@@ -5,7 +5,8 @@ nimcache/
 *.pdb
 *.dSYM
 examples/clear
+examples/triangle
+examples/quad
 examples/cube
 examples/blend
-examples/triangle
 

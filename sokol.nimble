@@ -17,6 +17,9 @@ task clear, "Runs the clear example":
 task triangle, "Runs the triangle example":
   exec "nim r examples/triangle"
 
+task quad, "Runs the quad example":
+  exec "nim r examples/quad"
+
 task cube, "Runs the cube example":
   exec "nim r examples/cube"
 
@@ -28,6 +31,7 @@ task build_all, "Build all examples":
   let examples = [
     "clear",
     "triangle",
+    "quad",
     "cube",
     "blend"
   ]
@@ -40,6 +44,7 @@ task build_all, "Build all examples":
 task shaders, "Compile all shaders (requires ../sokol-tools-bin)":
   let shaders = [
     "triangle",
+    "quad",
     "cube",
     "blend"
   ]
