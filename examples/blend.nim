@@ -10,8 +10,6 @@ import math/vec3
 import math/mat4
 import shaders/blend as shd
 
-import typetraits
-
 const numBlendFactors = 15
 
 var
@@ -28,7 +26,6 @@ const passAction = PassAction(
 )
 
 proc init() {.cdecl.} =
-  echo numBlendFactors.type.name
   sg.setup(sg.Desc(
       pipelinePoolSize: numBlendFactors * numBlendFactors + 1,
       context:context(),
