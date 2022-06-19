@@ -7,6 +7,7 @@ nimcache/
 examples/clear
 examples/triangle
 examples/quad
+examples/bufferoffsets
 examples/cube
 examples/blend
 

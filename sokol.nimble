@@ -10,6 +10,23 @@ skipDirs      = @["examples"]
 requires "nim >= 1.4.4"
 import strformat
 
+let examples = [
+  "clear",
+  "triangle",
+  "quad",
+  "bufferoffsets",
+  "cube",
+  "blend"
+]
+
+let shaders = [
+  "triangle",
+  "quad",
+  "bufferoffsets",
+  "cube",
+  "blend"
+]
+
 # Tasks
 task clear, "Runs the clear example":
   exec "nim r examples/clear"
@@ -20,6 +37,9 @@ task triangle, "Runs the triangle example":
 task quad, "Runs the quad example":
   exec "nim r examples/quad"
 
+task bufferoffsets, "Run the bufferoffsets example":
+  exec "nim r examples/bufferoffsets"
+
 task cube, "Runs the cube example":
   exec "nim r examples/cube"
 
@@ -28,13 +48,6 @@ task blend, "Runs the blend example":
 
 task build_all, "Build all examples":
   # hmm, is there a better way?
-  let examples = [
-    "clear",
-    "triangle",
-    "quad",
-    "cube",
-    "blend"
-  ]
   for example in examples:
     when defined(windows):
       exec &"nim c --cc:vcc --debugger:native examples/{example}"
@@ -42,12 +55,6 @@ task build_all, "Build all examples":
       exec &"nim c --debugger:native examples/{example}"
 
 task shaders, "Compile all shaders (requires ../sokol-tools-bin)":
-  let shaders = [
-    "triangle",
-    "quad",
-    "cube",
-    "blend"
-  ]
   let binDir = "../sokol-tools-bin/bin/"
   let shdcPath = 
     when defined(windows):
