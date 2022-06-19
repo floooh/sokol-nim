@@ -9,5 +9,6 @@ examples/triangle
 examples/quad
 examples/bufferoffsets
 examples/cube
+examples/noninterleaved
 examples/blend
 
