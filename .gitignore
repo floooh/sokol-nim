@@ -10,5 +10,6 @@ examples/quad
 examples/bufferoffsets
 examples/cube
 examples/noninterleaved
+examples/texcube
 examples/blend
 

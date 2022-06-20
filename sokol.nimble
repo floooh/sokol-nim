@@ -17,6 +17,7 @@ let examples = [
   "bufferoffsets",
   "cube",
   "noninterleaved",
+  "texcube",
   "blend"
 ]
 
@@ -26,6 +27,7 @@ let shaders = [
   "bufferoffsets",
   "cube",
   "noninterleaved",
+  "texcube",
   "blend"
 ]
 
@@ -47,6 +49,9 @@ task cube, "Runs the cube example":
 
 task noninterleaved, "Runs the noninterleaved example":
   exec "nim r examples/noninterleaved"
+
+task texcube, "Runs the texcube example":
+  exec "nim r examples/texcube"
 
 task blend, "Runs the blend example":
   exec "nim r examples/blend"
