@@ -141,14 +141,3 @@ sapp.run(sapp.Desc(
   sampleCount: 4,
   windowTitle: "shapes.nim"
 ))
-
-
-
-
-
-
-
-
-
-
-
