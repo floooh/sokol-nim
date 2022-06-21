@@ -11,5 +11,6 @@ examples/bufferoffsets
 examples/cube
 examples/noninterleaved
 examples/texcube
+examples/shapes
 examples/blend
 

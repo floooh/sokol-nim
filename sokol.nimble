@@ -18,6 +18,7 @@ let examples = [
   "cube",
   "noninterleaved",
   "texcube",
+  "shapes",
   "blend"
 ]
 
@@ -28,6 +29,7 @@ let shaders = [
   "cube",
   "noninterleaved",
   "texcube",
+  "shapes",
   "blend"
 ]
 
@@ -52,6 +54,9 @@ task noninterleaved, "Runs the noninterleaved example":
 
 task texcube, "Runs the texcube example":
   exec "nim r examples/texcube"
+
+task shapes, "Runs the shapes example":
+  exec "nim r examples/shapes"
 
 task blend, "Runs the blend example":
   exec "nim r examples/blend"
