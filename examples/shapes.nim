@@ -92,8 +92,8 @@ proc frame() {.cdecl.} =
   sdtx.puts("  3: vetrex colors")
 
   # view-projection matrix
-  let proj = mat4.persp(60f, sapp.widthf() / sapp.heightf(), 0.01f, 10.0f)
-  let view = mat4.lookat(vec3(0f, 1.5f, 6f), vec3.zero(), vec3.up())
+  let proj = persp(60f, sapp.widthf() / sapp.heightf(), 0.01f, 10.0f)
+  let view = lookat(vec3(0f, 1.5f, 6f), vec3.zero(), vec3.up())
   let viewProj = proj * view
 
   # rotation matrix
