@@ -121,11 +121,11 @@ proc frame() {.cdecl.} =
 
 proc input(ev: ptr Event) {.cdecl.} =
   if ev.type == EventType.keyDown:
-    case ev.keyCode:
-    of Keycode.digit1: vsParams.draw_mode = 0f
-    of Keycode.digit2: vsParams.draw_mode = 1f
-    of Keycode.digit3: vsParams.draw_mode = 2f
-    else: discard
+    vsParams.draw_mode = case ev.keyCode:
+      of Keycode.digit1: 0f
+      of Keycode.digit2: 1f
+      of Keycode.digit3: 2f
+      else: 0f
 
 proc cleanup() {.cdecl.} =
   sdtx.shutdown()
