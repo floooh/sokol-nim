@@ -1,16 +1,4 @@
 .vscode/
 nimcache/
-*.exe
-*.ilk
-*.pdb
-*.dSYM
-examples/clear
-examples/triangle
-examples/quad
-examples/bufferoffsets
-examples/cube
-examples/noninterleaved
-examples/texcube
-examples/shapes
-examples/blend
+build/
 

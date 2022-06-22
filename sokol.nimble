@@ -5,6 +5,7 @@ description   = "Nim bindings for the sokol C headers"
 license       = "MIT"
 srcDir        = "src"
 skipDirs      = @["examples"]
+binDir        = "examples/build"
 
 # Dependencies
 requires "nim >= 1.4.4"
@@ -19,6 +20,7 @@ let examples = [
   "noninterleaved",
   "texcube",
   "shapes",
+  "offscreen",
   "blend"
 ]
 
@@ -30,6 +32,7 @@ let shaders = [
   "noninterleaved",
   "texcube",
   "shapes",
+  "offscreen",
   "blend"
 ]
 
@@ -58,6 +61,9 @@ task texcube, "Runs the texcube example":
 task shapes, "Runs the shapes example":
   exec "nim r examples/shapes"
 
+task offscreen, "Runs the offscreen example":
+  exec "nim r examples/offscreen"
+
 task blend, "Runs the blend example":
   exec "nim r examples/blend"
 
@@ -65,9 +71,9 @@ task build_all, "Build all examples":
   # hmm, is there a better way?
   for example in examples:
     when defined(windows):
-      exec &"nim c --cc:vcc --debugger:native examples/{example}"
+      exec &"nim c --outdir:build --cc:vcc --debugger:native examples/{example}"
     else:
-      exec &"nim c --debugger:native examples/{example}"
+      exec &"nim c --outdir:build --debugger:native examples/{example}"
 
 task shaders, "Compile all shaders (requires ../sokol-tools-bin)":
   let binDir = "../sokol-tools-bin/bin/"
