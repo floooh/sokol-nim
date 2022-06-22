@@ -89,7 +89,7 @@ proc frame() {.cdecl.} =
   sdtx.puts("press key to switch draw mode\n\n")
   sdtx.puts("  1: vertex normals\n")
   sdtx.puts("  2: texture coords\n")
-  sdtx.puts("  3: vetrex colors")
+  sdtx.puts("  3: vertex colors")
 
   # view-projection matrix
   let proj = persp(60f, sapp.widthf() / sapp.heightf(), 0.01f, 10.0f)
