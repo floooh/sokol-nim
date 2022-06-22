@@ -21,6 +21,7 @@ let examples = [
   "texcube",
   "shapes",
   "offscreen",
+  "instancing",
   "blend"
 ]
 
@@ -33,6 +34,7 @@ let shaders = [
   "texcube",
   "shapes",
   "offscreen",
+  "instancing",
   "blend"
 ]
 
@@ -63,6 +65,9 @@ task shapes, "Runs the shapes example":
 
 task offscreen, "Runs the offscreen example":
   exec "nim r examples/offscreen"
+
+task instancing, "Runs the instancing smaple":
+  exec "nim r examples/instancing"
 
 task blend, "Runs the blend example":
   exec "nim r examples/blend"
