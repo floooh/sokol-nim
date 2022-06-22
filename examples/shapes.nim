@@ -125,7 +125,7 @@ proc input(ev: ptr Event) {.cdecl.} =
       of Keycode.digit1: 0f
       of Keycode.digit2: 1f
       of Keycode.digit3: 2f
-      else: 0f
+      else: vsParams.draw_mode
 
 proc cleanup() {.cdecl.} =
   sdtx.shutdown()
