@@ -22,6 +22,7 @@ let examples = [
   "shapes",
   "offscreen",
   "instancing",
+  "mrt",
   "blend"
 ]
 
@@ -35,6 +36,7 @@ let shaders = [
   "shapes",
   "offscreen",
   "instancing",
+  "mrt",
   "blend"
 ]
 
@@ -68,6 +70,9 @@ task offscreen, "Runs the offscreen example":
 
 task instancing, "Runs the instancing smaple":
   exec "nim r examples/instancing"
+
+task mrt, "Runs the mrt sample":
+  exec "nim r examples/mrt"
 
 task blend, "Runs the blend example":
   exec "nim r examples/blend"
