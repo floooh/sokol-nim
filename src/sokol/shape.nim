@@ -3,7 +3,7 @@
 import gfx
 
 type Range* = object
-  `ptr`*:pointer
+  `pointer`*:pointer
   size*:csize_t
 
 type Mat4* = object
@@ -193,7 +193,7 @@ proc mat4Transpose*(m:ptr cfloat):Mat4 =
 
 # helper function to convert "anything" into a Range
 converter to_Range*[T](source: T): Range =
-  Range(`ptr`: source.unsafeAddr, size: source.sizeof.uint)
+  Range(pointer: source.unsafeAddr, size: source.sizeof.uint)
 
 {.passc:"-DSOKOL_NIM_IMPL".}
 {.compile:"c/sokol_shape.c".}

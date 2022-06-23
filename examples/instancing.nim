@@ -113,7 +113,7 @@ proc frame() {.cdecl.} =
   # update instance data
   # FIXME: this is awkward, we'd need a slice-to-Range converter
   sg.updateBuffer(bindings.vertexBuffers[1], sg.Range(
-    `ptr`: unsafeAddr(pos),
+    pointer: unsafeAddr(pos),
     size: (curNumParticles * sizeof(Vec3)).uint
   ))
 

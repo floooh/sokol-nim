@@ -6,7 +6,7 @@ type Context* = object
   id*:uint32
 
 type Range* = object
-  `ptr`*:pointer
+  `pointer`*:pointer
   size*:csize_t
 
 type FontDesc* = object
@@ -173,7 +173,7 @@ proc putr*(str:cstring, len:cint):void =
 
 # helper function to convert "anything" into a Range
 converter to_Range*[T](source: T): Range =
-  Range(`ptr`: source.unsafeAddr, size: source.sizeof.uint)
+  Range(pointer: source.unsafeAddr, size: source.sizeof.uint)
 
 {.passc:"-DSOKOL_NIM_IMPL".}
 {.compile:"c/sokol_debugtext.c".}

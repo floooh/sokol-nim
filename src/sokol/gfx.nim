@@ -19,7 +19,7 @@ type Context* = object
   id*:uint32
 
 type Range* = object
-  `ptr`*:pointer
+  `pointer`*:pointer
   size*:csize_t
 
 const
@@ -1175,7 +1175,7 @@ else:
 
 # helper function to convert "anything" into a Range
 converter to_Range*[T](source: T): Range =
-  Range(`ptr`: source.unsafeAddr, size: source.sizeof.uint)
+  Range(pointer: source.unsafeAddr, size: source.sizeof.uint)
 
 ## Convert a 4-element tuple of numbers to a gfx.Color
 converter toColor*[R:SomeNumber,G:SomeNumber,B:SomeNumber,A:SomeNumber](rgba: tuple [r:R,g:G,b:B,a:A]):Color =

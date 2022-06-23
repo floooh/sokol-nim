@@ -208,7 +208,7 @@ converter to_Event_touches*[N:static[int]](items: array[N, Touchpoint]): array[8
   for index,item in items.pairs: result[index]=item
 
 type Range* = object
-  `ptr`*:pointer
+  `pointer`*:pointer
   size*:csize_t
 
 type ImageDesc* = object
