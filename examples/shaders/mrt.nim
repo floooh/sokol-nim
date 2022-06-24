@@ -54,6 +54,7 @@
 #
 import sokol/gfx as sg
 import ../math/mat4
+import ../math/vec2
 
 const attrVsOffscreenPos* = 0
 const attrVsOffscreenBright0* = 1

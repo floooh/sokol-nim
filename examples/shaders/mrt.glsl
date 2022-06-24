@@ -2,6 +2,7 @@
 //  shaders for mrt-sapp sample
 //------------------------------------------------------------------------------
 @cimport ../math/mat4
+@cimport ../math/vec2
 @ctype mat4 Mat4
 @ctype vec2 Vec2
 
