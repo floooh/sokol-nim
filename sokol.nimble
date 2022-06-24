@@ -23,7 +23,8 @@ let examples = [
   "offscreen",
   "instancing",
   "mrt",
-  "blend"
+  "blend",
+  "debugtext"
 ]
 
 let shaders = [
@@ -76,6 +77,9 @@ task mrt, "Runs the mrt sample":
 
 task blend, "Runs the blend example":
   exec "nim r examples/blend"
+
+task debugtext, "Runs the debugtext example":
+  exec "nim r examples/debugtext"
 
 task build_all, "Build all examples":
   # hmm, is there a better way?
