@@ -42,81 +42,81 @@ type Color* = object
   a*:cfloat
 
 type
-  Backend* {.pure, size:sizeof(cint).} = enum
-    glcore33,
-    gles2,
-    gles3,
-    d3d11,
-    metalIos,
-    metalMacos,
-    metalSimulator,
-    wgpu,
-    dummy,
+  Backend* {.pure, size:sizeof(int32).} = enum
+    backendGlcore33,
+    backendGles2,
+    backendGles3,
+    backendD3d11,
+    backendMetalIos,
+    backendMetalMacos,
+    backendMetalSimulator,
+    backendWgpu,
+    backendDummy,
 
 type
-  PixelFormat* {.pure, size:sizeof(uint32).} = enum
-    default,
-    none,
-    r8,
-    r8sn,
-    r8ui,
-    r8si,
-    r16,
-    r16sn,
-    r16ui,
-    r16si,
-    r16f,
-    rg8,
-    rg8sn,
-    rg8ui,
-    rg8si,
-    r32ui,
-    r32si,
-    r32f,
-    rg16,
-    rg16sn,
-    rg16ui,
-    rg16si,
-    rg16f,
-    rgba8,
-    rgba8sn,
-    rgba8ui,
-    rgba8si,
-    bgra8,
-    rgb10a2,
-    rg11b10f,
-    rg32ui,
-    rg32si,
-    rg32f,
-    rgba16,
-    rgba16sn,
-    rgba16ui,
-    rgba16si,
-    rgba16f,
-    rgba32ui,
-    rgba32si,
-    rgba32f,
-    depth,
-    depthStencil,
-    bc1Rgba,
-    bc2Rgba,
-    bc3Rgba,
-    bc4R,
-    bc4Rsn,
-    bc5Rg,
-    bc5Rgsn,
-    bc6hRgbf,
-    bc6hRgbuf,
-    bc7Rgba,
-    pvrtcRgb2bpp,
-    pvrtcRgb4bpp,
-    pvrtcRgba2bpp,
-    pvrtcRgba4bpp,
-    etc2Rgb8,
-    etc2Rgb8a1,
-    etc2Rgba8,
-    etc2Rg11,
-    etc2Rg11sn,
+  PixelFormat* {.pure, size:sizeof(int32).} = enum
+    pixelFormatDefault,
+    pixelFormatNone,
+    pixelFormatR8,
+    pixelFormatR8sn,
+    pixelFormatR8ui,
+    pixelFormatR8si,
+    pixelFormatR16,
+    pixelFormatR16sn,
+    pixelFormatR16ui,
+    pixelFormatR16si,
+    pixelFormatR16f,
+    pixelFormatRg8,
+    pixelFormatRg8sn,
+    pixelFormatRg8ui,
+    pixelFormatRg8si,
+    pixelFormatR32ui,
+    pixelFormatR32si,
+    pixelFormatR32f,
+    pixelFormatRg16,
+    pixelFormatRg16sn,
+    pixelFormatRg16ui,
+    pixelFormatRg16si,
+    pixelFormatRg16f,
+    pixelFormatRgba8,
+    pixelFormatRgba8sn,
+    pixelFormatRgba8ui,
+    pixelFormatRgba8si,
+    pixelFormatBgra8,
+    pixelFormatRgb10a2,
+    pixelFormatRg11b10f,
+    pixelFormatRg32ui,
+    pixelFormatRg32si,
+    pixelFormatRg32f,
+    pixelFormatRgba16,
+    pixelFormatRgba16sn,
+    pixelFormatRgba16ui,
+    pixelFormatRgba16si,
+    pixelFormatRgba16f,
+    pixelFormatRgba32ui,
+    pixelFormatRgba32si,
+    pixelFormatRgba32f,
+    pixelFormatDepth,
+    pixelFormatDepthStencil,
+    pixelFormatBc1Rgba,
+    pixelFormatBc2Rgba,
+    pixelFormatBc3Rgba,
+    pixelFormatBc4R,
+    pixelFormatBc4Rsn,
+    pixelFormatBc5Rg,
+    pixelFormatBc5Rgsn,
+    pixelFormatBc6hRgbf,
+    pixelFormatBc6hRgbuf,
+    pixelFormatBc7Rgba,
+    pixelFormatPvrtcRgb2bpp,
+    pixelFormatPvrtcRgb4bpp,
+    pixelFormatPvrtcRgba2bpp,
+    pixelFormatPvrtcRgba4bpp,
+    pixelFormatEtc2Rgb8,
+    pixelFormatEtc2Rgb8a1,
+    pixelFormatEtc2Rgba8,
+    pixelFormatEtc2Rg11,
+    pixelFormatEtc2Rg11sn,
 
 type PixelformatInfo* = object
   sample*:bool
@@ -147,229 +147,229 @@ type Limits* = object
   glMaxVertexUniformVectors*:cint
 
 type
-  ResourceState* {.pure, size:sizeof(uint32).} = enum
-    initial,
-    alloc,
-    valid,
-    failed,
-    invalid,
+  ResourceState* {.pure, size:sizeof(int32).} = enum
+    resourceStateInitial,
+    resourceStateAlloc,
+    resourceStateValid,
+    resourceStateFailed,
+    resourceStateInvalid,
 
 type
-  Usage* {.pure, size:sizeof(uint32).} = enum
-    default,
-    immutable,
-    dynamic,
-    stream,
+  Usage* {.pure, size:sizeof(int32).} = enum
+    usageDefault,
+    usageImmutable,
+    usageDynamic,
+    usageStream,
 
 type
-  BufferType* {.pure, size:sizeof(uint32).} = enum
-    default,
-    vertexBuffer,
-    indexBuffer,
+  BufferType* {.pure, size:sizeof(int32).} = enum
+    bufferTypeDefault,
+    bufferTypeVertexBuffer,
+    bufferTypeIndexBuffer,
 
 type
-  IndexType* {.pure, size:sizeof(uint32).} = enum
-    default,
-    none,
-    `uint16`,
-    `uint32`,
+  IndexType* {.pure, size:sizeof(int32).} = enum
+    indexTypeDefault,
+    indexTypeNone,
+    indexTypeUint16,
+    indexTypeUint32,
 
 type
-  ImageType* {.pure, size:sizeof(uint32).} = enum
-    default,
-    twoDee,
-    cube,
-    threeDee,
-    `array`,
+  ImageType* {.pure, size:sizeof(int32).} = enum
+    imageTypeDefault,
+    imageType2d,
+    imageTypeCube,
+    imageType3d,
+    imageTypeArray,
 
 type
-  SamplerType* {.pure, size:sizeof(cint).} = enum
-    default,
-    `float`,
-    sint,
-    `uint`,
+  SamplerType* {.pure, size:sizeof(int32).} = enum
+    samplerTypeDefault,
+    samplerTypeFloat,
+    samplerTypeSint,
+    samplerTypeUint,
 
 type
-  CubeFace* {.pure, size:sizeof(uint32).} = enum
-    posX,
-    negX,
-    posY,
-    negY,
-    posZ,
-    negZ,
+  CubeFace* {.pure, size:sizeof(int32).} = enum
+    cubeFacePosX,
+    cubeFaceNegX,
+    cubeFacePosY,
+    cubeFaceNegY,
+    cubeFacePosZ,
+    cubeFaceNegZ,
 
 type
-  ShaderStage* {.pure, size:sizeof(uint32).} = enum
-    vs,
-    fs,
+  ShaderStage* {.pure, size:sizeof(int32).} = enum
+    shaderStageVs,
+    shaderStageFs,
 
 type
-  PrimitiveType* {.pure, size:sizeof(uint32).} = enum
-    default,
-    points,
-    lines,
-    lineStrip,
-    triangles,
-    triangleStrip,
+  PrimitiveType* {.pure, size:sizeof(int32).} = enum
+    primitiveTypeDefault,
+    primitiveTypePoints,
+    primitiveTypeLines,
+    primitiveTypeLineStrip,
+    primitiveTypeTriangles,
+    primitiveTypeTriangleStrip,
 
 type
-  Filter* {.pure, size:sizeof(uint32).} = enum
-    default,
-    nearest,
-    linear,
-    nearestMipmapNearest,
-    nearestMipmapLinear,
-    linearMipmapNearest,
-    linearMipmapLinear,
+  Filter* {.pure, size:sizeof(int32).} = enum
+    filterDefault,
+    filterNearest,
+    filterLinear,
+    filterNearestMipmapNearest,
+    filterNearestMipmapLinear,
+    filterLinearMipmapNearest,
+    filterLinearMipmapLinear,
 
 type
-  Wrap* {.pure, size:sizeof(uint32).} = enum
-    default,
-    repeat,
-    clampToEdge,
-    clampToBorder,
-    mirroredRepeat,
+  Wrap* {.pure, size:sizeof(int32).} = enum
+    wrapDefault,
+    wrapRepeat,
+    wrapClampToEdge,
+    wrapClampToBorder,
+    wrapMirroredRepeat,
 
 type
-  BorderColor* {.pure, size:sizeof(uint32).} = enum
-    default,
-    transparentBlack,
-    opaqueBlack,
-    opaqueWhite,
+  BorderColor* {.pure, size:sizeof(int32).} = enum
+    borderColorDefault,
+    borderColorTransparentBlack,
+    borderColorOpaqueBlack,
+    borderColorOpaqueWhite,
 
 type
-  VertexFormat* {.pure, size:sizeof(uint32).} = enum
-    invalid,
-    `float`,
-    float2,
-    float3,
-    float4,
-    byte4,
-    byte4n,
-    ubyte4,
-    ubyte4n,
-    short2,
-    short2n,
-    ushort2n,
-    short4,
-    short4n,
-    ushort4n,
-    uint10N2,
+  VertexFormat* {.pure, size:sizeof(int32).} = enum
+    vertexFormatInvalid,
+    vertexFormatFloat,
+    vertexFormatFloat2,
+    vertexFormatFloat3,
+    vertexFormatFloat4,
+    vertexFormatByte4,
+    vertexFormatByte4n,
+    vertexFormatUbyte4,
+    vertexFormatUbyte4n,
+    vertexFormatShort2,
+    vertexFormatShort2n,
+    vertexFormatUshort2n,
+    vertexFormatShort4,
+    vertexFormatShort4n,
+    vertexFormatUshort4n,
+    vertexFormatUint10N2,
 
 type
-  VertexStep* {.pure, size:sizeof(uint32).} = enum
-    default,
-    perVertex,
-    perInstance,
+  VertexStep* {.pure, size:sizeof(int32).} = enum
+    vertexStepDefault,
+    vertexStepPerVertex,
+    vertexStepPerInstance,
 
 type
-  UniformType* {.pure, size:sizeof(uint32).} = enum
-    invalid,
-    `float`,
-    float2,
-    float3,
-    float4,
-    `int`,
-    int2,
-    int3,
-    int4,
-    mat4,
+  UniformType* {.pure, size:sizeof(int32).} = enum
+    uniformTypeInvalid,
+    uniformTypeFloat,
+    uniformTypeFloat2,
+    uniformTypeFloat3,
+    uniformTypeFloat4,
+    uniformTypeInt,
+    uniformTypeInt2,
+    uniformTypeInt3,
+    uniformTypeInt4,
+    uniformTypeMat4,
 
 type
-  UniformLayout* {.pure, size:sizeof(uint32).} = enum
-    default,
-    native,
-    std140,
+  UniformLayout* {.pure, size:sizeof(int32).} = enum
+    uniformLayoutDefault,
+    uniformLayoutNative,
+    uniformLayoutStd140,
 
 type
-  CullMode* {.pure, size:sizeof(uint32).} = enum
-    default,
-    none,
-    front,
-    back,
+  CullMode* {.pure, size:sizeof(int32).} = enum
+    cullModeDefault,
+    cullModeNone,
+    cullModeFront,
+    cullModeBack,
 
 type
-  FaceWinding* {.pure, size:sizeof(uint32).} = enum
-    default,
-    ccw,
-    cw,
+  FaceWinding* {.pure, size:sizeof(int32).} = enum
+    faceWindingDefault,
+    faceWindingCcw,
+    faceWindingCw,
 
 type
-  CompareFunc* {.pure, size:sizeof(uint32).} = enum
-    default,
-    never,
-    less,
-    equal,
-    lessEqual,
-    greater,
-    notEqual,
-    greaterEqual,
-    always,
+  CompareFunc* {.pure, size:sizeof(int32).} = enum
+    compareFuncDefault,
+    compareFuncNever,
+    compareFuncLess,
+    compareFuncEqual,
+    compareFuncLessEqual,
+    compareFuncGreater,
+    compareFuncNotEqual,
+    compareFuncGreaterEqual,
+    compareFuncAlways,
 
 type
-  StencilOp* {.pure, size:sizeof(uint32).} = enum
-    default,
-    keep,
-    zero,
-    replace,
-    incrClamp,
-    decrClamp,
-    invert,
-    incrWrap,
-    decrWrap,
+  StencilOp* {.pure, size:sizeof(int32).} = enum
+    stencilOpDefault,
+    stencilOpKeep,
+    stencilOpZero,
+    stencilOpReplace,
+    stencilOpIncrClamp,
+    stencilOpDecrClamp,
+    stencilOpInvert,
+    stencilOpIncrWrap,
+    stencilOpDecrWrap,
 
 type
-  BlendFactor* {.pure, size:sizeof(uint32).} = enum
-    default,
-    zero,
-    one,
-    srcColor,
-    oneMinusSrcColor,
-    srcAlpha,
-    oneMinusSrcAlpha,
-    dstColor,
-    oneMinusDstColor,
-    dstAlpha,
-    oneMinusDstAlpha,
-    srcAlphaSaturated,
-    blendColor,
-    oneMinusBlendColor,
-    blendAlpha,
-    oneMinusBlendAlpha,
+  BlendFactor* {.pure, size:sizeof(int32).} = enum
+    blendFactorDefault,
+    blendFactorZero,
+    blendFactorOne,
+    blendFactorSrcColor,
+    blendFactorOneMinusSrcColor,
+    blendFactorSrcAlpha,
+    blendFactorOneMinusSrcAlpha,
+    blendFactorDstColor,
+    blendFactorOneMinusDstColor,
+    blendFactorDstAlpha,
+    blendFactorOneMinusDstAlpha,
+    blendFactorSrcAlphaSaturated,
+    blendFactorBlendColor,
+    blendFactorOneMinusBlendColor,
+    blendFactorBlendAlpha,
+    blendFactorOneMinusBlendAlpha,
 
 type
-  BlendOp* {.pure, size:sizeof(uint32).} = enum
-    default,
-    add,
-    subtract,
-    reverseSubtract,
+  BlendOp* {.pure, size:sizeof(int32).} = enum
+    blendOpDefault,
+    blendOpAdd,
+    blendOpSubtract,
+    blendOpReverseSubtract,
 
 type
-  ColorMask* {.pure, size:sizeof(uint32).} = enum
-    default = 0,
-    r = 1,
-    g = 2,
-    rg = 3,
-    b = 4,
-    rb = 5,
-    gb = 6,
-    rgb = 7,
-    a = 8,
-    ra = 9,
-    ga = 10,
-    rga = 11,
-    ba = 12,
-    rba = 13,
-    gba = 14,
-    rgba = 15,
-    none = 16,
+  ColorMask* {.pure, size:sizeof(int32).} = enum
+    colorMaskDefault = 0,
+    colorMaskR = 1,
+    colorMaskG = 2,
+    colorMaskRg = 3,
+    colorMaskB = 4,
+    colorMaskRb = 5,
+    colorMaskGb = 6,
+    colorMaskRgb = 7,
+    colorMaskA = 8,
+    colorMaskRa = 9,
+    colorMaskGa = 10,
+    colorMaskRga = 11,
+    colorMaskBa = 12,
+    colorMaskRba = 13,
+    colorMaskGba = 14,
+    colorMaskRgba = 15,
+    colorMaskNone = 16,
 
 type
-  Action* {.pure, size:sizeof(uint32).} = enum
-    default,
-    clear,
-    load,
-    dontCare,
+  Action* {.pure, size:sizeof(int32).} = enum
+    actionDefault,
+    actionClear,
+    actionLoad,
+    actionDontCare,
 
 type ColorAttachmentAction* = object
   action*:Action

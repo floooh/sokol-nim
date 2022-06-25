@@ -17,7 +17,7 @@ type Shape = object
 
 const
   passAction = PassAction(
-    colors: [ ColorAttachmentAction(action: Action.clear, value: (0f, 0f, 0f, 1f)) ]
+    colors: [ ColorAttachmentAction(action: actionClear, value: (0f, 0f, 0f, 1f)) ]
   )
   numShapes = 5
 
@@ -51,10 +51,10 @@ proc init() {.cdecl.} =
         sshape.colorAttrDesc()
       ],
     ),
-    indexType: IndexType.uint16,
-    cullMode: CullMode.none,
+    indexType: indexTypeUint16,
+    cullMode: cullModeNone,
     depth: DepthState(
-      compare: CompareFunc.lessEqual,
+      compare: compareFuncLessEqual,
       writeEnabled: true
     )
   ))
@@ -113,18 +113,18 @@ proc frame() {.cdecl.} =
     let model = translate(shapes[i].pos) * rm
     # model-view-proj matrix
     vsParams.mvp = viewProj * model
-    sg.applyUniforms(ShaderStage.vs, shd.slotVsParams, vsParams)
+    sg.applyUniforms(shaderStageVs, shd.slotVsParams, vsParams)
     sg.draw(shapes[i].draw.baseElement, shapes[i].draw.numElements, 1)
   sdtx.draw()
   sg.endPass()
   sg.commit()
 
 proc input(ev: ptr Event) {.cdecl.} =
-  if ev.type == EventType.keyDown:
+  if ev.type == eventTypeKeyDown:
     vsParams.draw_mode = case ev.keyCode:
-      of Keycode.digit1: 0f
-      of Keycode.digit2: 1f
-      of Keycode.digit3: 2f
+      of keyCode1: 0f
+      of keyCode2: 1f
+      of keyCode3: 2f
       else: vsParams.draw_mode
 
 proc cleanup() {.cdecl.} =

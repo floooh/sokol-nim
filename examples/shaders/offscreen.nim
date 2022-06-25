@@ -15,12 +15,12 @@
 #                   ATTR_vs_default_normal = 1
 #                   ATTR_vs_default_texcoord0 = 2
 #               Uniform block 'vs_params':
-#                   C struct: vs_params_t
+#                   Nim struct: VsParams
 #                   Bind slot: SLOT_vs_params = 0
 #           Fragment shader: fs_default
 #               Image 'tex':
-#                   Type: sg.ImageType.twoDee
-#                   Component Type: sg.SamplerType.float
+#                   Type: imageType2d
+#                   Component Type: samplerTypeFloat
 #                   Bind slot: SLOT_tex = 0
 #
 #       Shader program 'offscreen':
@@ -30,7 +30,7 @@
 #                   ATTR_vs_offscreen_position = 0
 #                   ATTR_vs_offscreen_normal = 1
 #               Uniform block 'vs_params':
-#                   C struct: vs_params_t
+#                   Nim struct: VsParams
 #                   Bind slot: SLOT_vs_params = 0
 #           Fragment shader: fs_offscreen
 #
@@ -890,24 +890,24 @@ const fsDefaultSourceMetalMacos: array[793, uint8] = [
 ]
 proc defaultShaderDesc*(backend: sg.Backend): sg.ShaderDesc =
   case backend:
-    of sg.Backend.glcore33:
+    of backendGlcore33:
       result.attrs[0].name = "position"
       result.attrs[1].name = "normal"
       result.attrs[2].name = "texcoord0"
       result.vs.source = cast[cstring](unsafeAddr(vsDefaultSourceGlsl330))
       result.vs.entry = "main"
       result.vs.uniformBlocks[0].size = 64
-      result.vs.uniformBlocks[0].layout = sg.UniformLayout.std140
+      result.vs.uniformBlocks[0].layout = uniformLayoutStd140
       result.vs.uniformBlocks[0].uniforms[0].name = "vs_params"
-      result.vs.uniformBlocks[0].uniforms[0].type = sg.UniformType.float4
+      result.vs.uniformBlocks[0].uniforms[0].type = uniformTypeFloat4
       result.vs.uniformBlocks[0].uniforms[0].arrayCount = 4
       result.fs.source = cast[cstring](unsafeAddr(fsDefaultSourceGlsl330))
       result.fs.entry = "main"
       result.fs.images[0].name = "tex"
-      result.fs.images[0].imageType = sg.ImageType.twoDee
-      result.fs.images[0].samplerType = sg.SamplerType.float
+      result.fs.images[0].imageType = imageType2d
+      result.fs.images[0].samplerType = samplerTypeFloat
       result.label = "defaultShader"
-    of sg.Backend.d3d11:
+    of backendD3d11:
       result.attrs[0].semName = "TEXCOORD"
       result.attrs[0].semIndex = 0
       result.attrs[1].semName = "TEXCOORD"
@@ -918,43 +918,43 @@ proc defaultShaderDesc*(backend: sg.Backend): sg.ShaderDesc =
       result.vs.d3d11Target = "vs_4_0"
       result.vs.entry = "main"
       result.vs.uniformBlocks[0].size = 64
-      result.vs.uniformBlocks[0].layout = sg.UniformLayout.std140
+      result.vs.uniformBlocks[0].layout = uniformLayoutStd140
       result.fs.source = cast[cstring](unsafeAddr(fsDefaultSourceHlsl4))
       result.fs.d3d11Target = "ps_4_0"
       result.fs.entry = "main"
       result.fs.images[0].name = "tex"
-      result.fs.images[0].imageType = sg.ImageType.twoDee
-      result.fs.images[0].samplerType = sg.SamplerType.float
+      result.fs.images[0].imageType = imageType2d
+      result.fs.images[0].samplerType = samplerTypeFloat
       result.label = "defaultShader"
-    of sg.Backend.metalMacos:
+    of backendMetalMacos:
       result.vs.source = cast[cstring](unsafeAddr(vsDefaultSourceMetalMacos))
       result.vs.entry = "main0"
       result.vs.uniformBlocks[0].size = 64
-      result.vs.uniformBlocks[0].layout = sg.UniformLayout.std140
+      result.vs.uniformBlocks[0].layout = uniformLayoutStd140
       result.fs.source = cast[cstring](unsafeAddr(fsDefaultSourceMetalMacos))
       result.fs.entry = "main0"
       result.fs.images[0].name = "tex"
-      result.fs.images[0].imageType = sg.ImageType.twoDee
-      result.fs.images[0].samplerType = sg.SamplerType.float
+      result.fs.images[0].imageType = imageType2d
+      result.fs.images[0].samplerType = samplerTypeFloat
       result.label = "defaultShader"
     else: discard
 
 proc offscreenShaderDesc*(backend: sg.Backend): sg.ShaderDesc =
   case backend:
-    of sg.Backend.glcore33:
+    of backendGlcore33:
       result.attrs[0].name = "position"
       result.attrs[1].name = "normal"
       result.vs.source = cast[cstring](unsafeAddr(vsOffscreenSourceGlsl330))
       result.vs.entry = "main"
       result.vs.uniformBlocks[0].size = 64
-      result.vs.uniformBlocks[0].layout = sg.UniformLayout.std140
+      result.vs.uniformBlocks[0].layout = uniformLayoutStd140
       result.vs.uniformBlocks[0].uniforms[0].name = "vs_params"
-      result.vs.uniformBlocks[0].uniforms[0].type = sg.UniformType.float4
+      result.vs.uniformBlocks[0].uniforms[0].type = uniformTypeFloat4
       result.vs.uniformBlocks[0].uniforms[0].arrayCount = 4
       result.fs.source = cast[cstring](unsafeAddr(fsOffscreenSourceGlsl330))
       result.fs.entry = "main"
       result.label = "offscreenShader"
-    of sg.Backend.d3d11:
+    of backendD3d11:
       result.attrs[0].semName = "TEXCOORD"
       result.attrs[0].semIndex = 0
       result.attrs[1].semName = "TEXCOORD"
@@ -963,16 +963,16 @@ proc offscreenShaderDesc*(backend: sg.Backend): sg.ShaderDesc =
       result.vs.d3d11Target = "vs_4_0"
       result.vs.entry = "main"
       result.vs.uniformBlocks[0].size = 64
-      result.vs.uniformBlocks[0].layout = sg.UniformLayout.std140
+      result.vs.uniformBlocks[0].layout = uniformLayoutStd140
       result.fs.source = cast[cstring](unsafeAddr(fsOffscreenSourceHlsl4))
       result.fs.d3d11Target = "ps_4_0"
       result.fs.entry = "main"
       result.label = "offscreenShader"
-    of sg.Backend.metalMacos:
+    of backendMetalMacos:
       result.vs.source = cast[cstring](unsafeAddr(vsOffscreenSourceMetalMacos))
       result.vs.entry = "main0"
       result.vs.uniformBlocks[0].size = 64
-      result.vs.uniformBlocks[0].layout = sg.UniformLayout.std140
+      result.vs.uniformBlocks[0].layout = uniformLayoutStd140
       result.fs.source = cast[cstring](unsafeAddr(fsOffscreenSourceMetalMacos))
       result.fs.entry = "main0"
       result.label = "offscreenShader"

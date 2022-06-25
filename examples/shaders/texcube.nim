@@ -15,12 +15,12 @@
 #                   ATTR_vs_color0 = 1
 #                   ATTR_vs_texcoord0 = 2
 #               Uniform block 'vs_params':
-#                   C struct: vs_params_t
+#                   Nim struct: VsParams
 #                   Bind slot: SLOT_vs_params = 0
 #           Fragment shader: fs
 #               Image 'tex':
-#                   Type: sg.ImageType.twoDee
-#                   Component Type: sg.SamplerType.float
+#                   Type: imageType2d
+#                   Component Type: samplerTypeFloat
 #                   Bind slot: SLOT_tex = 0
 #
 #
@@ -464,24 +464,24 @@ const fsSourceMetalMacos: array[528, uint8] = [
 ]
 proc texcubeShaderDesc*(backend: sg.Backend): sg.ShaderDesc =
   case backend:
-    of sg.Backend.glcore33:
+    of backendGlcore33:
       result.attrs[0].name = "pos"
       result.attrs[1].name = "color0"
       result.attrs[2].name = "texcoord0"
       result.vs.source = cast[cstring](unsafeAddr(vsSourceGlsl330))
       result.vs.entry = "main"
       result.vs.uniformBlocks[0].size = 64
-      result.vs.uniformBlocks[0].layout = sg.UniformLayout.std140
+      result.vs.uniformBlocks[0].layout = uniformLayoutStd140
       result.vs.uniformBlocks[0].uniforms[0].name = "vs_params"
-      result.vs.uniformBlocks[0].uniforms[0].type = sg.UniformType.float4
+      result.vs.uniformBlocks[0].uniforms[0].type = uniformTypeFloat4
       result.vs.uniformBlocks[0].uniforms[0].arrayCount = 4
       result.fs.source = cast[cstring](unsafeAddr(fsSourceGlsl330))
       result.fs.entry = "main"
       result.fs.images[0].name = "tex"
-      result.fs.images[0].imageType = sg.ImageType.twoDee
-      result.fs.images[0].samplerType = sg.SamplerType.float
+      result.fs.images[0].imageType = imageType2d
+      result.fs.images[0].samplerType = samplerTypeFloat
       result.label = "texcubeShader"
-    of sg.Backend.d3d11:
+    of backendD3d11:
       result.attrs[0].semName = "TEXCOORD"
       result.attrs[0].semIndex = 0
       result.attrs[1].semName = "TEXCOORD"
@@ -492,24 +492,24 @@ proc texcubeShaderDesc*(backend: sg.Backend): sg.ShaderDesc =
       result.vs.d3d11Target = "vs_4_0"
       result.vs.entry = "main"
       result.vs.uniformBlocks[0].size = 64
-      result.vs.uniformBlocks[0].layout = sg.UniformLayout.std140
+      result.vs.uniformBlocks[0].layout = uniformLayoutStd140
       result.fs.source = cast[cstring](unsafeAddr(fsSourceHlsl4))
       result.fs.d3d11Target = "ps_4_0"
       result.fs.entry = "main"
       result.fs.images[0].name = "tex"
-      result.fs.images[0].imageType = sg.ImageType.twoDee
-      result.fs.images[0].samplerType = sg.SamplerType.float
+      result.fs.images[0].imageType = imageType2d
+      result.fs.images[0].samplerType = samplerTypeFloat
       result.label = "texcubeShader"
-    of sg.Backend.metalMacos:
+    of backendMetalMacos:
       result.vs.source = cast[cstring](unsafeAddr(vsSourceMetalMacos))
       result.vs.entry = "main0"
       result.vs.uniformBlocks[0].size = 64
-      result.vs.uniformBlocks[0].layout = sg.UniformLayout.std140
+      result.vs.uniformBlocks[0].layout = uniformLayoutStd140
       result.fs.source = cast[cstring](unsafeAddr(fsSourceMetalMacos))
       result.fs.entry = "main0"
       result.fs.images[0].name = "tex"
-      result.fs.images[0].imageType = sg.ImageType.twoDee
-      result.fs.images[0].samplerType = sg.SamplerType.float
+      result.fs.images[0].imageType = imageType2d
+      result.fs.images[0].samplerType = samplerTypeFloat
       result.label = "texcubeShader"
     else: discard
 

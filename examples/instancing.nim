@@ -29,7 +29,7 @@ proc init() {.cdecl.} =
 
   # a pass action for the default render pass (clears to black)
   passAction = PassAction(
-    colors: [ ColorAttachmentAction( action: Action.clear, value: (0, 0, 0, 1)) ]
+    colors: [ ColorAttachmentAction( action: actionClear, value: (0, 0, 0, 1)) ]
   )
 
   # a vertex buffer for the static geometry, goes into vertex buffer bind slot 0
@@ -48,7 +48,7 @@ proc init() {.cdecl.} =
 
   # index buffer for static geometry
   bindings.indexBuffer = sg.makeBuffer(BufferDesc(
-    type: BufferType.indexBuffer,
+    type: bufferTypeIndexBuffer,
     data: [
       0'u16, 1, 2,  0, 2, 3,    0, 3, 4,    0, 4, 1,
       5, 1, 2,      5, 2, 3,    5, 3, 4,    5, 4, 1
@@ -58,7 +58,7 @@ proc init() {.cdecl.} =
   # empty, dynamic instance-data vertex buffer, goes into vertex-buffer-slot 1
   bindings.vertexBuffers[1] = sg.makeBuffer(BufferDesc(
     size: maxParticles * sizeof(Vec3),
-    usage: Usage.stream
+    usage: usageStream
   ))
 
   # shader and pipeline object
@@ -68,18 +68,18 @@ proc init() {.cdecl.} =
       # vertex buffer at slot 1 must step per instance
       buffers: [
         BufferLayoutDesc(),
-        BufferLayoutDesc( stepFunc: VertexStep.perInstance )
+        BufferLayoutDesc( stepFunc: vertexStepPerInstance )
       ],
       attrs: [
-        VertexAttrDesc(format: VertexFormat.float3, bufferIndex: 0),  # pos
-        VertexAttrDesc(format: VertexFormat.float4, bufferIndex: 0),  # color0
-        VertexAttrDesc(format: VertexFormat.float3, bufferIndex: 1),  # inst_pos
+        VertexAttrDesc(format: vertexFormatFloat3, bufferIndex: 0),  # pos
+        VertexAttrDesc(format: vertexFormatFloat4, bufferIndex: 0),  # color0
+        VertexAttrDesc(format: vertexFormatFloat3, bufferIndex: 1),  # inst_pos
       ]
     ),
-    indexType: IndexType.uint16,
-    cullMode: CullMode.back,
+    indexType: indexTypeUint16,
+    cullMode: cullModeBack,
     depth: DepthState(
-      compare: CompareFunc.lessEqual,
+      compare: compareFuncLessEqual,
       writeEnabled: true,
     )
   ))
@@ -128,7 +128,7 @@ proc frame() {.cdecl.} =
   sg.beginDefaultPass(passAction, sapp.width(), sapp.height())
   sg.applyPipeline(pip)
   sg.applyBindings(bindings)
-  sg.applyUniforms(ShaderStage.vs, shd.slotVsParams, vsParams)
+  sg.applyUniforms(shaderStageVs, shd.slotVsParams, vsParams)
   sg.draw(0, 24, curNumParticles.cint)
   sg.endPass()
   sg.commit()

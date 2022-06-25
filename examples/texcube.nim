@@ -17,7 +17,7 @@ var
 const
   passAction = PassAction(
     colors: [
-      ColorAttachmentAction( action: Action.clear, value: (0.25, 0.5, 0.75, 1.0))
+      ColorAttachmentAction( action: actionClear, value: (0.25, 0.5, 0.75, 1.0))
     ]
   )
 
@@ -71,7 +71,7 @@ proc init() {.cdecl.} =
 
   # create an index buffer for the cube
   bindings.indexBuffer = sg.makeBuffer(BufferDesc(
-    type: BufferType.indexBuffer,
+    type: bufferTypeIndexBuffer,
     data: [
       0'u16, 1, 2,  0, 2, 3,
       6, 5, 4,  7, 6, 4,
@@ -102,15 +102,15 @@ proc init() {.cdecl.} =
     shader: sg.makeShader(texcubeShaderDesc(sg.queryBackend())),
     layout: LayoutDesc(
       attrs: [
-        VertexAttrDesc(format: VertexFormat.float3),    # pos
-        VertexAttrDesc(format: VertexFormat.ubyte4n),   # color0
-        VertexAttrDesc(format: VertexFormat.short2n)    # texcoord0
+        VertexAttrDesc(format: vertexFormatFloat3),    # pos
+        VertexAttrDesc(format: vertexFormatUbyte4n),   # color0
+        VertexAttrDesc(format: vertexFormatShort2n)    # texcoord0
       ]
     ),
-    indexType: IndexType.uint16,
-    cullMode: CullMode.back,
+    indexType: indexTypeUint16,
+    cullMode: cullModeBack,
     depth: DepthState(
-      compare: CompareFunc.lessEqual,
+      compare: compareFuncLessEqual,
       writeEnabled: true
     )
   ))
@@ -130,7 +130,7 @@ proc frame() {.cdecl.} =
   sg.beginDefaultPass(passAction, sapp.width(), sapp.height())
   sg.applyPipeline(pip)
   sg.applyBindings(bindings)
-  sg.applyUniforms(ShaderStage.vs, shd.slotVsParams, computeVsParams())
+  sg.applyUniforms(shaderStageVs, shd.slotVsParams, computeVsParams())
   sg.draw(0, 36, 1)
   sg.endPass()
   sg.commit()

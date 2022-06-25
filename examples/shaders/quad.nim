@@ -344,7 +344,7 @@ const fsSourceMetalMacos: array[391, uint8] = [
 ]
 proc quadShaderDesc*(backend: sg.Backend): sg.ShaderDesc =
   case backend:
-    of sg.Backend.glcore33:
+    of backendGlcore33:
       result.attrs[0].name = "position"
       result.attrs[1].name = "color0"
       result.vs.source = cast[cstring](unsafeAddr(vsSourceGlsl330))
@@ -352,7 +352,7 @@ proc quadShaderDesc*(backend: sg.Backend): sg.ShaderDesc =
       result.fs.source = cast[cstring](unsafeAddr(fsSourceGlsl330))
       result.fs.entry = "main"
       result.label = "quadShader"
-    of sg.Backend.d3d11:
+    of backendD3d11:
       result.attrs[0].semName = "TEXCOORD"
       result.attrs[0].semIndex = 0
       result.attrs[1].semName = "TEXCOORD"
@@ -364,7 +364,7 @@ proc quadShaderDesc*(backend: sg.Backend): sg.ShaderDesc =
       result.fs.d3d11Target = "ps_4_0"
       result.fs.entry = "main"
       result.label = "quadShader"
-    of sg.Backend.metalMacos:
+    of backendMetalMacos:
       result.vs.source = cast[cstring](unsafeAddr(vsSourceMetalMacos))
       result.vs.entry = "main0"
       result.fs.source = cast[cstring](unsafeAddr(fsSourceMetalMacos))

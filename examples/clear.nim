@@ -7,7 +7,7 @@ import sokol/gfx as sg
 import sokol/glue as glue
 
 var passAction = PassAction(
-  colors: [ ColorAttachmentAction( action: Action.clear, value: (1, 0, 0, 0)) ]
+  colors: [ ColorAttachmentAction( action: actionClear, value: (1, 0, 0, 0)) ]
 )
 
 proc init() {.cdecl.} =

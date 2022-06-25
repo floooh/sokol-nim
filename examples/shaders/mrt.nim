@@ -14,8 +14,8 @@
 #                   ATTR_vs_dbg_pos = 0
 #           Fragment shader: fs_dbg
 #               Image 'tex':
-#                   Type: sg.ImageType.twoDee
-#                   Component Type: sg.SamplerType.float
+#                   Type: imageType2d
+#                   Component Type: samplerTypeFloat
 #                   Bind slot: SLOT_tex = 0
 #
 #       Shader program 'fsq':
@@ -24,20 +24,20 @@
 #               Attribute slots:
 #                   ATTR_vs_fsq_pos = 0
 #               Uniform block 'fsq_params':
-#                   C struct: fsq_params_t
+#                   Nim struct: FsqParams
 #                   Bind slot: SLOT_fsq_params = 0
 #           Fragment shader: fs_fsq
 #               Image 'tex0':
-#                   Type: sg.ImageType.twoDee
-#                   Component Type: sg.SamplerType.float
+#                   Type: imageType2d
+#                   Component Type: samplerTypeFloat
 #                   Bind slot: SLOT_tex0 = 0
 #               Image 'tex1':
-#                   Type: sg.ImageType.twoDee
-#                   Component Type: sg.SamplerType.float
+#                   Type: imageType2d
+#                   Component Type: samplerTypeFloat
 #                   Bind slot: SLOT_tex1 = 1
 #               Image 'tex2':
-#                   Type: sg.ImageType.twoDee
-#                   Component Type: sg.SamplerType.float
+#                   Type: imageType2d
+#                   Component Type: samplerTypeFloat
 #                   Bind slot: SLOT_tex2 = 2
 #
 #       Shader program 'offscreen':
@@ -47,7 +47,7 @@
 #                   ATTR_vs_offscreen_pos = 0
 #                   ATTR_vs_offscreen_bright0 = 1
 #               Uniform block 'offscreen_params':
-#                   C struct: offscreen_params_t
+#                   Nim struct: OffscreenParams
 #                   Bind slot: SLOT_offscreen_params = 0
 #           Fragment shader: fs_offscreen
 #
@@ -1342,17 +1342,17 @@ const fsDbgSourceMetalMacos: array[492, uint8] = [
 ]
 proc dbgShaderDesc*(backend: sg.Backend): sg.ShaderDesc =
   case backend:
-    of sg.Backend.glcore33:
+    of backendGlcore33:
       result.attrs[0].name = "pos"
       result.vs.source = cast[cstring](unsafeAddr(vsDbgSourceGlsl330))
       result.vs.entry = "main"
       result.fs.source = cast[cstring](unsafeAddr(fsDbgSourceGlsl330))
       result.fs.entry = "main"
       result.fs.images[0].name = "tex"
-      result.fs.images[0].imageType = sg.ImageType.twoDee
-      result.fs.images[0].samplerType = sg.SamplerType.float
+      result.fs.images[0].imageType = imageType2d
+      result.fs.images[0].samplerType = samplerTypeFloat
       result.label = "dbgShader"
-    of sg.Backend.d3d11:
+    of backendD3d11:
       result.attrs[0].semName = "TEXCOORD"
       result.attrs[0].semIndex = 0
       result.vs.source = cast[cstring](unsafeAddr(vsDbgSourceHlsl4))
@@ -1362,99 +1362,99 @@ proc dbgShaderDesc*(backend: sg.Backend): sg.ShaderDesc =
       result.fs.d3d11Target = "ps_4_0"
       result.fs.entry = "main"
       result.fs.images[0].name = "tex"
-      result.fs.images[0].imageType = sg.ImageType.twoDee
-      result.fs.images[0].samplerType = sg.SamplerType.float
+      result.fs.images[0].imageType = imageType2d
+      result.fs.images[0].samplerType = samplerTypeFloat
       result.label = "dbgShader"
-    of sg.Backend.metalMacos:
+    of backendMetalMacos:
       result.vs.source = cast[cstring](unsafeAddr(vsDbgSourceMetalMacos))
       result.vs.entry = "main0"
       result.fs.source = cast[cstring](unsafeAddr(fsDbgSourceMetalMacos))
       result.fs.entry = "main0"
       result.fs.images[0].name = "tex"
-      result.fs.images[0].imageType = sg.ImageType.twoDee
-      result.fs.images[0].samplerType = sg.SamplerType.float
+      result.fs.images[0].imageType = imageType2d
+      result.fs.images[0].samplerType = samplerTypeFloat
       result.label = "dbgShader"
     else: discard
 
 proc fsqShaderDesc*(backend: sg.Backend): sg.ShaderDesc =
   case backend:
-    of sg.Backend.glcore33:
+    of backendGlcore33:
       result.attrs[0].name = "pos"
       result.vs.source = cast[cstring](unsafeAddr(vsFsqSourceGlsl330))
       result.vs.entry = "main"
       result.vs.uniformBlocks[0].size = 16
-      result.vs.uniformBlocks[0].layout = sg.UniformLayout.std140
+      result.vs.uniformBlocks[0].layout = uniformLayoutStd140
       result.vs.uniformBlocks[0].uniforms[0].name = "fsq_params"
-      result.vs.uniformBlocks[0].uniforms[0].type = sg.UniformType.float4
+      result.vs.uniformBlocks[0].uniforms[0].type = uniformTypeFloat4
       result.vs.uniformBlocks[0].uniforms[0].arrayCount = 1
       result.fs.source = cast[cstring](unsafeAddr(fsFsqSourceGlsl330))
       result.fs.entry = "main"
       result.fs.images[0].name = "tex0"
-      result.fs.images[0].imageType = sg.ImageType.twoDee
-      result.fs.images[0].samplerType = sg.SamplerType.float
+      result.fs.images[0].imageType = imageType2d
+      result.fs.images[0].samplerType = samplerTypeFloat
       result.fs.images[1].name = "tex1"
-      result.fs.images[1].imageType = sg.ImageType.twoDee
-      result.fs.images[1].samplerType = sg.SamplerType.float
+      result.fs.images[1].imageType = imageType2d
+      result.fs.images[1].samplerType = samplerTypeFloat
       result.fs.images[2].name = "tex2"
-      result.fs.images[2].imageType = sg.ImageType.twoDee
-      result.fs.images[2].samplerType = sg.SamplerType.float
+      result.fs.images[2].imageType = imageType2d
+      result.fs.images[2].samplerType = samplerTypeFloat
       result.label = "fsqShader"
-    of sg.Backend.d3d11:
+    of backendD3d11:
       result.attrs[0].semName = "TEXCOORD"
       result.attrs[0].semIndex = 0
       result.vs.source = cast[cstring](unsafeAddr(vsFsqSourceHlsl4))
       result.vs.d3d11Target = "vs_4_0"
       result.vs.entry = "main"
       result.vs.uniformBlocks[0].size = 16
-      result.vs.uniformBlocks[0].layout = sg.UniformLayout.std140
+      result.vs.uniformBlocks[0].layout = uniformLayoutStd140
       result.fs.source = cast[cstring](unsafeAddr(fsFsqSourceHlsl4))
       result.fs.d3d11Target = "ps_4_0"
       result.fs.entry = "main"
       result.fs.images[0].name = "tex0"
-      result.fs.images[0].imageType = sg.ImageType.twoDee
-      result.fs.images[0].samplerType = sg.SamplerType.float
+      result.fs.images[0].imageType = imageType2d
+      result.fs.images[0].samplerType = samplerTypeFloat
       result.fs.images[1].name = "tex1"
-      result.fs.images[1].imageType = sg.ImageType.twoDee
-      result.fs.images[1].samplerType = sg.SamplerType.float
+      result.fs.images[1].imageType = imageType2d
+      result.fs.images[1].samplerType = samplerTypeFloat
       result.fs.images[2].name = "tex2"
-      result.fs.images[2].imageType = sg.ImageType.twoDee
-      result.fs.images[2].samplerType = sg.SamplerType.float
+      result.fs.images[2].imageType = imageType2d
+      result.fs.images[2].samplerType = samplerTypeFloat
       result.label = "fsqShader"
-    of sg.Backend.metalMacos:
+    of backendMetalMacos:
       result.vs.source = cast[cstring](unsafeAddr(vsFsqSourceMetalMacos))
       result.vs.entry = "main0"
       result.vs.uniformBlocks[0].size = 16
-      result.vs.uniformBlocks[0].layout = sg.UniformLayout.std140
+      result.vs.uniformBlocks[0].layout = uniformLayoutStd140
       result.fs.source = cast[cstring](unsafeAddr(fsFsqSourceMetalMacos))
       result.fs.entry = "main0"
       result.fs.images[0].name = "tex0"
-      result.fs.images[0].imageType = sg.ImageType.twoDee
-      result.fs.images[0].samplerType = sg.SamplerType.float
+      result.fs.images[0].imageType = imageType2d
+      result.fs.images[0].samplerType = samplerTypeFloat
       result.fs.images[1].name = "tex1"
-      result.fs.images[1].imageType = sg.ImageType.twoDee
-      result.fs.images[1].samplerType = sg.SamplerType.float
+      result.fs.images[1].imageType = imageType2d
+      result.fs.images[1].samplerType = samplerTypeFloat
       result.fs.images[2].name = "tex2"
-      result.fs.images[2].imageType = sg.ImageType.twoDee
-      result.fs.images[2].samplerType = sg.SamplerType.float
+      result.fs.images[2].imageType = imageType2d
+      result.fs.images[2].samplerType = samplerTypeFloat
       result.label = "fsqShader"
     else: discard
 
 proc offscreenShaderDesc*(backend: sg.Backend): sg.ShaderDesc =
   case backend:
-    of sg.Backend.glcore33:
+    of backendGlcore33:
       result.attrs[0].name = "pos"
       result.attrs[1].name = "bright0"
       result.vs.source = cast[cstring](unsafeAddr(vsOffscreenSourceGlsl330))
       result.vs.entry = "main"
       result.vs.uniformBlocks[0].size = 64
-      result.vs.uniformBlocks[0].layout = sg.UniformLayout.std140
+      result.vs.uniformBlocks[0].layout = uniformLayoutStd140
       result.vs.uniformBlocks[0].uniforms[0].name = "offscreen_params"
-      result.vs.uniformBlocks[0].uniforms[0].type = sg.UniformType.float4
+      result.vs.uniformBlocks[0].uniforms[0].type = uniformTypeFloat4
       result.vs.uniformBlocks[0].uniforms[0].arrayCount = 4
       result.fs.source = cast[cstring](unsafeAddr(fsOffscreenSourceGlsl330))
       result.fs.entry = "main"
       result.label = "offscreenShader"
-    of sg.Backend.d3d11:
+    of backendD3d11:
       result.attrs[0].semName = "TEXCOORD"
       result.attrs[0].semIndex = 0
       result.attrs[1].semName = "TEXCOORD"
@@ -1463,16 +1463,16 @@ proc offscreenShaderDesc*(backend: sg.Backend): sg.ShaderDesc =
       result.vs.d3d11Target = "vs_4_0"
       result.vs.entry = "main"
       result.vs.uniformBlocks[0].size = 64
-      result.vs.uniformBlocks[0].layout = sg.UniformLayout.std140
+      result.vs.uniformBlocks[0].layout = uniformLayoutStd140
       result.fs.source = cast[cstring](unsafeAddr(fsOffscreenSourceHlsl4))
       result.fs.d3d11Target = "ps_4_0"
       result.fs.entry = "main"
       result.label = "offscreenShader"
-    of sg.Backend.metalMacos:
+    of backendMetalMacos:
       result.vs.source = cast[cstring](unsafeAddr(vsOffscreenSourceMetalMacos))
       result.vs.entry = "main0"
       result.vs.uniformBlocks[0].size = 64
-      result.vs.uniformBlocks[0].layout = sg.UniformLayout.std140
+      result.vs.uniformBlocks[0].layout = uniformLayoutStd140
       result.fs.source = cast[cstring](unsafeAddr(fsOffscreenSourceMetalMacos))
       result.fs.entry = "main0"
       result.label = "offscreenShader"

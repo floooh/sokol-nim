@@ -9,14 +9,14 @@ type Context* = object
   id*:uint32
 
 type
-  Error* {.pure, size:sizeof(cint).} = enum
-    error = 0,
-    verticesFull = 1,
-    uniformsFull = 2,
-    commandsFull = 3,
-    stackOverflow = 4,
-    stackUnderflow = 5,
-    noContext = 6,
+  Error* {.pure, size:sizeof(int32).} = enum
+    noError = 0,
+    errorVerticesFull = 1,
+    errorUniformsFull = 2,
+    errorCommandsFull = 3,
+    errorStackOverflow = 4,
+    errorStackUnderflow = 5,
+    errorNoContext = 6,
 
 type ContextDesc* = object
   maxVertices*:cint

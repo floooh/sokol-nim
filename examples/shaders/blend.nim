@@ -14,7 +14,7 @@
 #                   ATTR_vs_bg_position = 0
 #           Fragment shader: fs_bg
 #               Uniform block 'bg_fs_params':
-#                   C struct: bg_fs_params_t
+#                   Nim struct: BgFsParams
 #                   Bind slot: SLOT_bg_fs_params = 0
 #
 #       Shader program 'quad':
@@ -24,7 +24,7 @@
 #                   ATTR_vs_quad_position = 0
 #                   ATTR_vs_quad_color0 = 1
 #               Uniform block 'quad_vs_params':
-#                   C struct: quad_vs_params_t
+#                   Nim struct: QuadVsParams
 #                   Bind slot: SLOT_quad_vs_params = 0
 #           Fragment shader: fs_quad
 #
@@ -744,19 +744,19 @@ const fsQuadSourceMetalMacos: array[391, uint8] = [
 ]
 proc bgShaderDesc*(backend: sg.Backend): sg.ShaderDesc =
   case backend:
-    of sg.Backend.glcore33:
+    of backendGlcore33:
       result.attrs[0].name = "position"
       result.vs.source = cast[cstring](unsafeAddr(vsBgSourceGlsl330))
       result.vs.entry = "main"
       result.fs.source = cast[cstring](unsafeAddr(fsBgSourceGlsl330))
       result.fs.entry = "main"
       result.fs.uniformBlocks[0].size = 16
-      result.fs.uniformBlocks[0].layout = sg.UniformLayout.std140
+      result.fs.uniformBlocks[0].layout = uniformLayoutStd140
       result.fs.uniformBlocks[0].uniforms[0].name = "bg_fs_params"
-      result.fs.uniformBlocks[0].uniforms[0].type = sg.UniformType.float4
+      result.fs.uniformBlocks[0].uniforms[0].type = uniformTypeFloat4
       result.fs.uniformBlocks[0].uniforms[0].arrayCount = 1
       result.label = "bgShader"
-    of sg.Backend.d3d11:
+    of backendD3d11:
       result.attrs[0].semName = "TEXCOORD"
       result.attrs[0].semIndex = 0
       result.vs.source = cast[cstring](unsafeAddr(vsBgSourceHlsl4))
@@ -766,34 +766,34 @@ proc bgShaderDesc*(backend: sg.Backend): sg.ShaderDesc =
       result.fs.d3d11Target = "ps_4_0"
       result.fs.entry = "main"
       result.fs.uniformBlocks[0].size = 16
-      result.fs.uniformBlocks[0].layout = sg.UniformLayout.std140
+      result.fs.uniformBlocks[0].layout = uniformLayoutStd140
       result.label = "bgShader"
-    of sg.Backend.metalMacos:
+    of backendMetalMacos:
       result.vs.source = cast[cstring](unsafeAddr(vsBgSourceMetalMacos))
       result.vs.entry = "main0"
       result.fs.source = cast[cstring](unsafeAddr(fsBgSourceMetalMacos))
       result.fs.entry = "main0"
       result.fs.uniformBlocks[0].size = 16
-      result.fs.uniformBlocks[0].layout = sg.UniformLayout.std140
+      result.fs.uniformBlocks[0].layout = uniformLayoutStd140
       result.label = "bgShader"
     else: discard
 
 proc quadShaderDesc*(backend: sg.Backend): sg.ShaderDesc =
   case backend:
-    of sg.Backend.glcore33:
+    of backendGlcore33:
       result.attrs[0].name = "position"
       result.attrs[1].name = "color0"
       result.vs.source = cast[cstring](unsafeAddr(vsQuadSourceGlsl330))
       result.vs.entry = "main"
       result.vs.uniformBlocks[0].size = 64
-      result.vs.uniformBlocks[0].layout = sg.UniformLayout.std140
+      result.vs.uniformBlocks[0].layout = uniformLayoutStd140
       result.vs.uniformBlocks[0].uniforms[0].name = "quad_vs_params"
-      result.vs.uniformBlocks[0].uniforms[0].type = sg.UniformType.float4
+      result.vs.uniformBlocks[0].uniforms[0].type = uniformTypeFloat4
       result.vs.uniformBlocks[0].uniforms[0].arrayCount = 4
       result.fs.source = cast[cstring](unsafeAddr(fsQuadSourceGlsl330))
       result.fs.entry = "main"
       result.label = "quadShader"
-    of sg.Backend.d3d11:
+    of backendD3d11:
       result.attrs[0].semName = "TEXCOORD"
       result.attrs[0].semIndex = 0
       result.attrs[1].semName = "TEXCOORD"
@@ -802,16 +802,16 @@ proc quadShaderDesc*(backend: sg.Backend): sg.ShaderDesc =
       result.vs.d3d11Target = "vs_4_0"
       result.vs.entry = "main"
       result.vs.uniformBlocks[0].size = 64
-      result.vs.uniformBlocks[0].layout = sg.UniformLayout.std140
+      result.vs.uniformBlocks[0].layout = uniformLayoutStd140
       result.fs.source = cast[cstring](unsafeAddr(fsQuadSourceHlsl4))
       result.fs.d3d11Target = "ps_4_0"
       result.fs.entry = "main"
       result.label = "quadShader"
-    of sg.Backend.metalMacos:
+    of backendMetalMacos:
       result.vs.source = cast[cstring](unsafeAddr(vsQuadSourceMetalMacos))
       result.vs.entry = "main0"
       result.vs.uniformBlocks[0].size = 64
-      result.vs.uniformBlocks[0].layout = sg.UniformLayout.std140
+      result.vs.uniformBlocks[0].layout = uniformLayoutStd140
       result.fs.source = cast[cstring](unsafeAddr(fsQuadSourceMetalMacos))
       result.fs.entry = "main0"
       result.label = "quadShader"

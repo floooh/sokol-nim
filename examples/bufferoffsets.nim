@@ -21,25 +21,25 @@ proc init() {.cdecl.} =
   sg.setup(sg.Desc( context: glue.context() ))
 
   # clear to a blue-ish color
-  passAction.colors[0] = ColorAttachmentAction( action: Action.clear, value: (0.5, 0.5, 1.0, 1.0))
+  passAction.colors[0] = ColorAttachmentAction( action: actionClear, value: (0.5, 0.5, 1.0, 1.0))
 
   # a 2D triangle and quad in one vertex buffer and one index buffer
   bindings.vertexBuffers[0] = sg.makeBuffer(BufferDesc(
     data: [
       # triangle vertices
-      Vertex( x:  0.0,  y: 0.55,  r: 1.0, g: 0.0, b: 0.0 ),
-      Vertex( x:  0.25, y: 0.05,  r: 0.0, g: 1.0, b: 0.0 ),
-      Vertex( x: -0.25, y: 0.05,  r: 0.0, g: 0.0, b: 1.0 ),
+      Vertex(x:  0.0,  y: 0.55,  r: 1.0, g: 0.0, b: 0.0),
+      Vertex(x:  0.25, y: 0.05,  r: 0.0, g: 1.0, b: 0.0),
+      Vertex(x: -0.25, y: 0.05,  r: 0.0, g: 0.0, b: 1.0),
 
       # quad vertices
-      Vertex( x: -0.25, y: -0.05,  r: 0.0, g: 0.0, b: 1.0 ),
-      Vertex( x:  0.25, y: -0.05,  r: 0.0, g: 1.0, b: 0.0 ),
-      Vertex( x:  0.25, y: -0.55,  r: 1.0, g: 0.0, b: 0.0 ),
-      Vertex( x: -0.25, y: -0.55,  r: 1.0, g: 1.0, b: 0.0 )
+      Vertex(x: -0.25, y: -0.05,  r: 0.0, g: 0.0, b: 1.0),
+      Vertex(x:  0.25, y: -0.05,  r: 0.0, g: 1.0, b: 0.0),
+      Vertex(x:  0.25, y: -0.55,  r: 1.0, g: 0.0, b: 0.0),
+      Vertex(x: -0.25, y: -0.55,  r: 1.0, g: 1.0, b: 0.0)
     ]
   ))
   bindings.indexBuffer = sg.makeBuffer(BufferDesc(
-    type: BufferType.indexBuffer,
+    type: bufferTypeIndexBuffer,
     data: [
       # triangle indices
       0'u16, 1, 2,
@@ -51,11 +51,11 @@ proc init() {.cdecl.} =
   # shader and pipeline object
   pip = sg.makePipeline(PipelineDesc(
     shader: sg.makeShader(shd.bufferoffsetsShaderDesc(sg.queryBackend())),
-    indexType: IndexType.uint16,
+    indexType: indexTypeUint16,
     layout: LayoutDesc(
       attrs: [
-        VertexAttrDesc(format: VertexFormat.float2),
-        VertexAttrDesc(format: VertexFormat.float3)
+        VertexAttrDesc(format: vertexFormatFloat2),
+        VertexAttrDesc(format: vertexFormatFloat3)
       ]
     )
   ))

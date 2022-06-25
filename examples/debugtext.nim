@@ -9,7 +9,7 @@ import sokol/glue
 
 const passAction = PassAction(
   colors: [
-    ColorAttachmentAction(action: Action.clear, value: (0, 0.125, 0.25, 1))
+    ColorAttachmentAction(action: actionClear, value: (0, 0.125, 0.25, 1))
   ]
 )
 

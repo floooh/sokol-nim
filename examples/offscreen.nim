@@ -30,12 +30,12 @@ proc init() {.cdecl.} =
 
   # default pass action: clear to blue-ish
   defaultPassAction = PassAction(
-    colors: [ ColorAttachmentAction( action: Action.clear, value: (0.25, 0.45, 0.65, 1 )) ]
+    colors: [ ColorAttachmentAction( action: actionClear, value: (0.25, 0.45, 0.65, 1 )) ]
   )
 
   # offscreen pass action: clear to grey
   offscreenPassAction = PassAction(
-    colors: [ ColorAttachmentAction( action: Action.clear, value: (0.25, 0.25, 0.25, 1 )) ]
+    colors: [ ColorAttachmentAction( action: actionClear, value: (0.25, 0.25, 0.25, 1 )) ]
   )
 
   # a render pass with one color- and one depth-attachment image
@@ -43,15 +43,15 @@ proc init() {.cdecl.} =
     renderTarget: true,
     width: 256,
     height: 256,
-    pixelFormat: PixelFormat.rgba8,
-    minFilter: Filter.linear,
-    magFilter: Filter.linear,
-    wrapU: Wrap.repeat,
-    wrapV: Wrap.repeat,
+    pixelFormat: pixelFormatRgba8,
+    minFilter: filterLinear,
+    magFilter: filterLinear,
+    wrapU: wrapRepeat,
+    wrapV: wrapRepeat,
     sampleCount: offscreenSampleCount,
   )
   let colorImg = sg.makeImage(imgDesc)
-  imgDesc.pixelFormat = PixelFormat.depth
+  imgDesc.pixelFormat = pixelFormatDepth
   let depthImg = sg.makeImage(imgDesc)
   offscreenPass = sg.makePass(PassDesc(
     colorAttachments: [ PassAttachmentDesc(image: colorImg) ],
@@ -84,16 +84,16 @@ proc init() {.cdecl.} =
         sshape.normalAttrDesc()
       ]
     ),
-    indexType: IndexType.uint16,
-    cullMode: CullMode.back,
+    indexType: indexTypeUint16,
+    cullMode: cullModeBack,
     sampleCount: offscreenSampleCount,
     depth: DepthState(
-      pixelFormat: PixelFormat.depth,
-      compare: CompareFunc.lessEqual,
+      pixelFormat: pixelFormatDepth,
+      compare: compareFuncLessEqual,
       writeEnabled: true
     ),
     colors: [
-      ColorState(pixelFormat: PixelFormat.rgba8)
+      ColorState(pixelFormat: pixelFormatRgba8)
     ]
   ))
 
@@ -108,10 +108,10 @@ proc init() {.cdecl.} =
         sshape.texcoordAttrDesc()
       ]
     ),
-    indexType: IndexType.uint16,
-    cullMode: CullMode.back,
+    indexType: indexTypeUint16,
+    cullMode: cullModeBack,
     depth: DepthState(
-      compare: CompareFunc.lessEqual,
+      compare: compareFuncLessEqual,
       writeEnabled: true,
     )
   ))
@@ -151,7 +151,7 @@ proc frame() {.cdecl.} =
   sg.beginPass(offscreenPass, offscreenPassAction)
   sg.applyPipeline(offscreenPip)
   sg.applyBindings(offscreenBindings)
-  sg.applyUniforms(ShaderStage.vs, shd.slotVsParams, offscreenVsParams)
+  sg.applyUniforms(shaderStageVs, shd.slotVsParams, offscreenVsParams)
   sg.draw(donut.baseElement, donut.numElements, 1)
   sg.endPass()
 
@@ -163,7 +163,7 @@ proc frame() {.cdecl.} =
   sg.beginDefaultPass(defaultPassAction, sapp.width(), sapp.height())
   sg.applyPipeline(defaultPip)
   sg.applyBindings(defaultBindings)
-  sg.applyUniforms(ShaderStage.vs, shd.slotVsParams, defaultVsParams)
+  sg.applyUniforms(shaderStageVs, shd.slotVsParams, defaultVsParams)
   sg.draw(sphere.baseElement, sphere.numElements, 1)
   sg.endPass()
   sg.commit()

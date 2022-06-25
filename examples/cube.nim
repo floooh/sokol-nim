@@ -18,7 +18,7 @@ var
 const
   passAction = PassAction(
     colors:[
-      ColorAttachmentAction(action: Action.clear, value: (0.5, 0.5, 0.5, 1))
+      ColorAttachmentAction(action: actionClear, value: (0.5, 0.5, 0.5, 1))
     ]
   )
 
@@ -61,7 +61,7 @@ proc init() {.cdecl.} =
   ))
 
   let ibuf = sg.makeBuffer(BufferDesc(
-    type: BufferType.indexBuffer,
+    type: bufferTypeIndexBuffer,
     data: [
       0'u16, 1, 2,  0, 2, 3,
       6, 5, 4,      7, 6, 4,
@@ -79,14 +79,14 @@ proc init() {.cdecl.} =
         BufferLayoutDesc(stride: 28),
       ],
       attrs: [
-        VertexAttrDesc(bufferIndex: 0, offset: 0,  format: VertexFormat.float3),
-        VertexAttrDesc(bufferIndex: 0, offset: 12, format: VertexFormat.float4),
+        VertexAttrDesc(bufferIndex: 0, offset: 0,  format: vertexFormatFloat3),
+        VertexAttrDesc(bufferIndex: 0, offset: 12, format: vertexFormatFloat4),
       ],
     ),
-    indexType: IndexType.uint16,
-    cullMode: CullMode.back,
+    indexType: indexTypeUint16,
+    cullMode: cullModeBack,
     depth: DepthState(
-      compare: CompareFunc.lessEqual,
+      compare: compareFuncLessEqual,
       writeEnabled: true,
     )
   ))
@@ -108,7 +108,7 @@ proc frame() {.cdecl.} =
   sg.beginDefaultPass(passAction, sapp.width(), sapp.height())
   sg.applyPipeline(pip)
   sg.applyBindings(bindings)
-  sg.applyUniforms(ShaderStage.vs, shd.slotVsParams, computeVsParams())
+  sg.applyUniforms(shaderStageVs, shd.slotVsParams, computeVsParams())
   sg.draw(0, 36, 1)
   sg.endPass()
   sg.commit()

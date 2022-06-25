@@ -46,7 +46,7 @@ proc init() {.cdecl.} =
 
   # cube index buffer
   let ibuf = sg.makeBuffer(BufferDesc(
-      type: BufferType.indexBuffer,
+      type: bufferTypeIndexBuffer,
       data: [
           0'u16, 1, 2,  0, 2, 3,
           6, 5, 4,  7, 6, 4,
@@ -63,14 +63,14 @@ proc init() {.cdecl.} =
     shader: sg.makeShader(shd.noninterleavedShaderDesc(sg.queryBackend())),
     layout: LayoutDesc(
       attrs: [
-        VertexAttrDesc(format: VertexFormat.float3, bufferIndex: 0),
-        VertexAttrDesc(format: VertexFormat.float4, bufferIndex: 1),
+        VertexAttrDesc(format: vertexFormatFloat3, bufferIndex: 0),
+        VertexAttrDesc(format: vertexFormatFloat4, bufferIndex: 1),
       ]
     ),
-    indexType: IndexType.uint16,
-    cullMode: CullMode.back,
+    indexType: indexTypeUint16,
+    cullMode: cullModeBack,
     depth: DepthState(
-      compare: CompareFunc.lessEqual,
+      compare: compareFuncLessEqual,
       writeEnabled: true,
     ),
   ))
@@ -99,7 +99,7 @@ proc frame() {.cdecl.} =
   sg.beginDefaultPass(passAction, sapp.width(), sapp.height())
   sg.applyPipeline(pip)
   sg.applyBindings(bindings)
-  sg.applyUniforms(ShaderStage.vs, shd.slotVsParams, computeVsParams())
+  sg.applyUniforms(shaderStageVs, shd.slotVsParams, computeVsParams())
   sg.draw(0, 36, 1)
   sg.endPass()
   sg.commit()
@@ -116,4 +116,3 @@ sapp.run(sapp.Desc(
   sampleCount: 4,
   windowTitle: "noninterleaved.nim"
 ))
-

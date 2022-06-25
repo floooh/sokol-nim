@@ -20,9 +20,9 @@ var
   tick = 0f
 
 const passAction = PassAction(
-  colors: [ColorAttachmentAction(action: Action.dontCare)],
-  depth: DepthAttachmentAction(action: Action.dontCare),
-  stencil: StencilAttachmentAction(action: Action.dontCare),
+  colors: [ColorAttachmentAction(action: actionDontCare)],
+  depth: DepthAttachmentAction(action: actionDontCare),
+  stencil: StencilAttachmentAction(action: actionDontCare),
 )
 
 proc init() {.cdecl.} =
@@ -33,7 +33,7 @@ proc init() {.cdecl.} =
 
   # quad vertex buffer
   bindings.vertexBuffers[0] = sg.makeBuffer(BufferDesc(
-      type: BufferType.vertexBuffer,
+      type: bufferTypeVertexBuffer,
       data: [
         # position             color0
         -1.0f, -1.0f, 0.0f,    1.0f, 0.0f, 0.0f, 0.5f,
@@ -47,25 +47,25 @@ proc init() {.cdecl.} =
   bgPip = sg.makePipeline(PipelineDesc(
     layout: LayoutDesc(
       buffers: [ BufferLayoutDesc(stride: 28) ],
-      attrs: [ VertexAttrDesc(offset: 0, format: VertexFormat.float2 )]
+      attrs: [ VertexAttrDesc(offset: 0, format: vertexFormatFloat2 )]
     ),
     shader: sg.makeShader(shd.bgShaderDesc(sg.queryBackend())),
-    primitiveType: PrimitiveType.triangleStrip,
+    primitiveType: primitiveTypeTriangleStrip,
   ))
 
   # lot of pipeline objects for rendering the blended quads
   var pipDesc = PipelineDesc(
     layout: LayoutDesc(
       attrs: [
-        VertexAttrDesc(format: VertexFormat.float3),
-        VertexAttrDesc(format: VertexFormat.float4)
+        VertexAttrDesc(format: vertexFormatFloat3),
+        VertexAttrDesc(format: vertexFormatFloat4)
       ]
     ),
     shader: sg.makeShader(shd.quadShaderDesc(sg.queryBackend())),
-    primitiveType: PrimitiveType.triangleStrip,
+    primitiveType: primitiveTypeTriangleStrip,
     blendColor: (1.0, 0.0, 0.0, 1.0),
     colors: [
-      ColorState(blend: BlendState(enabled: true, srcFactorAlpha: BlendFactor.one, dstFactorAlpha: BlendFactor.zero))
+      ColorState(blend: BlendState(enabled: true, srcFactorAlpha: blendFactorOne, dstFactorAlpha: blendFactorZero))
     ]
   )
   for src in 0..<numBlendFactors:
@@ -83,7 +83,7 @@ proc frame() {.cdecl.} =
   tick += 1.0 * time;
   sg.applyPipeline(bgPip);
   sg.applyBindings(bindings);
-  sg.applyUniforms(ShaderStage.fs, shd.slotBgFsParams, BgFsParams(tick: tick));
+  sg.applyUniforms(shaderStageFs, shd.slotBgFsParams, BgFsParams(tick: tick));
   sg.draw(0, 4, 1);
 
   # draw the blended quads
@@ -104,7 +104,7 @@ proc frame() {.cdecl.} =
       let model = translate(t) * rotate(r0, vec3.up())
       sg.applyPipeline(pip[src][dst])
       sg.applyBindings(bindings)
-      sg.applyUniforms(ShaderStage.vs, shd.slotQuadVsParams, QuadVsParams(mvp: viewProj * model))
+      sg.applyUniforms(shaderStageVs, shd.slotQuadVsParams, QuadVsParams(mvp: viewProj * model))
       sg.draw(0, 4, 1)
       r0 += 0.6
   sg.endPass();

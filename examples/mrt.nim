@@ -45,14 +45,14 @@ proc createOffscreenPass(width: int32, height: int32) =
     renderTarget: true,
     width: width,
     height: height,
-    minFilter: Filter.linear,
-    magFilter: Filter.linear,
-    wrapU: Wrap.clampToEdge,
-    wrapV: Wrap.clampToEdge,
+    minFilter: filterLinear,
+    magFilter: filterLinear,
+    wrapU: wrapClampToEdge,
+    wrapV: wrapClampToEdge,
     sampleCount: offscreenSampleCount
   )
   var depthImageDesc = colorImageDesc
-  depthImageDesc.pixelFormat = PixelFormat.depth
+  depthImageDesc.pixelFormat = pixelFormatDepth
   offscreenPassDesc = PassDesc(
     colorAttachments: [
       PassAttachmentDesc(image: sg.makeImage(colorImageDesc)),
@@ -69,22 +69,22 @@ proc createOffscreenPass(width: int32, height: int32) =
 
 # listen for window-resize events and recreate offscreen rendertargets
 proc event(ev: ptr Event) {.cdecl.} =
-  if ev.type == EventType.resized:
+  if ev.type == eventTypeResized:
     createOffscreenPass(ev.framebufferWidth, ev.framebufferHeight)
 
 proc init() {.cdecl.} =
   sg.setup(sg.Desc(context: glue.context() ))
 
   # pass action for the default pass, since we overwrite the entire framebuffer, no clearing needs to happen
-  defaultPassAction.colors[0].action = Action.dontCare
-  defaultPassAction.depth.action = Action.dontCare
-  defaultPassAction.stencil.action = Action.dontCare
+  defaultPassAction.colors[0].action = actionDontCare
+  defaultPassAction.depth.action = actionDontCare
+  defaultPassAction.stencil.action = actionDontCare
 
   # pass action for offscreen pass
   offscreenPassAction.colors = [
-    ColorAttachmentAction(action: Action.clear, value: (0.25, 0, 0, 1)),
-    ColorAttachmentAction(action: Action.clear, value: (0, 0.25, 0, 1)),
-    ColorAttachmentAction(action: Action.clear, value: (0, 0, 0.25, 1))
+    ColorAttachmentAction(action: actionClear, value: (0.25, 0, 0, 1)),
+    ColorAttachmentAction(action: actionClear, value: (0, 0.25, 0, 1)),
+    ColorAttachmentAction(action: actionClear, value: (0, 0, 0.25, 1))
   ]
 
   # a render pass with 3 color attachment images, and a depth attachment image
@@ -123,7 +123,7 @@ proc init() {.cdecl.} =
 
   # cube index buffer
   offscreenBindings.indexBuffer = sg.makeBuffer(BufferDesc(
-    type: BufferType.indexBuffer,
+    type: bufferTypeIndexBuffer,
     data: [
       0'u16, 1, 2,  0, 2, 3,
       6, 5, 4,  7, 6, 4,
@@ -140,16 +140,16 @@ proc init() {.cdecl.} =
     layout: LayoutDesc(
       buffers: [ BufferLayoutDesc(stride: sizeof(Vertex).int32) ],
       attrs: [
-        VertexAttrDesc(offset: offsetOf(Vertex,x).int32, format: VertexFormat.float3),
-        VertexAttrDesc(offset: offsetOf(Vertex,b).int32, format: VertexFormat.float)
+        VertexAttrDesc(offset: offsetOf(Vertex,x).int32, format: vertexFormatFloat3),
+        VertexAttrDesc(offset: offsetOf(Vertex,b).int32, format: vertexFormatFloat)
       ]
     ),
-    indexType: IndexType.uint16,
-    cullMode: CullMode.back,
+    indexType: indexTypeUint16,
+    cullMode: cullModeBack,
     sampleCount: offscreenSampleCount,
     depth: DepthState(
-      pixelFormat: PixelFormat.depth,
-      compare: CompareFunc.lessEqual,
+      pixelFormat: pixelFormatDepth,
+      compare: compareFuncLessEqual,
       writeEnabled: true,
     ),
     colorCount: 3
@@ -165,10 +165,10 @@ proc init() {.cdecl.} =
     shader: sg.makeShader(fsqShaderDesc(sg.queryBackend())),
     layout: LayoutDesc(
       attrs: [
-        VertexAttrDesc(format: VertexFormat.float2)
+        VertexAttrDesc(format: vertexFormatFloat2)
       ]
     ),
-    primitiveType: PrimitiveType.triangleStrip,
+    primitiveType: primitiveTypeTriangleStrip,
   ))
   fsqBindings = Bindings(
     vertexBuffers: [ quadVbuf ],
@@ -184,10 +184,10 @@ proc init() {.cdecl.} =
     shader: sg.makeShader(dbgShaderDesc(sg.queryBackend())),
     layout: LayoutDesc(
       attrs: [
-        VertexAttrDesc(format: VertexFormat.float2)
+        VertexAttrDesc(format: vertexFormatFloat2)
       ]
     ),
-    primitiveType: PrimitiveType.triangleStrip,
+    primitiveType: primitiveTypeTriangleStrip,
   ))
   dbgBindings.vertexBuffers[0] = quadVbuf
 
@@ -212,7 +212,7 @@ proc frame() {.cdecl.} =
   sg.beginPass(offscreenPass, offscreenPassAction)
   sg.applyPipeline(offscreenPip)
   sg.applyBindings(offscreenBindings)
-  sg.applyUniforms(ShaderStage.vs, shd.slotOffscreenParams, offscreenParams)
+  sg.applyUniforms(shaderStageVs, shd.slotOffscreenParams, offscreenParams)
   sg.draw(0, 36, 1)
   sg.endPass()
 
@@ -220,7 +220,7 @@ proc frame() {.cdecl.} =
   sg.beginDefaultPass(defaultPassAction, sapp.width(), sapp.height())
   sg.applyPipeline(fsqPip)
   sg.applyBindings(fsqBindings)
-  sg.applyUniforms(ShaderStage.vs, shd.slotFsqParams, fsqParams)
+  sg.applyUniforms(shaderStageVs, shd.slotFsqParams, fsqParams)
   sg.draw(0, 4, 1)
   sg.applyPipeline(dbgPip)
   for i in 0..<3:

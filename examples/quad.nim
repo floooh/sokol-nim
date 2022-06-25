@@ -28,7 +28,7 @@ proc init() {.cdecl.} =
 
   # an index buffer
   bindings.indexBuffer = sg.makeBuffer(BufferDesc(
-    type: BufferType.indexBuffer,
+    type: bufferTypeIndexBuffer,
     data: [ 0'u16, 1, 2, 0, 2, 3 ]
   ))
 
@@ -37,15 +37,15 @@ proc init() {.cdecl.} =
     shader: sg.makeShader(shd.quadShaderDesc(sg.queryBackend())),
     layout: LayoutDesc(
       attrs: [
-        VertexAttrDesc(format: VertexFormat.float3),
-        VertexAttrDesc(format: VertexFormat.float4)
+        VertexAttrDesc(format: vertexFormatFloat3),
+        VertexAttrDesc(format: vertexFormatFloat4)
       ],
     ),
-    indexType: IndexType.uint16
+    indexType: indexTypeUint16
   ))
 
   # pass action for clearing to black
-  passAction.colors[0] = ColorAttachmentAction( action: Action.clear, value: (0f, 0f, 0f, 1f))
+  passAction.colors[0] = ColorAttachmentAction( action: actionClear, value: (0f, 0f, 0f, 1f))
 
 proc frame() {.cdecl.} =
   sg.beginDefaultPass(passAction, sapp.width(), sapp.height())
