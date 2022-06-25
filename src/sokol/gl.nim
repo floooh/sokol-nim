@@ -9,7 +9,7 @@ type Context* = object
   id*:uint32
 
 type
-  Error* {.pure, size:sizeof(int32).} = enum
+  Error* {.size:sizeof(int32).} = enum
     noError = 0,
     errorVerticesFull = 1,
     errorUniformsFull = 2,

@@ -7,7 +7,7 @@ const
   maxIconimages* = 8
 
 type
-  EventType* {.pure, size:sizeof(int32).} = enum
+  EventType* {.size:sizeof(int32).} = enum
     eventTypeInvalid,
     eventTypeKeyDown,
     eventTypeKeyUp,
@@ -35,7 +35,7 @@ type
     eventTypeFilesDropped,
 
 type
-  Keycode* {.pure, size:sizeof(int32).} = enum
+  Keycode* {.size:sizeof(int32).} = enum
     keyCodeInvalid = 0,
     keyCodeSpace = 32,
     keyCodeApostrophe = 39,
@@ -165,7 +165,7 @@ type Touchpoint* = object
   changed*:bool
 
 type
-  Mousebutton* {.pure, size:sizeof(int32).} = enum
+  Mousebutton* {.size:sizeof(int32).} = enum
     mouseButtonLeft = 0,
     mouseButtonRight = 1,
     mouseButtonMiddle = 2,
@@ -269,7 +269,7 @@ type Desc* = object
   iosKeyboardResizesCanvas*:bool
 
 type
-  Html5FetchError* {.pure, size:sizeof(int32).} = enum
+  Html5FetchError* {.size:sizeof(int32).} = enum
     html5FetchErrorNoError,
     html5FetchErrorBufferTooSmall,
     html5FetchErrorOther,
