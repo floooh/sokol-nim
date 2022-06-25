@@ -9,12 +9,11 @@ import sokol/debugtext as sdtx
 import sokol/glue
 import std/strformat
 
-const numFonts = 3
-
 type Color = object
   r, g, b: uint8
 
 const
+  numFonts = 3
   passAction = PassAction(
     colors: [
       ColorAttachmentAction(action: actionClear, value: (0, 0.125, 0.25, 1))
