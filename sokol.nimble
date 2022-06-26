@@ -26,7 +26,8 @@ let examples = [
   "blend",
   "debugtext",
   "debugtextprintf",
-  "debugtextuserfont"
+  "debugtextuserfont",
+  "sgl"
 ]
 
 let shaders = [
@@ -88,6 +89,9 @@ task debugtextprintf, "Runs the debugtextprintf example":
 
 task debugtextuserfont, "Runs the debugtextuserfont example":
   exec "nim r examples/debugtextuserfont"
+
+task sgl, "Runs the sgl example":
+  exec "nim r examples/sgl.nim"
 
 task build_all, "Build all examples":
   # hmm, is there a better way?
