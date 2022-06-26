@@ -361,9 +361,9 @@ proc c_v3fT2fC1i(x:float32, y:float32, z:float32, u:float32, v:float32, rgba:uin
 proc v3fT2fC1i*(x:float32, y:float32, z:float32, u:float32, v:float32, rgba:uint32):void =
     c_v3fT2fC1i(x, y, z, u, v, rgba)
 
-proc c_`end`():void {.cdecl, importc:"sgl_end".}
+proc c_end():void {.cdecl, importc:"sgl_end".}
 proc `end`*():void =
-    c_`end`()
+    c_end()
 
 proc c_draw():void {.cdecl, importc:"sgl_draw".}
 proc draw*():void =
