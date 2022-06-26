@@ -19,25 +19,25 @@ type
     errorNoContext = 6,
 
 type ContextDesc* = object
-  maxVertices*:cint
-  maxCommands*:cint
+  maxVertices*:int32
+  maxCommands*:int32
   colorFormat*:gfx.PixelFormat
   depthFormat*:gfx.PixelFormat
-  sampleCount*:cint
+  sampleCount*:int32
 
 type Allocator* = object
-  alloc*:proc(a1:csize_t, a2:pointer):pointer {.cdecl.}
+  alloc*:proc(a1:uint, a2:pointer):pointer {.cdecl.}
   free*:proc(a1:pointer, a2:pointer) {.cdecl.}
   userData*:pointer
 
 type Desc* = object
-  maxVertices*:cint
-  maxCommands*:cint
-  contextPoolSize*:cint
-  pipelinePoolSize*:cint
+  maxVertices*:int32
+  maxCommands*:int32
+  contextPoolSize*:int32
+  pipelinePoolSize*:int32
   colorFormat*:gfx.PixelFormat
   depthFormat*:gfx.PixelFormat
-  sampleCount*:cint
+  sampleCount*:int32
   faceWinding*:gfx.FaceWinding
   allocator*:Allocator
 
@@ -49,12 +49,12 @@ proc c_shutdown():void {.cdecl, importc:"sgl_shutdown".}
 proc shutdown*():void =
     c_shutdown()
 
-proc c_asRadians(deg:cfloat):cfloat {.cdecl, importc:"sgl_rad".}
-proc asRadians*(deg:cfloat):cfloat =
+proc c_asRadians(deg:float32):float32 {.cdecl, importc:"sgl_rad".}
+proc asRadians*(deg:float32):float32 =
     c_asRadians(deg)
 
-proc c_asDegrees(rad:cfloat):cfloat {.cdecl, importc:"sgl_deg".}
-proc asDegrees*(rad:cfloat):cfloat =
+proc c_asDegrees(rad:float32):float32 {.cdecl, importc:"sgl_deg".}
+proc asDegrees*(rad:float32):float32 =
     c_asDegrees(rad)
 
 proc c_getError():Error {.cdecl, importc:"sgl_error".}
@@ -101,20 +101,20 @@ proc c_defaults():void {.cdecl, importc:"sgl_defaults".}
 proc defaults*():void =
     c_defaults()
 
-proc c_viewport(x:cint, y:cint, w:cint, h:cint, origin_top_left:bool):void {.cdecl, importc:"sgl_viewport".}
-proc viewport*(x:cint, y:cint, w:cint, h:cint, origin_top_left:bool):void =
+proc c_viewport(x:int32, y:int32, w:int32, h:int32, origin_top_left:bool):void {.cdecl, importc:"sgl_viewport".}
+proc viewport*(x:int32, y:int32, w:int32, h:int32, origin_top_left:bool):void =
     c_viewport(x, y, w, h, origin_top_left)
 
-proc c_viewportf(x:cfloat, y:cfloat, w:cfloat, h:cfloat, origin_top_left:bool):void {.cdecl, importc:"sgl_viewportf".}
-proc viewportf*(x:cfloat, y:cfloat, w:cfloat, h:cfloat, origin_top_left:bool):void =
+proc c_viewportf(x:float32, y:float32, w:float32, h:float32, origin_top_left:bool):void {.cdecl, importc:"sgl_viewportf".}
+proc viewportf*(x:float32, y:float32, w:float32, h:float32, origin_top_left:bool):void =
     c_viewportf(x, y, w, h, origin_top_left)
 
-proc c_scissorRect(x:cint, y:cint, w:cint, h:cint, origin_top_left:bool):void {.cdecl, importc:"sgl_scissor_rect".}
-proc scissorRect*(x:cint, y:cint, w:cint, h:cint, origin_top_left:bool):void =
+proc c_scissorRect(x:int32, y:int32, w:int32, h:int32, origin_top_left:bool):void {.cdecl, importc:"sgl_scissor_rect".}
+proc scissorRect*(x:int32, y:int32, w:int32, h:int32, origin_top_left:bool):void =
     c_scissorRect(x, y, w, h, origin_top_left)
 
-proc c_scissorRectf(x:cfloat, y:cfloat, w:cfloat, h:cfloat, origin_top_left:bool):void {.cdecl, importc:"sgl_scissor_rectf".}
-proc scissorRectf*(x:cfloat, y:cfloat, w:cfloat, h:cfloat, origin_top_left:bool):void =
+proc c_scissorRectf(x:float32, y:float32, w:float32, h:float32, origin_top_left:bool):void {.cdecl, importc:"sgl_scissor_rectf".}
+proc scissorRectf*(x:float32, y:float32, w:float32, h:float32, origin_top_left:bool):void =
     c_scissorRectf(x, y, w, h, origin_top_left)
 
 proc c_enableTexture():void {.cdecl, importc:"sgl_enable_texture".}
@@ -161,48 +161,48 @@ proc c_loadIdentity():void {.cdecl, importc:"sgl_load_identity".}
 proc loadIdentity*():void =
     c_loadIdentity()
 
-proc c_loadMatrix(m:ptr cfloat):void {.cdecl, importc:"sgl_load_matrix".}
-proc loadMatrix*(m:ptr cfloat):void =
+proc c_loadMatrix(m:ptr float32):void {.cdecl, importc:"sgl_load_matrix".}
+proc loadMatrix*(m:ptr float32):void =
     c_loadMatrix(m)
 
-proc c_loadTransposeMatrix(m:ptr cfloat):void {.cdecl, importc:"sgl_load_transpose_matrix".}
-proc loadTransposeMatrix*(m:ptr cfloat):void =
+proc c_loadTransposeMatrix(m:ptr float32):void {.cdecl, importc:"sgl_load_transpose_matrix".}
+proc loadTransposeMatrix*(m:ptr float32):void =
     c_loadTransposeMatrix(m)
 
-proc c_multMatrix(m:ptr cfloat):void {.cdecl, importc:"sgl_mult_matrix".}
-proc multMatrix*(m:ptr cfloat):void =
+proc c_multMatrix(m:ptr float32):void {.cdecl, importc:"sgl_mult_matrix".}
+proc multMatrix*(m:ptr float32):void =
     c_multMatrix(m)
 
-proc c_multTransposeMatrix(m:ptr cfloat):void {.cdecl, importc:"sgl_mult_transpose_matrix".}
-proc multTransposeMatrix*(m:ptr cfloat):void =
+proc c_multTransposeMatrix(m:ptr float32):void {.cdecl, importc:"sgl_mult_transpose_matrix".}
+proc multTransposeMatrix*(m:ptr float32):void =
     c_multTransposeMatrix(m)
 
-proc c_rotate(angle_rad:cfloat, x:cfloat, y:cfloat, z:cfloat):void {.cdecl, importc:"sgl_rotate".}
-proc rotate*(angle_rad:cfloat, x:cfloat, y:cfloat, z:cfloat):void =
+proc c_rotate(angle_rad:float32, x:float32, y:float32, z:float32):void {.cdecl, importc:"sgl_rotate".}
+proc rotate*(angle_rad:float32, x:float32, y:float32, z:float32):void =
     c_rotate(angle_rad, x, y, z)
 
-proc c_scale(x:cfloat, y:cfloat, z:cfloat):void {.cdecl, importc:"sgl_scale".}
-proc scale*(x:cfloat, y:cfloat, z:cfloat):void =
+proc c_scale(x:float32, y:float32, z:float32):void {.cdecl, importc:"sgl_scale".}
+proc scale*(x:float32, y:float32, z:float32):void =
     c_scale(x, y, z)
 
-proc c_translate(x:cfloat, y:cfloat, z:cfloat):void {.cdecl, importc:"sgl_translate".}
-proc translate*(x:cfloat, y:cfloat, z:cfloat):void =
+proc c_translate(x:float32, y:float32, z:float32):void {.cdecl, importc:"sgl_translate".}
+proc translate*(x:float32, y:float32, z:float32):void =
     c_translate(x, y, z)
 
-proc c_frustum(l:cfloat, r:cfloat, b:cfloat, t:cfloat, n:cfloat, f:cfloat):void {.cdecl, importc:"sgl_frustum".}
-proc frustum*(l:cfloat, r:cfloat, b:cfloat, t:cfloat, n:cfloat, f:cfloat):void =
+proc c_frustum(l:float32, r:float32, b:float32, t:float32, n:float32, f:float32):void {.cdecl, importc:"sgl_frustum".}
+proc frustum*(l:float32, r:float32, b:float32, t:float32, n:float32, f:float32):void =
     c_frustum(l, r, b, t, n, f)
 
-proc c_ortho(l:cfloat, r:cfloat, b:cfloat, t:cfloat, n:cfloat, f:cfloat):void {.cdecl, importc:"sgl_ortho".}
-proc ortho*(l:cfloat, r:cfloat, b:cfloat, t:cfloat, n:cfloat, f:cfloat):void =
+proc c_ortho(l:float32, r:float32, b:float32, t:float32, n:float32, f:float32):void {.cdecl, importc:"sgl_ortho".}
+proc ortho*(l:float32, r:float32, b:float32, t:float32, n:float32, f:float32):void =
     c_ortho(l, r, b, t, n, f)
 
-proc c_perspective(fov_y:cfloat, aspect:cfloat, z_near:cfloat, z_far:cfloat):void {.cdecl, importc:"sgl_perspective".}
-proc perspective*(fov_y:cfloat, aspect:cfloat, z_near:cfloat, z_far:cfloat):void =
+proc c_perspective(fov_y:float32, aspect:float32, z_near:float32, z_far:float32):void {.cdecl, importc:"sgl_perspective".}
+proc perspective*(fov_y:float32, aspect:float32, z_near:float32, z_far:float32):void =
     c_perspective(fov_y, aspect, z_near, z_far)
 
-proc c_lookat(eye_x:cfloat, eye_y:cfloat, eye_z:cfloat, center_x:cfloat, center_y:cfloat, center_z:cfloat, up_x:cfloat, up_y:cfloat, up_z:cfloat):void {.cdecl, importc:"sgl_lookat".}
-proc lookat*(eye_x:cfloat, eye_y:cfloat, eye_z:cfloat, center_x:cfloat, center_y:cfloat, center_z:cfloat, up_x:cfloat, up_y:cfloat, up_z:cfloat):void =
+proc c_lookat(eye_x:float32, eye_y:float32, eye_z:float32, center_x:float32, center_y:float32, center_z:float32, up_x:float32, up_y:float32, up_z:float32):void {.cdecl, importc:"sgl_lookat".}
+proc lookat*(eye_x:float32, eye_y:float32, eye_z:float32, center_x:float32, center_y:float32, center_z:float32, up_x:float32, up_y:float32, up_z:float32):void =
     c_lookat(eye_x, eye_y, eye_z, center_x, center_y, center_z, up_x, up_y, up_z)
 
 proc c_pushMatrix():void {.cdecl, importc:"sgl_push_matrix".}
@@ -213,16 +213,16 @@ proc c_popMatrix():void {.cdecl, importc:"sgl_pop_matrix".}
 proc popMatrix*():void =
     c_popMatrix()
 
-proc c_t2f(u:cfloat, v:cfloat):void {.cdecl, importc:"sgl_t2f".}
-proc t2f*(u:cfloat, v:cfloat):void =
+proc c_t2f(u:float32, v:float32):void {.cdecl, importc:"sgl_t2f".}
+proc t2f*(u:float32, v:float32):void =
     c_t2f(u, v)
 
-proc c_c3f(r:cfloat, g:cfloat, b:cfloat):void {.cdecl, importc:"sgl_c3f".}
-proc c3f*(r:cfloat, g:cfloat, b:cfloat):void =
+proc c_c3f(r:float32, g:float32, b:float32):void {.cdecl, importc:"sgl_c3f".}
+proc c3f*(r:float32, g:float32, b:float32):void =
     c_c3f(r, g, b)
 
-proc c_c4f(r:cfloat, g:cfloat, b:cfloat, a:cfloat):void {.cdecl, importc:"sgl_c4f".}
-proc c4f*(r:cfloat, g:cfloat, b:cfloat, a:cfloat):void =
+proc c_c4f(r:float32, g:float32, b:float32, a:float32):void {.cdecl, importc:"sgl_c4f".}
+proc c4f*(r:float32, g:float32, b:float32, a:float32):void =
     c_c4f(r, g, b, a)
 
 proc c_c3b(r:uint8, g:uint8, b:uint8):void {.cdecl, importc:"sgl_c3b".}
@@ -237,8 +237,8 @@ proc c_c1i(rgba:uint32):void {.cdecl, importc:"sgl_c1i".}
 proc c1i*(rgba:uint32):void =
     c_c1i(rgba)
 
-proc c_pointSize(s:cfloat):void {.cdecl, importc:"sgl_point_size".}
-proc pointSize*(s:cfloat):void =
+proc c_pointSize(s:float32):void {.cdecl, importc:"sgl_point_size".}
+proc pointSize*(s:float32):void =
     c_pointSize(s)
 
 proc c_beginPoints():void {.cdecl, importc:"sgl_begin_points".}
@@ -265,100 +265,100 @@ proc c_beginQuads():void {.cdecl, importc:"sgl_begin_quads".}
 proc beginQuads*():void =
     c_beginQuads()
 
-proc c_v2f(x:cfloat, y:cfloat):void {.cdecl, importc:"sgl_v2f".}
-proc v2f*(x:cfloat, y:cfloat):void =
+proc c_v2f(x:float32, y:float32):void {.cdecl, importc:"sgl_v2f".}
+proc v2f*(x:float32, y:float32):void =
     c_v2f(x, y)
 
-proc c_v3f(x:cfloat, y:cfloat, z:cfloat):void {.cdecl, importc:"sgl_v3f".}
-proc v3f*(x:cfloat, y:cfloat, z:cfloat):void =
+proc c_v3f(x:float32, y:float32, z:float32):void {.cdecl, importc:"sgl_v3f".}
+proc v3f*(x:float32, y:float32, z:float32):void =
     c_v3f(x, y, z)
 
-proc c_v2fT2f(x:cfloat, y:cfloat, u:cfloat, v:cfloat):void {.cdecl, importc:"sgl_v2f_t2f".}
-proc v2fT2f*(x:cfloat, y:cfloat, u:cfloat, v:cfloat):void =
+proc c_v2fT2f(x:float32, y:float32, u:float32, v:float32):void {.cdecl, importc:"sgl_v2f_t2f".}
+proc v2fT2f*(x:float32, y:float32, u:float32, v:float32):void =
     c_v2fT2f(x, y, u, v)
 
-proc c_v3fT2f(x:cfloat, y:cfloat, z:cfloat, u:cfloat, v:cfloat):void {.cdecl, importc:"sgl_v3f_t2f".}
-proc v3fT2f*(x:cfloat, y:cfloat, z:cfloat, u:cfloat, v:cfloat):void =
+proc c_v3fT2f(x:float32, y:float32, z:float32, u:float32, v:float32):void {.cdecl, importc:"sgl_v3f_t2f".}
+proc v3fT2f*(x:float32, y:float32, z:float32, u:float32, v:float32):void =
     c_v3fT2f(x, y, z, u, v)
 
-proc c_v2fC3f(x:cfloat, y:cfloat, r:cfloat, g:cfloat, b:cfloat):void {.cdecl, importc:"sgl_v2f_c3f".}
-proc v2fC3f*(x:cfloat, y:cfloat, r:cfloat, g:cfloat, b:cfloat):void =
+proc c_v2fC3f(x:float32, y:float32, r:float32, g:float32, b:float32):void {.cdecl, importc:"sgl_v2f_c3f".}
+proc v2fC3f*(x:float32, y:float32, r:float32, g:float32, b:float32):void =
     c_v2fC3f(x, y, r, g, b)
 
-proc c_v2fC3b(x:cfloat, y:cfloat, r:uint8, g:uint8, b:uint8):void {.cdecl, importc:"sgl_v2f_c3b".}
-proc v2fC3b*(x:cfloat, y:cfloat, r:uint8, g:uint8, b:uint8):void =
+proc c_v2fC3b(x:float32, y:float32, r:uint8, g:uint8, b:uint8):void {.cdecl, importc:"sgl_v2f_c3b".}
+proc v2fC3b*(x:float32, y:float32, r:uint8, g:uint8, b:uint8):void =
     c_v2fC3b(x, y, r, g, b)
 
-proc c_v2fC4f(x:cfloat, y:cfloat, r:cfloat, g:cfloat, b:cfloat, a:cfloat):void {.cdecl, importc:"sgl_v2f_c4f".}
-proc v2fC4f*(x:cfloat, y:cfloat, r:cfloat, g:cfloat, b:cfloat, a:cfloat):void =
+proc c_v2fC4f(x:float32, y:float32, r:float32, g:float32, b:float32, a:float32):void {.cdecl, importc:"sgl_v2f_c4f".}
+proc v2fC4f*(x:float32, y:float32, r:float32, g:float32, b:float32, a:float32):void =
     c_v2fC4f(x, y, r, g, b, a)
 
-proc c_v2fC4b(x:cfloat, y:cfloat, r:uint8, g:uint8, b:uint8, a:uint8):void {.cdecl, importc:"sgl_v2f_c4b".}
-proc v2fC4b*(x:cfloat, y:cfloat, r:uint8, g:uint8, b:uint8, a:uint8):void =
+proc c_v2fC4b(x:float32, y:float32, r:uint8, g:uint8, b:uint8, a:uint8):void {.cdecl, importc:"sgl_v2f_c4b".}
+proc v2fC4b*(x:float32, y:float32, r:uint8, g:uint8, b:uint8, a:uint8):void =
     c_v2fC4b(x, y, r, g, b, a)
 
-proc c_v2fC1i(x:cfloat, y:cfloat, rgba:uint32):void {.cdecl, importc:"sgl_v2f_c1i".}
-proc v2fC1i*(x:cfloat, y:cfloat, rgba:uint32):void =
+proc c_v2fC1i(x:float32, y:float32, rgba:uint32):void {.cdecl, importc:"sgl_v2f_c1i".}
+proc v2fC1i*(x:float32, y:float32, rgba:uint32):void =
     c_v2fC1i(x, y, rgba)
 
-proc c_v3fC3f(x:cfloat, y:cfloat, z:cfloat, r:cfloat, g:cfloat, b:cfloat):void {.cdecl, importc:"sgl_v3f_c3f".}
-proc v3fC3f*(x:cfloat, y:cfloat, z:cfloat, r:cfloat, g:cfloat, b:cfloat):void =
+proc c_v3fC3f(x:float32, y:float32, z:float32, r:float32, g:float32, b:float32):void {.cdecl, importc:"sgl_v3f_c3f".}
+proc v3fC3f*(x:float32, y:float32, z:float32, r:float32, g:float32, b:float32):void =
     c_v3fC3f(x, y, z, r, g, b)
 
-proc c_v3fC3b(x:cfloat, y:cfloat, z:cfloat, r:uint8, g:uint8, b:uint8):void {.cdecl, importc:"sgl_v3f_c3b".}
-proc v3fC3b*(x:cfloat, y:cfloat, z:cfloat, r:uint8, g:uint8, b:uint8):void =
+proc c_v3fC3b(x:float32, y:float32, z:float32, r:uint8, g:uint8, b:uint8):void {.cdecl, importc:"sgl_v3f_c3b".}
+proc v3fC3b*(x:float32, y:float32, z:float32, r:uint8, g:uint8, b:uint8):void =
     c_v3fC3b(x, y, z, r, g, b)
 
-proc c_v3fC4f(x:cfloat, y:cfloat, z:cfloat, r:cfloat, g:cfloat, b:cfloat, a:cfloat):void {.cdecl, importc:"sgl_v3f_c4f".}
-proc v3fC4f*(x:cfloat, y:cfloat, z:cfloat, r:cfloat, g:cfloat, b:cfloat, a:cfloat):void =
+proc c_v3fC4f(x:float32, y:float32, z:float32, r:float32, g:float32, b:float32, a:float32):void {.cdecl, importc:"sgl_v3f_c4f".}
+proc v3fC4f*(x:float32, y:float32, z:float32, r:float32, g:float32, b:float32, a:float32):void =
     c_v3fC4f(x, y, z, r, g, b, a)
 
-proc c_v3fC4b(x:cfloat, y:cfloat, z:cfloat, r:uint8, g:uint8, b:uint8, a:uint8):void {.cdecl, importc:"sgl_v3f_c4b".}
-proc v3fC4b*(x:cfloat, y:cfloat, z:cfloat, r:uint8, g:uint8, b:uint8, a:uint8):void =
+proc c_v3fC4b(x:float32, y:float32, z:float32, r:uint8, g:uint8, b:uint8, a:uint8):void {.cdecl, importc:"sgl_v3f_c4b".}
+proc v3fC4b*(x:float32, y:float32, z:float32, r:uint8, g:uint8, b:uint8, a:uint8):void =
     c_v3fC4b(x, y, z, r, g, b, a)
 
-proc c_v3fC1i(x:cfloat, y:cfloat, z:cfloat, rgba:uint32):void {.cdecl, importc:"sgl_v3f_c1i".}
-proc v3fC1i*(x:cfloat, y:cfloat, z:cfloat, rgba:uint32):void =
+proc c_v3fC1i(x:float32, y:float32, z:float32, rgba:uint32):void {.cdecl, importc:"sgl_v3f_c1i".}
+proc v3fC1i*(x:float32, y:float32, z:float32, rgba:uint32):void =
     c_v3fC1i(x, y, z, rgba)
 
-proc c_v2fT2fC3f(x:cfloat, y:cfloat, u:cfloat, v:cfloat, r:cfloat, g:cfloat, b:cfloat):void {.cdecl, importc:"sgl_v2f_t2f_c3f".}
-proc v2fT2fC3f*(x:cfloat, y:cfloat, u:cfloat, v:cfloat, r:cfloat, g:cfloat, b:cfloat):void =
+proc c_v2fT2fC3f(x:float32, y:float32, u:float32, v:float32, r:float32, g:float32, b:float32):void {.cdecl, importc:"sgl_v2f_t2f_c3f".}
+proc v2fT2fC3f*(x:float32, y:float32, u:float32, v:float32, r:float32, g:float32, b:float32):void =
     c_v2fT2fC3f(x, y, u, v, r, g, b)
 
-proc c_v2fT2fC3b(x:cfloat, y:cfloat, u:cfloat, v:cfloat, r:uint8, g:uint8, b:uint8):void {.cdecl, importc:"sgl_v2f_t2f_c3b".}
-proc v2fT2fC3b*(x:cfloat, y:cfloat, u:cfloat, v:cfloat, r:uint8, g:uint8, b:uint8):void =
+proc c_v2fT2fC3b(x:float32, y:float32, u:float32, v:float32, r:uint8, g:uint8, b:uint8):void {.cdecl, importc:"sgl_v2f_t2f_c3b".}
+proc v2fT2fC3b*(x:float32, y:float32, u:float32, v:float32, r:uint8, g:uint8, b:uint8):void =
     c_v2fT2fC3b(x, y, u, v, r, g, b)
 
-proc c_v2fT2fC4f(x:cfloat, y:cfloat, u:cfloat, v:cfloat, r:cfloat, g:cfloat, b:cfloat, a:cfloat):void {.cdecl, importc:"sgl_v2f_t2f_c4f".}
-proc v2fT2fC4f*(x:cfloat, y:cfloat, u:cfloat, v:cfloat, r:cfloat, g:cfloat, b:cfloat, a:cfloat):void =
+proc c_v2fT2fC4f(x:float32, y:float32, u:float32, v:float32, r:float32, g:float32, b:float32, a:float32):void {.cdecl, importc:"sgl_v2f_t2f_c4f".}
+proc v2fT2fC4f*(x:float32, y:float32, u:float32, v:float32, r:float32, g:float32, b:float32, a:float32):void =
     c_v2fT2fC4f(x, y, u, v, r, g, b, a)
 
-proc c_v2fT2fC4b(x:cfloat, y:cfloat, u:cfloat, v:cfloat, r:uint8, g:uint8, b:uint8, a:uint8):void {.cdecl, importc:"sgl_v2f_t2f_c4b".}
-proc v2fT2fC4b*(x:cfloat, y:cfloat, u:cfloat, v:cfloat, r:uint8, g:uint8, b:uint8, a:uint8):void =
+proc c_v2fT2fC4b(x:float32, y:float32, u:float32, v:float32, r:uint8, g:uint8, b:uint8, a:uint8):void {.cdecl, importc:"sgl_v2f_t2f_c4b".}
+proc v2fT2fC4b*(x:float32, y:float32, u:float32, v:float32, r:uint8, g:uint8, b:uint8, a:uint8):void =
     c_v2fT2fC4b(x, y, u, v, r, g, b, a)
 
-proc c_v2fT2fC1i(x:cfloat, y:cfloat, u:cfloat, v:cfloat, rgba:uint32):void {.cdecl, importc:"sgl_v2f_t2f_c1i".}
-proc v2fT2fC1i*(x:cfloat, y:cfloat, u:cfloat, v:cfloat, rgba:uint32):void =
+proc c_v2fT2fC1i(x:float32, y:float32, u:float32, v:float32, rgba:uint32):void {.cdecl, importc:"sgl_v2f_t2f_c1i".}
+proc v2fT2fC1i*(x:float32, y:float32, u:float32, v:float32, rgba:uint32):void =
     c_v2fT2fC1i(x, y, u, v, rgba)
 
-proc c_v3fT2fC3f(x:cfloat, y:cfloat, z:cfloat, u:cfloat, v:cfloat, r:cfloat, g:cfloat, b:cfloat):void {.cdecl, importc:"sgl_v3f_t2f_c3f".}
-proc v3fT2fC3f*(x:cfloat, y:cfloat, z:cfloat, u:cfloat, v:cfloat, r:cfloat, g:cfloat, b:cfloat):void =
+proc c_v3fT2fC3f(x:float32, y:float32, z:float32, u:float32, v:float32, r:float32, g:float32, b:float32):void {.cdecl, importc:"sgl_v3f_t2f_c3f".}
+proc v3fT2fC3f*(x:float32, y:float32, z:float32, u:float32, v:float32, r:float32, g:float32, b:float32):void =
     c_v3fT2fC3f(x, y, z, u, v, r, g, b)
 
-proc c_v3fT2fC3b(x:cfloat, y:cfloat, z:cfloat, u:cfloat, v:cfloat, r:uint8, g:uint8, b:uint8):void {.cdecl, importc:"sgl_v3f_t2f_c3b".}
-proc v3fT2fC3b*(x:cfloat, y:cfloat, z:cfloat, u:cfloat, v:cfloat, r:uint8, g:uint8, b:uint8):void =
+proc c_v3fT2fC3b(x:float32, y:float32, z:float32, u:float32, v:float32, r:uint8, g:uint8, b:uint8):void {.cdecl, importc:"sgl_v3f_t2f_c3b".}
+proc v3fT2fC3b*(x:float32, y:float32, z:float32, u:float32, v:float32, r:uint8, g:uint8, b:uint8):void =
     c_v3fT2fC3b(x, y, z, u, v, r, g, b)
 
-proc c_v3fT2fC4f(x:cfloat, y:cfloat, z:cfloat, u:cfloat, v:cfloat, r:cfloat, g:cfloat, b:cfloat, a:cfloat):void {.cdecl, importc:"sgl_v3f_t2f_c4f".}
-proc v3fT2fC4f*(x:cfloat, y:cfloat, z:cfloat, u:cfloat, v:cfloat, r:cfloat, g:cfloat, b:cfloat, a:cfloat):void =
+proc c_v3fT2fC4f(x:float32, y:float32, z:float32, u:float32, v:float32, r:float32, g:float32, b:float32, a:float32):void {.cdecl, importc:"sgl_v3f_t2f_c4f".}
+proc v3fT2fC4f*(x:float32, y:float32, z:float32, u:float32, v:float32, r:float32, g:float32, b:float32, a:float32):void =
     c_v3fT2fC4f(x, y, z, u, v, r, g, b, a)
 
-proc c_v3fT2fC4b(x:cfloat, y:cfloat, z:cfloat, u:cfloat, v:cfloat, r:uint8, g:uint8, b:uint8, a:uint8):void {.cdecl, importc:"sgl_v3f_t2f_c4b".}
-proc v3fT2fC4b*(x:cfloat, y:cfloat, z:cfloat, u:cfloat, v:cfloat, r:uint8, g:uint8, b:uint8, a:uint8):void =
+proc c_v3fT2fC4b(x:float32, y:float32, z:float32, u:float32, v:float32, r:uint8, g:uint8, b:uint8, a:uint8):void {.cdecl, importc:"sgl_v3f_t2f_c4b".}
+proc v3fT2fC4b*(x:float32, y:float32, z:float32, u:float32, v:float32, r:uint8, g:uint8, b:uint8, a:uint8):void =
     c_v3fT2fC4b(x, y, z, u, v, r, g, b, a)
 
-proc c_v3fT2fC1i(x:cfloat, y:cfloat, z:cfloat, u:cfloat, v:cfloat, rgba:uint32):void {.cdecl, importc:"sgl_v3f_t2f_c1i".}
-proc v3fT2fC1i*(x:cfloat, y:cfloat, z:cfloat, u:cfloat, v:cfloat, rgba:uint32):void =
+proc c_v3fT2fC1i(x:float32, y:float32, z:float32, u:float32, v:float32, rgba:uint32):void {.cdecl, importc:"sgl_v3f_t2f_c1i".}
+proc v3fT2fC1i*(x:float32, y:float32, z:float32, u:float32, v:float32, rgba:uint32):void =
     c_v3fT2fC1i(x, y, z, u, v, rgba)
 
 proc c_`end`():void {.cdecl, importc:"sgl_end".}

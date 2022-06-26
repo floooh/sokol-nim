@@ -160,8 +160,8 @@ type
 
 type Touchpoint* = object
   identifier*:uint
-  posX*:cfloat
-  posY*:cfloat
+  posX*:float32
+  posY*:float32
   changed*:bool
 
 type
@@ -188,18 +188,18 @@ type Event* = object
   keyRepeat*:bool
   modifiers*:uint32
   mouseButton*:Mousebutton
-  mouseX*:cfloat
-  mouseY*:cfloat
-  mouseDx*:cfloat
-  mouseDy*:cfloat
-  scrollX*:cfloat
-  scrollY*:cfloat
-  numTouches*:cint
+  mouseX*:float32
+  mouseY*:float32
+  mouseDx*:float32
+  mouseDy*:float32
+  scrollX*:float32
+  scrollY*:float32
+  numTouches*:int32
   touches*:array[8, Touchpoint]
-  windowWidth*:cint
-  windowHeight*:cint
-  framebufferWidth*:cint
-  framebufferHeight*:cint
+  windowWidth*:int32
+  windowHeight*:int32
+  framebufferWidth*:int32
+  framebufferHeight*:int32
 
 converter to_Event_touches*[N:static[int]](items: array[N, Touchpoint]): array[8, Touchpoint] =
   static: assert(N < 8)
@@ -207,11 +207,11 @@ converter to_Event_touches*[N:static[int]](items: array[N, Touchpoint]): array[8
 
 type Range* = object
   `pointer`*:pointer
-  size*:csize_t
+  size*:uint
 
 type ImageDesc* = object
-  width*:cint
-  height*:cint
+  width*:int32
+  height*:int32
   pixels*:Range
 
 type IconDesc* = object
@@ -223,7 +223,7 @@ converter to_IconDesc_images*[N:static[int]](items: array[N, ImageDesc]): array[
   for index,item in items.pairs: result[index]=item
 
 type Allocator* = object
-  alloc*:proc(a1:csize_t, a2:pointer):pointer {.cdecl.}
+  alloc*:proc(a1:uint, a2:pointer):pointer {.cdecl.}
   free*:proc(a1:pointer, a2:pointer) {.cdecl.}
   userData*:pointer
 
@@ -239,25 +239,25 @@ type Desc* = object
   cleanupUserdataCb*:proc(a1:pointer) {.cdecl.}
   eventUserdataCb*:proc(a1:ptr Event, a2:pointer) {.cdecl.}
   failUserdataCb*:proc(a1:cstring, a2:pointer) {.cdecl.}
-  width*:cint
-  height*:cint
-  sampleCount*:cint
-  swapInterval*:cint
+  width*:int32
+  height*:int32
+  sampleCount*:int32
+  swapInterval*:int32
   highDpi*:bool
   fullscreen*:bool
   alpha*:bool
   windowTitle*:cstring
   userCursor*:bool
   enableClipboard*:bool
-  clipboardSize*:cint
+  clipboardSize*:int32
   enableDragndrop*:bool
-  maxDroppedFiles*:cint
-  maxDroppedFilePathLength*:cint
+  maxDroppedFiles*:int32
+  maxDroppedFilePathLength*:int32
   icon*:IconDesc
   allocator*:Allocator
   glForceGles2*:bool
-  glMajorVersion*:cint
-  glMinorVersion*:cint
+  glMajorVersion*:int32
+  glMinorVersion*:int32
   win32ConsoleUtf8*:bool
   win32ConsoleCreate*:bool
   win32ConsoleAttach*:bool
@@ -277,14 +277,14 @@ type
 type Html5FetchResponse* = object
   succeeded*:bool
   errorCode*:Html5FetchError
-  fileIndex*:cint
+  fileIndex*:int32
   fetchedSize*:uint32
   bufferPtr*:pointer
   bufferSize*:uint32
   userData*:pointer
 
 type Html5FetchRequest* = object
-  droppedFileIndex*:cint
+  droppedFileIndex*:int32
   callback*:proc(a1:ptr Html5FetchResponse) {.cdecl.}
   bufferPtr*:pointer
   bufferSize*:uint32
@@ -294,40 +294,40 @@ proc c_isvalid():bool {.cdecl, importc:"sapp_isvalid".}
 proc isvalid*():bool =
     c_isvalid()
 
-proc c_width():cint {.cdecl, importc:"sapp_width".}
-proc width*():cint =
+proc c_width():int32 {.cdecl, importc:"sapp_width".}
+proc width*():int32 =
     c_width()
 
-proc c_widthf():cfloat {.cdecl, importc:"sapp_widthf".}
-proc widthf*():cfloat =
+proc c_widthf():float32 {.cdecl, importc:"sapp_widthf".}
+proc widthf*():float32 =
     c_widthf()
 
-proc c_height():cint {.cdecl, importc:"sapp_height".}
-proc height*():cint =
+proc c_height():int32 {.cdecl, importc:"sapp_height".}
+proc height*():int32 =
     c_height()
 
-proc c_heightf():cfloat {.cdecl, importc:"sapp_heightf".}
-proc heightf*():cfloat =
+proc c_heightf():float32 {.cdecl, importc:"sapp_heightf".}
+proc heightf*():float32 =
     c_heightf()
 
-proc c_colorFormat():cint {.cdecl, importc:"sapp_color_format".}
-proc colorFormat*():cint =
+proc c_colorFormat():int32 {.cdecl, importc:"sapp_color_format".}
+proc colorFormat*():int32 =
     c_colorFormat()
 
-proc c_depthFormat():cint {.cdecl, importc:"sapp_depth_format".}
-proc depthFormat*():cint =
+proc c_depthFormat():int32 {.cdecl, importc:"sapp_depth_format".}
+proc depthFormat*():int32 =
     c_depthFormat()
 
-proc c_sampleCount():cint {.cdecl, importc:"sapp_sample_count".}
-proc sampleCount*():cint =
+proc c_sampleCount():int32 {.cdecl, importc:"sapp_sample_count".}
+proc sampleCount*():int32 =
     c_sampleCount()
 
 proc c_highDpi():bool {.cdecl, importc:"sapp_high_dpi".}
 proc highDpi*():bool =
     c_highDpi()
 
-proc c_dpiScale():cfloat {.cdecl, importc:"sapp_dpi_scale".}
-proc dpiScale*():cfloat =
+proc c_dpiScale():float32 {.cdecl, importc:"sapp_dpi_scale".}
+proc dpiScale*():float32 =
     c_dpiScale()
 
 proc c_showKeyboard(show:bool):void {.cdecl, importc:"sapp_show_keyboard".}
@@ -390,8 +390,8 @@ proc c_frameCount():uint64 {.cdecl, importc:"sapp_frame_count".}
 proc frameCount*():uint64 =
     c_frameCount()
 
-proc c_frameDuration():cdouble {.cdecl, importc:"sapp_frame_duration".}
-proc frameDuration*():cdouble =
+proc c_frameDuration():float64 {.cdecl, importc:"sapp_frame_duration".}
+proc frameDuration*():float64 =
     c_frameDuration()
 
 proc c_setClipboardString(str:cstring):void {.cdecl, importc:"sapp_set_clipboard_string".}
@@ -410,12 +410,12 @@ proc c_setIcon(icon_desc:ptr IconDesc):void {.cdecl, importc:"sapp_set_icon".}
 proc setIcon*(icon_desc:IconDesc):void =
     c_setIcon(unsafeAddr(icon_desc))
 
-proc c_getNumDroppedFiles():cint {.cdecl, importc:"sapp_get_num_dropped_files".}
-proc getNumDroppedFiles*():cint =
+proc c_getNumDroppedFiles():int32 {.cdecl, importc:"sapp_get_num_dropped_files".}
+proc getNumDroppedFiles*():int32 =
     c_getNumDroppedFiles()
 
-proc c_getDroppedFilePath(index:cint):cstring {.cdecl, importc:"sapp_get_dropped_file_path".}
-proc getDroppedFilePath*(index:cint):cstring =
+proc c_getDroppedFilePath(index:int32):cstring {.cdecl, importc:"sapp_get_dropped_file_path".}
+proc getDroppedFilePath*(index:int32):cstring =
     c_getDroppedFilePath(index)
 
 proc c_run(desc:ptr Desc):void {.cdecl, importc:"sapp_run".}
@@ -430,8 +430,8 @@ proc c_html5AskLeaveSite(ask:bool):void {.cdecl, importc:"sapp_html5_ask_leave_s
 proc html5AskLeaveSite*(ask:bool):void =
     c_html5AskLeaveSite(ask)
 
-proc c_html5GetDroppedFileSize(index:cint):uint32 {.cdecl, importc:"sapp_html5_get_dropped_file_size".}
-proc html5GetDroppedFileSize*(index:cint):uint32 =
+proc c_html5GetDroppedFileSize(index:int32):uint32 {.cdecl, importc:"sapp_html5_get_dropped_file_size".}
+proc html5GetDroppedFileSize*(index:int32):uint32 =
     c_html5GetDroppedFileSize(index)
 
 proc c_html5FetchDroppedFile(request:ptr Html5FetchRequest):void {.cdecl, importc:"sapp_html5_fetch_dropped_file".}

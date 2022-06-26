@@ -1,18 +1,18 @@
 ## machine generated, do not edit
 
 type Allocator* = object
-  alloc*:proc(a1:csize_t, a2:pointer):pointer {.cdecl.}
+  alloc*:proc(a1:uint, a2:pointer):pointer {.cdecl.}
   free*:proc(a1:pointer, a2:pointer) {.cdecl.}
   userData*:pointer
 
 type Desc* = object
-  sampleRate*:cint
-  numChannels*:cint
-  bufferFrames*:cint
-  packetFrames*:cint
-  numPackets*:cint
-  streamCb*:proc(a1:ptr cfloat, a2:cint, a3:cint) {.cdecl.}
-  streamUserdataCb*:proc(a1:ptr cfloat, a2:cint, a3:cint, a4:pointer) {.cdecl.}
+  sampleRate*:int32
+  numChannels*:int32
+  bufferFrames*:int32
+  packetFrames*:int32
+  numPackets*:int32
+  streamCb*:proc(a1:ptr float32, a2:int32, a3:int32) {.cdecl.}
+  streamUserdataCb*:proc(a1:ptr float32, a2:int32, a3:int32, a4:pointer) {.cdecl.}
   userData*:pointer
   allocator*:Allocator
 
@@ -36,28 +36,28 @@ proc c_queryDesc():Desc {.cdecl, importc:"saudio_query_desc".}
 proc queryDesc*():Desc =
     c_queryDesc()
 
-proc c_sampleRate():cint {.cdecl, importc:"saudio_sample_rate".}
-proc sampleRate*():cint =
+proc c_sampleRate():int32 {.cdecl, importc:"saudio_sample_rate".}
+proc sampleRate*():int32 =
     c_sampleRate()
 
-proc c_bufferFrames():cint {.cdecl, importc:"saudio_buffer_frames".}
-proc bufferFrames*():cint =
+proc c_bufferFrames():int32 {.cdecl, importc:"saudio_buffer_frames".}
+proc bufferFrames*():int32 =
     c_bufferFrames()
 
-proc c_channels():cint {.cdecl, importc:"saudio_channels".}
-proc channels*():cint =
+proc c_channels():int32 {.cdecl, importc:"saudio_channels".}
+proc channels*():int32 =
     c_channels()
 
 proc c_suspended():bool {.cdecl, importc:"saudio_suspended".}
 proc suspended*():bool =
     c_suspended()
 
-proc c_expect():cint {.cdecl, importc:"saudio_expect".}
-proc expect*():cint =
+proc c_expect():int32 {.cdecl, importc:"saudio_expect".}
+proc expect*():int32 =
     c_expect()
 
-proc c_push(frames:ptr cfloat, num_frames:cint):cint {.cdecl, importc:"saudio_push".}
-proc push*(frames:ptr cfloat, num_frames:cint):cint =
+proc c_push(frames:ptr float32, num_frames:int32):int32 {.cdecl, importc:"saudio_push".}
+proc push*(frames:ptr float32, num_frames:int32):int32 =
     c_push(frames, num_frames)
 
 when defined windows:

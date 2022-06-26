@@ -7,7 +7,7 @@ type Context* = object
 
 type Range* = object
   `pointer`*:pointer
-  size*:csize_t
+  size*:uint
 
 type FontDesc* = object
   data*:Range
@@ -15,22 +15,22 @@ type FontDesc* = object
   lastChar*:uint8
 
 type ContextDesc* = object
-  charBufSize*:cint
-  canvasWidth*:cfloat
-  canvasHeight*:cfloat
-  tabWidth*:cint
+  charBufSize*:int32
+  canvasWidth*:float32
+  canvasHeight*:float32
+  tabWidth*:int32
   colorFormat*:gfx.PixelFormat
   depthFormat*:gfx.PixelFormat
-  sampleCount*:cint
+  sampleCount*:int32
 
 type Allocator* = object
-  alloc*:proc(a1:csize_t, a2:pointer):pointer {.cdecl.}
+  alloc*:proc(a1:uint, a2:pointer):pointer {.cdecl.}
   free*:proc(a1:pointer, a2:pointer) {.cdecl.}
   userData*:pointer
 
 type Desc* = object
-  contextPoolSize*:cint
-  printfBufSize*:cint
+  contextPoolSize*:int32
+  printfBufSize*:int32
   fonts*:array[8, FontDesc]
   context*:ContextDesc
   allocator*:Allocator
@@ -95,44 +95,44 @@ proc c_draw():void {.cdecl, importc:"sdtx_draw".}
 proc draw*():void =
     c_draw()
 
-proc c_font(font_index:cint):void {.cdecl, importc:"sdtx_font".}
-proc font*(font_index:cint):void =
+proc c_font(font_index:int32):void {.cdecl, importc:"sdtx_font".}
+proc font*(font_index:int32):void =
     c_font(font_index)
 
-proc c_canvas(w:cfloat, h:cfloat):void {.cdecl, importc:"sdtx_canvas".}
-proc canvas*(w:cfloat, h:cfloat):void =
+proc c_canvas(w:float32, h:float32):void {.cdecl, importc:"sdtx_canvas".}
+proc canvas*(w:float32, h:float32):void =
     c_canvas(w, h)
 
-proc c_origin(x:cfloat, y:cfloat):void {.cdecl, importc:"sdtx_origin".}
-proc origin*(x:cfloat, y:cfloat):void =
+proc c_origin(x:float32, y:float32):void {.cdecl, importc:"sdtx_origin".}
+proc origin*(x:float32, y:float32):void =
     c_origin(x, y)
 
 proc c_home():void {.cdecl, importc:"sdtx_home".}
 proc home*():void =
     c_home()
 
-proc c_pos(x:cfloat, y:cfloat):void {.cdecl, importc:"sdtx_pos".}
-proc pos*(x:cfloat, y:cfloat):void =
+proc c_pos(x:float32, y:float32):void {.cdecl, importc:"sdtx_pos".}
+proc pos*(x:float32, y:float32):void =
     c_pos(x, y)
 
-proc c_posX(x:cfloat):void {.cdecl, importc:"sdtx_pos_x".}
-proc posX*(x:cfloat):void =
+proc c_posX(x:float32):void {.cdecl, importc:"sdtx_pos_x".}
+proc posX*(x:float32):void =
     c_posX(x)
 
-proc c_posY(y:cfloat):void {.cdecl, importc:"sdtx_pos_y".}
-proc posY*(y:cfloat):void =
+proc c_posY(y:float32):void {.cdecl, importc:"sdtx_pos_y".}
+proc posY*(y:float32):void =
     c_posY(y)
 
-proc c_move(dx:cfloat, dy:cfloat):void {.cdecl, importc:"sdtx_move".}
-proc move*(dx:cfloat, dy:cfloat):void =
+proc c_move(dx:float32, dy:float32):void {.cdecl, importc:"sdtx_move".}
+proc move*(dx:float32, dy:float32):void =
     c_move(dx, dy)
 
-proc c_moveX(dx:cfloat):void {.cdecl, importc:"sdtx_move_x".}
-proc moveX*(dx:cfloat):void =
+proc c_moveX(dx:float32):void {.cdecl, importc:"sdtx_move_x".}
+proc moveX*(dx:float32):void =
     c_moveX(dx)
 
-proc c_moveY(dy:cfloat):void {.cdecl, importc:"sdtx_move_y".}
-proc moveY*(dy:cfloat):void =
+proc c_moveY(dy:float32):void {.cdecl, importc:"sdtx_move_y".}
+proc moveY*(dy:float32):void =
     c_moveY(dy)
 
 proc c_crlf():void {.cdecl, importc:"sdtx_crlf".}
@@ -143,32 +143,32 @@ proc c_color3b(r:uint8, g:uint8, b:uint8):void {.cdecl, importc:"sdtx_color3b".}
 proc color3b*(r:uint8, g:uint8, b:uint8):void =
     c_color3b(r, g, b)
 
-proc c_color3f(r:cfloat, g:cfloat, b:cfloat):void {.cdecl, importc:"sdtx_color3f".}
-proc color3f*(r:cfloat, g:cfloat, b:cfloat):void =
+proc c_color3f(r:float32, g:float32, b:float32):void {.cdecl, importc:"sdtx_color3f".}
+proc color3f*(r:float32, g:float32, b:float32):void =
     c_color3f(r, g, b)
 
 proc c_color4b(r:uint8, g:uint8, b:uint8, a:uint8):void {.cdecl, importc:"sdtx_color4b".}
 proc color4b*(r:uint8, g:uint8, b:uint8, a:uint8):void =
     c_color4b(r, g, b, a)
 
-proc c_color4f(r:cfloat, g:cfloat, b:cfloat, a:cfloat):void {.cdecl, importc:"sdtx_color4f".}
-proc color4f*(r:cfloat, g:cfloat, b:cfloat, a:cfloat):void =
+proc c_color4f(r:float32, g:float32, b:float32, a:float32):void {.cdecl, importc:"sdtx_color4f".}
+proc color4f*(r:float32, g:float32, b:float32, a:float32):void =
     c_color4f(r, g, b, a)
 
 proc c_color1i(rgba:uint32):void {.cdecl, importc:"sdtx_color1i".}
 proc color1i*(rgba:uint32):void =
     c_color1i(rgba)
 
-proc c_putc(c:cchar):void {.cdecl, importc:"sdtx_putc".}
-proc putc*(c:cchar):void =
+proc c_putc(c:char):void {.cdecl, importc:"sdtx_putc".}
+proc putc*(c:char):void =
     c_putc(c)
 
 proc c_puts(str:cstring):void {.cdecl, importc:"sdtx_puts".}
 proc puts*(str:cstring):void =
     c_puts(str)
 
-proc c_putr(str:cstring, len:cint):void {.cdecl, importc:"sdtx_putr".}
-proc putr*(str:cstring, len:cint):void =
+proc c_putr(str:cstring, len:int32):void {.cdecl, importc:"sdtx_putr".}
+proc putr*(str:cstring, len:int32):void =
     c_putr(str, len)
 
 # helper function to convert "anything" into a Range

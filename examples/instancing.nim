@@ -129,7 +129,7 @@ proc frame() {.cdecl.} =
   sg.applyPipeline(pip)
   sg.applyBindings(bindings)
   sg.applyUniforms(shaderStageVs, shd.slotVsParams, vsParams)
-  sg.draw(0, 24, curNumParticles.cint)
+  sg.draw(0, 24, curNumParticles.int32)
   sg.endPass()
   sg.commit()
 

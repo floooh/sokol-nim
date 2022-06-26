@@ -20,7 +20,7 @@ type Context* = object
 
 type Range* = object
   `pointer`*:pointer
-  size*:csize_t
+  size*:uint
 
 const
   invalidId* = 0
@@ -36,10 +36,10 @@ const
   maxTexturearrayLayers* = 128
 
 type Color* = object
-  r*:cfloat
-  g*:cfloat
-  b*:cfloat
-  a*:cfloat
+  r*:float32
+  g*:float32
+  b*:float32
+  a*:float32
 
 type
   Backend* {.size:sizeof(int32).} = enum
@@ -138,13 +138,13 @@ type Features* = object
   mrtIndependentWriteMask*:bool
 
 type Limits* = object
-  maxImageSize2d*:cint
-  maxImageSizeCube*:cint
-  maxImageSize3d*:cint
-  maxImageSizeArray*:cint
-  maxImageArrayLayers*:cint
-  maxVertexAttrs*:cint
-  glMaxVertexUniformVectors*:cint
+  maxImageSize2d*:int32
+  maxImageSizeCube*:int32
+  maxImageSize3d*:int32
+  maxImageSizeArray*:int32
+  maxImageArrayLayers*:int32
+  maxVertexAttrs*:int32
+  glMaxVertexUniformVectors*:int32
 
 type
   ResourceState* {.size:sizeof(int32).} = enum
@@ -377,7 +377,7 @@ type ColorAttachmentAction* = object
 
 type DepthAttachmentAction* = object
   action*:Action
-  value*:cfloat
+  value*:float32
 
 type StencilAttachmentAction* = object
   action*:Action
@@ -397,9 +397,9 @@ converter to_PassAction_colors*[N:static[int]](items: array[N, ColorAttachmentAc
 type Bindings* = object
   startCanary:uint32
   vertexBuffers*:array[8, Buffer]
-  vertexBufferOffsets*:array[8, cint]
+  vertexBufferOffsets*:array[8, int32]
   indexBuffer*:Buffer
-  indexBufferOffset*:cint
+  indexBufferOffset*:int32
   vsImages*:array[12, Image]
   fsImages*:array[12, Image]
   endCanary:uint32
@@ -408,7 +408,7 @@ converter to_Bindings_vertexBuffers*[N:static[int]](items: array[N, Buffer]): ar
   static: assert(N < 8)
   for index,item in items.pairs: result[index]=item
 
-converter to_Bindings_vertexBufferOffsets*[N:static[int]](items: array[N, cint]): array[8, cint] =
+converter to_Bindings_vertexBufferOffsets*[N:static[int]](items: array[N, int32]): array[8, int32] =
   static: assert(N < 8)
   for index,item in items.pairs: result[index]=item
 
@@ -422,7 +422,7 @@ converter to_Bindings_fsImages*[N:static[int]](items: array[N, Image]): array[12
 
 type BufferDesc* = object
   startCanary:uint32
-  size*:csize_t
+  size*:uint
   `type`*:BufferType
   usage*:Usage
   data*:Range
@@ -455,13 +455,13 @@ type ImageDesc* = object
   startCanary:uint32
   `type`*:ImageType
   renderTarget*:bool
-  width*:cint
-  height*:cint
-  numSlices*:cint
-  numMipmaps*:cint
+  width*:int32
+  height*:int32
+  numSlices*:int32
+  numMipmaps*:int32
   usage*:Usage
   pixelFormat*:PixelFormat
-  sampleCount*:cint
+  sampleCount*:int32
   minFilter*:Filter
   magFilter*:Filter
   wrapU*:Wrap
@@ -469,8 +469,8 @@ type ImageDesc* = object
   wrapW*:Wrap
   borderColor*:BorderColor
   maxAnisotropy*:uint32
-  minLod*:cfloat
-  maxLod*:cfloat
+  minLod*:float32
+  maxLod*:float32
   data*:ImageData
   label*:cstring
   glTextures*:array[2, uint32]
@@ -492,15 +492,15 @@ converter to_ImageDesc_mtlTextures*[N:static[int]](items: array[N, pointer]): ar
 type ShaderAttrDesc* = object
   name*:cstring
   semName*:cstring
-  semIndex*:cint
+  semIndex*:int32
 
 type ShaderUniformDesc* = object
   name*:cstring
   `type`*:UniformType
-  arrayCount*:cint
+  arrayCount*:int32
 
 type ShaderUniformBlockDesc* = object
-  size*:csize_t
+  size*:uint
   layout*:UniformLayout
   uniforms*:array[16, ShaderUniformDesc]
 
@@ -542,13 +542,13 @@ converter to_ShaderDesc_attrs*[N:static[int]](items: array[N, ShaderAttrDesc]): 
   for index,item in items.pairs: result[index]=item
 
 type BufferLayoutDesc* = object
-  stride*:cint
+  stride*:int32
   stepFunc*:VertexStep
-  stepRate*:cint
+  stepRate*:int32
 
 type VertexAttrDesc* = object
-  bufferIndex*:cint
-  offset*:cint
+  bufferIndex*:int32
+  offset*:int32
   format*:VertexFormat
 
 type LayoutDesc* = object
@@ -581,9 +581,9 @@ type DepthState* = object
   pixelFormat*:PixelFormat
   compare*:CompareFunc
   writeEnabled*:bool
-  bias*:cfloat
-  biasSlopeScale*:cfloat
-  biasClamp*:cfloat
+  bias*:float32
+  biasSlopeScale*:float32
+  biasClamp*:float32
 
 type BlendState* = object
   enabled*:bool
@@ -605,13 +605,13 @@ type PipelineDesc* = object
   layout*:LayoutDesc
   depth*:DepthState
   stencil*:StencilState
-  colorCount*:cint
+  colorCount*:int32
   colors*:array[4, ColorState]
   primitiveType*:PrimitiveType
   indexType*:IndexType
   cullMode*:CullMode
   faceWinding*:FaceWinding
-  sampleCount*:cint
+  sampleCount*:int32
   blendColor*:Color
   alphaToCoverageEnabled*:bool
   label*:cstring
@@ -623,8 +623,8 @@ converter to_PipelineDesc_colors*[N:static[int]](items: array[N, ColorState]): a
 
 type PassAttachmentDesc* = object
   image*:Image
-  mipLevel*:cint
-  slice*:cint
+  mipLevel*:int32
+  slice*:int32
 
 type PassDesc* = object
   startCanary:uint32
@@ -652,15 +652,15 @@ type TraceHooks* = object
   destroyPass*:proc(a1:Pass, a2:pointer) {.cdecl.}
   updateBuffer*:proc(a1:Buffer, a2:ptr Range, a3:pointer) {.cdecl.}
   updateImage*:proc(a1:Image, a2:ptr ImageData, a3:pointer) {.cdecl.}
-  appendBuffer*:proc(a1:Buffer, a2:ptr Range, a3:cint, a4:pointer) {.cdecl.}
-  beginDefaultPass*:proc(a1:ptr PassAction, a2:cint, a3:cint, a4:pointer) {.cdecl.}
+  appendBuffer*:proc(a1:Buffer, a2:ptr Range, a3:int32, a4:pointer) {.cdecl.}
+  beginDefaultPass*:proc(a1:ptr PassAction, a2:int32, a3:int32, a4:pointer) {.cdecl.}
   beginPass*:proc(a1:Pass, a2:ptr PassAction, a3:pointer) {.cdecl.}
-  applyViewport*:proc(a1:cint, a2:cint, a3:cint, a4:cint, a5:bool, a6:pointer) {.cdecl.}
-  applyScissorRect*:proc(a1:cint, a2:cint, a3:cint, a4:cint, a5:bool, a6:pointer) {.cdecl.}
+  applyViewport*:proc(a1:int32, a2:int32, a3:int32, a4:int32, a5:bool, a6:pointer) {.cdecl.}
+  applyScissorRect*:proc(a1:int32, a2:int32, a3:int32, a4:int32, a5:bool, a6:pointer) {.cdecl.}
   applyPipeline*:proc(a1:Pipeline, a2:pointer) {.cdecl.}
   applyBindings*:proc(a1:ptr Bindings, a2:pointer) {.cdecl.}
-  applyUniforms*:proc(a1:ShaderStage, a2:cint, a3:ptr Range, a4:pointer) {.cdecl.}
-  draw*:proc(a1:cint, a2:cint, a3:cint, a4:pointer) {.cdecl.}
+  applyUniforms*:proc(a1:ShaderStage, a2:int32, a3:ptr Range, a4:pointer) {.cdecl.}
+  draw*:proc(a1:int32, a2:int32, a3:int32, a4:pointer) {.cdecl.}
   endPass*:proc(a1:pointer) {.cdecl.}
   commit*:proc(a1:pointer) {.cdecl.}
   allocBuffer*:proc(a1:Buffer, a2:pointer) {.cdecl.}
@@ -709,18 +709,18 @@ type BufferInfo* = object
   slot*:SlotInfo
   updateFrameIndex*:uint32
   appendFrameIndex*:uint32
-  appendPos*:cint
+  appendPos*:int32
   appendOverflow*:bool
-  numSlots*:cint
-  activeSlot*:cint
+  numSlots*:int32
+  activeSlot*:int32
 
 type ImageInfo* = object
   slot*:SlotInfo
   updFrameIndex*:uint32
-  numSlots*:cint
-  activeSlot*:cint
-  width*:cint
-  height*:cint
+  numSlots*:int32
+  activeSlot*:int32
+  width*:int32
+  height*:int32
 
 type ShaderInfo* = object
   slot*:SlotInfo
@@ -764,28 +764,28 @@ type WgpuContextDesc* = object
 type ContextDesc* = object
   colorFormat*:PixelFormat
   depthFormat*:PixelFormat
-  sampleCount*:cint
+  sampleCount*:int32
   gl*:GlContextDesc
   metal*:MetalContextDesc
   d3d11*:D3d11ContextDesc
   wgpu*:WgpuContextDesc
 
 type Allocator* = object
-  alloc*:proc(a1:csize_t, a2:pointer):pointer {.cdecl.}
+  alloc*:proc(a1:uint, a2:pointer):pointer {.cdecl.}
   free*:proc(a1:pointer, a2:pointer) {.cdecl.}
   userData*:pointer
 
 type Desc* = object
   startCanary:uint32
-  bufferPoolSize*:cint
-  imagePoolSize*:cint
-  shaderPoolSize*:cint
-  pipelinePoolSize*:cint
-  passPoolSize*:cint
-  contextPoolSize*:cint
-  uniformBufferSize*:cint
-  stagingBufferSize*:cint
-  samplerCacheSize*:cint
+  bufferPoolSize*:int32
+  imagePoolSize*:int32
+  shaderPoolSize*:int32
+  pipelinePoolSize*:int32
+  passPoolSize*:int32
+  contextPoolSize*:int32
+  uniformBufferSize*:int32
+  stagingBufferSize*:int32
+  samplerCacheSize*:int32
   allocator*:Allocator
   context*:ContextDesc
   endCanary:uint32
@@ -866,40 +866,40 @@ proc c_updateImage(img:Image, data:ptr ImageData):void {.cdecl, importc:"sg_upda
 proc updateImage*(img:Image, data:ImageData):void =
     c_updateImage(img, unsafeAddr(data))
 
-proc c_appendBuffer(buf:Buffer, data:ptr Range):cint {.cdecl, importc:"sg_append_buffer".}
-proc appendBuffer*(buf:Buffer, data:Range):cint =
+proc c_appendBuffer(buf:Buffer, data:ptr Range):int32 {.cdecl, importc:"sg_append_buffer".}
+proc appendBuffer*(buf:Buffer, data:Range):int32 =
     c_appendBuffer(buf, unsafeAddr(data))
 
 proc c_queryBufferOverflow(buf:Buffer):bool {.cdecl, importc:"sg_query_buffer_overflow".}
 proc queryBufferOverflow*(buf:Buffer):bool =
     c_queryBufferOverflow(buf)
 
-proc c_beginDefaultPass(pass_action:ptr PassAction, width:cint, height:cint):void {.cdecl, importc:"sg_begin_default_pass".}
-proc beginDefaultPass*(pass_action:PassAction, width:cint, height:cint):void =
+proc c_beginDefaultPass(pass_action:ptr PassAction, width:int32, height:int32):void {.cdecl, importc:"sg_begin_default_pass".}
+proc beginDefaultPass*(pass_action:PassAction, width:int32, height:int32):void =
     c_beginDefaultPass(unsafeAddr(pass_action), width, height)
 
-proc c_beginDefaultPassf(pass_action:ptr PassAction, width:cfloat, height:cfloat):void {.cdecl, importc:"sg_begin_default_passf".}
-proc beginDefaultPassf*(pass_action:PassAction, width:cfloat, height:cfloat):void =
+proc c_beginDefaultPassf(pass_action:ptr PassAction, width:float32, height:float32):void {.cdecl, importc:"sg_begin_default_passf".}
+proc beginDefaultPassf*(pass_action:PassAction, width:float32, height:float32):void =
     c_beginDefaultPassf(unsafeAddr(pass_action), width, height)
 
 proc c_beginPass(pass:Pass, pass_action:ptr PassAction):void {.cdecl, importc:"sg_begin_pass".}
 proc beginPass*(pass:Pass, pass_action:PassAction):void =
     c_beginPass(pass, unsafeAddr(pass_action))
 
-proc c_applyViewport(x:cint, y:cint, width:cint, height:cint, origin_top_left:bool):void {.cdecl, importc:"sg_apply_viewport".}
-proc applyViewport*(x:cint, y:cint, width:cint, height:cint, origin_top_left:bool):void =
+proc c_applyViewport(x:int32, y:int32, width:int32, height:int32, origin_top_left:bool):void {.cdecl, importc:"sg_apply_viewport".}
+proc applyViewport*(x:int32, y:int32, width:int32, height:int32, origin_top_left:bool):void =
     c_applyViewport(x, y, width, height, origin_top_left)
 
-proc c_applyViewportf(x:cfloat, y:cfloat, width:cfloat, height:cfloat, origin_top_left:bool):void {.cdecl, importc:"sg_apply_viewportf".}
-proc applyViewportf*(x:cfloat, y:cfloat, width:cfloat, height:cfloat, origin_top_left:bool):void =
+proc c_applyViewportf(x:float32, y:float32, width:float32, height:float32, origin_top_left:bool):void {.cdecl, importc:"sg_apply_viewportf".}
+proc applyViewportf*(x:float32, y:float32, width:float32, height:float32, origin_top_left:bool):void =
     c_applyViewportf(x, y, width, height, origin_top_left)
 
-proc c_applyScissorRect(x:cint, y:cint, width:cint, height:cint, origin_top_left:bool):void {.cdecl, importc:"sg_apply_scissor_rect".}
-proc applyScissorRect*(x:cint, y:cint, width:cint, height:cint, origin_top_left:bool):void =
+proc c_applyScissorRect(x:int32, y:int32, width:int32, height:int32, origin_top_left:bool):void {.cdecl, importc:"sg_apply_scissor_rect".}
+proc applyScissorRect*(x:int32, y:int32, width:int32, height:int32, origin_top_left:bool):void =
     c_applyScissorRect(x, y, width, height, origin_top_left)
 
-proc c_applyScissorRectf(x:cfloat, y:cfloat, width:cfloat, height:cfloat, origin_top_left:bool):void {.cdecl, importc:"sg_apply_scissor_rectf".}
-proc applyScissorRectf*(x:cfloat, y:cfloat, width:cfloat, height:cfloat, origin_top_left:bool):void =
+proc c_applyScissorRectf(x:float32, y:float32, width:float32, height:float32, origin_top_left:bool):void {.cdecl, importc:"sg_apply_scissor_rectf".}
+proc applyScissorRectf*(x:float32, y:float32, width:float32, height:float32, origin_top_left:bool):void =
     c_applyScissorRectf(x, y, width, height, origin_top_left)
 
 proc c_applyPipeline(pip:Pipeline):void {.cdecl, importc:"sg_apply_pipeline".}
@@ -910,12 +910,12 @@ proc c_applyBindings(bindings:ptr Bindings):void {.cdecl, importc:"sg_apply_bind
 proc applyBindings*(bindings:Bindings):void =
     c_applyBindings(unsafeAddr(bindings))
 
-proc c_applyUniforms(stage:ShaderStage, ub_index:cint, data:ptr Range):void {.cdecl, importc:"sg_apply_uniforms".}
-proc applyUniforms*(stage:ShaderStage, ub_index:cint, data:Range):void =
+proc c_applyUniforms(stage:ShaderStage, ub_index:int32, data:ptr Range):void {.cdecl, importc:"sg_apply_uniforms".}
+proc applyUniforms*(stage:ShaderStage, ub_index:int32, data:Range):void =
     c_applyUniforms(stage, ub_index, unsafeAddr(data))
 
-proc c_draw(base_element:cint, num_elements:cint, num_instances:cint):void {.cdecl, importc:"sg_draw".}
-proc draw*(base_element:cint, num_elements:cint, num_instances:cint):void =
+proc c_draw(base_element:int32, num_elements:int32, num_instances:int32):void {.cdecl, importc:"sg_draw".}
+proc draw*(base_element:int32, num_elements:int32, num_instances:int32):void =
     c_draw(base_element, num_elements, num_instances)
 
 proc c_endPass():void {.cdecl, importc:"sg_end_pass".}

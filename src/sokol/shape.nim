@@ -4,12 +4,12 @@ import gfx
 
 type Range* = object
   `pointer`*:pointer
-  size*:csize_t
+  size*:uint
 
 type Mat4* = object
-  m*:array[4, array[4, cfloat]]
+  m*:array[4, array[4, float32]]
 
-converter to_Mat4_m*[Y:static[int], X:static[int]](items: array[Y, array[X, cfloat]]): array[4, array[4, cfloat]] =
+converter to_Mat4_m*[Y:static[int], X:static[int]](items: array[Y, array[X, float32]]): array[4, array[4, float32]] =
   static: assert(X < 4)
   static: assert(Y < 4)
   for indexY,itemY in items.pairs:
@@ -17,17 +17,17 @@ converter to_Mat4_m*[Y:static[int], X:static[int]](items: array[Y, array[X, cflo
       result[indexY][indexX] = itemX
 
 type Vertex* = object
-  x*:cfloat
-  y*:cfloat
-  z*:cfloat
+  x*:float32
+  y*:float32
+  z*:float32
   normal*:uint32
   u*:uint16
   v*:uint16
   color*:uint32
 
 type ElementRange* = object
-  baseElement*:cint
-  numElements*:cint
+  baseElement*:int32
+  numElements*:int32
 
 type SizesItem* = object
   num*:uint32
@@ -39,8 +39,8 @@ type Sizes* = object
 
 type BufferItem* = object
   buffer*:Range
-  dataSize*:csize_t
-  shapeOffset*:csize_t
+  dataSize*:uint
+  shapeOffset*:uint
 
 type Buffer* = object
   valid*:bool
@@ -48,8 +48,8 @@ type Buffer* = object
   indices*:BufferItem
 
 type Plane* = object
-  width*:cfloat
-  depth*:cfloat
+  width*:float32
+  depth*:float32
   tiles*:uint16
   color*:uint32
   randomColors*:bool
@@ -57,9 +57,9 @@ type Plane* = object
   transform*:Mat4
 
 type Box* = object
-  width*:cfloat
-  height*:cfloat
-  depth*:cfloat
+  width*:float32
+  height*:float32
+  depth*:float32
   tiles*:uint16
   color*:uint32
   randomColors*:bool
@@ -67,7 +67,7 @@ type Box* = object
   transform*:Mat4
 
 type Sphere* = object
-  radius*:cfloat
+  radius*:float32
   slices*:uint16
   stacks*:uint16
   color*:uint32
@@ -76,8 +76,8 @@ type Sphere* = object
   transform*:Mat4
 
 type Cylinder* = object
-  radius*:cfloat
-  height*:cfloat
+  radius*:float32
+  height*:float32
   slices*:uint16
   stacks*:uint16
   color*:uint32
@@ -86,8 +86,8 @@ type Cylinder* = object
   transform*:Mat4
 
 type Torus* = object
-  radius*:cfloat
-  ringRadius*:cfloat
+  radius*:float32
+  ringRadius*:float32
   sides*:uint16
   rings*:uint16
   color*:uint32
@@ -167,12 +167,12 @@ proc c_colorAttrDesc():gfx.VertexAttrDesc {.cdecl, importc:"sshape_color_attr_de
 proc colorAttrDesc*():gfx.VertexAttrDesc =
     c_colorAttrDesc()
 
-proc c_color4f(r:cfloat, g:cfloat, b:cfloat, a:cfloat):uint32 {.cdecl, importc:"sshape_color_4f".}
-proc color4f*(r:cfloat, g:cfloat, b:cfloat, a:cfloat):uint32 =
+proc c_color4f(r:float32, g:float32, b:float32, a:float32):uint32 {.cdecl, importc:"sshape_color_4f".}
+proc color4f*(r:float32, g:float32, b:float32, a:float32):uint32 =
     c_color4f(r, g, b, a)
 
-proc c_color3f(r:cfloat, g:cfloat, b:cfloat):uint32 {.cdecl, importc:"sshape_color_3f".}
-proc color3f*(r:cfloat, g:cfloat, b:cfloat):uint32 =
+proc c_color3f(r:float32, g:float32, b:float32):uint32 {.cdecl, importc:"sshape_color_3f".}
+proc color3f*(r:float32, g:float32, b:float32):uint32 =
     c_color3f(r, g, b)
 
 proc c_color4b(r:uint8, g:uint8, b:uint8, a:uint8):uint32 {.cdecl, importc:"sshape_color_4b".}
@@ -183,12 +183,12 @@ proc c_color3b(r:uint8, g:uint8, b:uint8):uint32 {.cdecl, importc:"sshape_color_
 proc color3b*(r:uint8, g:uint8, b:uint8):uint32 =
     c_color3b(r, g, b)
 
-proc c_mat4(m:ptr cfloat):Mat4 {.cdecl, importc:"sshape_mat4".}
-proc mat4*(m:ptr cfloat):Mat4 =
+proc c_mat4(m:ptr float32):Mat4 {.cdecl, importc:"sshape_mat4".}
+proc mat4*(m:ptr float32):Mat4 =
     c_mat4(m)
 
-proc c_mat4Transpose(m:ptr cfloat):Mat4 {.cdecl, importc:"sshape_mat4_transpose".}
-proc mat4Transpose*(m:ptr cfloat):Mat4 =
+proc c_mat4Transpose(m:ptr float32):Mat4 {.cdecl, importc:"sshape_mat4_transpose".}
+proc mat4Transpose*(m:ptr float32):Mat4 =
     c_mat4Transpose(m)
 
 # helper function to convert "anything" into a Range

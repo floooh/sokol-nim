@@ -67,7 +67,7 @@ proc frame() {.cdecl.} =
     # color scrolling effect
     let rgb = colorPalette[(c + line + (sapp.frameCount().int shr 1)) and 15]
     sdtx.color3b(rgb.r, rgb.g, rgb.b)
-    sdtx.putc(c.cchar)
+    sdtx.putc(c.char)
   sg.beginDefaultPass(passAction, sapp.width(), sapp.height())
   sdtx.draw()
   sg.endPass()

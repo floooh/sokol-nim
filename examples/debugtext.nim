@@ -33,7 +33,7 @@ proc printFont(fontIndex: int32, title: cstring, r: uint8, g: uint8, b: uint8) =
   sdtx.color3b(r, g, b)
   sdtx.puts(title)
   for c in 32..<256:
-    sdtx.putc(c.cchar)
+    sdtx.putc(c.char)
     if 0 == ((c + 1) and 63):
       sdtx.crlf()
   sdtx.crlf()
