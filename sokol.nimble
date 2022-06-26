@@ -29,7 +29,8 @@ let examples = [
   "debugtextuserfont",
   "sgl",
   "sglcontext",
-  "sglpoints"
+  "sglpoints",
+  "saudio"
 ]
 
 let shaders = [
@@ -95,19 +96,30 @@ task debugtextuserfont, "Runs the debugtextuserfont example":
 task sgl, "Runs the sgl example":
   exec "nim r examples/sgl"
 
-task sglcontext, "Runs the sglcontext sample":
+task sglcontext, "Runs the sglcontext example":
   exec "nim r examples/sglcontext"
 
-task sglpoints, "Runs the sglpoints sample":
+task sglpoints, "Runs the sglpoints example":
   exec "nim r examples/sglpoints"
 
-task build_all, "Build all examples":
+task saudio, "Runs the saudio example":
+  exec "nim r examples/saudio"
+
+task build_debug, "Build all examples in debug mode":
   # hmm, is there a better way?
   for example in examples:
     when defined(windows):
       exec &"nim c --outdir:build --cc:vcc --debugger:native examples/{example}"
     else:
       exec &"nim c --outdir:build --debugger:native examples/{example}"
+
+task build_all, "Build all examples in release mode":
+  # hmm, is there a better way?
+  for example in examples:
+    when defined(windows):
+      exec &"nim c --outdir:build --cc:vcc -d:release examples/{example}"
+    else:
+      exec &"nim c --outdir:build -d:release examples/{example}"
 
 task shaders, "Compile all shaders (requires ../sokol-tools-bin)":
   let binDir = "../sokol-tools-bin/bin/"
