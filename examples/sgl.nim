@@ -5,7 +5,7 @@
 import sokol/gfx as sg
 import sokol/app as sapp
 import sokol/gl as sgl
-import sokol/glue
+import sokol/glue as sglue
 import std/math
 
 const
@@ -18,7 +18,7 @@ var
   pip3d: sgl.Pipeline
 
 proc init() {.cdecl.} =
-  sg.setup(sg.Desc(context: glue.context()))
+  sg.setup(sg.Desc(context: sglue.context()))
   sgl.setup(sgl.Desc())
 
   # a checkerboard texture
@@ -105,6 +105,11 @@ proc cube() =
   sgl.v3fT2f( 1,  1, -1, -1, -1)
   sgl.end()
 
+template withPushPopMatrix(body: untyped) =
+  sgl.pushMatrix()
+  body
+  sgl.popMatrix()
+
 proc drawCubes(t: float32) =
     var rot {.global.} = [0'f32, 0]
     rot[0] += 1f * t
@@ -121,22 +126,18 @@ proc drawCubes(t: float32) =
     sgl.rotate(sgl.asRadians(rot[0]), 1, 0, 0)
     sgl.rotate(sgl.asRadians(rot[1]), 0, 1, 0)
     cube()
-    sgl.pushMatrix()
-    block:
+    withPushPopMatrix:
         sgl.translate(0, 0, 3)
         sgl.scale(0.5, 0.5, 0.5)
         sgl.rotate(-2 * sgl.asRadians(rot[0]), 1, 0, 0)
         sgl.rotate(-2 * sgl.asRadians(rot[1]), 0, 1, 0)
         cube()
-        sgl.pushMatrix()
-        block:
+        withPushPopMatrix:
             sgl.translate(0, 0, 3)
             sgl.scale(0.5, 0.5, 0.5)
             sgl.rotate(-3 * sgl.asRadians(2*rot[0]), 1, 0, 0)
             sgl.rotate(3 * sgl.asRadians(2*rot[1]), 0, 0, 1)
             cube()
-        sgl.popMatrix()
-    sgl.popMatrix()
 
 proc drawTexCube(t: float32) =
     let a = sgl.asRadians(sapp.frameCount().float32 * t)
