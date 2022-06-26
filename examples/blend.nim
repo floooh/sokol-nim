@@ -4,7 +4,7 @@
 #-------------------------------------------------------------------------------
 import sokol/gfx as sg
 import sokol/app as sapp
-import sokol/glue as glue
+import sokol/glue as sglue
 import std/math
 import math/vec3
 import math/mat4
@@ -28,7 +28,7 @@ const passAction = PassAction(
 proc init() {.cdecl.} =
   sg.setup(sg.Desc(
       pipelinePoolSize: numBlendFactors * numBlendFactors + 1,
-      context:context(),
+      context: sglue.context(),
     ))
 
   # quad vertex buffer

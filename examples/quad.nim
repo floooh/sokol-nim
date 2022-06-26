@@ -4,7 +4,7 @@
 #-------------------------------------------------------------------------------
 import sokol/gfx as sg
 import sokol/app as sapp
-import sokol/glue as glue
+import sokol/glue as sglue
 import shaders/quad as shd
 
 var
@@ -13,7 +13,7 @@ var
   passAction: PassAction
 
 proc init() {.cdecl.} =
-  sg.setup(sg.Desc( context: glue.context() ))
+  sg.setup(sg.Desc(context: sglue.context()))
 
   # a vertex buffer
   bindings.vertexBuffers[0] = sg.makeBuffer(BufferDesc(

@@ -6,7 +6,7 @@
 import sokol/gfx as sg
 import sokol/app as sapp
 import sokol/gl as sgl
-import sokol/glue
+import sokol/glue as sglue
 import std/math
 
 type Rgb = object
@@ -32,7 +32,7 @@ const palette = [
 ]
 
 proc init() {.cdecl.} =
-  sg.setup(sg.Desc(context: glue.context()))
+  sg.setup(sg.Desc(context: sglue.context()))
   sgl.setup(sgl.Desc())
 
 proc lerp(x0: float32, x1: float32, t: float32): float32 =

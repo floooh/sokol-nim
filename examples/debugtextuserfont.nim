@@ -5,7 +5,7 @@
 import sokol/gfx as sg
 import sokol/app as sapp
 import sokol/debugtext as sdtx
-import sokol/glue
+import sokol/glue as sglue
 
 type Rgb = object
   r, g, b: uint8
@@ -39,7 +39,7 @@ const
 proc userFont(): array[1024, uint8]
 
 proc init() {.cdecl.} =
-  sg.setup(sg.Desc(context: glue.context()))
+  sg.setup(sg.Desc(context: sglue.context()))
 
   # setup sokol-debugtext with the user font as the only font,
   # NOTE that the user font only provides pixel data for the

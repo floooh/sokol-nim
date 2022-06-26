@@ -6,7 +6,7 @@
 import sokol/gfx as sg
 import sokol/app as sapp
 import sokol/debugtext as sdtx
-import sokol/glue
+import sokol/glue as sglue
 import std/strformat
 
 type Color = object
@@ -26,7 +26,7 @@ const
   ]
 
 proc init() {.cdecl.} =
-  sg.setup(sg.Desc(context: glue.context()))
+  sg.setup(sg.Desc(context: sglue.context()))
   sdtx.setup(sdtx.Desc(
     fonts: [
       sdtx.fontKc854(),

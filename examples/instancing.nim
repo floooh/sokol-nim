@@ -5,7 +5,7 @@
 #-------------------------------------------------------------------------------
 import sokol/gfx as sg
 import sokol/app as sapp
-import sokol/glue
+import sokol/glue as sglue
 import math/vec3
 import math/mat4
 import shaders/instancing as shd
@@ -25,7 +25,7 @@ var
   vel: array[maxParticles, Vec3]
 
 proc init() {.cdecl.} =
-  sg.setup(sg.Desc( context: glue.context() ))
+  sg.setup(sg.Desc( context: sglue.context() ))
 
   # a pass action for the default render pass (clears to black)
   passAction = PassAction(

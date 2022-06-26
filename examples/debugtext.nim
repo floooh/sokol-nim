@@ -5,7 +5,7 @@
 import sokol/gfx as sg
 import sokol/app as sapp
 import sokol/debugtext as sdtx
-import sokol/glue
+import sokol/glue as sglue
 
 const passAction = PassAction(
   colors: [
@@ -14,7 +14,7 @@ const passAction = PassAction(
 )
 
 proc init() {.cdecl.} =
-  sg.setup(sg.Desc(context: glue.context()))
+  sg.setup(sg.Desc(context: sglue.context()))
 
   # setup sokol/debugtext
   sdtx.setup(sdtx.Desc(

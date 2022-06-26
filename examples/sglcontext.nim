@@ -7,7 +7,7 @@
 import sokol/gfx as sg
 import sokol/app as sapp
 import sokol/gl as sgl
-import sokol/glue
+import sokol/glue as sglue
 import std/math
 
 const
@@ -30,7 +30,7 @@ var
   frameCount: float32
 
 proc init() {.cdecl.} =
-  sg.setup(sg.Desc(context: glue.context()))
+  sg.setup(sg.Desc(context: sglue.context()))
   sgl.setup(sgl.Desc(maxVertices: 64, maxCommands: 16))
 
   # sgl pipeline for default render pass

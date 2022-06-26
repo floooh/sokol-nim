@@ -5,7 +5,7 @@
 #-------------------------------------------------------------------------------
 import sokol/gfx as sg
 import sokol/app as sapp
-import sokol/glue
+import sokol/glue as sglue
 import math/mat4
 import math/vec2
 import math/vec3
@@ -73,7 +73,7 @@ proc event(ev: ptr Event) {.cdecl.} =
     createOffscreenPass(ev.framebufferWidth, ev.framebufferHeight)
 
 proc init() {.cdecl.} =
-  sg.setup(sg.Desc(context: glue.context() ))
+  sg.setup(sg.Desc(context: sglue.context()))
 
   # pass action for the default pass, since we overwrite the entire framebuffer, no clearing needs to happen
   defaultPassAction.colors[0].action = actionDontCare

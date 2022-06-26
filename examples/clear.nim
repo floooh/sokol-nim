@@ -4,14 +4,14 @@
 #-------------------------------------------------------------------------------
 import sokol/app as sapp
 import sokol/gfx as sg
-import sokol/glue as glue
+import sokol/glue as sglue
 
 var passAction = PassAction(
   colors: [ ColorAttachmentAction( action: actionClear, value: (1, 0, 0, 0)) ]
 )
 
 proc init() {.cdecl.} =
-  sg.setup(sg.Desc(context: glue.context()))
+  sg.setup(sg.Desc(context: sglue.context()))
 
 proc frame() {.cdecl.} =
   var g = passAction.colors[0].value.g + 0.01

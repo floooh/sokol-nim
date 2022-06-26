@@ -5,7 +5,7 @@
 #-------------------------------------------------------------------------------
 import sokol/gfx as sg
 import sokol/app as sapp
-import sokol/glue as glue
+import sokol/glue as sglue
 import shaders/bufferoffsets as shd
 
 var
@@ -18,7 +18,7 @@ type Vertex = object
   r, g, b: float32
 
 proc init() {.cdecl.} =
-  sg.setup(sg.Desc( context: glue.context() ))
+  sg.setup(sg.Desc(context: sglue.context()))
 
   # clear to a blue-ish color
   passAction.colors[0] = ColorAttachmentAction( action: actionClear, value: (0.5, 0.5, 1.0, 1.0))

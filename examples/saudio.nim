@@ -5,7 +5,7 @@
 import sokol/app as sapp
 import sokol/gfx as sg
 import sokol/audio as saudio
-import sokol/glue
+import sokol/glue as sglue
 
 const
   numSamples = 32
@@ -19,7 +19,7 @@ var
   samples: array[numSamples, float32]
 
 proc init() {.cdecl.} =
-  sg.setup(sg.Desc(context: glue.context()))
+  sg.setup(sg.Desc(context: sglue.context()))
   saudio.setup(saudio.Desc())
 
 proc frame() {.cdecl.} =

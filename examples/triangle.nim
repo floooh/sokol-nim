@@ -4,7 +4,7 @@
 #-------------------------------------------------------------------------------
 import sokol/gfx as sg
 import sokol/app as sapp
-import sokol/glue as glue
+import sokol/glue as sglue
 import shaders/triangle as shd
 
 var
@@ -12,7 +12,7 @@ var
   bindings: Bindings
 
 proc init() {.cdecl.} =
-  sg.setup(sg.Desc( context: glue.context() ))
+  sg.setup(sg.Desc(context: sglue.context()))
 
   # create vertex buffer with triangle vertices
   bindings.vertexBuffers[0] = sg.makeBuffer(BufferDesc(

@@ -4,7 +4,7 @@
 #-------------------------------------------------------------------------------
 import sokol/gfx as sg
 import sokol/app as sapp
-import sokol/glue as glue
+import sokol/glue as sglue
 import math/vec3
 import math/mat4
 import shaders/texcube as shd
@@ -27,7 +27,7 @@ type Vertex = object
   u, v: uint16
 
 proc init() {.cdecl.} =
-  sg.setup(sg.Desc(context: glue.context()))
+  sg.setup(sg.Desc(context: sglue.context()))
 
   #[
     Cube vertex buffer with packed vertex formats for color and texture coords.

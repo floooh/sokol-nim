@@ -4,7 +4,7 @@
 #-------------------------------------------------------------------------------
 import sokol/gfx as sg
 import sokol/app as sapp
-import sokol/glue
+import sokol/glue as sglue
 import math/vec3
 import math/mat4
 import shaders/cube as shd
@@ -23,7 +23,7 @@ const
   )
 
 proc init() {.cdecl.} =
-  sg.setup(sg.Desc(context: glue.context()))
+  sg.setup(sg.Desc(context: sglue.context()))
 
   let vbuf = sg.makeBuffer(BufferDesc(
     data: [
