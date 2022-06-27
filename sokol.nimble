@@ -47,11 +47,20 @@ let shaders = [
   "blend"
 ]
 
-proc run(name: string) =
-  var gl = ""
+proc compilerSwitch(): string =
+  when defined(windows):
+    return "--cc:vcc"
+  else:
+    return ""
+
+proc backendSwitch(): string =
   when defined gl:
-    gl = "-d:gl"
-  exec &"nim r {gl} examples/{name}"
+    return "-d:gl"
+  else:
+    return ""
+
+proc run(name: string) =
+  exec &"nim r {compilerSwitch()} {backendSwitch()} examples/{name}"
 
 # Tasks
 task clear, "Runs the clear example":
@@ -114,18 +123,12 @@ task saudio, "Runs the saudio example":
 task build_debug, "Build all examples in debug mode":
   # hmm, is there a better way?
   for example in examples:
-    when defined(windows):
-      exec &"nim c --outdir:build --cc:vcc --debugger:native examples/{example}"
-    else:
-      exec &"nim c --outdir:build --debugger:native examples/{example}"
+      exec &"nim c --outdir:build {backendSwitch()} {compilerSwitch()} --debugger:native examples/{example}"
 
 task build_all, "Build all examples in release mode":
   # hmm, is there a better way?
   for example in examples:
-    when defined(windows):
-      exec &"nim c --outdir:build --cc:vcc -d:release examples/{example}"
-    else:
-      exec &"nim c --outdir:build -d:release examples/{example}"
+      exec &"nim c --outdir:build {backendSwitch()} {compilerSwitch()} -d:release examples/{example}"
 
 task shaders, "Compile all shaders (requires ../sokol-tools-bin)":
   let binDir = "../sokol-tools-bin/bin/"
