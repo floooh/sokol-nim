@@ -27,7 +27,6 @@ var
   offscreenImage: Image
   offscreenContext: sgl.Context
   displayPipeline: sgl.Pipeline
-  frameCount: float32
 
 proc init() {.cdecl.} =
   sg.setup(sg.Desc(context: sglue.context()))
