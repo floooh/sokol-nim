@@ -47,63 +47,66 @@ let shaders = [
   "blend"
 ]
 
+proc run(name: string) =
+  exec &"nim r examples/{name}"
+
 # Tasks
 task clear, "Runs the clear example":
-  exec "nim r examples/clear"
+  run "clear"
 
 task triangle, "Runs the triangle example":
-  exec "nim r examples/triangle"
+  run "triangle"
 
 task quad, "Runs the quad example":
-  exec "nim r examples/quad"
+  run "quad"
 
 task bufferoffsets, "Run the bufferoffsets example":
-  exec "nim r examples/bufferoffsets"
+  run "bufferoffsets"
 
 task cube, "Runs the cube example":
-  exec "nim r examples/cube"
+  run "cube"
 
 task noninterleaved, "Runs the noninterleaved example":
-  exec "nim r examples/noninterleaved"
+  run "noninterleaved"
 
 task texcube, "Runs the texcube example":
-  exec "nim r examples/texcube"
+  run "texcube"
 
 task shapes, "Runs the shapes example":
-  exec "nim r examples/shapes"
+  run "shapes"
 
 task offscreen, "Runs the offscreen example":
-  exec "nim r examples/offscreen"
+  run "offscreen"
 
 task instancing, "Runs the instancing smaple":
-  exec "nim r examples/instancing"
+  run "instancing"
 
 task mrt, "Runs the mrt sample":
-  exec "nim r examples/mrt"
+  run "mrt"
 
 task blend, "Runs the blend example":
-  exec "nim r examples/blend"
+  run "blend"
 
 task debugtext, "Runs the debugtext example":
-  exec "nim r examples/debugtext"
+  run "debugtext"
 
 task debugtextprintf, "Runs the debugtextprintf example":
-  exec "nim r examples/debugtextprintf"
+  run "debugtextprintf"
 
 task debugtextuserfont, "Runs the debugtextuserfont example":
-  exec "nim r examples/debugtextuserfont"
+  run "debugtextuserfont"
 
 task sgl, "Runs the sgl example":
-  exec "nim r examples/sgl"
+  run "sgl"
 
 task sglcontext, "Runs the sglcontext example":
-  exec "nim r examples/sglcontext"
+  run "sglcontext"
 
 task sglpoints, "Runs the sglpoints example":
-  exec "nim r examples/sglpoints"
+  run "sglpoints"
 
 task saudio, "Runs the saudio example":
-  exec "nim r examples/saudio"
+  run "saudio"
 
 task build_debug, "Build all examples in debug mode":
   # hmm, is there a better way?
