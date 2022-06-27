@@ -48,7 +48,10 @@ let shaders = [
 ]
 
 proc run(name: string) =
-  exec &"nim r examples/{name}"
+  var gl = ""
+  when defined gl:
+    gl = "-d:gl"
+  exec &"nim r {gl} examples/{name}"
 
 # Tasks
 task clear, "Runs the clear example":

@@ -12,6 +12,11 @@ var passAction = PassAction(
 
 proc init() {.cdecl.} =
   sg.setup(sg.Desc(context: sglue.context()))
+  case sg.queryBackend():
+    of backendGlcore33: echo "using GLCORE33 backend"
+    of backendD3d11: echo "using D3D11 backend"
+    of backendMetalMacos: echo "using Metal backend"
+    else: echo "using untested backend"
 
 proc frame() {.cdecl.} =
   var g = passAction.colors[0].value.g + 0.01
