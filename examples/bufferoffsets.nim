@@ -85,5 +85,6 @@ sapp.run(sapp.Desc(
   cleanupCb: cleanup,
   width: 800,
   height: 600,
-  windowTitle: "bufferoffsets.nim"
+  windowTitle: "bufferoffsets.nim",
+  icon: IconDesc(sokol_default: true)
 ))

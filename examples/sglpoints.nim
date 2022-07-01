@@ -86,5 +86,6 @@ sapp.run(sapp.Desc(
   cleanupCb: cleanup,
   width: 512,
   height: 512,
-  windowTitle: "sglpoints.nim"
+  windowTitle: "sglpoints.nim",
+  icon: IconDesc(sokol_default: true)
 ))

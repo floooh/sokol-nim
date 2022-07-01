@@ -53,5 +53,6 @@ sapp.run(sapp.Desc(
   cleanupCb: cleanup,
   width: 640,
   height: 480,
-  window_title: "triangle.nim"
+  window_title: "triangle.nim",
+  icon: IconDesc(sokol_default: true)
 ))

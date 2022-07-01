@@ -47,5 +47,6 @@ sapp.run(sapp.Desc(
   cleanupCb: cleanup,
   width: 400,
   height: 300,
-  windowTitle: "saudio.nim"
+  windowTitle: "saudio.nim",
+  icon: IconDesc(sokol_default: true)
 ))

@@ -83,7 +83,8 @@ sapp.run(sapp.Desc(
   cleanupCb: cleanup,
   width: 800,
   height: 600,
-  windowTitle: "debugtextuserfont.nim"
+  windowTitle: "debugtextuserfont.nim",
+  icon: IconDesc(sokol_default: true)
 ))
 
 # Font data extracted Colorfrom Atari 400 ROM at address 0xE000,

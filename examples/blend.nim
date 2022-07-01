@@ -121,4 +121,5 @@ sapp.run(sapp.Desc(
   width: 800,
   height: 600,
   sampleCount: 4,
+  icon: IconDesc(sokol_default: true)
 ))

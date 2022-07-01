@@ -35,4 +35,5 @@ sapp.run(sapp.Desc(
   windowTitle: "clear.nim",
   width: 400,
   height: 300,
+  icon: IconDesc(sokol_default: true)
 ))

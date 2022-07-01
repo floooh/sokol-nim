@@ -212,5 +212,6 @@ sapp.run(sapp.Desc(
   width: 512,
   height: 512,
   sampleCount: 4,
-  windowTitle: "sgl.nim"
+  windowTitle: "sgl.nim",
+  icon: IconDesc(sokol_default: true)
 ))

@@ -67,5 +67,6 @@ sapp.run(sapp.Desc(
   cleanupCb: cleanup,
   width: 640,
   height: 480,
-  windowTitle: "debugtextprintf.nim"
+  windowTitle: "debugtextprintf.nim",
+  icon: IconDesc(sokol_default: true)
 ))
