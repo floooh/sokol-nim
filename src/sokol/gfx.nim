@@ -1169,7 +1169,7 @@ elif defined macosx:
     {.passl:"-framework Metal -framework MetalKit".}
 elif defined linux:
   {.passc:"-DSOKOL_GLCORE33".}
-  {.passl:"-lX11 -lXi -lXcursor -lGL -lm -ldl -lpthread".}
+  {.passl:"-lGL".}
 else:
   error("unsupported platform")
 
