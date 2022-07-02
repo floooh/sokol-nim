@@ -206,8 +206,8 @@ converter to_Event_touches*[N:static[int]](items: array[N, Touchpoint]): array[8
   for index,item in items.pairs: result[index]=item
 
 type Range* = object
-  `pointer`*:pointer
-  size*:uint
+  `addr`*:pointer
+  size*:int
 
 type ImageDesc* = object
   width*:int32
@@ -223,7 +223,7 @@ converter to_IconDesc_images*[N:static[int]](items: array[N, ImageDesc]): array[
   for index,item in items.pairs: result[index]=item
 
 type Allocator* = object
-  alloc*:proc(a1:uint, a2:pointer):pointer {.cdecl.}
+  alloc*:proc(a1:int, a2:pointer):pointer {.cdecl.}
   free*:proc(a1:pointer, a2:pointer) {.cdecl.}
   userData*:pointer
 

@@ -91,47 +91,49 @@ proc init() {.cdecl.} =
   createOffscreenPass(sapp.width(), sapp.height())
 
   # a cube vertex buffer
+  const cubeVertices = [
+    # pos + brightness
+    Vertex(x: -1.0f, y: -1.0f, z: -1.0f, b: 1.0f),
+    Vertex(x:  1.0f, y: -1.0f, z: -1.0f, b: 1.0f),
+    Vertex(x:  1.0f, y:  1.0f, z: -1.0f, b: 1.0f),
+    Vertex(x: -1.0f, y:  1.0f, z: -1.0f, b: 1.0f),
+    Vertex(x: -1.0f, y: -1.0f, z:  1.0f, b: 0.8f),
+    Vertex(x:  1.0f, y: -1.0f, z:  1.0f, b: 0.8f),
+    Vertex(x:  1.0f, y:  1.0f, z:  1.0f, b: 0.8f),
+    Vertex(x: -1.0f, y:  1.0f, z:  1.0f, b: 0.8f),
+    Vertex(x: -1.0f, y: -1.0f, z: -1.0f, b: 0.6f),
+    Vertex(x: -1.0f, y:  1.0f, z: -1.0f, b: 0.6f),
+    Vertex(x: -1.0f, y:  1.0f, z:  1.0f, b: 0.6f),
+    Vertex(x: -1.0f, y: -1.0f, z:  1.0f, b: 0.6f),
+    Vertex(x:  1.0f, y: -1.0f, z: -1.0f, b: 0.4f),
+    Vertex(x:  1.0f, y:  1.0f, z: -1.0f, b: 0.4f),
+    Vertex(x:  1.0f, y:  1.0f, z:  1.0f, b: 0.4f),
+    Vertex(x:  1.0f, y: -1.0f, z:  1.0f, b: 0.4f),
+    Vertex(x: -1.0f, y: -1.0f, z: -1.0f, b: 0.5f),
+    Vertex(x: -1.0f, y: -1.0f, z:  1.0f, b: 0.5f),
+    Vertex(x:  1.0f, y: -1.0f, z:  1.0f, b: 0.5f),
+    Vertex(x:  1.0f, y: -1.0f, z: -1.0f, b: 0.5f),
+    Vertex(x: -1.0f, y:  1.0f, z: -1.0f, b: 0.7f),
+    Vertex(x: -1.0f, y:  1.0f, z:  1.0f, b: 0.7f),
+    Vertex(x:  1.0f, y:  1.0f, z:  1.0f, b: 0.7f),
+    Vertex(x:  1.0f, y:  1.0f, z: -1.0f, b: 0.7f),
+  ]
   offscreenBindings.vertexBuffers[0] = sg.makeBuffer(BufferDesc(
-    data: [
-      # pos + brightness
-      Vertex(x: -1.0f, y: -1.0f, z: -1.0f, b: 1.0f),
-      Vertex(x:  1.0f, y: -1.0f, z: -1.0f, b: 1.0f),
-      Vertex(x:  1.0f, y:  1.0f, z: -1.0f, b: 1.0f),
-      Vertex(x: -1.0f, y:  1.0f, z: -1.0f, b: 1.0f),
-      Vertex(x: -1.0f, y: -1.0f, z:  1.0f, b: 0.8f),
-      Vertex(x:  1.0f, y: -1.0f, z:  1.0f, b: 0.8f),
-      Vertex(x:  1.0f, y:  1.0f, z:  1.0f, b: 0.8f),
-      Vertex(x: -1.0f, y:  1.0f, z:  1.0f, b: 0.8f),
-      Vertex(x: -1.0f, y: -1.0f, z: -1.0f, b: 0.6f),
-      Vertex(x: -1.0f, y:  1.0f, z: -1.0f, b: 0.6f),
-      Vertex(x: -1.0f, y:  1.0f, z:  1.0f, b: 0.6f),
-      Vertex(x: -1.0f, y: -1.0f, z:  1.0f, b: 0.6f),
-      Vertex(x:  1.0f, y: -1.0f, z: -1.0f, b: 0.4f),
-      Vertex(x:  1.0f, y:  1.0f, z: -1.0f, b: 0.4f),
-      Vertex(x:  1.0f, y:  1.0f, z:  1.0f, b: 0.4f),
-      Vertex(x:  1.0f, y: -1.0f, z:  1.0f, b: 0.4f),
-      Vertex(x: -1.0f, y: -1.0f, z: -1.0f, b: 0.5f),
-      Vertex(x: -1.0f, y: -1.0f, z:  1.0f, b: 0.5f),
-      Vertex(x:  1.0f, y: -1.0f, z:  1.0f, b: 0.5f),
-      Vertex(x:  1.0f, y: -1.0f, z: -1.0f, b: 0.5f),
-      Vertex(x: -1.0f, y:  1.0f, z: -1.0f, b: 0.7f),
-      Vertex(x: -1.0f, y:  1.0f, z:  1.0f, b: 0.7f),
-      Vertex(x:  1.0f, y:  1.0f, z:  1.0f, b: 0.7f),
-      Vertex(x:  1.0f, y:  1.0f, z: -1.0f, b: 0.7f),
-    ]
+    data: sg.Range(addr: cubeVertices.unsafeAddr, size: cubeVertices.sizeof)
   ))
 
   # cube index buffer
+  const cubeIndices = [
+    0'u16, 1, 2,  0, 2, 3,
+    6, 5, 4,  7, 6, 4,
+    8, 9, 10,  8, 10, 11,
+    14, 13, 12,  15, 14, 12,
+    16, 17, 18,  16, 18, 19,
+    22, 21, 20,  23, 22, 20
+  ]
   offscreenBindings.indexBuffer = sg.makeBuffer(BufferDesc(
     type: bufferTypeIndexBuffer,
-    data: [
-      0'u16, 1, 2,  0, 2, 3,
-      6, 5, 4,  7, 6, 4,
-      8, 9, 10,  8, 10, 11,
-      14, 13, 12,  15, 14, 12,
-      16, 17, 18,  16, 18, 19,
-      22, 21, 20,  23, 22, 20
-    ]
+    data: sg.Range(addr: cubeIndices.unsafeAddr, size: cubeIndices.sizeof)
   ))
 
   # shader and pipeline for offscreen-renderer cube
@@ -156,8 +158,9 @@ proc init() {.cdecl.} =
   ))
 
   # a vertex buffer to create a fullscreen rectangle
+  const quadVertices = [ 0.0f, 0.0f,  1.0f, 0.0f,  0.0f, 1.0f,  1.0f, 1.0f ]
   let quadVbuf = sg.makeBuffer(BufferDesc(
-    data: [ 0.0f, 0.0f,  1.0f, 0.0f,  0.0f, 1.0f,  1.0f, 1.0f ]
+    data: sg.Range(addr: quadVertices.unsafeAddr, size: quadVertices.sizeof)
   ))
 
   # shader, pipeline and bindings to compose 3 offscreen render targets into default framebuffer
@@ -212,7 +215,7 @@ proc frame() {.cdecl.} =
   sg.beginPass(offscreenPass, offscreenPassAction)
   sg.applyPipeline(offscreenPip)
   sg.applyBindings(offscreenBindings)
-  sg.applyUniforms(shaderStageVs, shd.slotOffscreenParams, offscreenParams)
+  sg.applyUniforms(shaderStageVs, shd.slotOffscreenParams, sg.Range(addr: offscreenParams.unsafeAddr, size: offscreenParams.sizeof))
   sg.draw(0, 36, 1)
   sg.endPass()
 
@@ -220,7 +223,7 @@ proc frame() {.cdecl.} =
   sg.beginDefaultPass(defaultPassAction, sapp.width(), sapp.height())
   sg.applyPipeline(fsqPip)
   sg.applyBindings(fsqBindings)
-  sg.applyUniforms(shaderStageVs, shd.slotFsqParams, fsqParams)
+  sg.applyUniforms(shaderStageVs, shd.slotFsqParams, sg.Range(addr: fsqParams.unsafeAddr, size: fsqParams.sizeof))
   sg.draw(0, 4, 1)
   sg.applyPipeline(dbgPip)
   for i in 0..<3:

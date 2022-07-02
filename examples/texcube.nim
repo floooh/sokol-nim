@@ -40,60 +40,62 @@ proc init() {.cdecl.} =
     formats to floating point inputs (only to integer inputs),
     and WebGL2 / GLES2 don't support integer vertex shader inputs.
   ]#
+  const vertices = [
+    Vertex( x: -1.0, y: -1.0, z: -1.0,  color: 0xFF0000FF'u32, u:     0, v:     0 ),
+    Vertex( x:  1.0, y: -1.0, z: -1.0,  color: 0xFF0000FF'u32, u: 32767, v:     0 ),
+    Vertex( x:  1.0, y:  1.0, z: -1.0,  color: 0xFF0000FF'u32, u: 32767, v: 32767 ),
+    Vertex( x: -1.0, y:  1.0, z: -1.0,  color: 0xFF0000FF'u32, u:     0, v: 32767 ),
+    Vertex( x: -1.0, y: -1.0, z:  1.0,  color: 0xFF00FF00'u32, u:     0, v:     0 ),
+    Vertex( x:  1.0, y: -1.0, z:  1.0,  color: 0xFF00FF00'u32, u: 32767, v:     0 ),
+    Vertex( x:  1.0, y:  1.0, z:  1.0,  color: 0xFF00FF00'u32, u: 32767, v: 32767 ),
+    Vertex( x: -1.0, y:  1.0, z:  1.0,  color: 0xFF00FF00'u32, u:     0, v: 32767 ),
+    Vertex( x: -1.0, y: -1.0, z: -1.0,  color: 0xFFFF0000'u32, u:     0, v:     0 ),
+    Vertex( x: -1.0, y:  1.0, z: -1.0,  color: 0xFFFF0000'u32, u: 32767, v:     0 ),
+    Vertex( x: -1.0, y:  1.0, z:  1.0,  color: 0xFFFF0000'u32, u: 32767, v: 32767 ),
+    Vertex( x: -1.0, y: -1.0, z:  1.0,  color: 0xFFFF0000'u32, u:     0, v: 32767 ),
+    Vertex( x:  1.0, y: -1.0, z: -1.0,  color: 0xFFFF007F'u32, u:     0, v:     0 ),
+    Vertex( x:  1.0, y:  1.0, z: -1.0,  color: 0xFFFF007F'u32, u: 32767, v:     0 ),
+    Vertex( x:  1.0, y:  1.0, z:  1.0,  color: 0xFFFF007F'u32, u: 32767, v: 32767 ),
+    Vertex( x:  1.0, y: -1.0, z:  1.0,  color: 0xFFFF007F'u32, u:     0, v: 32767 ),
+    Vertex( x: -1.0, y: -1.0, z: -1.0,  color: 0xFFFF7F00'u32, u:     0, v:     0 ),
+    Vertex( x: -1.0, y: -1.0, z:  1.0,  color: 0xFFFF7F00'u32, u: 32767, v:     0 ),
+    Vertex( x:  1.0, y: -1.0, z:  1.0,  color: 0xFFFF7F00'u32, u: 32767, v: 32767 ),
+    Vertex( x:  1.0, y: -1.0, z: -1.0,  color: 0xFFFF7F00'u32, u:     0, v: 32767 ),
+    Vertex( x: -1.0, y:  1.0, z: -1.0,  color: 0xFF007FFF'u32, u:     0, v:     0 ),
+    Vertex( x: -1.0, y:  1.0, z:  1.0,  color: 0xFF007FFF'u32, u: 32767, v:     0 ),
+    Vertex( x:  1.0, y:  1.0, z:  1.0,  color: 0xFF007FFF'u32, u: 32767, v: 32767 ),
+    Vertex( x:  1.0, y:  1.0, z: -1.0,  color: 0xFF007FFF'u32, u:     0, v: 32767 ),
+  ]
   bindings.vertexBuffers[0] = sg.makeBuffer(BufferDesc(
-    data: [
-      Vertex( x: -1.0, y: -1.0, z: -1.0,  color: 0xFF0000FF'u32, u:     0, v:     0 ),
-      Vertex( x:  1.0, y: -1.0, z: -1.0,  color: 0xFF0000FF'u32, u: 32767, v:     0 ),
-      Vertex( x:  1.0, y:  1.0, z: -1.0,  color: 0xFF0000FF'u32, u: 32767, v: 32767 ),
-      Vertex( x: -1.0, y:  1.0, z: -1.0,  color: 0xFF0000FF'u32, u:     0, v: 32767 ),
-      Vertex( x: -1.0, y: -1.0, z:  1.0,  color: 0xFF00FF00'u32, u:     0, v:     0 ),
-      Vertex( x:  1.0, y: -1.0, z:  1.0,  color: 0xFF00FF00'u32, u: 32767, v:     0 ),
-      Vertex( x:  1.0, y:  1.0, z:  1.0,  color: 0xFF00FF00'u32, u: 32767, v: 32767 ),
-      Vertex( x: -1.0, y:  1.0, z:  1.0,  color: 0xFF00FF00'u32, u:     0, v: 32767 ),
-      Vertex( x: -1.0, y: -1.0, z: -1.0,  color: 0xFFFF0000'u32, u:     0, v:     0 ),
-      Vertex( x: -1.0, y:  1.0, z: -1.0,  color: 0xFFFF0000'u32, u: 32767, v:     0 ),
-      Vertex( x: -1.0, y:  1.0, z:  1.0,  color: 0xFFFF0000'u32, u: 32767, v: 32767 ),
-      Vertex( x: -1.0, y: -1.0, z:  1.0,  color: 0xFFFF0000'u32, u:     0, v: 32767 ),
-      Vertex( x:  1.0, y: -1.0, z: -1.0,  color: 0xFFFF007F'u32, u:     0, v:     0 ),
-      Vertex( x:  1.0, y:  1.0, z: -1.0,  color: 0xFFFF007F'u32, u: 32767, v:     0 ),
-      Vertex( x:  1.0, y:  1.0, z:  1.0,  color: 0xFFFF007F'u32, u: 32767, v: 32767 ),
-      Vertex( x:  1.0, y: -1.0, z:  1.0,  color: 0xFFFF007F'u32, u:     0, v: 32767 ),
-      Vertex( x: -1.0, y: -1.0, z: -1.0,  color: 0xFFFF7F00'u32, u:     0, v:     0 ),
-      Vertex( x: -1.0, y: -1.0, z:  1.0,  color: 0xFFFF7F00'u32, u: 32767, v:     0 ),
-      Vertex( x:  1.0, y: -1.0, z:  1.0,  color: 0xFFFF7F00'u32, u: 32767, v: 32767 ),
-      Vertex( x:  1.0, y: -1.0, z: -1.0,  color: 0xFFFF7F00'u32, u:     0, v: 32767 ),
-      Vertex( x: -1.0, y:  1.0, z: -1.0,  color: 0xFF007FFF'u32, u:     0, v:     0 ),
-      Vertex( x: -1.0, y:  1.0, z:  1.0,  color: 0xFF007FFF'u32, u: 32767, v:     0 ),
-      Vertex( x:  1.0, y:  1.0, z:  1.0,  color: 0xFF007FFF'u32, u: 32767, v: 32767 ),
-      Vertex( x:  1.0, y:  1.0, z: -1.0,  color: 0xFF007FFF'u32, u:     0, v: 32767 ),
-    ]
+    data: sg.Range(addr: vertices.unsafeAddr, size: vertices.sizeof)
   ))
 
   # create an index buffer for the cube
+  const indices = [
+    0'u16, 1, 2,  0, 2, 3,
+    6, 5, 4,  7, 6, 4,
+    8, 9, 10,  8, 10, 11,
+    14, 13, 12,  15, 14, 12,
+    16, 17, 18,  16, 18, 19,
+    22, 21, 20,  23, 22, 20
+  ]
   bindings.indexBuffer = sg.makeBuffer(BufferDesc(
     type: bufferTypeIndexBuffer,
-    data: [
-      0'u16, 1, 2,  0, 2, 3,
-      6, 5, 4,  7, 6, 4,
-      8, 9, 10,  8, 10, 11,
-      14, 13, 12,  15, 14, 12,
-      16, 17, 18,  16, 18, 19,
-      22, 21, 20,  23, 22, 20
-    ]
+    data: sg.Range(addr: indices.unsafeAddr, size: indices.sizeof)
   ))
 
   # create a checker board texture
-  let pixels = sg.Range([
+  let pixels = [
     0xFFFFFFFF'u32, 0xFF000000'u32, 0xFFFFFFFF'u32, 0xFF000000'u32,
     0xFF000000'u32, 0xFFFFFFFF'u32, 0xFF000000'u32, 0xFFFFFFFF'u32,
     0xFFFFFFFF'u32, 0xFF000000'u32, 0xFFFFFFFF'u32, 0xFF000000'u32,
     0xFF000000'u32, 0xFFFFFFFF'u32, 0xFF000000'u32, 0xFFFFFFFF'u32,
-  ])
+  ]
   bindings.fsImages[shd.slotTex] = sg.makeImage(sg.ImageDesc(
     width: 4,
     height: 4,
     data: ImageData(
-      subimage: [ [ pixels ] ]
+      subimage: [ [ sg.Range(addr: pixels.unsafeAddr, size: pixels.sizeof) ] ]
     )
   ))
 
@@ -127,10 +129,11 @@ proc frame() {.cdecl.} =
   let dt = sapp.frameDuration() * 60f
   rx += 1f * dt
   ry += 2f * dt
+  let vsParams = computeVsParams()
   sg.beginDefaultPass(passAction, sapp.width(), sapp.height())
   sg.applyPipeline(pip)
   sg.applyBindings(bindings)
-  sg.applyUniforms(shaderStageVs, shd.slotVsParams, computeVsParams())
+  sg.applyUniforms(shaderStageVs, shd.slotVsParams, sg.Range(addr: vsParams.unsafeAddr, size: vsParams.sizeof))
   sg.draw(0, 36, 1)
   sg.endPass()
   sg.commit()

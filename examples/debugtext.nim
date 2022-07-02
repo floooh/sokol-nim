@@ -52,9 +52,9 @@ proc frame() {.cdecl.} =
     print_font(5, "Oric Atmos:\n",  0xff, 0x98, 0x00)
 
     sg.beginDefaultPass(passAction, sapp.width(), sapp.height())
-    sdtx.draw();
-    sg.endPass();
-    sg.commit();
+    sdtx.draw()
+    sg.endPass()
+    sg.commit()
 
 proc cleanup() {.cdecl.} =
   sdtx.shutdown()

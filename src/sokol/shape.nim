@@ -3,8 +3,8 @@
 import gfx
 
 type Range* = object
-  `pointer`*:pointer
-  size*:uint
+  `addr`*:pointer
+  size*:int
 
 type Mat4* = object
   m*:array[4, array[4, float32]]
@@ -39,8 +39,8 @@ type Sizes* = object
 
 type BufferItem* = object
   buffer*:Range
-  dataSize*:uint
-  shapeOffset*:uint
+  dataSize*:int
+  shapeOffset*:int
 
 type Buffer* = object
   valid*:bool
@@ -190,10 +190,6 @@ proc mat4*(m:ptr float32):Mat4 =
 proc c_mat4Transpose(m:ptr float32):Mat4 {.cdecl, importc:"sshape_mat4_transpose".}
 proc mat4Transpose*(m:ptr float32):Mat4 =
     c_mat4Transpose(m)
-
-# helper function to convert "anything" into a Range
-converter to_Range*[T](source: T): Range =
-  Range(pointer: source.unsafeAddr, size: source.sizeof.uint)
 
 {.passc:"-DSOKOL_NIM_IMPL".}
 {.compile:"c/sokol_shape.c".}

@@ -19,8 +19,8 @@ type Context* = object
   id*:uint32
 
 type Range* = object
-  `pointer`*:pointer
-  size*:uint
+  `addr`*:pointer
+  size*:int
 
 const
   invalidId* = 0
@@ -422,7 +422,7 @@ converter to_Bindings_fsImages*[N:static[int]](items: array[N, Image]): array[12
 
 type BufferDesc* = object
   startCanary:uint32
-  size*:uint
+  size*:int
   `type`*:BufferType
   usage*:Usage
   data*:Range
@@ -500,7 +500,7 @@ type ShaderUniformDesc* = object
   arrayCount*:int32
 
 type ShaderUniformBlockDesc* = object
-  size*:uint
+  size*:int
   layout*:UniformLayout
   uniforms*:array[16, ShaderUniformDesc]
 
@@ -771,7 +771,7 @@ type ContextDesc* = object
   wgpu*:WgpuContextDesc
 
 type Allocator* = object
-  alloc*:proc(a1:uint, a2:pointer):pointer {.cdecl.}
+  alloc*:proc(a1:int, a2:pointer):pointer {.cdecl.}
   free*:proc(a1:pointer, a2:pointer) {.cdecl.}
   userData*:pointer
 
@@ -1172,10 +1172,6 @@ elif defined linux:
   {.passl:"-lX11 -lXi -lXcursor -lGL -lm -ldl -lpthread".}
 else:
   error("unsupported platform")
-
-# helper function to convert "anything" into a Range
-converter to_Range*[T](source: T): Range =
-  Range(pointer: source.unsafeAddr, size: source.sizeof.uint)
 
 ## Convert a 4-element tuple of numbers to a gfx.Color
 converter toColor*[R:SomeNumber,G:SomeNumber,B:SomeNumber,A:SomeNumber](rgba: tuple [r:R,g:G,b:B,a:A]):Color =

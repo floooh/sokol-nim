@@ -34,25 +34,27 @@ proc init() {.cdecl.} =
 
   # a vertex buffer for the static geometry, goes into vertex buffer bind slot 0
   const r = 0.05f
+  const vertices = [
+    # positions             colors
+    0.0f,   -r, 0.0f,       1.0f, 0.0f, 0.0f, 1.0f,
+       r, 0.0f,  r,         0.0f, 1.0f, 0.0f, 1.0f,
+       r, 0.0f, -r,         0.0f, 0.0f, 1.0f, 1.0f,
+      -r, 0.0f, -r,         1.0f, 1.0f, 0.0f, 1.0f,
+      -r, 0.0f, r,          0.0f, 1.0f, 1.0f, 1.0f,
+    0.0f,    r, 0.0f,       1.0f, 0.0f, 1.0f, 1.0f
+  ]
   bindings.vertexBuffers[0] = sg.makeBuffer(BufferDesc(
-    data: [
-      # positions             colors
-      0.0f,   -r, 0.0f,       1.0f, 0.0f, 0.0f, 1.0f,
-         r, 0.0f,  r,         0.0f, 1.0f, 0.0f, 1.0f,
-         r, 0.0f, -r,         0.0f, 0.0f, 1.0f, 1.0f,
-        -r, 0.0f, -r,         1.0f, 1.0f, 0.0f, 1.0f,
-        -r, 0.0f, r,          0.0f, 1.0f, 1.0f, 1.0f,
-      0.0f,    r, 0.0f,       1.0f, 0.0f, 1.0f, 1.0f
-    ]
+    data: sg.Range(addr: vertices.unsafeAddr, size: vertices.sizeof)
   ))
 
   # index buffer for static geometry
+  const indices = [
+    0'u16, 1, 2,  0, 2, 3,    0, 3, 4,    0, 4, 1,
+    5, 1, 2,      5, 2, 3,    5, 3, 4,    5, 4, 1
+  ]
   bindings.indexBuffer = sg.makeBuffer(BufferDesc(
     type: bufferTypeIndexBuffer,
-    data: [
-      0'u16, 1, 2,  0, 2, 3,    0, 3, 4,    0, 4, 1,
-      5, 1, 2,      5, 2, 3,    5, 3, 4,    5, 4, 1
-    ]
+    data: sg.Range(addr: indices.unsafeAddr, size: indices.sizeof)
   ))
 
   # empty, dynamic instance-data vertex buffer, goes into vertex-buffer-slot 1
@@ -113,8 +115,8 @@ proc frame() {.cdecl.} =
   # update instance data
   # FIXME: this is awkward, we'd need a slice-to-Range converter
   sg.updateBuffer(bindings.vertexBuffers[1], sg.Range(
-    pointer: unsafeAddr(pos),
-    size: (curNumParticles * sizeof(Vec3)).uint
+    addr: pos.unsafeAddr,
+    size: (curNumParticles * Vec3.sizeof)
   ))
 
   # model-view-projection data
@@ -128,7 +130,7 @@ proc frame() {.cdecl.} =
   sg.beginDefaultPass(passAction, sapp.width(), sapp.height())
   sg.applyPipeline(pip)
   sg.applyBindings(bindings)
-  sg.applyUniforms(shaderStageVs, shd.slotVsParams, vsParams)
+  sg.applyUniforms(shaderStageVs, shd.slotVsParams, sg.Range(addr: vsParams.unsafeAddr, size: vsParams.sizeof))
   sg.draw(0, 24, curNumParticles.int32)
   sg.endPass()
   sg.commit()

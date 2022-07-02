@@ -35,63 +35,11 @@ const
     Rgb(r:0xff, g:0x57, b:0x22)
   ]
 
-# FIXME: arrays can't be forward declared in Nim?
-proc userFont(): array[1024, uint8]
-
-proc init() {.cdecl.} =
-  sg.setup(sg.Desc(context: sglue.context()))
-
-  # setup sokol-debugtext with the user font as the only font,
-  # NOTE that the user font only provides pixel data for the
-  # characters 0x20 to 0x9F inclusive
-  sdtx.setup(sdtx.Desc(
-    fonts: [
-      sdtx.FontDesc(
-        data: userFont(),
-        firstChar: 0x20,
-        lastChar: 0x9F
-      )
-    ]
-  ))
-
-proc frame() {.cdecl.} =
-  sdtx.canvas(sapp.widthf() * 0.25, sapp.heightf() * 0.25)
-  sdtx.origin(1, 2)
-  sdtx.color3b(0xFF, 0x17, 0x44)
-  sdtx.puts("Hello 8-bit ATARI font:\n\n".cstring)
-  var line = 0
-  for c in 0x20..<0xA0:
-    if (c and 15) == 0:
-      sdtx.puts("\n\t")
-      line += 1
-    # color scrolling effect
-    let rgb = colorPalette[(c + line + (sapp.frameCount().int shr 1)) and 15]
-    sdtx.color3b(rgb.r, rgb.g, rgb.b)
-    sdtx.putc(c.char)
-  sg.beginDefaultPass(passAction, sapp.width(), sapp.height())
-  sdtx.draw()
-  sg.endPass()
-  sg.commit()
-
-proc cleanup() {.cdecl.} =
-  sdtx.shutdown()
-  sg.shutdown()
-
-sapp.run(sapp.Desc(
-  initCb: init,
-  frameCb: frame,
-  cleanupCb: cleanup,
-  width: 800,
-  height: 600,
-  windowTitle: "debugtextuserfont.nim",
-  icon: IconDesc(sokol_default: true)
-))
-
 # Font data extracted Colorfrom Atari 400 ROM at address 0xE000,
 # and reshuffled to maColorp to ASCII. Each character is 8 bytes,
 # 1 bit per pixel in aColorn 8x8 matrix.
-proc userFont(): array[1024, uint8] =
-  result = [
+# (apparently arrays can't be forward declared in Nim?)
+const userFont = [
     0x00'u8, 0x00, 0x0, 0x00, 0x00, 0x00, 0x00, 0x00, # 20
     0x00, 0x18, 0x18, 0x18, 0x18, 0x00, 0x18, 0x00, # 21
     0x00, 0x66, 0x66, 0x66, 0x00, 0x00, 0x00, 0x00, # 22
@@ -221,3 +169,51 @@ proc userFont(): array[1024, uint8] =
     0x00, 0x18, 0x30, 0x7E, 0x30, 0x18, 0x00, 0x00, # 9E
     0x00, 0x18, 0x0C, 0x7E, 0x0C, 0x18, 0x00, 0x00, # 9F
   ]
+proc init() {.cdecl.} =
+  sg.setup(sg.Desc(context: sglue.context()))
+
+  # setup sokol-debugtext with the user font as the only font,
+  # NOTE that the user font only provides pixel data for the
+  # characters 0x20 to 0x9F inclusive
+  sdtx.setup(sdtx.Desc(
+    fonts: [
+      sdtx.FontDesc(
+        data: sdtx.Range(addr: userFont.unsafeAddr, size: userFont.sizeof),
+        firstChar: 0x20,
+        lastChar: 0x9F
+      )
+    ]
+  ))
+
+proc frame() {.cdecl.} =
+  sdtx.canvas(sapp.widthf() * 0.25, sapp.heightf() * 0.25)
+  sdtx.origin(1, 2)
+  sdtx.color3b(0xFF, 0x17, 0x44)
+  sdtx.puts("Hello 8-bit ATARI font:\n\n")
+  var line = 0
+  for c in 0x20..<0xA0:
+    if (c and 15) == 0:
+      sdtx.puts("\n\t")
+      line += 1
+    # color scrolling effect
+    let rgb = colorPalette[(c + line + (sapp.frameCount().int shr 1)) and 15]
+    sdtx.color3b(rgb.r, rgb.g, rgb.b)
+    sdtx.putc(c.char)
+  sg.beginDefaultPass(passAction, sapp.width(), sapp.height())
+  sdtx.draw()
+  sg.endPass()
+  sg.commit()
+
+proc cleanup() {.cdecl.} =
+  sdtx.shutdown()
+  sg.shutdown()
+
+sapp.run(sapp.Desc(
+  initCb: init,
+  frameCb: frame,
+  cleanupCb: cleanup,
+  width: 800,
+  height: 600,
+  windowTitle: "debugtextuserfont.nim",
+  icon: IconDesc(sokol_default: true)
+))

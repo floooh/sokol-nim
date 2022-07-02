@@ -63,8 +63,8 @@ proc init() {.cdecl.} =
   var vertices: array[6 * 1024, sshape.Vertex]
   var indices: array[16 * 1024, uint16]
   var buf = sshape.Buffer(
-    vertices: BufferItem(buffer: vertices),
-    indices: BufferItem(buffer: indices)
+    vertices: BufferItem(buffer: sshape.Range(addr: vertices.unsafeAddr, size: vertices.sizeof)),
+    indices: BufferItem(buffer: sshape.Range(addr: indices.unsafeAddr, size: indices.sizeof))
   )
   buf = sshape.buildBox(buf, Box(width: 1f, height: 1f, depth: 1f, tiles: 10, randomColors: true))
   shapes[0].draw = sshape.elementRange(buf)
@@ -113,7 +113,7 @@ proc frame() {.cdecl.} =
     let model = translate(shapes[i].pos) * rm
     # model-view-proj matrix
     vsParams.mvp = viewProj * model
-    sg.applyUniforms(shaderStageVs, shd.slotVsParams, vsParams)
+    sg.applyUniforms(shaderStageVs, shd.slotVsParams, sg.Range(addr: vsParams.unsafeAddr, size: vsParams.sizeof))
     sg.draw(shapes[i].draw.baseElement, shapes[i].draw.numElements, 1)
   sdtx.draw()
   sg.endPass()

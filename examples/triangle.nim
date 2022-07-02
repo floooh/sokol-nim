@@ -15,13 +15,14 @@ proc init() {.cdecl.} =
   sg.setup(sg.Desc(context: sglue.context()))
 
   # create vertex buffer with triangle vertices
+  const vertices = [
+    # positions          colors
+     0.0'f32,  0.5, 0.5, 1.0, 0.0, 0.0, 1.0,
+     0.5, -0.5, 0.5,     0.0, 1.0, 0.0, 1.0,
+    -0.5, -0.5, 0.5,     0.0, 0.0, 1.0, 1.0
+  ]
   bindings.vertexBuffers[0] = sg.makeBuffer(BufferDesc(
-    data: [
-      # positions          colors
-       0.0'f32,  0.5, 0.5, 1.0, 0.0, 0.0, 1.0,
-       0.5, -0.5, 0.5,     0.0, 1.0, 0.0, 1.0,
-      -0.5, -0.5, 0.5,     0.0, 0.0, 1.0, 1.0
-    ]
+    data: sg.Range(addr: vertices.unsafeAddr, size: vertices.sizeof)
   ))
 
   # create shader and pipeline object

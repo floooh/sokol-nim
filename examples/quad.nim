@@ -16,20 +16,22 @@ proc init() {.cdecl.} =
   sg.setup(sg.Desc(context: sglue.context()))
 
   # a vertex buffer
+  let vertices = [
+    # positions         colors
+    -0.5'f32, 0.5, 0.5, 1.0, 0.0, 0.0, 1.0,
+     0.5, 0.5, 0.5,     0.0, 1.0, 0.0, 1.0,
+     0.5, -0.5, 0.5,    0.0, 0.0, 1.0, 1.0,
+    -0.5, -0.5, 0.5,    1.0, 1.0, 0.0, 1.0
+  ]
   bindings.vertexBuffers[0] = sg.makeBuffer(BufferDesc(
-    data: [
-      # positions         colors
-      -0.5'f32, 0.5, 0.5, 1.0, 0.0, 0.0, 1.0,
-       0.5, 0.5, 0.5,     0.0, 1.0, 0.0, 1.0,
-       0.5, -0.5, 0.5,    0.0, 0.0, 1.0, 1.0,
-      -0.5, -0.5, 0.5,    1.0, 1.0, 0.0, 1.0
-    ]
+    data: sg.Range(addr: vertices.unsafeAddr, size: vertices.sizeof)
   ))
 
   # an index buffer
+  const indices = [ 0'u16, 1, 2, 0, 2, 3 ]
   bindings.indexBuffer = sg.makeBuffer(BufferDesc(
     type: bufferTypeIndexBuffer,
-    data: [ 0'u16, 1, 2, 0, 2, 3 ]
+    data: sg.Range(addr: indices.unsafeAddr, size: indices.sizeof)
   ))
 
   # a shader and pipeline object

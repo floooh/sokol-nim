@@ -36,8 +36,8 @@ proc init() {.cdecl.} =
   ))
 
 proc frame() {.cdecl.} =
-  let frameCount = sapp.frameCount();
-  let frameTime = sapp.frameDuration() * 1000;
+  let frameCount = sapp.frameCount()
+  let frameTime = sapp.frameDuration() * 1000
 
   sdtx.canvas(sapp.widthf() * 0.5, sapp.heightf() * 0.5)
   sdtx.origin(3, 3)
@@ -49,8 +49,8 @@ proc frame() {.cdecl.} =
     sdtx.puts((&"Hello '{str}'!\n").cstring)
     sdtx.puts((&"\tFrame Time:\t\t{frameTime:.3f}\n").cstring)
     sdtx.puts((&"\tFrame Count:\t{frameCount}\t{frameCount:#X}\n").cstring)
-    sdtx.putr("Range Test 1 (xyzbla)".cstring, 12)
-    sdtx.putr("\nRange Test 2\n".cstring, 32)
+    sdtx.putr("Range Test 1 (xyzbla)", 12)
+    sdtx.putr("\nRange Test 2\n", 32)
     sdtx.moveY(2)
   sg.beginDefaultPass(passAction, sapp.width(), sapp.height())
   sdtx.draw()

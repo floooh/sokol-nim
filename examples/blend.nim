@@ -32,15 +32,16 @@ proc init() {.cdecl.} =
     ))
 
   # quad vertex buffer
+  const vertices = [
+    # position             color0
+    -1.0f, -1.0f, 0.0f,    1.0f, 0.0f, 0.0f, 0.5f,
+    +1.0f, -1.0f, 0.0f,    0.0f, 1.0f, 0.0f, 0.5f,
+    -1.0f, +1.0f, 0.0f,    0.0f, 0.0f, 1.0f, 0.5f,
+    +1.0f, +1.0f, 0.0f,    1.0f, 1.0f, 0.0f, 0.5f
+  ]
   bindings.vertexBuffers[0] = sg.makeBuffer(BufferDesc(
       type: bufferTypeVertexBuffer,
-      data: [
-        # position             color0
-        -1.0f, -1.0f, 0.0f,    1.0f, 0.0f, 0.0f, 0.5f,
-        +1.0f, -1.0f, 0.0f,    0.0f, 1.0f, 0.0f, 0.5f,
-        -1.0f, +1.0f, 0.0f,    0.0f, 0.0f, 1.0f, 0.5f,
-        +1.0f, +1.0f, 0.0f,    1.0f, 1.0f, 0.0f, 0.5f
-      ],
+      data: sg.Range(addr: vertices.unsafeAddr, size: vertices.sizeof)
     ))
 
   # pipeline object for rendering the background
@@ -77,19 +78,20 @@ proc init() {.cdecl.} =
 proc frame() {.cdecl.} =
   let time = sapp.frameDuration() * 60.0
 
-  sg.beginDefaultPass(passAction, sapp.width(), sapp.height());
+  sg.beginDefaultPass(passAction, sapp.width(), sapp.height())
 
   # draw background
-  tick += 1.0 * time;
-  sg.applyPipeline(bgPip);
-  sg.applyBindings(bindings);
-  sg.applyUniforms(shaderStageFs, shd.slotBgFsParams, BgFsParams(tick: tick));
-  sg.draw(0, 4, 1);
+  let bgFsParams = BgFsParams(tick: tick)
+  tick += 1.0 * time
+  sg.applyPipeline(bgPip)
+  sg.applyBindings(bindings)
+  sg.applyUniforms(shaderStageFs, shd.slotBgFsParams, sg.Range(addr: bgFsParams.unsafeAddr, size: bgFsParams.sizeof))
+  sg.draw(0, 4, 1)
 
   # draw the blended quads
-  let proj = persp(90f, sapp.widthf() / sapp.heightf(), 0.01f, 100f);
-  let view = lookat(vec3(0f, 0f, 25f), vec3.zero(), vec3.up());
-  let viewProj = proj * view;
+  let proj = persp(90f, sapp.widthf() / sapp.heightf(), 0.01f, 100f)
+  let view = lookat(vec3(0f, 0f, 25f), vec3.zero(), vec3.up())
+  let viewProj = proj * view
 
   r += 0.6 * time
   var r0 = r
@@ -102,13 +104,14 @@ proc frame() {.cdecl.} =
         0f
       )
       let model = translate(t) * rotate(r0, vec3.up())
+      let quadVsParams = QuadVsParams(mvp: viewProj * model)
       sg.applyPipeline(pip[src][dst])
       sg.applyBindings(bindings)
-      sg.applyUniforms(shaderStageVs, shd.slotQuadVsParams, QuadVsParams(mvp: viewProj * model))
+      sg.applyUniforms(shaderStageVs, shd.slotQuadVsParams, sg.Range(addr: quadVsParams.unsafeAddr, size: quadVsParams.sizeof))
       sg.draw(0, 4, 1)
       r0 += 0.6
-  sg.endPass();
-  sg.commit();
+  sg.endPass()
+  sg.commit()
 
 proc cleanup() {.cdecl.} =
   sg.shutdown()

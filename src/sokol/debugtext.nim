@@ -6,8 +6,8 @@ type Context* = object
   id*:uint32
 
 type Range* = object
-  `pointer`*:pointer
-  size*:uint
+  `addr`*:pointer
+  size*:int
 
 type FontDesc* = object
   data*:Range
@@ -24,7 +24,7 @@ type ContextDesc* = object
   sampleCount*:int32
 
 type Allocator* = object
-  alloc*:proc(a1:uint, a2:pointer):pointer {.cdecl.}
+  alloc*:proc(a1:int, a2:pointer):pointer {.cdecl.}
   free*:proc(a1:pointer, a2:pointer) {.cdecl.}
   userData*:pointer
 
@@ -170,10 +170,6 @@ proc puts*(str:cstring):void =
 proc c_putr(str:cstring, len:int32):void {.cdecl, importc:"sdtx_putr".}
 proc putr*(str:cstring, len:int32):void =
     c_putr(str, len)
-
-# helper function to convert "anything" into a Range
-converter to_Range*[T](source: T): Range =
-  Range(pointer: source.unsafeAddr, size: source.sizeof.uint)
 
 {.passc:"-DSOKOL_NIM_IMPL".}
 {.compile:"c/sokol_debugtext.c".}
