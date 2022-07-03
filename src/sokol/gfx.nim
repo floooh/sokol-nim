@@ -874,6 +874,10 @@ proc c_queryBufferOverflow(buf:Buffer):bool {.cdecl, importc:"sg_query_buffer_ov
 proc queryBufferOverflow*(buf:Buffer):bool =
     c_queryBufferOverflow(buf)
 
+proc c_queryBufferWillOverflow(buf:Buffer, size:int):bool {.cdecl, importc:"sg_query_buffer_will_overflow".}
+proc queryBufferWillOverflow*(buf:Buffer, size:int):bool =
+    c_queryBufferWillOverflow(buf, size)
+
 proc c_beginDefaultPass(pass_action:ptr PassAction, width:int32, height:int32):void {.cdecl, importc:"sg_begin_default_pass".}
 proc beginDefaultPass*(pass_action:PassAction, width:int32, height:int32):void =
     c_beginDefaultPass(unsafeAddr(pass_action), width, height)
