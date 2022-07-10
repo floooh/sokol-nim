@@ -29,7 +29,6 @@ type
     eventTypeUnfocused,
     eventTypeSuspended,
     eventTypeResumed,
-    eventTypeUpdateCursor,
     eventTypeQuitRequested,
     eventTypeClipboardPasted,
     eventTypeFilesDropped,
@@ -247,7 +246,6 @@ type Desc* = object
   fullscreen*:bool
   alpha*:bool
   windowTitle*:cstring
-  userCursor*:bool
   enableClipboard*:bool
   clipboardSize*:int32
   enableDragndrop*:bool
@@ -289,6 +287,20 @@ type Html5FetchRequest* = object
   bufferPtr*:pointer
   bufferSize*:uint32
   userData*:pointer
+
+type
+  MouseCursor* {.size:sizeof(int32).} = enum
+    mousecursorDefault = 0,
+    mousecursorArrow = 1,
+    mousecursorIbeam = 2,
+    mousecursorCrosshair = 3,
+    mousecursorPointingHand = 4,
+    mousecursorResizeEw = 5,
+    mousecursorResizeNs = 6,
+    mousecursorResizeNwse = 7,
+    mousecursorResizeNesw = 8,
+    mousecursorResizeAll = 9,
+    mousecursorNotAllowed = 10,
 
 proc c_isvalid():bool {.cdecl, importc:"sapp_isvalid".}
 proc isvalid*():bool =
@@ -361,6 +373,14 @@ proc lockMouse*(lock:bool):void =
 proc c_mouseLocked():bool {.cdecl, importc:"sapp_mouse_locked".}
 proc mouseLocked*():bool =
     c_mouseLocked()
+
+proc c_setMouseCursor(cursor:MouseCursor):void {.cdecl, importc:"sapp_set_mouse_cursor".}
+proc setMouseCursor*(cursor:MouseCursor):void =
+    c_setMouseCursor(cursor)
+
+proc c_getMouseCursor():MouseCursor {.cdecl, importc:"sapp_get_mouse_cursor".}
+proc getMouseCursor*():MouseCursor =
+    c_getMouseCursor()
 
 proc c_userdata():pointer {.cdecl, importc:"sapp_userdata".}
 proc userdata*():pointer =
