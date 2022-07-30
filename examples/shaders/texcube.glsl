@@ -4,7 +4,7 @@
 //  NOTE: This source file also uses the '#pragma sokol' form of the
 //  custom tags.
 //------------------------------------------------------------------------------
-#pragma sokol @cimport ../math/mat4
+#pragma sokol @header import ../math/mat4
 #pragma sokol @ctype mat4 Mat4
 
 #pragma sokol @vs vs

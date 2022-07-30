@@ -1,4 +1,4 @@
-@cimport ../math/mat4
+@header import ../math/mat4
 @ctype mat4 Mat4
 
 @vs vs_bg
