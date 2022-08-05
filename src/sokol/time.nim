@@ -1,5 +1,6 @@
 ## machine generated, do not edit
 
+
 proc c_setup():void {.cdecl, importc:"stm_setup".}
 proc setup*():void =
     c_setup()

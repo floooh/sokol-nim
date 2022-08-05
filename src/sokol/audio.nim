@@ -1,5 +1,6 @@
 ## machine generated, do not edit
 
+
 type Allocator* = object
   alloc*:proc(a1:int, a2:pointer):pointer {.cdecl.}
   free*:proc(a1:pointer, a2:pointer) {.cdecl.}

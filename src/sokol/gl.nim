@@ -10,7 +10,7 @@ type Context* = object
 
 type
   Error* {.size:sizeof(int32).} = enum
-    noError = 0,
+    errorNoError = 0,
     errorVerticesFull = 1,
     errorUniformsFull = 2,
     errorCommandsFull = 3,

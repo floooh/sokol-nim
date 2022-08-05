@@ -1,5 +1,6 @@
 ## machine generated, do not edit
 
+
 type Buffer* = object
   id*:uint32
 
@@ -762,8 +763,8 @@ type WgpuContextDesc* = object
   userData*:pointer
 
 type ContextDesc* = object
-  colorFormat*:PixelFormat
-  depthFormat*:PixelFormat
+  colorFormat*:int32
+  depthFormat*:int32
   sampleCount*:int32
   gl*:GlContextDesc
   metal*:MetalContextDesc
