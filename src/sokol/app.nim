@@ -443,6 +443,14 @@ proc c_run(desc:ptr Desc):void {.cdecl, importc:"sapp_run".}
 proc run*(desc:Desc):void =
     c_run(unsafeAddr(desc))
 
+proc c_eglGetDisplay():pointer {.cdecl, importc:"sapp_egl_get_display".}
+proc eglGetDisplay*():pointer =
+    c_eglGetDisplay()
+
+proc c_eglGetContext():pointer {.cdecl, importc:"sapp_egl_get_context".}
+proc eglGetContext*():pointer =
+    c_eglGetContext()
+
 proc c_gles2():bool {.cdecl, importc:"sapp_gles2".}
 proc gles2*():bool =
     c_gles2()
