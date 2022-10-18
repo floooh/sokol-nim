@@ -35,7 +35,7 @@ type Desc* = object
   context*:ContextDesc
   allocator*:Allocator
 
-converter to_Desc_fonts*[N:static[int]](items: array[N, FontDesc]): array[8, FontDesc] =
+converter toDescfonts*[N:static[int]](items: array[N, FontDesc]): array[8, FontDesc] =
   static: assert(N < 8)
   for index,item in items.pairs: result[index]=item
 
@@ -95,8 +95,8 @@ proc c_draw():void {.cdecl, importc:"sdtx_draw".}
 proc draw*():void =
     c_draw()
 
-proc c_font(font_index:int32):void {.cdecl, importc:"sdtx_font".}
-proc font*(font_index:int32):void =
+proc c_font(fontIndex:int32):void {.cdecl, importc:"sdtx_font".}
+proc font*(fontIndex:int32):void =
     c_font(font_index)
 
 proc c_canvas(w:float32, h:float32):void {.cdecl, importc:"sdtx_canvas".}

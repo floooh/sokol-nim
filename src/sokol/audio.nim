@@ -57,8 +57,8 @@ proc c_expect():int32 {.cdecl, importc:"saudio_expect".}
 proc expect*():int32 =
     c_expect()
 
-proc c_push(frames:ptr float32, num_frames:int32):int32 {.cdecl, importc:"saudio_push".}
-proc push*(frames:ptr float32, num_frames:int32):int32 =
+proc c_push(frames:ptr float32, numFrames:int32):int32 {.cdecl, importc:"saudio_push".}
+proc push*(frames:ptr float32, numFrames:int32):int32 =
     c_push(frames, num_frames)
 
 when defined windows:

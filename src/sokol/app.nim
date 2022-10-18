@@ -158,10 +158,18 @@ type
     keyCodeRightSuper = 347,
     keyCodeMenu = 348,
 
+type
+  AndroidTooltype* {.size:sizeof(int32).} = enum
+    androidtooltypeUnknown = 0,
+    androidtooltypeFinger = 1,
+    androidtooltypeStylus = 2,
+    androidtooltypeMouse = 3,
+
 type Touchpoint* = object
   identifier*:uint
   posX*:float32
   posY*:float32
+  androidTooltype*:AndroidTooltype
   changed*:bool
 
 type
@@ -201,7 +209,7 @@ type Event* = object
   framebufferWidth*:int32
   framebufferHeight*:int32
 
-converter to_Event_touches*[N:static[int]](items: array[N, Touchpoint]): array[8, Touchpoint] =
+converter toEventtouches*[N:static[int]](items: array[N, Touchpoint]): array[8, Touchpoint] =
   static: assert(N < 8)
   for index,item in items.pairs: result[index]=item
 
@@ -218,7 +226,7 @@ type IconDesc* = object
   sokolDefault*:bool
   images*:array[8, ImageDesc]
 
-converter to_IconDesc_images*[N:static[int]](items: array[N, ImageDesc]): array[8, ImageDesc] =
+converter toIconDescimages*[N:static[int]](items: array[N, ImageDesc]): array[8, ImageDesc] =
   static: assert(N < 8)
   for index,item in items.pairs: result[index]=item
 
@@ -427,8 +435,8 @@ proc c_setWindowTitle(str:cstring):void {.cdecl, importc:"sapp_set_window_title"
 proc setWindowTitle*(str:cstring):void =
     c_setWindowTitle(str)
 
-proc c_setIcon(icon_desc:ptr IconDesc):void {.cdecl, importc:"sapp_set_icon".}
-proc setIcon*(icon_desc:IconDesc):void =
+proc c_setIcon(iconDesc:ptr IconDesc):void {.cdecl, importc:"sapp_set_icon".}
+proc setIcon*(iconDesc:IconDesc):void =
     c_setIcon(unsafeAddr(icon_desc))
 
 proc c_getNumDroppedFiles():int32 {.cdecl, importc:"sapp_get_num_dropped_files".}

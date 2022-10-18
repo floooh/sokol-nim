@@ -9,20 +9,20 @@ proc c_now():uint64 {.cdecl, importc:"stm_now".}
 proc now*():uint64 =
     c_now()
 
-proc c_diff(new_ticks:uint64, old_ticks:uint64):uint64 {.cdecl, importc:"stm_diff".}
-proc diff*(new_ticks:uint64, old_ticks:uint64):uint64 =
+proc c_diff(newTicks:uint64, oldTicks:uint64):uint64 {.cdecl, importc:"stm_diff".}
+proc diff*(newTicks:uint64, oldTicks:uint64):uint64 =
     c_diff(new_ticks, old_ticks)
 
-proc c_since(start_ticks:uint64):uint64 {.cdecl, importc:"stm_since".}
-proc since*(start_ticks:uint64):uint64 =
+proc c_since(startTicks:uint64):uint64 {.cdecl, importc:"stm_since".}
+proc since*(startTicks:uint64):uint64 =
     c_since(start_ticks)
 
-proc c_laptime(last_time:ptr uint64):uint64 {.cdecl, importc:"stm_laptime".}
-proc laptime*(last_time:ptr uint64):uint64 =
+proc c_laptime(lastTime:ptr uint64):uint64 {.cdecl, importc:"stm_laptime".}
+proc laptime*(lastTime:ptr uint64):uint64 =
     c_laptime(last_time)
 
-proc c_roundToCommonRefreshRate(frame_ticks:uint64):uint64 {.cdecl, importc:"stm_round_to_common_refresh_rate".}
-proc roundToCommonRefreshRate*(frame_ticks:uint64):uint64 =
+proc c_roundToCommonRefreshRate(frameTicks:uint64):uint64 {.cdecl, importc:"stm_round_to_common_refresh_rate".}
+proc roundToCommonRefreshRate*(frameTicks:uint64):uint64 =
     c_roundToCommonRefreshRate(frame_ticks)
 
 proc c_sec(ticks:uint64):float64 {.cdecl, importc:"stm_sec".}

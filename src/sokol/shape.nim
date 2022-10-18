@@ -9,7 +9,7 @@ type Range* = object
 type Mat4* = object
   m*:array[4, array[4, float32]]
 
-converter to_Mat4_m*[Y:static[int], X:static[int]](items: array[Y, array[X, float32]]): array[4, array[4, float32]] =
+converter toMat4m*[Y:static[int], X:static[int]](items: array[Y, array[X, float32]]): array[4, array[4, float32]] =
   static: assert(X < 4)
   static: assert(Y < 4)
   for indexY,itemY in items.pairs:

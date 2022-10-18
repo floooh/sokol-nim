@@ -391,7 +391,7 @@ type PassAction* = object
   stencil*:StencilAttachmentAction
   endCanary:uint32
 
-converter to_PassAction_colors*[N:static[int]](items: array[N, ColorAttachmentAction]): array[4, ColorAttachmentAction] =
+converter toPassActioncolors*[N:static[int]](items: array[N, ColorAttachmentAction]): array[4, ColorAttachmentAction] =
   static: assert(N < 4)
   for index,item in items.pairs: result[index]=item
 
@@ -405,19 +405,19 @@ type Bindings* = object
   fsImages*:array[12, Image]
   endCanary:uint32
 
-converter to_Bindings_vertexBuffers*[N:static[int]](items: array[N, Buffer]): array[8, Buffer] =
+converter toBindingsvertexBuffers*[N:static[int]](items: array[N, Buffer]): array[8, Buffer] =
   static: assert(N < 8)
   for index,item in items.pairs: result[index]=item
 
-converter to_Bindings_vertexBufferOffsets*[N:static[int]](items: array[N, int32]): array[8, int32] =
+converter toBindingsvertexBufferOffsets*[N:static[int]](items: array[N, int32]): array[8, int32] =
   static: assert(N < 8)
   for index,item in items.pairs: result[index]=item
 
-converter to_Bindings_vsImages*[N:static[int]](items: array[N, Image]): array[12, Image] =
+converter toBindingsvsImages*[N:static[int]](items: array[N, Image]): array[12, Image] =
   static: assert(N < 12)
   for index,item in items.pairs: result[index]=item
 
-converter to_Bindings_fsImages*[N:static[int]](items: array[N, Image]): array[12, Image] =
+converter toBindingsfsImages*[N:static[int]](items: array[N, Image]): array[12, Image] =
   static: assert(N < 12)
   for index,item in items.pairs: result[index]=item
 
@@ -434,18 +434,18 @@ type BufferDesc* = object
   wgpuBuffer*:pointer
   endCanary:uint32
 
-converter to_BufferDesc_glBuffers*[N:static[int]](items: array[N, uint32]): array[2, uint32] =
+converter toBufferDescglBuffers*[N:static[int]](items: array[N, uint32]): array[2, uint32] =
   static: assert(N < 2)
   for index,item in items.pairs: result[index]=item
 
-converter to_BufferDesc_mtlBuffers*[N:static[int]](items: array[N, pointer]): array[2, pointer] =
+converter toBufferDescmtlBuffers*[N:static[int]](items: array[N, pointer]): array[2, pointer] =
   static: assert(N < 2)
   for index,item in items.pairs: result[index]=item
 
 type ImageData* = object
   subimage*:array[6, array[16, Range]]
 
-converter to_ImageData_subimage*[Y:static[int], X:static[int]](items: array[Y, array[X, Range]]): array[6, array[16, Range]] =
+converter toImageDatasubimage*[Y:static[int], X:static[int]](items: array[Y, array[X, Range]]): array[6, array[16, Range]] =
   static: assert(X < 16)
   static: assert(Y < 6)
   for indexY,itemY in items.pairs:
@@ -482,11 +482,11 @@ type ImageDesc* = object
   wgpuTexture*:pointer
   endCanary:uint32
 
-converter to_ImageDesc_glTextures*[N:static[int]](items: array[N, uint32]): array[2, uint32] =
+converter toImageDescglTextures*[N:static[int]](items: array[N, uint32]): array[2, uint32] =
   static: assert(N < 2)
   for index,item in items.pairs: result[index]=item
 
-converter to_ImageDesc_mtlTextures*[N:static[int]](items: array[N, pointer]): array[2, pointer] =
+converter toImageDescmtlTextures*[N:static[int]](items: array[N, pointer]): array[2, pointer] =
   static: assert(N < 2)
   for index,item in items.pairs: result[index]=item
 
@@ -505,7 +505,7 @@ type ShaderUniformBlockDesc* = object
   layout*:UniformLayout
   uniforms*:array[16, ShaderUniformDesc]
 
-converter to_ShaderUniformBlockDesc_uniforms*[N:static[int]](items: array[N, ShaderUniformDesc]): array[16, ShaderUniformDesc] =
+converter toShaderUniformBlockDescuniforms*[N:static[int]](items: array[N, ShaderUniformDesc]): array[16, ShaderUniformDesc] =
   static: assert(N < 16)
   for index,item in items.pairs: result[index]=item
 
@@ -522,11 +522,11 @@ type ShaderStageDesc* = object
   uniformBlocks*:array[4, ShaderUniformBlockDesc]
   images*:array[12, ShaderImageDesc]
 
-converter to_ShaderStageDesc_uniformBlocks*[N:static[int]](items: array[N, ShaderUniformBlockDesc]): array[4, ShaderUniformBlockDesc] =
+converter toShaderStageDescuniformBlocks*[N:static[int]](items: array[N, ShaderUniformBlockDesc]): array[4, ShaderUniformBlockDesc] =
   static: assert(N < 4)
   for index,item in items.pairs: result[index]=item
 
-converter to_ShaderStageDesc_images*[N:static[int]](items: array[N, ShaderImageDesc]): array[12, ShaderImageDesc] =
+converter toShaderStageDescimages*[N:static[int]](items: array[N, ShaderImageDesc]): array[12, ShaderImageDesc] =
   static: assert(N < 12)
   for index,item in items.pairs: result[index]=item
 
@@ -538,7 +538,7 @@ type ShaderDesc* = object
   label*:cstring
   endCanary:uint32
 
-converter to_ShaderDesc_attrs*[N:static[int]](items: array[N, ShaderAttrDesc]): array[16, ShaderAttrDesc] =
+converter toShaderDescattrs*[N:static[int]](items: array[N, ShaderAttrDesc]): array[16, ShaderAttrDesc] =
   static: assert(N < 16)
   for index,item in items.pairs: result[index]=item
 
@@ -556,11 +556,11 @@ type LayoutDesc* = object
   buffers*:array[8, BufferLayoutDesc]
   attrs*:array[16, VertexAttrDesc]
 
-converter to_LayoutDesc_buffers*[N:static[int]](items: array[N, BufferLayoutDesc]): array[8, BufferLayoutDesc] =
+converter toLayoutDescbuffers*[N:static[int]](items: array[N, BufferLayoutDesc]): array[8, BufferLayoutDesc] =
   static: assert(N < 8)
   for index,item in items.pairs: result[index]=item
 
-converter to_LayoutDesc_attrs*[N:static[int]](items: array[N, VertexAttrDesc]): array[16, VertexAttrDesc] =
+converter toLayoutDescattrs*[N:static[int]](items: array[N, VertexAttrDesc]): array[16, VertexAttrDesc] =
   static: assert(N < 16)
   for index,item in items.pairs: result[index]=item
 
@@ -618,7 +618,7 @@ type PipelineDesc* = object
   label*:cstring
   endCanary:uint32
 
-converter to_PipelineDesc_colors*[N:static[int]](items: array[N, ColorState]): array[4, ColorState] =
+converter toPipelineDesccolors*[N:static[int]](items: array[N, ColorState]): array[4, ColorState] =
   static: assert(N < 4)
   for index,item in items.pairs: result[index]=item
 
@@ -634,7 +634,7 @@ type PassDesc* = object
   label*:cstring
   endCanary:uint32
 
-converter to_PassDesc_colorAttachments*[N:static[int]](items: array[N, PassAttachmentDesc]): array[4, PassAttachmentDesc] =
+converter toPassDesccolorAttachments*[N:static[int]](items: array[N, PassAttachmentDesc]): array[4, PassAttachmentDesc] =
   static: assert(N < 4)
   for index,item in items.pairs: result[index]=item
 
@@ -807,8 +807,8 @@ proc c_resetStateCache():void {.cdecl, importc:"sg_reset_state_cache".}
 proc resetStateCache*():void =
     c_resetStateCache()
 
-proc c_installTraceHooks(trace_hooks:ptr TraceHooks):TraceHooks {.cdecl, importc:"sg_install_trace_hooks".}
-proc installTraceHooks*(trace_hooks:TraceHooks):TraceHooks =
+proc c_installTraceHooks(traceHooks:ptr TraceHooks):TraceHooks {.cdecl, importc:"sg_install_trace_hooks".}
+proc installTraceHooks*(traceHooks:TraceHooks):TraceHooks =
     c_installTraceHooks(unsafeAddr(trace_hooks))
 
 proc c_pushDebugGroup(name:cstring):void {.cdecl, importc:"sg_push_debug_group".}
@@ -879,32 +879,32 @@ proc c_queryBufferWillOverflow(buf:Buffer, size:int):bool {.cdecl, importc:"sg_q
 proc queryBufferWillOverflow*(buf:Buffer, size:int):bool =
     c_queryBufferWillOverflow(buf, size)
 
-proc c_beginDefaultPass(pass_action:ptr PassAction, width:int32, height:int32):void {.cdecl, importc:"sg_begin_default_pass".}
-proc beginDefaultPass*(pass_action:PassAction, width:int32, height:int32):void =
+proc c_beginDefaultPass(passAction:ptr PassAction, width:int32, height:int32):void {.cdecl, importc:"sg_begin_default_pass".}
+proc beginDefaultPass*(passAction:PassAction, width:int32, height:int32):void =
     c_beginDefaultPass(unsafeAddr(pass_action), width, height)
 
-proc c_beginDefaultPassf(pass_action:ptr PassAction, width:float32, height:float32):void {.cdecl, importc:"sg_begin_default_passf".}
-proc beginDefaultPassf*(pass_action:PassAction, width:float32, height:float32):void =
+proc c_beginDefaultPassf(passAction:ptr PassAction, width:float32, height:float32):void {.cdecl, importc:"sg_begin_default_passf".}
+proc beginDefaultPassf*(passAction:PassAction, width:float32, height:float32):void =
     c_beginDefaultPassf(unsafeAddr(pass_action), width, height)
 
-proc c_beginPass(pass:Pass, pass_action:ptr PassAction):void {.cdecl, importc:"sg_begin_pass".}
-proc beginPass*(pass:Pass, pass_action:PassAction):void =
+proc c_beginPass(pass:Pass, passAction:ptr PassAction):void {.cdecl, importc:"sg_begin_pass".}
+proc beginPass*(pass:Pass, passAction:PassAction):void =
     c_beginPass(pass, unsafeAddr(pass_action))
 
-proc c_applyViewport(x:int32, y:int32, width:int32, height:int32, origin_top_left:bool):void {.cdecl, importc:"sg_apply_viewport".}
-proc applyViewport*(x:int32, y:int32, width:int32, height:int32, origin_top_left:bool):void =
+proc c_applyViewport(x:int32, y:int32, width:int32, height:int32, originTopLeft:bool):void {.cdecl, importc:"sg_apply_viewport".}
+proc applyViewport*(x:int32, y:int32, width:int32, height:int32, originTopLeft:bool):void =
     c_applyViewport(x, y, width, height, origin_top_left)
 
-proc c_applyViewportf(x:float32, y:float32, width:float32, height:float32, origin_top_left:bool):void {.cdecl, importc:"sg_apply_viewportf".}
-proc applyViewportf*(x:float32, y:float32, width:float32, height:float32, origin_top_left:bool):void =
+proc c_applyViewportf(x:float32, y:float32, width:float32, height:float32, originTopLeft:bool):void {.cdecl, importc:"sg_apply_viewportf".}
+proc applyViewportf*(x:float32, y:float32, width:float32, height:float32, originTopLeft:bool):void =
     c_applyViewportf(x, y, width, height, origin_top_left)
 
-proc c_applyScissorRect(x:int32, y:int32, width:int32, height:int32, origin_top_left:bool):void {.cdecl, importc:"sg_apply_scissor_rect".}
-proc applyScissorRect*(x:int32, y:int32, width:int32, height:int32, origin_top_left:bool):void =
+proc c_applyScissorRect(x:int32, y:int32, width:int32, height:int32, originTopLeft:bool):void {.cdecl, importc:"sg_apply_scissor_rect".}
+proc applyScissorRect*(x:int32, y:int32, width:int32, height:int32, originTopLeft:bool):void =
     c_applyScissorRect(x, y, width, height, origin_top_left)
 
-proc c_applyScissorRectf(x:float32, y:float32, width:float32, height:float32, origin_top_left:bool):void {.cdecl, importc:"sg_apply_scissor_rectf".}
-proc applyScissorRectf*(x:float32, y:float32, width:float32, height:float32, origin_top_left:bool):void =
+proc c_applyScissorRectf(x:float32, y:float32, width:float32, height:float32, originTopLeft:bool):void {.cdecl, importc:"sg_apply_scissor_rectf".}
+proc applyScissorRectf*(x:float32, y:float32, width:float32, height:float32, originTopLeft:bool):void =
     c_applyScissorRectf(x, y, width, height, origin_top_left)
 
 proc c_applyPipeline(pip:Pipeline):void {.cdecl, importc:"sg_apply_pipeline".}
@@ -915,12 +915,12 @@ proc c_applyBindings(bindings:ptr Bindings):void {.cdecl, importc:"sg_apply_bind
 proc applyBindings*(bindings:Bindings):void =
     c_applyBindings(unsafeAddr(bindings))
 
-proc c_applyUniforms(stage:ShaderStage, ub_index:int32, data:ptr Range):void {.cdecl, importc:"sg_apply_uniforms".}
-proc applyUniforms*(stage:ShaderStage, ub_index:int32, data:Range):void =
+proc c_applyUniforms(stage:ShaderStage, ubIndex:int32, data:ptr Range):void {.cdecl, importc:"sg_apply_uniforms".}
+proc applyUniforms*(stage:ShaderStage, ubIndex:int32, data:Range):void =
     c_applyUniforms(stage, ub_index, unsafeAddr(data))
 
-proc c_draw(base_element:int32, num_elements:int32, num_instances:int32):void {.cdecl, importc:"sg_draw".}
-proc draw*(base_element:int32, num_elements:int32, num_instances:int32):void =
+proc c_draw(baseElement:int32, numElements:int32, numInstances:int32):void {.cdecl, importc:"sg_draw".}
+proc draw*(baseElement:int32, numElements:int32, numInstances:int32):void =
     c_draw(base_element, num_elements, num_instances)
 
 proc c_endPass():void {.cdecl, importc:"sg_end_pass".}
@@ -1031,96 +1031,96 @@ proc c_allocPass():Pass {.cdecl, importc:"sg_alloc_pass".}
 proc allocPass*():Pass =
     c_allocPass()
 
-proc c_deallocBuffer(buf_id:Buffer):void {.cdecl, importc:"sg_dealloc_buffer".}
-proc deallocBuffer*(buf_id:Buffer):void =
+proc c_deallocBuffer(bufId:Buffer):void {.cdecl, importc:"sg_dealloc_buffer".}
+proc deallocBuffer*(bufId:Buffer):void =
     c_deallocBuffer(buf_id)
 
-proc c_deallocImage(img_id:Image):void {.cdecl, importc:"sg_dealloc_image".}
-proc deallocImage*(img_id:Image):void =
+proc c_deallocImage(imgId:Image):void {.cdecl, importc:"sg_dealloc_image".}
+proc deallocImage*(imgId:Image):void =
     c_deallocImage(img_id)
 
-proc c_deallocShader(shd_id:Shader):void {.cdecl, importc:"sg_dealloc_shader".}
-proc deallocShader*(shd_id:Shader):void =
+proc c_deallocShader(shdId:Shader):void {.cdecl, importc:"sg_dealloc_shader".}
+proc deallocShader*(shdId:Shader):void =
     c_deallocShader(shd_id)
 
-proc c_deallocPipeline(pip_id:Pipeline):void {.cdecl, importc:"sg_dealloc_pipeline".}
-proc deallocPipeline*(pip_id:Pipeline):void =
+proc c_deallocPipeline(pipId:Pipeline):void {.cdecl, importc:"sg_dealloc_pipeline".}
+proc deallocPipeline*(pipId:Pipeline):void =
     c_deallocPipeline(pip_id)
 
-proc c_deallocPass(pass_id:Pass):void {.cdecl, importc:"sg_dealloc_pass".}
-proc deallocPass*(pass_id:Pass):void =
+proc c_deallocPass(passId:Pass):void {.cdecl, importc:"sg_dealloc_pass".}
+proc deallocPass*(passId:Pass):void =
     c_deallocPass(pass_id)
 
-proc c_initBuffer(buf_id:Buffer, desc:ptr BufferDesc):void {.cdecl, importc:"sg_init_buffer".}
-proc initBuffer*(buf_id:Buffer, desc:BufferDesc):void =
+proc c_initBuffer(bufId:Buffer, desc:ptr BufferDesc):void {.cdecl, importc:"sg_init_buffer".}
+proc initBuffer*(bufId:Buffer, desc:BufferDesc):void =
     c_initBuffer(buf_id, unsafeAddr(desc))
 
-proc c_initImage(img_id:Image, desc:ptr ImageDesc):void {.cdecl, importc:"sg_init_image".}
-proc initImage*(img_id:Image, desc:ImageDesc):void =
+proc c_initImage(imgId:Image, desc:ptr ImageDesc):void {.cdecl, importc:"sg_init_image".}
+proc initImage*(imgId:Image, desc:ImageDesc):void =
     c_initImage(img_id, unsafeAddr(desc))
 
-proc c_initShader(shd_id:Shader, desc:ptr ShaderDesc):void {.cdecl, importc:"sg_init_shader".}
-proc initShader*(shd_id:Shader, desc:ShaderDesc):void =
+proc c_initShader(shdId:Shader, desc:ptr ShaderDesc):void {.cdecl, importc:"sg_init_shader".}
+proc initShader*(shdId:Shader, desc:ShaderDesc):void =
     c_initShader(shd_id, unsafeAddr(desc))
 
-proc c_initPipeline(pip_id:Pipeline, desc:ptr PipelineDesc):void {.cdecl, importc:"sg_init_pipeline".}
-proc initPipeline*(pip_id:Pipeline, desc:PipelineDesc):void =
+proc c_initPipeline(pipId:Pipeline, desc:ptr PipelineDesc):void {.cdecl, importc:"sg_init_pipeline".}
+proc initPipeline*(pipId:Pipeline, desc:PipelineDesc):void =
     c_initPipeline(pip_id, unsafeAddr(desc))
 
-proc c_initPass(pass_id:Pass, desc:ptr PassDesc):void {.cdecl, importc:"sg_init_pass".}
-proc initPass*(pass_id:Pass, desc:PassDesc):void =
+proc c_initPass(passId:Pass, desc:ptr PassDesc):void {.cdecl, importc:"sg_init_pass".}
+proc initPass*(passId:Pass, desc:PassDesc):void =
     c_initPass(pass_id, unsafeAddr(desc))
 
-proc c_uninitBuffer(buf_id:Buffer):bool {.cdecl, importc:"sg_uninit_buffer".}
-proc uninitBuffer*(buf_id:Buffer):bool =
+proc c_uninitBuffer(bufId:Buffer):bool {.cdecl, importc:"sg_uninit_buffer".}
+proc uninitBuffer*(bufId:Buffer):bool =
     c_uninitBuffer(buf_id)
 
-proc c_uninitImage(img_id:Image):bool {.cdecl, importc:"sg_uninit_image".}
-proc uninitImage*(img_id:Image):bool =
+proc c_uninitImage(imgId:Image):bool {.cdecl, importc:"sg_uninit_image".}
+proc uninitImage*(imgId:Image):bool =
     c_uninitImage(img_id)
 
-proc c_uninitShader(shd_id:Shader):bool {.cdecl, importc:"sg_uninit_shader".}
-proc uninitShader*(shd_id:Shader):bool =
+proc c_uninitShader(shdId:Shader):bool {.cdecl, importc:"sg_uninit_shader".}
+proc uninitShader*(shdId:Shader):bool =
     c_uninitShader(shd_id)
 
-proc c_uninitPipeline(pip_id:Pipeline):bool {.cdecl, importc:"sg_uninit_pipeline".}
-proc uninitPipeline*(pip_id:Pipeline):bool =
+proc c_uninitPipeline(pipId:Pipeline):bool {.cdecl, importc:"sg_uninit_pipeline".}
+proc uninitPipeline*(pipId:Pipeline):bool =
     c_uninitPipeline(pip_id)
 
-proc c_uninitPass(pass_id:Pass):bool {.cdecl, importc:"sg_uninit_pass".}
-proc uninitPass*(pass_id:Pass):bool =
+proc c_uninitPass(passId:Pass):bool {.cdecl, importc:"sg_uninit_pass".}
+proc uninitPass*(passId:Pass):bool =
     c_uninitPass(pass_id)
 
-proc c_failBuffer(buf_id:Buffer):void {.cdecl, importc:"sg_fail_buffer".}
-proc failBuffer*(buf_id:Buffer):void =
+proc c_failBuffer(bufId:Buffer):void {.cdecl, importc:"sg_fail_buffer".}
+proc failBuffer*(bufId:Buffer):void =
     c_failBuffer(buf_id)
 
-proc c_failImage(img_id:Image):void {.cdecl, importc:"sg_fail_image".}
-proc failImage*(img_id:Image):void =
+proc c_failImage(imgId:Image):void {.cdecl, importc:"sg_fail_image".}
+proc failImage*(imgId:Image):void =
     c_failImage(img_id)
 
-proc c_failShader(shd_id:Shader):void {.cdecl, importc:"sg_fail_shader".}
-proc failShader*(shd_id:Shader):void =
+proc c_failShader(shdId:Shader):void {.cdecl, importc:"sg_fail_shader".}
+proc failShader*(shdId:Shader):void =
     c_failShader(shd_id)
 
-proc c_failPipeline(pip_id:Pipeline):void {.cdecl, importc:"sg_fail_pipeline".}
-proc failPipeline*(pip_id:Pipeline):void =
+proc c_failPipeline(pipId:Pipeline):void {.cdecl, importc:"sg_fail_pipeline".}
+proc failPipeline*(pipId:Pipeline):void =
     c_failPipeline(pip_id)
 
-proc c_failPass(pass_id:Pass):void {.cdecl, importc:"sg_fail_pass".}
-proc failPass*(pass_id:Pass):void =
+proc c_failPass(passId:Pass):void {.cdecl, importc:"sg_fail_pass".}
+proc failPass*(passId:Pass):void =
     c_failPass(pass_id)
 
 proc c_setupContext():Context {.cdecl, importc:"sg_setup_context".}
 proc setupContext*():Context =
     c_setupContext()
 
-proc c_activateContext(ctx_id:Context):void {.cdecl, importc:"sg_activate_context".}
-proc activateContext*(ctx_id:Context):void =
+proc c_activateContext(ctxId:Context):void {.cdecl, importc:"sg_activate_context".}
+proc activateContext*(ctxId:Context):void =
     c_activateContext(ctx_id)
 
-proc c_discardContext(ctx_id:Context):void {.cdecl, importc:"sg_discard_context".}
-proc discardContext*(ctx_id:Context):void =
+proc c_discardContext(ctxId:Context):void {.cdecl, importc:"sg_discard_context".}
+proc discardContext*(ctxId:Context):void =
     c_discardContext(ctx_id)
 
 proc c_d3d11Device():pointer {.cdecl, importc:"sg_d3d11_device".}

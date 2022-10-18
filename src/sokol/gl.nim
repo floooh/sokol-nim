@@ -101,20 +101,20 @@ proc c_defaults():void {.cdecl, importc:"sgl_defaults".}
 proc defaults*():void =
     c_defaults()
 
-proc c_viewport(x:int32, y:int32, w:int32, h:int32, origin_top_left:bool):void {.cdecl, importc:"sgl_viewport".}
-proc viewport*(x:int32, y:int32, w:int32, h:int32, origin_top_left:bool):void =
+proc c_viewport(x:int32, y:int32, w:int32, h:int32, originTopLeft:bool):void {.cdecl, importc:"sgl_viewport".}
+proc viewport*(x:int32, y:int32, w:int32, h:int32, originTopLeft:bool):void =
     c_viewport(x, y, w, h, origin_top_left)
 
-proc c_viewportf(x:float32, y:float32, w:float32, h:float32, origin_top_left:bool):void {.cdecl, importc:"sgl_viewportf".}
-proc viewportf*(x:float32, y:float32, w:float32, h:float32, origin_top_left:bool):void =
+proc c_viewportf(x:float32, y:float32, w:float32, h:float32, originTopLeft:bool):void {.cdecl, importc:"sgl_viewportf".}
+proc viewportf*(x:float32, y:float32, w:float32, h:float32, originTopLeft:bool):void =
     c_viewportf(x, y, w, h, origin_top_left)
 
-proc c_scissorRect(x:int32, y:int32, w:int32, h:int32, origin_top_left:bool):void {.cdecl, importc:"sgl_scissor_rect".}
-proc scissorRect*(x:int32, y:int32, w:int32, h:int32, origin_top_left:bool):void =
+proc c_scissorRect(x:int32, y:int32, w:int32, h:int32, originTopLeft:bool):void {.cdecl, importc:"sgl_scissor_rect".}
+proc scissorRect*(x:int32, y:int32, w:int32, h:int32, originTopLeft:bool):void =
     c_scissorRect(x, y, w, h, origin_top_left)
 
-proc c_scissorRectf(x:float32, y:float32, w:float32, h:float32, origin_top_left:bool):void {.cdecl, importc:"sgl_scissor_rectf".}
-proc scissorRectf*(x:float32, y:float32, w:float32, h:float32, origin_top_left:bool):void =
+proc c_scissorRectf(x:float32, y:float32, w:float32, h:float32, originTopLeft:bool):void {.cdecl, importc:"sgl_scissor_rectf".}
+proc scissorRectf*(x:float32, y:float32, w:float32, h:float32, originTopLeft:bool):void =
     c_scissorRectf(x, y, w, h, origin_top_left)
 
 proc c_enableTexture():void {.cdecl, importc:"sgl_enable_texture".}
@@ -177,8 +177,8 @@ proc c_multTransposeMatrix(m:ptr float32):void {.cdecl, importc:"sgl_mult_transp
 proc multTransposeMatrix*(m:ptr float32):void =
     c_multTransposeMatrix(m)
 
-proc c_rotate(angle_rad:float32, x:float32, y:float32, z:float32):void {.cdecl, importc:"sgl_rotate".}
-proc rotate*(angle_rad:float32, x:float32, y:float32, z:float32):void =
+proc c_rotate(angleRad:float32, x:float32, y:float32, z:float32):void {.cdecl, importc:"sgl_rotate".}
+proc rotate*(angleRad:float32, x:float32, y:float32, z:float32):void =
     c_rotate(angle_rad, x, y, z)
 
 proc c_scale(x:float32, y:float32, z:float32):void {.cdecl, importc:"sgl_scale".}
@@ -197,12 +197,12 @@ proc c_ortho(l:float32, r:float32, b:float32, t:float32, n:float32, f:float32):v
 proc ortho*(l:float32, r:float32, b:float32, t:float32, n:float32, f:float32):void =
     c_ortho(l, r, b, t, n, f)
 
-proc c_perspective(fov_y:float32, aspect:float32, z_near:float32, z_far:float32):void {.cdecl, importc:"sgl_perspective".}
-proc perspective*(fov_y:float32, aspect:float32, z_near:float32, z_far:float32):void =
+proc c_perspective(fovY:float32, aspect:float32, zNear:float32, zFar:float32):void {.cdecl, importc:"sgl_perspective".}
+proc perspective*(fovY:float32, aspect:float32, zNear:float32, zFar:float32):void =
     c_perspective(fov_y, aspect, z_near, z_far)
 
-proc c_lookat(eye_x:float32, eye_y:float32, eye_z:float32, center_x:float32, center_y:float32, center_z:float32, up_x:float32, up_y:float32, up_z:float32):void {.cdecl, importc:"sgl_lookat".}
-proc lookat*(eye_x:float32, eye_y:float32, eye_z:float32, center_x:float32, center_y:float32, center_z:float32, up_x:float32, up_y:float32, up_z:float32):void =
+proc c_lookat(eyeX:float32, eyeY:float32, eyeZ:float32, centerX:float32, centerY:float32, centerZ:float32, upX:float32, upY:float32, upZ:float32):void {.cdecl, importc:"sgl_lookat".}
+proc lookat*(eyeX:float32, eyeY:float32, eyeZ:float32, centerX:float32, centerY:float32, centerZ:float32, upX:float32, upY:float32, upZ:float32):void =
     c_lookat(eye_x, eye_y, eye_z, center_x, center_y, center_z, up_x, up_y, up_z)
 
 proc c_pushMatrix():void {.cdecl, importc:"sgl_push_matrix".}
