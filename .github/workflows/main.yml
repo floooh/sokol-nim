@@ -5,7 +5,8 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        # os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [ubuntu-latest, macos-latest]
     runs-on: ${{matrix.os}}
     steps:
       - uses: actions/checkout@v2
@@ -19,4 +20,3 @@ jobs:
         run: |
           nimble install -Y
           nimble build_all
-                
