@@ -118,6 +118,7 @@ type
     pixelFormatEtc2Rgba8,
     pixelFormatEtc2Rg11,
     pixelFormatEtc2Rg11sn,
+    pixelFormatRgb9e5,
 
 type PixelformatInfo* = object
   sample*:bool
