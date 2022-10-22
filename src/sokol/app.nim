@@ -235,6 +235,10 @@ type Allocator* = object
   free*:proc(a1:pointer, a2:pointer) {.cdecl.}
   userData*:pointer
 
+type Logger* = object
+  logCb*:proc(a1:cstring, a2:pointer) {.cdecl.}
+  userData*:pointer
+
 type Desc* = object
   initCb*:proc() {.cdecl.}
   frameCb*:proc() {.cdecl.}
@@ -262,6 +266,7 @@ type Desc* = object
   maxDroppedFilePathLength*:int32
   icon*:IconDesc
   allocator*:Allocator
+  logger*:Logger
   glForceGles2*:bool
   glMajorVersion*:int32
   glMinorVersion*:int32

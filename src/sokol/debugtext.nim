@@ -28,12 +28,17 @@ type Allocator* = object
   free*:proc(a1:pointer, a2:pointer) {.cdecl.}
   userData*:pointer
 
+type Logger* = object
+  logCb*:proc(a1:cstring, a2:pointer) {.cdecl.}
+  userData*:pointer
+
 type Desc* = object
   contextPoolSize*:int32
   printfBufSize*:int32
   fonts*:array[8, FontDesc]
   context*:ContextDesc
   allocator*:Allocator
+  logger*:Logger
 
 converter toDescfonts*[N:static[int]](items: array[N, FontDesc]): array[8, FontDesc] =
   static: assert(N < 8)

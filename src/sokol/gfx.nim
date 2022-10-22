@@ -777,6 +777,10 @@ type Allocator* = object
   free*:proc(a1:pointer, a2:pointer) {.cdecl.}
   userData*:pointer
 
+type Logger* = object
+  logCb*:proc(a1:cstring, a2:pointer) {.cdecl.}
+  userData*:pointer
+
 type Desc* = object
   startCanary:uint32
   bufferPoolSize*:int32
@@ -789,6 +793,7 @@ type Desc* = object
   stagingBufferSize*:int32
   samplerCacheSize*:int32
   allocator*:Allocator
+  logger*:Logger
   context*:ContextDesc
   endCanary:uint32
 

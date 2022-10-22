@@ -30,6 +30,10 @@ type Allocator* = object
   free*:proc(a1:pointer, a2:pointer) {.cdecl.}
   userData*:pointer
 
+type Logger* = object
+  logCb*:proc(a1:cstring, a2:pointer) {.cdecl.}
+  userData*:pointer
+
 type Desc* = object
   maxVertices*:int32
   maxCommands*:int32
@@ -40,6 +44,7 @@ type Desc* = object
   sampleCount*:int32
   faceWinding*:gfx.FaceWinding
   allocator*:Allocator
+  logger*:Logger
 
 proc c_setup(desc:ptr Desc):void {.cdecl, importc:"sgl_setup".}
 proc setup*(desc:Desc):void =

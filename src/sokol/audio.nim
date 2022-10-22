@@ -6,6 +6,10 @@ type Allocator* = object
   free*:proc(a1:pointer, a2:pointer) {.cdecl.}
   userData*:pointer
 
+type Logger* = object
+  logCb*:proc(a1:cstring, a2:pointer) {.cdecl.}
+  userData*:pointer
+
 type Desc* = object
   sampleRate*:int32
   numChannels*:int32
@@ -16,6 +20,7 @@ type Desc* = object
   streamUserdataCb*:proc(a1:ptr float32, a2:int32, a3:int32, a4:pointer) {.cdecl.}
   userData*:pointer
   allocator*:Allocator
+  logger*:Logger
 
 proc c_setup(desc:ptr Desc):void {.cdecl, importc:"saudio_setup".}
 proc setup*(desc:Desc):void =
