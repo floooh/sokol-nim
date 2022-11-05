@@ -290,16 +290,14 @@ type Html5FetchResponse* = object
   succeeded*:bool
   errorCode*:Html5FetchError
   fileIndex*:int32
-  fetchedSize*:uint32
-  bufferPtr*:pointer
-  bufferSize*:uint32
+  data*:Range
+  buffer*:Range
   userData*:pointer
 
 type Html5FetchRequest* = object
   droppedFileIndex*:int32
   callback*:proc(a1:ptr Html5FetchResponse) {.cdecl.}
-  bufferPtr*:pointer
-  bufferSize*:uint32
+  buffer*:Range
   userData*:pointer
 
 type
