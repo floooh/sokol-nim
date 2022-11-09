@@ -772,6 +772,10 @@ type ContextDesc* = object
   d3d11*:D3d11ContextDesc
   wgpu*:WgpuContextDesc
 
+type CommitListener* = object
+  `func`*:proc(a1:pointer) {.cdecl.}
+  userData*:pointer
+
 type Allocator* = object
   alloc*:proc(a1:int, a2:pointer):pointer {.cdecl.}
   free*:proc(a1:pointer, a2:pointer) {.cdecl.}
@@ -792,6 +796,7 @@ type Desc* = object
   uniformBufferSize*:int32
   stagingBufferSize*:int32
   samplerCacheSize*:int32
+  maxCommitListeners*:int32
   allocator*:Allocator
   logger*:Logger
   context*:ContextDesc
@@ -824,6 +829,14 @@ proc pushDebugGroup*(name:cstring):void =
 proc c_popDebugGroup():void {.cdecl, importc:"sg_pop_debug_group".}
 proc popDebugGroup*():void =
     c_popDebugGroup()
+
+proc c_addCommitListener(listener:CommitListener):bool {.cdecl, importc:"sg_add_commit_listener".}
+proc addCommitListener*(listener:CommitListener):bool =
+    c_addCommitListener(listener)
+
+proc c_removeCommitListener(listener:CommitListener):bool {.cdecl, importc:"sg_remove_commit_listener".}
+proc removeCommitListener*(listener:CommitListener):bool =
+    c_removeCommitListener(listener)
 
 proc c_makeBuffer(desc:ptr BufferDesc):Buffer {.cdecl, importc:"sg_make_buffer".}
 proc makeBuffer*(desc:BufferDesc):Buffer =
