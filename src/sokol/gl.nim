@@ -90,6 +90,22 @@ proc c_defaultContext():Context {.cdecl, importc:"sgl_default_context".}
 proc defaultContext*():Context =
     c_defaultContext()
 
+proc c_draw():void {.cdecl, importc:"sgl_draw".}
+proc draw*():void =
+    c_draw()
+
+proc c_contextDraw(ctx:Context):void {.cdecl, importc:"sgl_context_draw".}
+proc contextDraw*(ctx:Context):void =
+    c_contextDraw(ctx)
+
+proc c_drawLayer(layerId:int32):void {.cdecl, importc:"sgl_draw_layer".}
+proc drawLayer*(layerId:int32):void =
+    c_drawLayer(layer_id)
+
+proc c_contextDrawLayer(ctx:Context, layerId:int32):void {.cdecl, importc:"sgl_context_draw_layer".}
+proc contextDrawLayer*(ctx:Context, layerId:int32):void =
+    c_contextDrawLayer(ctx, layer_id)
+
 proc c_makePipeline(desc:ptr gfx.PipelineDesc):Pipeline {.cdecl, importc:"sgl_make_pipeline".}
 proc makePipeline*(desc:gfx.PipelineDesc):Pipeline =
     c_makePipeline(unsafeAddr(desc))
@@ -133,6 +149,10 @@ proc disableTexture*():void =
 proc c_texture(img:gfx.Image):void {.cdecl, importc:"sgl_texture".}
 proc texture*(img:gfx.Image):void =
     c_texture(img)
+
+proc c_layer(layerId:int32):void {.cdecl, importc:"sgl_layer".}
+proc layer*(layerId:int32):void =
+    c_layer(layer_id)
 
 proc c_loadDefaultPipeline():void {.cdecl, importc:"sgl_load_default_pipeline".}
 proc loadDefaultPipeline*():void =
@@ -369,14 +389,6 @@ proc v3fT2fC1i*(x:float32, y:float32, z:float32, u:float32, v:float32, rgba:uint
 proc c_end():void {.cdecl, importc:"sgl_end".}
 proc `end`*():void =
     c_end()
-
-proc c_draw():void {.cdecl, importc:"sgl_draw".}
-proc draw*():void =
-    c_draw()
-
-proc c_contextDraw(ctx:Context):void {.cdecl, importc:"sgl_context_draw".}
-proc contextDraw*(ctx:Context):void =
-    c_contextDraw(ctx)
 
 {.passc:"-DSOKOL_NIM_IMPL".}
 {.compile:"c/sokol_gl.c".}
