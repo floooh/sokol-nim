@@ -15,6 +15,7 @@ type FontDesc* = object
   lastChar*:uint8
 
 type ContextDesc* = object
+  maxCommands*:int32
   charBufSize*:int32
   canvasWidth*:float32
   canvasHeight*:float32
@@ -99,6 +100,22 @@ proc defaultContext*():Context =
 proc c_draw():void {.cdecl, importc:"sdtx_draw".}
 proc draw*():void =
     c_draw()
+
+proc c_contextDraw(ctx:Context):void {.cdecl, importc:"sdtx_context_draw".}
+proc contextDraw*(ctx:Context):void =
+    c_contextDraw(ctx)
+
+proc c_drawLayer(layerId:int32):void {.cdecl, importc:"sdtx_draw_layer".}
+proc drawLayer*(layerId:int32):void =
+    c_drawLayer(layer_id)
+
+proc c_contextDrawLayer(ctx:Context, layerId:int32):void {.cdecl, importc:"sdtx_context_draw_layer".}
+proc contextDrawLayer*(ctx:Context, layerId:int32):void =
+    c_contextDrawLayer(ctx, layer_id)
+
+proc c_layer(layerId:int32):void {.cdecl, importc:"sdtx_layer".}
+proc layer*(layerId:int32):void =
+    c_layer(layer_id)
 
 proc c_font(fontIndex:int32):void {.cdecl, importc:"sdtx_font".}
 proc font*(fontIndex:int32):void =
