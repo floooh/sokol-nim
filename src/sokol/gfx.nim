@@ -797,6 +797,7 @@ type Desc* = object
   stagingBufferSize*:int32
   samplerCacheSize*:int32
   maxCommitListeners*:int32
+  disableValidation*:bool
   allocator*:Allocator
   logger*:Logger
   context*:ContextDesc
@@ -1050,85 +1051,85 @@ proc c_allocPass():Pass {.cdecl, importc:"sg_alloc_pass".}
 proc allocPass*():Pass =
     c_allocPass()
 
-proc c_deallocBuffer(bufId:Buffer):void {.cdecl, importc:"sg_dealloc_buffer".}
-proc deallocBuffer*(bufId:Buffer):void =
-    c_deallocBuffer(buf_id)
+proc c_deallocBuffer(buf:Buffer):void {.cdecl, importc:"sg_dealloc_buffer".}
+proc deallocBuffer*(buf:Buffer):void =
+    c_deallocBuffer(buf)
 
-proc c_deallocImage(imgId:Image):void {.cdecl, importc:"sg_dealloc_image".}
-proc deallocImage*(imgId:Image):void =
-    c_deallocImage(img_id)
+proc c_deallocImage(img:Image):void {.cdecl, importc:"sg_dealloc_image".}
+proc deallocImage*(img:Image):void =
+    c_deallocImage(img)
 
-proc c_deallocShader(shdId:Shader):void {.cdecl, importc:"sg_dealloc_shader".}
-proc deallocShader*(shdId:Shader):void =
-    c_deallocShader(shd_id)
+proc c_deallocShader(shd:Shader):void {.cdecl, importc:"sg_dealloc_shader".}
+proc deallocShader*(shd:Shader):void =
+    c_deallocShader(shd)
 
-proc c_deallocPipeline(pipId:Pipeline):void {.cdecl, importc:"sg_dealloc_pipeline".}
-proc deallocPipeline*(pipId:Pipeline):void =
-    c_deallocPipeline(pip_id)
+proc c_deallocPipeline(pip:Pipeline):void {.cdecl, importc:"sg_dealloc_pipeline".}
+proc deallocPipeline*(pip:Pipeline):void =
+    c_deallocPipeline(pip)
 
-proc c_deallocPass(passId:Pass):void {.cdecl, importc:"sg_dealloc_pass".}
-proc deallocPass*(passId:Pass):void =
-    c_deallocPass(pass_id)
+proc c_deallocPass(pass:Pass):void {.cdecl, importc:"sg_dealloc_pass".}
+proc deallocPass*(pass:Pass):void =
+    c_deallocPass(pass)
 
-proc c_initBuffer(bufId:Buffer, desc:ptr BufferDesc):void {.cdecl, importc:"sg_init_buffer".}
-proc initBuffer*(bufId:Buffer, desc:BufferDesc):void =
-    c_initBuffer(buf_id, unsafeAddr(desc))
+proc c_initBuffer(buf:Buffer, desc:ptr BufferDesc):void {.cdecl, importc:"sg_init_buffer".}
+proc initBuffer*(buf:Buffer, desc:BufferDesc):void =
+    c_initBuffer(buf, unsafeAddr(desc))
 
-proc c_initImage(imgId:Image, desc:ptr ImageDesc):void {.cdecl, importc:"sg_init_image".}
-proc initImage*(imgId:Image, desc:ImageDesc):void =
-    c_initImage(img_id, unsafeAddr(desc))
+proc c_initImage(img:Image, desc:ptr ImageDesc):void {.cdecl, importc:"sg_init_image".}
+proc initImage*(img:Image, desc:ImageDesc):void =
+    c_initImage(img, unsafeAddr(desc))
 
-proc c_initShader(shdId:Shader, desc:ptr ShaderDesc):void {.cdecl, importc:"sg_init_shader".}
-proc initShader*(shdId:Shader, desc:ShaderDesc):void =
-    c_initShader(shd_id, unsafeAddr(desc))
+proc c_initShader(shd:Shader, desc:ptr ShaderDesc):void {.cdecl, importc:"sg_init_shader".}
+proc initShader*(shd:Shader, desc:ShaderDesc):void =
+    c_initShader(shd, unsafeAddr(desc))
 
-proc c_initPipeline(pipId:Pipeline, desc:ptr PipelineDesc):void {.cdecl, importc:"sg_init_pipeline".}
-proc initPipeline*(pipId:Pipeline, desc:PipelineDesc):void =
-    c_initPipeline(pip_id, unsafeAddr(desc))
+proc c_initPipeline(pip:Pipeline, desc:ptr PipelineDesc):void {.cdecl, importc:"sg_init_pipeline".}
+proc initPipeline*(pip:Pipeline, desc:PipelineDesc):void =
+    c_initPipeline(pip, unsafeAddr(desc))
 
-proc c_initPass(passId:Pass, desc:ptr PassDesc):void {.cdecl, importc:"sg_init_pass".}
-proc initPass*(passId:Pass, desc:PassDesc):void =
-    c_initPass(pass_id, unsafeAddr(desc))
+proc c_initPass(pass:Pass, desc:ptr PassDesc):void {.cdecl, importc:"sg_init_pass".}
+proc initPass*(pass:Pass, desc:PassDesc):void =
+    c_initPass(pass, unsafeAddr(desc))
 
-proc c_uninitBuffer(bufId:Buffer):bool {.cdecl, importc:"sg_uninit_buffer".}
-proc uninitBuffer*(bufId:Buffer):bool =
-    c_uninitBuffer(buf_id)
+proc c_uninitBuffer(buf:Buffer):void {.cdecl, importc:"sg_uninit_buffer".}
+proc uninitBuffer*(buf:Buffer):void =
+    c_uninitBuffer(buf)
 
-proc c_uninitImage(imgId:Image):bool {.cdecl, importc:"sg_uninit_image".}
-proc uninitImage*(imgId:Image):bool =
-    c_uninitImage(img_id)
+proc c_uninitImage(img:Image):void {.cdecl, importc:"sg_uninit_image".}
+proc uninitImage*(img:Image):void =
+    c_uninitImage(img)
 
-proc c_uninitShader(shdId:Shader):bool {.cdecl, importc:"sg_uninit_shader".}
-proc uninitShader*(shdId:Shader):bool =
-    c_uninitShader(shd_id)
+proc c_uninitShader(shd:Shader):void {.cdecl, importc:"sg_uninit_shader".}
+proc uninitShader*(shd:Shader):void =
+    c_uninitShader(shd)
 
-proc c_uninitPipeline(pipId:Pipeline):bool {.cdecl, importc:"sg_uninit_pipeline".}
-proc uninitPipeline*(pipId:Pipeline):bool =
-    c_uninitPipeline(pip_id)
+proc c_uninitPipeline(pip:Pipeline):void {.cdecl, importc:"sg_uninit_pipeline".}
+proc uninitPipeline*(pip:Pipeline):void =
+    c_uninitPipeline(pip)
 
-proc c_uninitPass(passId:Pass):bool {.cdecl, importc:"sg_uninit_pass".}
-proc uninitPass*(passId:Pass):bool =
-    c_uninitPass(pass_id)
+proc c_uninitPass(pass:Pass):void {.cdecl, importc:"sg_uninit_pass".}
+proc uninitPass*(pass:Pass):void =
+    c_uninitPass(pass)
 
-proc c_failBuffer(bufId:Buffer):void {.cdecl, importc:"sg_fail_buffer".}
-proc failBuffer*(bufId:Buffer):void =
-    c_failBuffer(buf_id)
+proc c_failBuffer(buf:Buffer):void {.cdecl, importc:"sg_fail_buffer".}
+proc failBuffer*(buf:Buffer):void =
+    c_failBuffer(buf)
 
-proc c_failImage(imgId:Image):void {.cdecl, importc:"sg_fail_image".}
-proc failImage*(imgId:Image):void =
-    c_failImage(img_id)
+proc c_failImage(img:Image):void {.cdecl, importc:"sg_fail_image".}
+proc failImage*(img:Image):void =
+    c_failImage(img)
 
-proc c_failShader(shdId:Shader):void {.cdecl, importc:"sg_fail_shader".}
-proc failShader*(shdId:Shader):void =
-    c_failShader(shd_id)
+proc c_failShader(shd:Shader):void {.cdecl, importc:"sg_fail_shader".}
+proc failShader*(shd:Shader):void =
+    c_failShader(shd)
 
-proc c_failPipeline(pipId:Pipeline):void {.cdecl, importc:"sg_fail_pipeline".}
-proc failPipeline*(pipId:Pipeline):void =
-    c_failPipeline(pip_id)
+proc c_failPipeline(pip:Pipeline):void {.cdecl, importc:"sg_fail_pipeline".}
+proc failPipeline*(pip:Pipeline):void =
+    c_failPipeline(pip)
 
-proc c_failPass(passId:Pass):void {.cdecl, importc:"sg_fail_pass".}
-proc failPass*(passId:Pass):void =
-    c_failPass(pass_id)
+proc c_failPass(pass:Pass):void {.cdecl, importc:"sg_fail_pass".}
+proc failPass*(pass:Pass):void =
+    c_failPass(pass)
 
 proc c_setupContext():Context {.cdecl, importc:"sg_setup_context".}
 proc setupContext*():Context =
