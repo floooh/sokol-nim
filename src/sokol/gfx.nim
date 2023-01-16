@@ -257,6 +257,8 @@ type
     vertexFormatShort4n,
     vertexFormatUshort4n,
     vertexFormatUint10N2,
+    vertexFormatHalf2,
+    vertexFormatHalf4,
 
 type
   VertexStep* {.size:sizeof(int32).} = enum
