@@ -80,6 +80,7 @@ type
     pixelFormatRg16si,
     pixelFormatRg16f,
     pixelFormatRgba8,
+    pixelFormatSrgb8a8,
     pixelFormatRgba8sn,
     pixelFormatRgba8ui,
     pixelFormatRgba8si,
