@@ -3,6 +3,7 @@
 #
 #   Test point rendering with sokol/gl
 #-------------------------------------------------------------------------------
+import sokol/log as slog
 import sokol/gfx as sg
 import sokol/app as sapp
 import sokol/gl as sgl
@@ -32,8 +33,13 @@ const palette = [
 ]
 
 proc init() {.cdecl.} =
-  sg.setup(sg.Desc(context: sglue.context()))
-  sgl.setup(sgl.Desc())
+  sg.setup(sg.Desc(
+    context: sglue.context(),
+    logger: sg.Logger(fn: slog.fn),
+  ))
+  sgl.setup(sgl.Desc(
+    logger: sgl.Logger(fn: slog.fn)
+  ))
 
 proc lerp(x0: float32, x1: float32, t: float32): float32 =
   return x0 * (1f - t) + (x1 * t)
@@ -87,5 +93,6 @@ sapp.run(sapp.Desc(
   width: 512,
   height: 512,
   windowTitle: "sglpoints.nim",
-  icon: IconDesc(sokol_default: true)
+  icon: IconDesc(sokol_default: true),
+  logger: sapp.Logger(fn: slog.fn),
 ))

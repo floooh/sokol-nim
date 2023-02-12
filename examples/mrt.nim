@@ -3,6 +3,7 @@
 #   Rendering with multi-rendertargets, and recreating render targets
 #   when window size changes.
 #-------------------------------------------------------------------------------
+import sokol/log as slog
 import sokol/gfx as sg
 import sokol/app as sapp
 import sokol/glue as sglue
@@ -73,7 +74,10 @@ proc event(ev: ptr Event) {.cdecl.} =
     createOffscreenPass(ev.framebufferWidth, ev.framebufferHeight)
 
 proc init() {.cdecl.} =
-  sg.setup(sg.Desc(context: sglue.context()))
+  sg.setup(sg.Desc(
+    context: sglue.context(),
+    logger: sg.Logger(fn: slog.fn),
+  ))
 
   # pass action for the default pass, since we overwrite the entire framebuffer, no clearing needs to happen
   defaultPassAction.colors[0].action = actionDontCare
@@ -246,5 +250,6 @@ sapp.run(sapp.Desc(
   height: 600,
   sampleCount: 4,
   windowTitle: "mrt.nim",
-  icon: IconDesc(sokol_default: true)
+  icon: IconDesc(sokol_default: true),
+  logger: sapp.Logger(fn: slog.fn),
 ))

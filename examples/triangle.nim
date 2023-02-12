@@ -2,6 +2,7 @@
 #   triangle.nim
 #   Vertex buffer, shader, pipeline state object.
 #-------------------------------------------------------------------------------
+import sokol/log as slog
 import sokol/gfx as sg
 import sokol/app as sapp
 import sokol/glue as sglue
@@ -12,7 +13,10 @@ var
   bindings: Bindings
 
 proc init() {.cdecl.} =
-  sg.setup(sg.Desc(context: sglue.context()))
+  sg.setup(sg.Desc(
+    context: sglue.context(),
+    logger: sg.Logger(fn: slog.fn),
+  ))
 
   # create vertex buffer with triangle vertices
   const vertices = [
@@ -55,5 +59,6 @@ sapp.run(sapp.Desc(
   width: 640,
   height: 480,
   window_title: "triangle.nim",
-  icon: IconDesc(sokol_default: true)
+  icon: IconDesc(sokol_default: true),
+  logger: sapp.Logger(fn: slog.fn),
 ))

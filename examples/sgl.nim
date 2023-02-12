@@ -2,6 +2,7 @@
 # sgl.nim
 # Rendering via sokol/gl
 #-------------------------------------------------------------------------------
+import sokol/log as slog
 import sokol/gfx as sg
 import sokol/app as sapp
 import sokol/gl as sgl
@@ -18,8 +19,13 @@ var
   pip3d: sgl.Pipeline
 
 proc init() {.cdecl.} =
-  sg.setup(sg.Desc(context: sglue.context()))
-  sgl.setup(sgl.Desc())
+  sg.setup(sg.Desc(
+    context: sglue.context(),
+    logger: sg.Logger(fn: slog.fn),
+  ))
+  sgl.setup(sgl.Desc(
+    logger: sgl.Logger(fn: slog.fn),
+  ))
 
   # a checkerboard texture
   const imgWidth = 8
@@ -213,5 +219,6 @@ sapp.run(sapp.Desc(
   height: 512,
   sampleCount: 4,
   windowTitle: "sgl.nim",
-  icon: IconDesc(sokol_default: true)
+  icon: IconDesc(sokol_default: true),
+  logger: sapp.Logger(fn: slog.fn),
 ))

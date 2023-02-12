@@ -2,6 +2,7 @@
 #   texcube.nim
 #   Texture creation, rendering with texture, packed vertex components.
 #-------------------------------------------------------------------------------
+import sokol/log as slog
 import sokol/gfx as sg
 import sokol/app as sapp
 import sokol/glue as sglue
@@ -27,7 +28,10 @@ type Vertex = object
   u, v: uint16
 
 proc init() {.cdecl.} =
-  sg.setup(sg.Desc(context: sglue.context()))
+  sg.setup(sg.Desc(
+    context: sglue.context(),
+    logger: sg.Logger(fn: slog.fn),
+  ))
 
   #[
     Cube vertex buffer with packed vertex formats for color and texture coords.
@@ -149,5 +153,6 @@ sapp.run(sapp.Desc(
   width: 800,
   height: 600,
   sampleCount: 4,
-  icon: IconDesc(sokol_default: true)
+  icon: IconDesc(sokol_default: true),
+  logger: sapp.Logger(fn: slog.fn),
 ))

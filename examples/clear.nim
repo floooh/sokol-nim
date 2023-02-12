@@ -2,6 +2,7 @@
 # clear.nim
 # Clear the framebuffer.
 #-------------------------------------------------------------------------------
+import sokol/log as slog
 import sokol/app as sapp
 import sokol/gfx as sg
 import sokol/glue as sglue
@@ -11,7 +12,10 @@ var passAction = PassAction(
 )
 
 proc init() {.cdecl.} =
-  sg.setup(sg.Desc(context: sglue.context()))
+  sg.setup(sg.Desc(
+    context: sglue.context(),
+    logger: sg.Logger(fn: slog.fn),
+  ))
   case sg.queryBackend():
     of backendGlcore33: echo "using GLCORE33 backend"
     of backendD3d11: echo "using D3D11 backend"
@@ -35,5 +39,6 @@ sapp.run(sapp.Desc(
   windowTitle: "clear.nim",
   width: 400,
   height: 300,
-  icon: IconDesc(sokol_default: true)
+  icon: IconDesc(sokol_default: true),
+  logger: sapp.Logger(fn: slog.fn)
 ))

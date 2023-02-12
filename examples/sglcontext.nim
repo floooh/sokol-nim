@@ -4,6 +4,7 @@
 #   Demonstrates how to render in different render passes with sokol_gl.h
 #   using sokol-gl contexts.
 #-------------------------------------------------------------------------------
+import sokol/log as slog
 import sokol/gfx as sg
 import sokol/app as sapp
 import sokol/gl as sgl
@@ -29,8 +30,15 @@ var
   displayPipeline: sgl.Pipeline
 
 proc init() {.cdecl.} =
-  sg.setup(sg.Desc(context: sglue.context()))
-  sgl.setup(sgl.Desc(maxVertices: 64, maxCommands: 16))
+  sg.setup(sg.Desc(
+    context: sglue.context(),
+    logger: sg.Logger(fn: slog.fn),
+  ))
+  sgl.setup(sgl.Desc(
+    maxVertices: 64,
+    maxCommands: 16,
+    logger: sgl.Logger(fn: slog.fn),
+  ))
 
   # sgl pipeline for default render pass
   displayPipeline = sgl.contextMakePipeline(sgl.defaultContext(), PipelineDesc(
@@ -149,9 +157,6 @@ sapp.run(sapp.Desc(
   height: 600,
   sampleCount: 4,
   windowTitle: "sglcontext.nim",
-  icon: IconDesc(sokol_default: true)
+  icon: IconDesc(sokol_default: true),
+  logger: sapp.Logger(fn: slog.fn),
 ))
-
-
-
-

@@ -2,6 +2,7 @@
 #   shapes.nim
 #   Simple sokol_shapes.h demo.
 #-------------------------------------------------------------------------------
+import sokol/log as slog
 import sokol/gfx as sg
 import sokol/app as sapp
 import sokol/shape as sshape
@@ -36,8 +37,14 @@ var
   rx, ry: float32
 
 proc init() {.cdecl.} =
-  sg.setup(sg.Desc(context: sglue.context()))
-  sdtx.setup(sdtx.Desc(fonts: [ sdtx.fontOric() ]))
+  sg.setup(sg.Desc(
+    context: sglue.context(),
+    logger: sg.Logger(fn: slog.fn),
+  ))
+  sdtx.setup(sdtx.Desc(
+    fonts: [ sdtx.fontOric() ],
+    logger: sdtx.Logger(fn: slog.fn),
+  ))
 
   # shader and pipeline object for rendering the shapes
   pip = sg.makePipeline(PipelineDesc(
@@ -140,5 +147,6 @@ sapp.run(sapp.Desc(
   height: 600,
   sampleCount: 4,
   windowTitle: "shapes.nim",
-  icon: IconDesc(sokol_default: true)
+  icon: IconDesc(sokol_default: true),
+  logger: sapp.Logger(fn: slog.fn),
 ))

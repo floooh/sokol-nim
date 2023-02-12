@@ -3,6 +3,7 @@
 #   Render separate geometries in vertex- and index-buffers with
 #   buffer offsets.
 #-------------------------------------------------------------------------------
+import sokol/log as slog
 import sokol/gfx as sg
 import sokol/app as sapp
 import sokol/glue as sglue
@@ -18,7 +19,10 @@ type Vertex = object
   r, g, b: float32
 
 proc init() {.cdecl.} =
-  sg.setup(sg.Desc(context: sglue.context()))
+  sg.setup(sg.Desc(
+    context: sglue.context(),
+    logger: sg.Logger(fn: slog.fn),
+  ))
 
   # clear to a blue-ish color
   passAction.colors[0] = ColorAttachmentAction( action: actionClear, value: (0.5, 0.5, 1.0, 1.0))
@@ -88,5 +92,6 @@ sapp.run(sapp.Desc(
   width: 800,
   height: 600,
   windowTitle: "bufferoffsets.nim",
-  icon: IconDesc(sokol_default: true)
+  icon: IconDesc(sokol_default: true),
+  logger: sapp.Logger(fn: slog.fn),
 ))

@@ -7,6 +7,7 @@
 #   are 4 vertex buffer bind slots in sg_bindings, but you can keep
 #   several related vertex components interleaved in the same chunk.
 #-------------------------------------------------------------------------------
+import sokol/log as slog
 import sokol/gfx as sg
 import sokol/app as sapp
 import sokol/glue as sglue
@@ -22,7 +23,10 @@ var
   passAction: PassAction
 
 proc init() {.cdecl.} =
-  sg.setup(sg.Desc(context: sglue.context()))
+  sg.setup(sg.Desc(
+    context: sglue.context(),
+    logger: sg.Logger(fn: slog.fn),
+  ))
 
   # cube vertex buffer, NOTE how the vertex components are separate
   const vertices = [
@@ -118,5 +122,6 @@ sapp.run(sapp.Desc(
   height: 600,
   sampleCount: 4,
   windowTitle: "noninterleaved.nim",
-  icon: IconDesc(sokol_default: true)
+  icon: IconDesc(sokol_default: true),
+  logger: sapp.Logger(fn: slog.fn),
 ))

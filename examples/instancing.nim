@@ -3,6 +3,7 @@
 #   Demonstrate simple hardware-instancing using a static geometry buffer
 #   and a dynamic instance-data buffer.
 #-------------------------------------------------------------------------------
+import sokol/log as slog
 import sokol/gfx as sg
 import sokol/app as sapp
 import sokol/glue as sglue
@@ -25,7 +26,10 @@ var
   vel: array[maxParticles, Vec3]
 
 proc init() {.cdecl.} =
-  sg.setup(sg.Desc( context: sglue.context() ))
+  sg.setup(sg.Desc(
+    context: sglue.context(),
+    logger: sg.Logger(fn: slog.fn),
+  ))
 
   # a pass action for the default render pass (clears to black)
   passAction = PassAction(
@@ -146,5 +150,6 @@ sapp.run(sapp.Desc(
   height: 600,
   sampleCount: 4,
   windowTitle: "instancing.nim",
-  icon: IconDesc(sokol_default: true)
+  icon: IconDesc(sokol_default: true),
+  logger: sapp.Logger(fn: slog.fn),
 ))

@@ -2,6 +2,7 @@
 #   quad.zig
 #   Simple 2D rendering with vertex- and index-buffer.
 #-------------------------------------------------------------------------------
+import sokol/log as slog
 import sokol/gfx as sg
 import sokol/app as sapp
 import sokol/glue as sglue
@@ -13,7 +14,10 @@ var
   passAction: PassAction
 
 proc init() {.cdecl.} =
-  sg.setup(sg.Desc(context: sglue.context()))
+  sg.setup(sg.Desc(
+    context: sglue.context(),
+    logger: sg.Logger(fn: slog.fn),
+  ))
 
   # a vertex buffer
   let vertices = [
@@ -67,5 +71,6 @@ sapp.run(sapp.Desc(
   width: 640,
   height: 480,
   window_title: "quad.nim",
-  icon: IconDesc(sokol_default: true)
+  icon: IconDesc(sokol_default: true),
+  logger: sapp.Logger(fn: slog.fn),
 ))

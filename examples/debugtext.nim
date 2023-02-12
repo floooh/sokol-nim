@@ -2,6 +2,7 @@
 #   debugtext-sapp.c
 #   Text rendering with sokol_debugtext.h, test builtin fonts.
 #-------------------------------------------------------------------------------
+import sokol/log as slog
 import sokol/gfx as sg
 import sokol/app as sapp
 import sokol/debugtext as sdtx
@@ -14,7 +15,10 @@ const passAction = PassAction(
 )
 
 proc init() {.cdecl.} =
-  sg.setup(sg.Desc(context: sglue.context()))
+  sg.setup(sg.Desc(
+    context: sglue.context(),
+    logger: sg.Logger(fn: slog.fn),
+  ))
 
   # setup sokol/debugtext
   sdtx.setup(sdtx.Desc(
@@ -25,7 +29,8 @@ proc init() {.cdecl.} =
       sdtx.fontCpc(),
       sdtx.fontC64(),
       sdtx.fontOric()
-    ]
+    ],
+    logger: sdtx.Logger(fn: slog.fn),
   ))
 
 proc printFont(fontIndex: int32, title: cstring, r: uint8, g: uint8, b: uint8) =
@@ -67,5 +72,6 @@ sapp.run(sapp.Desc(
   width: 1024,
   height: 600,
   windowTitle: "debugtext.nim",
-  icon: IconDesc(sokol_default: true)
+  icon: IconDesc(sokol_default: true),
+  logger: sapp.Logger(fn: slog.fn),
 ))

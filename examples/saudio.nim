@@ -2,6 +2,7 @@
 #   saudio.nim
 #   Test sokol-audio
 #-------------------------------------------------------------------------------
+import sokol/log as slog
 import sokol/app as sapp
 import sokol/gfx as sg
 import sokol/audio as saudio
@@ -19,8 +20,13 @@ var
   samples: array[numSamples, float32]
 
 proc init() {.cdecl.} =
-  sg.setup(sg.Desc(context: sglue.context()))
-  saudio.setup(saudio.Desc())
+  sg.setup(sg.Desc(
+    context: sglue.context(),
+    logger: sg.Logger(fn: slog.fn),
+  ))
+  saudio.setup(saudio.Desc(
+    logger: saudio.Logger(fn: slog.fn)
+  ))
 
 proc frame() {.cdecl.} =
   # feed sokol/audio
@@ -48,5 +54,6 @@ sapp.run(sapp.Desc(
   width: 400,
   height: 300,
   windowTitle: "saudio.nim",
-  icon: IconDesc(sokol_default: true)
+  icon: IconDesc(sokol_default: true),
+  logger: sapp.Logger(fn: slog.fn),
 ))

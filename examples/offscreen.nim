@@ -3,6 +3,7 @@
 #   Render to an offscreen rendertarget texture, and use this texture
 #   for rendering to the display.
 #-------------------------------------------------------------------------------
+import sokol/log as slog
 import sokol/gfx as sg
 import sokol/app as sapp
 import sokol/shape as sshape
@@ -26,7 +27,10 @@ var
   rx, ry: float32
 
 proc init() {.cdecl.} =
-  sg.setup(sg.Desc(context: sglue.context()))
+  sg.setup(sg.Desc(
+    context: sglue.context(),
+    logger: sg.Logger(fn: slog.fn),
+  ))
 
   # default pass action: clear to blue-ish
   defaultPassAction = PassAction(
@@ -179,5 +183,6 @@ sapp.run(sapp.Desc(
   height: 600,
   sampleCount: 4,
   windowTitle: "offscreen.nim",
-  icon: IconDesc(sokol_default: true)
+  icon: IconDesc(sokol_default: true),
+  logger: sapp.Logger(fn: slog.fn),
 ))

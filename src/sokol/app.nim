@@ -235,8 +235,97 @@ type Allocator* = object
   free*:proc(a1:pointer, a2:pointer) {.cdecl.}
   userData*:pointer
 
+type
+  LogItem* {.size:sizeof(int32).} = enum
+    logitemOk,
+    logitemMallocFailed,
+    logitemMacosInvalidNsopenglProfile,
+    logitemWin32LoadOpengl32DllFailed,
+    logitemWin32CreateHelperWindowFailed,
+    logitemWin32HelperWindowGetdcFailed,
+    logitemWin32DummyContextSetPixelformatFailed,
+    logitemWin32CreateDummyContextFailed,
+    logitemWin32DummyContextMakeCurrentFailed,
+    logitemWin32GetPixelformatAttribFailed,
+    logitemWin32WglFindPixelformatFailed,
+    logitemWin32WglDescribePixelformatFailed,
+    logitemWin32WglSetPixelformatFailed,
+    logitemWin32WglArbCreateContextRequired,
+    logitemWin32WglArbCreateContextProfileRequired,
+    logitemWin32WglOpengl32NotSupported,
+    logitemWin32WglOpenglProfileNotSupported,
+    logitemWin32WglIncompatibleDeviceContext,
+    logitemWin32WglCreateContextAttribsFailedOther,
+    logitemWin32D3d11CreateDeviceAndSwapchainWithDebugFailed,
+    logitemWin32D3d11GetIdxgifactoryFailed,
+    logitemWin32D3d11GetIdxgiadapterFailed,
+    logitemWin32D3d11QueryInterfaceIdxgidevice1Failed,
+    logitemWin32RegisterRawInputDevicesFailedMouseLock,
+    logitemWin32RegisterRawInputDevicesFailedMouseUnlock,
+    logitemWin32GetRawInputDataFailed,
+    logitemLinuxGlxLoadLibglFailed,
+    logitemLinuxGlxLoadEntryPointsFailed,
+    logitemLinuxGlxExtensionNotFound,
+    logitemLinuxGlxQueryVersionFailed,
+    logitemLinuxGlxVersionTooLow,
+    logitemLinuxGlxNoGlxfbconfigs,
+    logitemLinuxGlxNoSuitableGlxfbconfig,
+    logitemLinuxGlxGetVisualFromFbconfigFailed,
+    logitemLinuxGlxRequiredExtensionsMissing,
+    logitemLinuxGlxCreateContextFailed,
+    logitemLinuxGlxCreateWindowFailed,
+    logitemLinuxX11CreateWindowFailed,
+    logitemLinuxEglBindOpenglApiFailed,
+    logitemLinuxEglBindOpenglEsApiFailed,
+    logitemLinuxEglGetDisplayFailed,
+    logitemLinuxEglInitializeFailed,
+    logitemLinuxEglNoConfigs,
+    logitemLinuxEglNoNativeVisual,
+    logitemLinuxEglGetVisualInfoFailed,
+    logitemLinuxEglCreateWindowSurfaceFailed,
+    logitemLinuxEglCreateContextFailed,
+    logitemLinuxEglMakeCurrentFailed,
+    logitemLinuxX11OpenDisplayFailed,
+    logitemLinuxX11QuerySystemDpiFailed,
+    logitemLinuxX11DroppedFileUriWrongScheme,
+    logitemAndroidUnsupportedInputEventInputCb,
+    logitemAndroidUnsupportedInputEventMainCb,
+    logitemAndroidReadMsgFailed,
+    logitemAndroidWriteMsgFailed,
+    logitemAndroidMsgCreate,
+    logitemAndroidMsgResume,
+    logitemAndroidMsgPause,
+    logitemAndroidMsgFocus,
+    logitemAndroidMsgNoFocus,
+    logitemAndroidMsgSetNativeWindow,
+    logitemAndroidMsgSetInputQueue,
+    logitemAndroidMsgDestroy,
+    logitemAndroidUnknownMsg,
+    logitemAndroidLoopThreadStarted,
+    logitemAndroidLoopThreadDone,
+    logitemAndroidNativeActivityOnstart,
+    logitemAndroidNativeActivityOnresume,
+    logitemAndroidNativeActivityOnsaveinstancestate,
+    logitemAndroidNativeActivityOnwindowfocuschanged,
+    logitemAndroidNativeActivityOnpause,
+    logitemAndroidNativeActivityOnstop,
+    logitemAndroidNativeActivityOnnativewindowcreated,
+    logitemAndroidNativeActivityOnnativewindowdestroyed,
+    logitemAndroidNativeActivityOninputqueuecreated,
+    logitemAndroidNativeActivityOninputqueuedestroyed,
+    logitemAndroidNativeActivityOnconfigurationchanged,
+    logitemAndroidNativeActivityOnlowmemory,
+    logitemAndroidNativeActivityOndestroy,
+    logitemAndroidNativeActivityDone,
+    logitemAndroidNativeActivityOncreate,
+    logitemAndroidCreateThreadPipeFailed,
+    logitemAndroidNativeActivityCreateSuccess,
+    logitemImageDataSizeMismatch,
+    logitemDroppedFilePathTooLong,
+    logitemClipboardStringTooBig,
+
 type Logger* = object
-  logCb*:proc(a1:cstring, a2:pointer) {.cdecl.}
+  fn*:proc(a1:cstring, a2:uint32, a3:uint32, a4:cstring, a5:uint32, a6:cstring, a7:pointer) {.cdecl.}
   userData*:pointer
 
 type Desc* = object
@@ -244,13 +333,11 @@ type Desc* = object
   frameCb*:proc() {.cdecl.}
   cleanupCb*:proc() {.cdecl.}
   eventCb*:proc(a1:ptr Event) {.cdecl.}
-  failCb*:proc(a1:cstring) {.cdecl.}
   userData*:pointer
   initUserdataCb*:proc(a1:pointer) {.cdecl.}
   frameUserdataCb*:proc(a1:pointer) {.cdecl.}
   cleanupUserdataCb*:proc(a1:pointer) {.cdecl.}
   eventUserdataCb*:proc(a1:ptr Event, a2:pointer) {.cdecl.}
-  failUserdataCb*:proc(a1:cstring, a2:pointer) {.cdecl.}
   width*:int32
   height*:int32
   sampleCount*:int32

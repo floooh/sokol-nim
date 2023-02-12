@@ -1,13 +1,52 @@
 ## machine generated, do not edit
 
 
+type
+  LogItem* {.size:sizeof(int32).} = enum
+    logitemOk,
+    logitemMallocFailed,
+    logitemAlsaSndPcmOpenFailed,
+    logitemAlsaFloatSamplesNotSupported,
+    logitemAlsaRequestedBufferSizeNotSupported,
+    logitemAlsaRequestedChannelCountNotSupported,
+    logitemAlsaSndPcmHwParamsSetRateNearFailed,
+    logitemAlsaSndPcmHwParamsFailed,
+    logitemAlsaPthreadCreateFailed,
+    logitemWasapiCreateEventFailed,
+    logitemWasapiCreateDeviceEnumeratorFailed,
+    logitemWasapiGetDefaultAudioEndpointFailed,
+    logitemWasapiDeviceActivateFailed,
+    logitemWasapiAudioClientInitializeFailed,
+    logitemWasapiAudioClientGetBufferSizeFailed,
+    logitemWasapiAudioClientGetServiceFailed,
+    logitemWasapiAudioClientSetEventHandleFailed,
+    logitemWasapiCreateThreadFailed,
+    logitemAaudioStreambuilderOpenStreamFailed,
+    logitemAaudioPthreadCreateFailed,
+    logitemAaudioRestartingStreamAfterError,
+    logitemUsingAaudioBackend,
+    logitemAaudioCreateStreambuilderFailed,
+    logitemUsingSlesBackend,
+    logitemSlesCreateEngineFailed,
+    logitemSlesEngineGetEngineInterfaceFailed,
+    logitemSlesCreateOutputMixFailed,
+    logitemSlesMixerGetVolumeInterfaceFailed,
+    logitemSlesEngineCreateAudioPlayerFailed,
+    logitemSlesPlayerGetPlayInterfaceFailed,
+    logitemSlesPlayerGetVolumeInterfaceFailed,
+    logitemSlesPlayerGetBufferqueueInterfaceFailed,
+    logitemCoreaudioNewOutputFailed,
+    logitemCoreaudioAllocateBufferFailed,
+    logitemCoreaudioStartFailed,
+    logitemBackendBufferSizeIsntMultipleOfPacketSize,
+
+type Logger* = object
+  fn*:proc(a1:cstring, a2:uint32, a3:uint32, a4:cstring, a5:uint32, a6:cstring, a7:pointer) {.cdecl.}
+  userData*:pointer
+
 type Allocator* = object
   alloc*:proc(a1:int, a2:pointer):pointer {.cdecl.}
   free*:proc(a1:pointer, a2:pointer) {.cdecl.}
-  userData*:pointer
-
-type Logger* = object
-  logCb*:proc(a1:cstring, a2:pointer) {.cdecl.}
   userData*:pointer
 
 type Desc* = object

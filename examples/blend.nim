@@ -2,6 +2,7 @@
 # blend.nim
 # Test/demonstrate blend modes.
 #-------------------------------------------------------------------------------
+import sokol/log as slog
 import sokol/gfx as sg
 import sokol/app as sapp
 import sokol/glue as sglue
@@ -29,6 +30,7 @@ proc init() {.cdecl.} =
   sg.setup(sg.Desc(
       pipelinePoolSize: numBlendFactors * numBlendFactors + 1,
       context: sglue.context(),
+      logger: sg.Logger(fn: slog.fn),
     ))
 
   # quad vertex buffer
@@ -124,5 +126,6 @@ sapp.run(sapp.Desc(
   width: 800,
   height: 600,
   sampleCount: 4,
-  icon: IconDesc(sokol_default: true)
+  icon: IconDesc(sokol_default: true),
+  logger: sapp.Logger(fn: slog.fn),
 ))

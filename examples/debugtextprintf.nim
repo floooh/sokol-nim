@@ -3,6 +3,7 @@
 #
 #   How to do formatted printing with sokol/debugtext
 #-------------------------------------------------------------------------------
+import sokol/log as slog
 import sokol/gfx as sg
 import sokol/app as sapp
 import sokol/debugtext as sdtx
@@ -26,13 +27,17 @@ const
   ]
 
 proc init() {.cdecl.} =
-  sg.setup(sg.Desc(context: sglue.context()))
+  sg.setup(sg.Desc(
+    context: sglue.context(),
+    logger: sg.Logger(fn: slog.fn),
+  ))
   sdtx.setup(sdtx.Desc(
     fonts: [
       sdtx.fontKc854(),
       sdtx.fontC64(),
       sdtx.fontOric()
-    ]
+    ],
+    logger: sdtx.Logger(fn: slog.fn),
   ))
 
 proc frame() {.cdecl.} =
@@ -68,5 +73,6 @@ sapp.run(sapp.Desc(
   width: 640,
   height: 480,
   windowTitle: "debugtextprintf.nim",
-  icon: IconDesc(sokol_default: true)
+  icon: IconDesc(sokol_default: true),
+  logger: sapp.Logger(fn: slog.fn),
 ))

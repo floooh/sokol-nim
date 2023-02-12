@@ -2,6 +2,20 @@
 
 import gfx
 
+type
+  LogItem* {.size:sizeof(int32).} = enum
+    logitemOk,
+    logitemMallocFailed,
+    logitemMakePipelineFailed,
+    logitemPipelinePoolExhausted,
+    logitemAddCommitListenerFailed,
+    logitemContextPoolExhausted,
+    logitemCannotDestroyDefaultContext,
+
+type Logger* = object
+  fn*:proc(a1:cstring, a2:uint32, a3:uint32, a4:cstring, a5:uint32, a6:cstring, a7:pointer) {.cdecl.}
+  userData*:pointer
+
 type Pipeline* = object
   id*:uint32
 
@@ -28,10 +42,6 @@ type ContextDesc* = object
 type Allocator* = object
   alloc*:proc(a1:int, a2:pointer):pointer {.cdecl.}
   free*:proc(a1:pointer, a2:pointer) {.cdecl.}
-  userData*:pointer
-
-type Logger* = object
-  logCb*:proc(a1:cstring, a2:pointer) {.cdecl.}
   userData*:pointer
 
 type Desc* = object

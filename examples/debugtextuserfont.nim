@@ -2,6 +2,7 @@
 #   debugtextusefont.nim
 #   sokol/debugtext: render with user-provided font data (Atari 400 ROM extract)
 #-------------------------------------------------------------------------------
+import sokol/log as slog
 import sokol/gfx as sg
 import sokol/app as sapp
 import sokol/debugtext as sdtx
@@ -170,7 +171,10 @@ const userFont = [
     0x00, 0x18, 0x0C, 0x7E, 0x0C, 0x18, 0x00, 0x00, # 9F
   ]
 proc init() {.cdecl.} =
-  sg.setup(sg.Desc(context: sglue.context()))
+  sg.setup(sg.Desc(
+    context: sglue.context(),
+    logger: sg.Logger(fn: slog.fn),
+  ))
 
   # setup sokol-debugtext with the user font as the only font,
   # NOTE that the user font only provides pixel data for the
@@ -182,7 +186,8 @@ proc init() {.cdecl.} =
         firstChar: 0x20,
         lastChar: 0x9F
       )
-    ]
+    ],
+    logger: sdtx.Logger(fn: slog.fn),
   ))
 
 proc frame() {.cdecl.} =
@@ -215,5 +220,6 @@ sapp.run(sapp.Desc(
   width: 800,
   height: 600,
   windowTitle: "debugtextuserfont.nim",
-  icon: IconDesc(sokol_default: true)
+  icon: IconDesc(sokol_default: true),
+  logger: sapp.Logger(fn: slog.fn),
 ))
