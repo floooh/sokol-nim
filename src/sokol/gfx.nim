@@ -148,6 +148,7 @@ type Limits* = object
   maxImageArrayLayers*:int32
   maxVertexAttrs*:int32
   glMaxVertexUniformVectors*:int32
+  glMaxCombinedTextureImageUnits*:int32
 
 type
   ResourceState* {.size:sizeof(int32).} = enum
