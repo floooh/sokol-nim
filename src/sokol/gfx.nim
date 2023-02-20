@@ -725,8 +725,6 @@ type ImageInfo* = object
   updFrameIndex*:uint32
   numSlots*:int32
   activeSlot*:int32
-  width*:int32
-  height*:int32
 
 type ShaderInfo* = object
   slot*:SlotInfo
@@ -1195,6 +1193,26 @@ proc queryPipelineInfo*(pip:Pipeline):PipelineInfo =
 proc c_queryPassInfo(pass:Pass):PassInfo {.cdecl, importc:"sg_query_pass_info".}
 proc queryPassInfo*(pass:Pass):PassInfo =
     c_queryPassInfo(pass)
+
+proc c_queryBufferDesc(buf:Buffer):BufferDesc {.cdecl, importc:"sg_query_buffer_desc".}
+proc queryBufferDesc*(buf:Buffer):BufferDesc =
+    c_queryBufferDesc(buf)
+
+proc c_queryImageDesc(img:Image):ImageDesc {.cdecl, importc:"sg_query_image_desc".}
+proc queryImageDesc*(img:Image):ImageDesc =
+    c_queryImageDesc(img)
+
+proc c_queryShaderDesc(shd:Shader):ShaderDesc {.cdecl, importc:"sg_query_shader_desc".}
+proc queryShaderDesc*(shd:Shader):ShaderDesc =
+    c_queryShaderDesc(shd)
+
+proc c_queryPipelineDesc(pip:Pipeline):PipelineDesc {.cdecl, importc:"sg_query_pipeline_desc".}
+proc queryPipelineDesc*(pip:Pipeline):PipelineDesc =
+    c_queryPipelineDesc(pip)
+
+proc c_queryPassDesc(pass:Pass):PassDesc {.cdecl, importc:"sg_query_pass_desc".}
+proc queryPassDesc*(pass:Pass):PassDesc =
+    c_queryPassDesc(pass)
 
 proc c_queryBufferDefaults(desc:ptr BufferDesc):BufferDesc {.cdecl, importc:"sg_query_buffer_defaults".}
 proc queryBufferDefaults*(desc:BufferDesc):BufferDesc =
