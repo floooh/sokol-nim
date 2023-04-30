@@ -41,7 +41,6 @@ proc createOffscreenPass(width: int32, height: int32) =
   sg.destroyImage(offscreenPassDesc.depthStencilAttachment.image)
 
   # create offscreen rendertarget images and pass
-  let offscreenSampleCount: int32 = if sg.queryFeatures().msaaRenderTargets: offscreenSampleCount else: 1
   let colorImageDesc = sg.ImageDesc(
     renderTarget: true,
     width: width,

@@ -45,7 +45,6 @@ type Color* = object
 type
   Backend* {.size:sizeof(int32).} = enum
     backendGlcore33,
-    backendGles2,
     backendGles3,
     backendD3d11,
     backendMetalIos,
@@ -130,12 +129,7 @@ type PixelformatInfo* = object
   depth*:bool
 
 type Features* = object
-  instancing*:bool
   originTopLeft*:bool
-  multipleRenderTargets*:bool
-  msaaRenderTargets*:bool
-  imagetype3d*:bool
-  imagetypeArray*:bool
   imageClampToBorder*:bool
   mrtIndependentBlendState*:bool
   mrtIndependentWriteMask*:bool
@@ -851,14 +845,12 @@ type
     logitemValidateShaderdescUbStd140ArrayType,
     logitemValidateShaderdescNoContImgs,
     logitemValidateShaderdescImgName,
-    logitemValidateShaderdescAttrNames,
     logitemValidateShaderdescAttrSemantics,
     logitemValidateShaderdescAttrStringTooLong,
     logitemValidatePipelinedescCanary,
     logitemValidatePipelinedescShader,
     logitemValidatePipelinedescNoAttrs,
     logitemValidatePipelinedescLayoutStride4,
-    logitemValidatePipelinedescAttrName,
     logitemValidatePipelinedescAttrSemantics,
     logitemValidatePassdescCanary,
     logitemValidatePassdescNoColorAtts,
@@ -916,9 +908,6 @@ type
     logitemValidateUpdimgOnce,
     logitemValidationFailed,
 
-type GlContextDesc* = object
-  forceGles2*:bool
-
 type MetalContextDesc* = object
   device*:pointer
   renderpassDescriptorCb*:proc():pointer {.cdecl.}
@@ -950,7 +939,6 @@ type ContextDesc* = object
   colorFormat*:int32
   depthFormat*:int32
   sampleCount*:int32
-  gl*:GlContextDesc
   metal*:MetalContextDesc
   d3d11*:D3d11ContextDesc
   wgpu*:WgpuContextDesc

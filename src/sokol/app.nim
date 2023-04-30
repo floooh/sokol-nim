@@ -354,7 +354,6 @@ type Desc* = object
   icon*:IconDesc
   allocator*:Allocator
   logger*:Logger
-  glForceGles2*:bool
   glMajorVersion*:int32
   glMinorVersion*:int32
   win32ConsoleUtf8*:bool
@@ -548,10 +547,6 @@ proc eglGetDisplay*():pointer =
 proc c_eglGetContext():pointer {.cdecl, importc:"sapp_egl_get_context".}
 proc eglGetContext*():pointer =
     c_eglGetContext()
-
-proc c_gles2():bool {.cdecl, importc:"sapp_gles2".}
-proc gles2*():bool =
-    c_gles2()
 
 proc c_html5AskLeaveSite(ask:bool):void {.cdecl, importc:"sapp_html5_ask_leave_site".}
 proc html5AskLeaveSite*(ask:bool):void =

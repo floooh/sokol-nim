@@ -39,10 +39,6 @@ proc init() {.cdecl.} =
     backends must only use the normalized integer formats
     (BYTE4N, UBYTE4N, SHORT2N, SHORT4N), which can be converted
     to floating point formats in the vertex shader inputs.
-
-    The reason is that D3D11 cannot convert from non-normalized
-    formats to floating point inputs (only to integer inputs),
-    and WebGL2 / GLES2 don't support integer vertex shader inputs.
   ]#
   const vertices = [
     Vertex( x: -1.0, y: -1.0, z: -1.0,  color: 0xFF0000FF'u32, u:     0, v:     0 ),
