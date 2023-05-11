@@ -739,6 +739,7 @@ type
     logitemGlShaderCompilationFailed,
     logitemGlShaderLinkingFailed,
     logitemGlVertexAttributeNotFoundInShader,
+    logitemGlTextureNameNotFoundInShader,
     logitemGlFramebufferIncomplete,
     logitemGlMsaaFramebufferIncomplete,
     logitemD3d11CreateBufferFailed,
