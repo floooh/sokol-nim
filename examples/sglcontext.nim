@@ -17,10 +17,10 @@ const
   offscreenWidth = 32
   offscreenHeight = 32
   offscreenPassAction = PassAction(
-    colors: [ ColorAttachmentAction(action: actionClear, value: (0, 0, 0, 1)) ]
+    colors: [ ColorAttachmentAction(loadAction: loadActionClear, clearValue: (0, 0, 0, 1)) ]
   )
   displayPassAction = PassAction(
-    colors: [ ColorAttachmentAction(action: actionClear, value: (0.5, 0.7, 1.0, 1.0)) ]
+    colors: [ ColorAttachmentAction(loadAction: loadActionClear, clearValue: (0.5, 0.7, 1.0, 1.0)) ]
   )
 
 var

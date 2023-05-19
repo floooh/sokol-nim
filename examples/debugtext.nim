@@ -10,7 +10,7 @@ import sokol/glue as sglue
 
 const passAction = PassAction(
   colors: [
-    ColorAttachmentAction(action: actionClear, value: (0, 0.125, 0.25, 1))
+    ColorAttachmentAction(loadAction: loadActionClear, clearValue: (0, 0.125, 0.25, 1))
   ]
 )
 

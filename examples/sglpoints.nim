@@ -75,7 +75,7 @@ proc frame() {.cdecl.} =
   sgl.end()
 
   const passAction = PassAction(
-    colors: [ ColorAttachmentAction(action: actionClear, value: (0, 0, 0, 1)) ]
+    colors: [ ColorAttachmentAction(loadAction: loadActionClear, clearValue: (0, 0, 0, 1)) ]
   )
   sg.beginDefaultPass(passAction, sapp.width(), sapp.height())
   sgl.draw()

@@ -365,23 +365,32 @@ type
     colorMaskNone = 16,
 
 type
-  Action* {.size:sizeof(int32).} = enum
-    actionDefault,
-    actionClear,
-    actionLoad,
-    actionDontCare,
+  LoadAction* {.size:sizeof(int32).} = enum
+    loadActionDefault,
+    loadActionClear,
+    loadActionLoad,
+    loadActionDontcare,
+
+type
+  StoreAction* {.size:sizeof(int32).} = enum
+    storeActionDefault,
+    storeActionStore,
+    storeActionDontcare,
 
 type ColorAttachmentAction* = object
-  action*:Action
-  value*:Color
+  loadAction*:LoadAction
+  storeAction*:StoreAction
+  clearValue*:Color
 
 type DepthAttachmentAction* = object
-  action*:Action
-  value*:float32
+  loadAction*:LoadAction
+  storeAction*:StoreAction
+  clearValue*:float32
 
 type StencilAttachmentAction* = object
-  action*:Action
-  value*:uint8
+  loadAction*:LoadAction
+  storeAction*:StoreAction
+  clearValue*:uint8
 
 type PassAction* = object
   startCanary:uint32
@@ -629,11 +638,16 @@ type PassAttachmentDesc* = object
 type PassDesc* = object
   startCanary:uint32
   colorAttachments*:array[4, PassAttachmentDesc]
+  resolveAttachments*:array[4, PassAttachmentDesc]
   depthStencilAttachment*:PassAttachmentDesc
   label*:cstring
   endCanary:uint32
 
 converter toPassDesccolorAttachments*[N:static[int]](items: array[N, PassAttachmentDesc]): array[4, PassAttachmentDesc] =
+  static: assert(N < 4)
+  for index,item in items.pairs: result[index]=item
+
+converter toPassDescresolveAttachments*[N:static[int]](items: array[N, PassAttachmentDesc]): array[4, PassAttachmentDesc] =
   static: assert(N < 4)
   for index,item in items.pairs: result[index]=item
 
@@ -827,6 +841,9 @@ type
     logitemValidateImagedescNonrtPixelformat,
     logitemValidateImagedescMsaaButNoRt,
     logitemValidateImagedescNoMsaaRtSupport,
+    logitemValidateImagedescMsaaNumMipmaps,
+    logitemValidateImagedescMsaa3dImage,
+    logitemValidateImagedescDepth3dImage,
     logitemValidateImagedescRtImmutable,
     logitemValidateImagedescRtNoData,
     logitemValidateImagedescInjectedNoData,
@@ -866,8 +883,28 @@ type
     logitemValidatePassdescDepthInvPixelformat,
     logitemValidatePassdescImageSizes,
     logitemValidatePassdescImageSampleCounts,
+    logitemValidatePassdescResolveColorImageMsaa,
+    logitemValidatePassdescResolveImage,
+    logitemValidatePassdescResolveSampleCount,
+    logitemValidatePassdescResolveMiplevel,
+    logitemValidatePassdescResolveFace,
+    logitemValidatePassdescResolveLayer,
+    logitemValidatePassdescResolveSlice,
+    logitemValidatePassdescResolveImageNoRt,
+    logitemValidatePassdescResolveImageSizes,
+    logitemValidatePassdescResolveImageFormat,
+    logitemValidatePassdescDepthImage,
+    logitemValidatePassdescDepthMiplevel,
+    logitemValidatePassdescDepthFace,
+    logitemValidatePassdescDepthLayer,
+    logitemValidatePassdescDepthSlice,
+    logitemValidatePassdescDepthImageNoRt,
+    logitemValidatePassdescDepthImageSizes,
+    logitemValidatePassdescDepthImageSampleCount,
     logitemValidateBeginpassPass,
-    logitemValidateBeginpassImage,
+    logitemValidateBeginpassColorAttachmentImage,
+    logitemValidateBeginpassResolveAttachmentImage,
+    logitemValidateBeginpassDepthstencilAttachmentImage,
     logitemValidateApipPipelineValidId,
     logitemValidateApipPipelineExists,
     logitemValidateApipPipelineValid,
@@ -892,9 +929,13 @@ type
     logitemValidateAbndVsImgs,
     logitemValidateAbndVsImgExists,
     logitemValidateAbndVsImgTypes,
+    logitemValidateAbndVsImgMsaa,
+    logitemValidateAbndVsImgDepth,
     logitemValidateAbndFsImgs,
     logitemValidateAbndFsImgExists,
     logitemValidateAbndFsImgTypes,
+    logitemValidateAbndFsImgMsaa,
+    logitemValidateAbndFsImgDepth,
     logitemValidateAubNoPipeline,
     logitemValidateAubNoUbAtSlot,
     logitemValidateAubSize,

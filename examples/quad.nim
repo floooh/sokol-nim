@@ -51,7 +51,7 @@ proc init() {.cdecl.} =
   ))
 
   # pass action for clearing to black
-  passAction.colors[0] = ColorAttachmentAction( action: actionClear, value: (0f, 0f, 0f, 1f))
+  passAction.colors[0] = ColorAttachmentAction( loadAction: loadActionClear, clearValue: (0f, 0f, 0f, 1f))
 
 proc frame() {.cdecl.} =
   sg.beginDefaultPass(passAction, sapp.width(), sapp.height())

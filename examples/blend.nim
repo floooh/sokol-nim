@@ -21,9 +21,9 @@ var
   tick = 0f
 
 const passAction = PassAction(
-  colors: [ColorAttachmentAction(action: actionDontCare)],
-  depth: DepthAttachmentAction(action: actionDontCare),
-  stencil: StencilAttachmentAction(action: actionDontCare),
+  colors: [ColorAttachmentAction(loadAction: loadActionDontCare)],
+  depth: DepthAttachmentAction(loadAction: loadActionDontCare),
+  stencil: StencilAttachmentAction(loadAction: loadActionDontCare),
 )
 
 proc init() {.cdecl.} =

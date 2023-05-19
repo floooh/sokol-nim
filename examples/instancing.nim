@@ -33,7 +33,7 @@ proc init() {.cdecl.} =
 
   # a pass action for the default render pass (clears to black)
   passAction = PassAction(
-    colors: [ ColorAttachmentAction( action: actionClear, value: (0, 0, 0, 1)) ]
+    colors: [ ColorAttachmentAction( loadAction: loadActionClear, clearValue: (0, 0, 0, 1)) ]
   )
 
   # a vertex buffer for the static geometry, goes into vertex buffer bind slot 0

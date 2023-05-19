@@ -11,7 +11,7 @@ import sokol/glue as sglue
 const
   numSamples = 32
   passAction = PassAction(
-    colors: [ ColorAttachmentAction(action: actionClear, value: (1, 0.5, 0, 1)) ]
+    colors: [ ColorAttachmentAction(loadAction: loadActionClear, clearValue: (1, 0.5, 0, 1)) ]
   )
 
 var

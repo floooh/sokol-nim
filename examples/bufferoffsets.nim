@@ -25,7 +25,7 @@ proc init() {.cdecl.} =
   ))
 
   # clear to a blue-ish color
-  passAction.colors[0] = ColorAttachmentAction( action: actionClear, value: (0.5, 0.5, 1.0, 1.0))
+  passAction.colors[0] = ColorAttachmentAction( loadAction: loadActionClear, clearValue: (0.5, 0.5, 1.0, 1.0))
 
   # a 2D triangle and quad in one vertex buffer and one index buffer
   const vertices = [

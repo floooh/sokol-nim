@@ -11,7 +11,7 @@ import std/math
 
 const
   passAction = PassAction(
-    colors: [ ColorAttachmentAction(action: actionClear, value: (0, 0, 0, 1))]
+    colors: [ ColorAttachmentAction(loadAction: loadActionClear, clearValue: (0, 0, 0, 1))]
   )
 
 var

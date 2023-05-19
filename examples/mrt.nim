@@ -17,7 +17,7 @@ type Vertex = object
   x, y, z, b: float32
 
 const
-  offscreenSampleCount = 4
+  offscreenSampleCount = 1
 
 var
   offscreenPassAction: PassAction
@@ -79,15 +79,15 @@ proc init() {.cdecl.} =
   ))
 
   # pass action for the default pass, since we overwrite the entire framebuffer, no clearing needs to happen
-  defaultPassAction.colors[0].action = actionDontCare
-  defaultPassAction.depth.action = actionDontCare
-  defaultPassAction.stencil.action = actionDontCare
+  defaultPassAction.colors[0].loadAction = loadActionDontCare
+  defaultPassAction.depth.loadAction = loadActionDontCare
+  defaultPassAction.stencil.loadAction = loadActionDontCare
 
   # pass action for offscreen pass
   offscreenPassAction.colors = [
-    ColorAttachmentAction(action: actionClear, value: (0.25, 0, 0, 1)),
-    ColorAttachmentAction(action: actionClear, value: (0, 0.25, 0, 1)),
-    ColorAttachmentAction(action: actionClear, value: (0, 0, 0.25, 1))
+    ColorAttachmentAction(loadAction: loadActionClear, clearValue: (0.25, 0, 0, 1)),
+    ColorAttachmentAction(loadAction: loadActionClear, clearValue: (0, 0.25, 0, 1)),
+    ColorAttachmentAction(loadAction: loadActionClear, clearValue: (0, 0, 0.25, 1))
   ]
 
   # a render pass with 3 color attachment images, and a depth attachment image

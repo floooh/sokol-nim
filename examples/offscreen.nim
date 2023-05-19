@@ -13,7 +13,7 @@ import math/mat4
 import shaders/offscreen as shd
 
 const
-  offscreenSampleCount = 4
+  offscreenSampleCount = 1
 
 var
   offscreenPassAction: PassAction
@@ -34,12 +34,12 @@ proc init() {.cdecl.} =
 
   # default pass action: clear to blue-ish
   defaultPassAction = PassAction(
-    colors: [ ColorAttachmentAction( action: actionClear, value: (0.25, 0.45, 0.65, 1 )) ]
+    colors: [ ColorAttachmentAction( loadAction: loadActionClear, clearValue: (0.25, 0.45, 0.65, 1 )) ]
   )
 
   # offscreen pass action: clear to grey
   offscreenPassAction = PassAction(
-    colors: [ ColorAttachmentAction( action: actionClear, value: (0.25, 0.25, 0.25, 1 )) ]
+    colors: [ ColorAttachmentAction( loadAction: loadActionClear, clearValue: (0.25, 0.25, 0.25, 1 )) ]
   )
 
   # a render pass with one color- and one depth-attachment image

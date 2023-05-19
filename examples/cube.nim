@@ -19,7 +19,7 @@ var
 const
   passAction = PassAction(
     colors:[
-      ColorAttachmentAction(action: actionClear, value: (0.5, 0.5, 0.5, 1))
+      ColorAttachmentAction(loadAction: loadActionClear, clearValue: (0.5, 0.5, 0.5, 1))
     ]
   )
 

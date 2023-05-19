@@ -18,7 +18,7 @@ type Shape = object
 
 const
   passAction = PassAction(
-    colors: [ ColorAttachmentAction(action: actionClear, value: (0f, 0f, 0f, 1f)) ]
+    colors: [ ColorAttachmentAction(loadAction: loadActionClear, clearValue: (0f, 0f, 0f, 1f)) ]
   )
   numShapes = 5
 

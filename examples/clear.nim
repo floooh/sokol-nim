@@ -8,7 +8,7 @@ import sokol/gfx as sg
 import sokol/glue as sglue
 
 var passAction = PassAction(
-  colors: [ ColorAttachmentAction( action: actionClear, value: (1, 0, 0, 0)) ]
+  colors: [ ColorAttachmentAction( loadAction: loadActionClear, clearValue: (1, 0, 0, 0)) ]
 )
 
 proc init() {.cdecl.} =
@@ -23,8 +23,8 @@ proc init() {.cdecl.} =
     else: echo "using untested backend"
 
 proc frame() {.cdecl.} =
-  var g = passAction.colors[0].value.g + 0.01
-  passAction.colors[0].value.g = if g > 1.0: 0.0 else: g
+  var g = passAction.colors[0].clearValue.g + 0.01
+  passAction.colors[0].clearValue.g = if g > 1.0: 0.0 else: g
   beginDefaultPass(passAction, sapp.width(), sapp.height())
   endPass()
   commit()
