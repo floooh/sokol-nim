@@ -526,7 +526,7 @@ proc setWindowTitle*(str:cstring):void =
 
 proc c_setIcon(iconDesc:ptr IconDesc):void {.cdecl, importc:"sapp_set_icon".}
 proc setIcon*(iconDesc:IconDesc):void =
-    c_setIcon(unsafeAddr(icon_desc))
+    c_setIcon(addr(icon_desc))
 
 proc c_getNumDroppedFiles():int32 {.cdecl, importc:"sapp_get_num_dropped_files".}
 proc getNumDroppedFiles*():int32 =
@@ -538,7 +538,7 @@ proc getDroppedFilePath*(index:int32):cstring =
 
 proc c_run(desc:ptr Desc):void {.cdecl, importc:"sapp_run".}
 proc run*(desc:Desc):void =
-    c_run(unsafeAddr(desc))
+    c_run(addr(desc))
 
 proc c_eglGetDisplay():pointer {.cdecl, importc:"sapp_egl_get_display".}
 proc eglGetDisplay*():pointer =
@@ -558,7 +558,7 @@ proc html5GetDroppedFileSize*(index:int32):uint32 =
 
 proc c_html5FetchDroppedFile(request:ptr Html5FetchRequest):void {.cdecl, importc:"sapp_html5_fetch_dropped_file".}
 proc html5FetchDroppedFile*(request:Html5FetchRequest):void =
-    c_html5FetchDroppedFile(unsafeAddr(request))
+    c_html5FetchDroppedFile(addr(request))
 
 proc c_metalGetDevice():pointer {.cdecl, importc:"sapp_metal_get_device".}
 proc metalGetDevice*():pointer =

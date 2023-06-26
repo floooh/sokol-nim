@@ -58,7 +58,7 @@ type Desc* = object
 
 proc c_setup(desc:ptr Desc):void {.cdecl, importc:"sgl_setup".}
 proc setup*(desc:Desc):void =
-    c_setup(unsafeAddr(desc))
+    c_setup(addr(desc))
 
 proc c_shutdown():void {.cdecl, importc:"sgl_shutdown".}
 proc shutdown*():void =
@@ -82,7 +82,7 @@ proc contextError*(ctx:Context):Error =
 
 proc c_makeContext(desc:ptr ContextDesc):Context {.cdecl, importc:"sgl_make_context".}
 proc makeContext*(desc:ContextDesc):Context =
-    c_makeContext(unsafeAddr(desc))
+    c_makeContext(addr(desc))
 
 proc c_destroyContext(ctx:Context):void {.cdecl, importc:"sgl_destroy_context".}
 proc destroyContext*(ctx:Context):void =
@@ -118,11 +118,11 @@ proc contextDrawLayer*(ctx:Context, layerId:int32):void =
 
 proc c_makePipeline(desc:ptr gfx.PipelineDesc):Pipeline {.cdecl, importc:"sgl_make_pipeline".}
 proc makePipeline*(desc:gfx.PipelineDesc):Pipeline =
-    c_makePipeline(unsafeAddr(desc))
+    c_makePipeline(addr(desc))
 
 proc c_contextMakePipeline(ctx:Context, desc:ptr gfx.PipelineDesc):Pipeline {.cdecl, importc:"sgl_context_make_pipeline".}
 proc contextMakePipeline*(ctx:Context, desc:gfx.PipelineDesc):Pipeline =
-    c_contextMakePipeline(ctx, unsafeAddr(desc))
+    c_contextMakePipeline(ctx, addr(desc))
 
 proc c_destroyPipeline(pip:Pipeline):void {.cdecl, importc:"sgl_destroy_pipeline".}
 proc destroyPipeline*(pip:Pipeline):void =

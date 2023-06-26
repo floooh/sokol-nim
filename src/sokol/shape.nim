@@ -97,23 +97,23 @@ type Torus* = object
 
 proc c_buildPlane(buf:ptr Buffer, params:ptr Plane):Buffer {.cdecl, importc:"sshape_build_plane".}
 proc buildPlane*(buf:Buffer, params:Plane):Buffer =
-    c_buildPlane(unsafeAddr(buf), unsafeAddr(params))
+    c_buildPlane(addr(buf), addr(params))
 
 proc c_buildBox(buf:ptr Buffer, params:ptr Box):Buffer {.cdecl, importc:"sshape_build_box".}
 proc buildBox*(buf:Buffer, params:Box):Buffer =
-    c_buildBox(unsafeAddr(buf), unsafeAddr(params))
+    c_buildBox(addr(buf), addr(params))
 
 proc c_buildSphere(buf:ptr Buffer, params:ptr Sphere):Buffer {.cdecl, importc:"sshape_build_sphere".}
 proc buildSphere*(buf:Buffer, params:Sphere):Buffer =
-    c_buildSphere(unsafeAddr(buf), unsafeAddr(params))
+    c_buildSphere(addr(buf), addr(params))
 
 proc c_buildCylinder(buf:ptr Buffer, params:ptr Cylinder):Buffer {.cdecl, importc:"sshape_build_cylinder".}
 proc buildCylinder*(buf:Buffer, params:Cylinder):Buffer =
-    c_buildCylinder(unsafeAddr(buf), unsafeAddr(params))
+    c_buildCylinder(addr(buf), addr(params))
 
 proc c_buildTorus(buf:ptr Buffer, params:ptr Torus):Buffer {.cdecl, importc:"sshape_build_torus".}
 proc buildTorus*(buf:Buffer, params:Torus):Buffer =
-    c_buildTorus(unsafeAddr(buf), unsafeAddr(params))
+    c_buildTorus(addr(buf), addr(params))
 
 proc c_planeSizes(tiles:uint32):Sizes {.cdecl, importc:"sshape_plane_sizes".}
 proc planeSizes*(tiles:uint32):Sizes =
@@ -137,15 +137,15 @@ proc torusSizes*(sides:uint32, rings:uint32):Sizes =
 
 proc c_elementRange(buf:ptr Buffer):ElementRange {.cdecl, importc:"sshape_element_range".}
 proc elementRange*(buf:Buffer):ElementRange =
-    c_elementRange(unsafeAddr(buf))
+    c_elementRange(addr(buf))
 
 proc c_vertexBufferDesc(buf:ptr Buffer):gfx.BufferDesc {.cdecl, importc:"sshape_vertex_buffer_desc".}
 proc vertexBufferDesc*(buf:Buffer):gfx.BufferDesc =
-    c_vertexBufferDesc(unsafeAddr(buf))
+    c_vertexBufferDesc(addr(buf))
 
 proc c_indexBufferDesc(buf:ptr Buffer):gfx.BufferDesc {.cdecl, importc:"sshape_index_buffer_desc".}
 proc indexBufferDesc*(buf:Buffer):gfx.BufferDesc =
-    c_indexBufferDesc(unsafeAddr(buf))
+    c_indexBufferDesc(addr(buf))
 
 proc c_bufferLayoutDesc():gfx.BufferLayoutDesc {.cdecl, importc:"sshape_buffer_layout_desc".}
 proc bufferLayoutDesc*():gfx.BufferLayoutDesc =

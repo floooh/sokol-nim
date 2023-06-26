@@ -56,7 +56,7 @@ converter toDescfonts*[N:static[int]](items: array[N, FontDesc]): array[8, FontD
 
 proc c_setup(desc:ptr Desc):void {.cdecl, importc:"sdtx_setup".}
 proc setup*(desc:Desc):void =
-    c_setup(unsafeAddr(desc))
+    c_setup(addr(desc))
 
 proc c_shutdown():void {.cdecl, importc:"sdtx_shutdown".}
 proc shutdown*():void =
@@ -88,7 +88,7 @@ proc fontOric*():FontDesc =
 
 proc c_makeContext(desc:ptr ContextDesc):Context {.cdecl, importc:"sdtx_make_context".}
 proc makeContext*(desc:ContextDesc):Context =
-    c_makeContext(unsafeAddr(desc))
+    c_makeContext(addr(desc))
 
 proc c_destroyContext(ctx:Context):void {.cdecl, importc:"sdtx_destroy_context".}
 proc destroyContext*(ctx:Context):void =

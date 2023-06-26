@@ -63,7 +63,7 @@ type Desc* = object
 
 proc c_setup(desc:ptr Desc):void {.cdecl, importc:"saudio_setup".}
 proc setup*(desc:Desc):void =
-    c_setup(unsafeAddr(desc))
+    c_setup(addr(desc))
 
 proc c_shutdown():void {.cdecl, importc:"saudio_shutdown".}
 proc shutdown*():void =
