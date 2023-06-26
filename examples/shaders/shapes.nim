@@ -38,14 +38,14 @@ type VsParams* {.packed.} = object
 
 #
 #   #version 330
-#   
+#
 #   uniform vec4 vs_params[5];
 #   layout(location = 0) in vec4 position;
 #   out vec4 color;
 #   layout(location = 1) in vec3 normal;
 #   layout(location = 2) in vec2 texcoord;
 #   layout(location = 3) in vec4 color0;
-#   
+#
 #   void main()
 #   {
 #       gl_Position = mat4(vs_params[0], vs_params[1], vs_params[2], vs_params[3]) * position;
@@ -65,7 +65,7 @@ type VsParams* {.packed.} = object
 #           }
 #       }
 #   }
-#   
+#
 #
 const vsSourceGlsl330: array[600, uint8] = [
     0x23'u8,0x76,0x65,0x72,0x73,0x69,0x6f,0x6e,0x20,0x33,0x33,0x30,0x0a,0x0a,0x75,0x6e,
@@ -109,15 +109,15 @@ const vsSourceGlsl330: array[600, uint8] = [
 ]
 #
 #   #version 330
-#   
+#
 #   layout(location = 0) out vec4 frag_color;
 #   in vec4 color;
-#   
+#
 #   void main()
 #   {
 #       frag_color = color;
 #   }
-#   
+#
 #
 const fsSourceGlsl330: array[114, uint8] = [
     0x23'u8,0x76,0x65,0x72,0x73,0x69,0x6f,0x6e,0x20,0x33,0x33,0x30,0x0a,0x0a,0x6c,0x61,
@@ -135,15 +135,15 @@ const fsSourceGlsl330: array[114, uint8] = [
 #       row_major float4x4 _21_mvp : packoffset(c0);
 #       float _21_draw_mode : packoffset(c4);
 #   };
-#   
-#   
+#
+#
 #   static float4 gl_Position;
 #   static float4 position;
 #   static float4 color;
 #   static float3 normal;
 #   static float2 texcoord;
 #   static float4 color0;
-#   
+#
 #   struct SPIRV_Cross_Input
 #   {
 #       float4 position : TEXCOORD0;
@@ -151,13 +151,13 @@ const fsSourceGlsl330: array[114, uint8] = [
 #       float2 texcoord : TEXCOORD2;
 #       float4 color0 : TEXCOORD3;
 #   };
-#   
+#
 #   struct SPIRV_Cross_Output
 #   {
 #       float4 color : TEXCOORD0;
 #       float4 gl_Position : SV_Position;
 #   };
-#   
+#
 #   #line 19 "examples/shaders/shapes.glsl"
 #   void vert_main()
 #   {
@@ -184,7 +184,7 @@ const fsSourceGlsl330: array[114, uint8] = [
 #           }
 #       }
 #   }
-#   
+#
 #   SPIRV_Cross_Output main(SPIRV_Cross_Input stage_input)
 #   {
 #       position = stage_input.position;
@@ -298,24 +298,24 @@ const vsSourceHlsl4: array[1518, uint8] = [
 #
 #   static float4 frag_color;
 #   static float4 color;
-#   
+#
 #   struct SPIRV_Cross_Input
 #   {
 #       float4 color : TEXCOORD0;
 #   };
-#   
+#
 #   struct SPIRV_Cross_Output
 #   {
 #       float4 frag_color : SV_Target0;
 #   };
-#   
+#
 #   #line 10 "examples/shaders/shapes.glsl"
 #   void frag_main()
 #   {
 #   #line 10 "examples/shaders/shapes.glsl"
 #       frag_color = color;
 #   }
-#   
+#
 #   SPIRV_Cross_Output main(SPIRV_Cross_Input stage_input)
 #   {
 #       color = stage_input.color;
@@ -363,21 +363,21 @@ const fsSourceHlsl4: array[515, uint8] = [
 #
 #   #include <metal_stdlib>
 #   #include <simd/simd.h>
-#   
+#
 #   using namespace metal;
-#   
+#
 #   struct vs_params
 #   {
 #       float4x4 mvp;
 #       float draw_mode;
 #   };
-#   
+#
 #   struct main0_out
 #   {
 #       float4 color [[user(locn0)]];
 #       float4 gl_Position [[position]];
 #   };
-#   
+#
 #   struct main0_in
 #   {
 #       float4 position [[attribute(0)]];
@@ -385,7 +385,7 @@ const fsSourceHlsl4: array[515, uint8] = [
 #       float2 texcoord [[attribute(2)]];
 #       float4 color0 [[attribute(3)]];
 #   };
-#   
+#
 #   #line 19 "examples/shaders/shapes.glsl"
 #   vertex main0_out main0(main0_in in [[stage_in]], constant vs_params& _21 [[buffer(0)]])
 #   {
@@ -414,7 +414,7 @@ const fsSourceHlsl4: array[515, uint8] = [
 #       }
 #       return out;
 #   }
-#   
+#
 #
 const vsSourceMetalMacos: array[1163, uint8] = [
     0x23'u8,0x69,0x6e,0x63,0x6c,0x75,0x64,0x65,0x20,0x3c,0x6d,0x65,0x74,0x61,0x6c,0x5f,
@@ -494,19 +494,19 @@ const vsSourceMetalMacos: array[1163, uint8] = [
 #
 #   #include <metal_stdlib>
 #   #include <simd/simd.h>
-#   
+#
 #   using namespace metal;
-#   
+#
 #   struct main0_out
 #   {
 #       float4 frag_color [[color(0)]];
 #   };
-#   
+#
 #   struct main0_in
 #   {
 #       float4 color [[user(locn0)]];
 #   };
-#   
+#
 #   #line 10 "examples/shaders/shapes.glsl"
 #   fragment main0_out main0(main0_in in [[stage_in]])
 #   {
@@ -515,7 +515,7 @@ const vsSourceMetalMacos: array[1163, uint8] = [
 #       out.frag_color = in.color;
 #       return out;
 #   }
-#   
+#
 #
 const fsSourceMetalMacos: array[395, uint8] = [
     0x23'u8,0x69,0x6e,0x63,0x6c,0x75,0x64,0x65,0x20,0x3c,0x6d,0x65,0x74,0x61,0x6c,0x5f,
@@ -551,14 +551,14 @@ proc shapesShaderDesc*(backend: sg.Backend): sg.ShaderDesc =
       result.attrs[1].name = "normal"
       result.attrs[2].name = "texcoord"
       result.attrs[3].name = "color0"
-      result.vs.source = cast[cstring](unsafeAddr(vsSourceGlsl330))
+      result.vs.source = cast[cstring](addr(vsSourceGlsl330))
       result.vs.entry = "main"
       result.vs.uniformBlocks[0].size = 80
       result.vs.uniformBlocks[0].layout = uniformLayoutStd140
       result.vs.uniformBlocks[0].uniforms[0].name = "vs_params"
       result.vs.uniformBlocks[0].uniforms[0].type = uniformTypeFloat4
       result.vs.uniformBlocks[0].uniforms[0].arrayCount = 5
-      result.fs.source = cast[cstring](unsafeAddr(fsSourceGlsl330))
+      result.fs.source = cast[cstring](addr(fsSourceGlsl330))
       result.fs.entry = "main"
       result.label = "shapesShader"
     of backendD3d11:
@@ -570,21 +570,21 @@ proc shapesShaderDesc*(backend: sg.Backend): sg.ShaderDesc =
       result.attrs[2].semIndex = 2
       result.attrs[3].semName = "TEXCOORD"
       result.attrs[3].semIndex = 3
-      result.vs.source = cast[cstring](unsafeAddr(vsSourceHlsl4))
+      result.vs.source = cast[cstring](addr(vsSourceHlsl4))
       result.vs.d3d11Target = "vs_4_0"
       result.vs.entry = "main"
       result.vs.uniformBlocks[0].size = 80
       result.vs.uniformBlocks[0].layout = uniformLayoutStd140
-      result.fs.source = cast[cstring](unsafeAddr(fsSourceHlsl4))
+      result.fs.source = cast[cstring](addr(fsSourceHlsl4))
       result.fs.d3d11Target = "ps_4_0"
       result.fs.entry = "main"
       result.label = "shapesShader"
     of backendMetalMacos:
-      result.vs.source = cast[cstring](unsafeAddr(vsSourceMetalMacos))
+      result.vs.source = cast[cstring](addr(vsSourceMetalMacos))
       result.vs.entry = "main0"
       result.vs.uniformBlocks[0].size = 80
       result.vs.uniformBlocks[0].layout = uniformLayoutStd140
-      result.fs.source = cast[cstring](unsafeAddr(fsSourceMetalMacos))
+      result.fs.source = cast[cstring](addr(fsSourceMetalMacos))
       result.fs.entry = "main0"
       result.label = "shapesShader"
     else: discard

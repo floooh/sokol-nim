@@ -48,14 +48,14 @@ type QuadVsParams* {.packed.} = object
 
 #
 #   #version 330
-#   
+#
 #   layout(location = 0) in vec2 position;
-#   
+#
 #   void main()
 #   {
 #       gl_Position = vec4(position, 0.5, 1.0);
 #   }
-#   
+#
 #
 const vsBgSourceGlsl330: array[116, uint8] = [
     0x23'u8,0x76,0x65,0x72,0x73,0x69,0x6f,0x6e,0x20,0x33,0x33,0x30,0x0a,0x0a,0x6c,0x61,
@@ -69,17 +69,17 @@ const vsBgSourceGlsl330: array[116, uint8] = [
 ]
 #
 #   #version 330
-#   
+#
 #   uniform vec4 bg_fs_params[1];
 #   layout(location = 0) out vec4 frag_color;
-#   
+#
 #   void main()
 #   {
 #       vec2 _30 = fract((gl_FragCoord.xy - vec2(bg_fs_params[0].x)) * vec2(0.0199999995529651641845703125));
 #       float _41 = _30.x * _30.y;
 #       frag_color = vec4(_41, _41, _41, 1.0);
 #   }
-#   
+#
 #
 const fsBgSourceGlsl330: array[285, uint8] = [
     0x23'u8,0x76,0x65,0x72,0x73,0x69,0x6f,0x6e,0x20,0x33,0x33,0x30,0x0a,0x0a,0x75,0x6e,
@@ -103,18 +103,18 @@ const fsBgSourceGlsl330: array[285, uint8] = [
 ]
 #
 #   #version 330
-#   
+#
 #   uniform vec4 quad_vs_params[4];
 #   layout(location = 0) in vec4 position;
 #   out vec4 color;
 #   layout(location = 1) in vec4 color0;
-#   
+#
 #   void main()
 #   {
 #       gl_Position = mat4(quad_vs_params[0], quad_vs_params[1], quad_vs_params[2], quad_vs_params[3]) * position;
 #       color = color0;
 #   }
-#   
+#
 #
 const vsQuadSourceGlsl330: array[288, uint8] = [
     0x23'u8,0x76,0x65,0x72,0x73,0x69,0x6f,0x6e,0x20,0x33,0x33,0x30,0x0a,0x0a,0x75,0x6e,
@@ -139,15 +139,15 @@ const vsQuadSourceGlsl330: array[288, uint8] = [
 ]
 #
 #   #version 330
-#   
+#
 #   layout(location = 0) out vec4 frag_color;
 #   in vec4 color;
-#   
+#
 #   void main()
 #   {
 #       frag_color = color;
 #   }
-#   
+#
 #
 const fsQuadSourceGlsl330: array[114, uint8] = [
     0x23'u8,0x76,0x65,0x72,0x73,0x69,0x6f,0x6e,0x20,0x33,0x33,0x30,0x0a,0x0a,0x6c,0x61,
@@ -162,24 +162,24 @@ const fsQuadSourceGlsl330: array[114, uint8] = [
 #
 #   static float4 gl_Position;
 #   static float2 position;
-#   
+#
 #   struct SPIRV_Cross_Input
 #   {
 #       float2 position : TEXCOORD0;
 #   };
-#   
+#
 #   struct SPIRV_Cross_Output
 #   {
 #       float4 gl_Position : SV_Position;
 #   };
-#   
+#
 #   #line 8 "examples/shaders/blend.glsl"
 #   void vert_main()
 #   {
 #   #line 8 "examples/shaders/blend.glsl"
 #       gl_Position = float4(position, 0.5f, 1.0f);
 #   }
-#   
+#
 #   SPIRV_Cross_Output main(SPIRV_Cross_Input stage_input)
 #   {
 #       position = stage_input.position;
@@ -231,21 +231,21 @@ const vsBgSourceHlsl4: array[552, uint8] = [
 #   {
 #       float _19_tick : packoffset(c0);
 #   };
-#   
-#   
+#
+#
 #   static float4 gl_FragCoord;
 #   static float4 frag_color;
-#   
+#
 #   struct SPIRV_Cross_Input
 #   {
 #       float4 gl_FragCoord : SV_Position;
 #   };
-#   
+#
 #   struct SPIRV_Cross_Output
 #   {
 #       float4 frag_color : SV_Target0;
 #   };
-#   
+#
 #   #line 13 "examples/shaders/blend.glsl"
 #   void frag_main()
 #   {
@@ -255,7 +255,7 @@ const vsBgSourceHlsl4: array[552, uint8] = [
 #       float _41 = _30.x * _30.y;
 #       frag_color = float4(_41, _41, _41, 1.0f);
 #   }
-#   
+#
 #   SPIRV_Cross_Output main(SPIRV_Cross_Input stage_input)
 #   {
 #       gl_FragCoord = stage_input.gl_FragCoord;
@@ -327,25 +327,25 @@ const fsBgSourceHlsl4: array[851, uint8] = [
 #   {
 #       row_major float4x4 _21_mvp : packoffset(c0);
 #   };
-#   
-#   
+#
+#
 #   static float4 gl_Position;
 #   static float4 position;
 #   static float4 color;
 #   static float4 color0;
-#   
+#
 #   struct SPIRV_Cross_Input
 #   {
 #       float4 position : TEXCOORD0;
 #       float4 color0 : TEXCOORD1;
 #   };
-#   
+#
 #   struct SPIRV_Cross_Output
 #   {
 #       float4 color : TEXCOORD0;
 #       float4 gl_Position : SV_Position;
 #   };
-#   
+#
 #   #line 16 "examples/shaders/blend.glsl"
 #   void vert_main()
 #   {
@@ -354,7 +354,7 @@ const fsBgSourceHlsl4: array[851, uint8] = [
 #   #line 17 "examples/shaders/blend.glsl"
 #       color = color0;
 #   }
-#   
+#
 #   SPIRV_Cross_Output main(SPIRV_Cross_Input stage_input)
 #   {
 #       position = stage_input.position;
@@ -426,24 +426,24 @@ const vsQuadSourceHlsl4: array[870, uint8] = [
 #
 #   static float4 frag_color;
 #   static float4 color;
-#   
+#
 #   struct SPIRV_Cross_Input
 #   {
 #       float4 color : TEXCOORD0;
 #   };
-#   
+#
 #   struct SPIRV_Cross_Output
 #   {
 #       float4 frag_color : SV_Target0;
 #   };
-#   
+#
 #   #line 9 "examples/shaders/blend.glsl"
 #   void frag_main()
 #   {
 #   #line 9 "examples/shaders/blend.glsl"
 #       frag_color = color;
 #   }
-#   
+#
 #   SPIRV_Cross_Output main(SPIRV_Cross_Input stage_input)
 #   {
 #       color = stage_input.color;
@@ -490,19 +490,19 @@ const fsQuadSourceHlsl4: array[511, uint8] = [
 #
 #   #include <metal_stdlib>
 #   #include <simd/simd.h>
-#   
+#
 #   using namespace metal;
-#   
+#
 #   struct main0_out
 #   {
 #       float4 gl_Position [[position]];
 #   };
-#   
+#
 #   struct main0_in
 #   {
 #       float2 position [[attribute(0)]];
 #   };
-#   
+#
 #   #line 8 "examples/shaders/blend.glsl"
 #   vertex main0_out main0(main0_in in [[stage_in]])
 #   {
@@ -511,7 +511,7 @@ const fsQuadSourceHlsl4: array[511, uint8] = [
 #       out.gl_Position = float4(in.position, 0.5, 1.0);
 #       return out;
 #   }
-#   
+#
 #
 const vsBgSourceMetalMacos: array[416, uint8] = [
     0x23'u8,0x69,0x6e,0x63,0x6c,0x75,0x64,0x65,0x20,0x3c,0x6d,0x65,0x74,0x61,0x6c,0x5f,
@@ -545,19 +545,19 @@ const vsBgSourceMetalMacos: array[416, uint8] = [
 #
 #   #include <metal_stdlib>
 #   #include <simd/simd.h>
-#   
+#
 #   using namespace metal;
-#   
+#
 #   struct bg_fs_params
 #   {
 #       float tick;
 #   };
-#   
+#
 #   struct main0_out
 #   {
 #       float4 frag_color [[color(0)]];
 #   };
-#   
+#
 #   #line 13 "examples/shaders/blend.glsl"
 #   fragment main0_out main0(constant bg_fs_params& _19 [[buffer(0)]], float4 gl_FragCoord [[position]])
 #   {
@@ -569,7 +569,7 @@ const vsBgSourceMetalMacos: array[416, uint8] = [
 #       out.frag_color = float4(_41, _41, _41, 1.0);
 #       return out;
 #   }
-#   
+#
 #
 const fsBgSourceMetalMacos: array[620, uint8] = [
     0x23'u8,0x69,0x6e,0x63,0x6c,0x75,0x64,0x65,0x20,0x3c,0x6d,0x65,0x74,0x61,0x6c,0x5f,
@@ -615,26 +615,26 @@ const fsBgSourceMetalMacos: array[620, uint8] = [
 #
 #   #include <metal_stdlib>
 #   #include <simd/simd.h>
-#   
+#
 #   using namespace metal;
-#   
+#
 #   struct quad_vs_params
 #   {
 #       float4x4 mvp;
 #   };
-#   
+#
 #   struct main0_out
 #   {
 #       float4 color [[user(locn0)]];
 #       float4 gl_Position [[position]];
 #   };
-#   
+#
 #   struct main0_in
 #   {
 #       float4 position [[attribute(0)]];
 #       float4 color0 [[attribute(1)]];
 #   };
-#   
+#
 #   #line 16 "examples/shaders/blend.glsl"
 #   vertex main0_out main0(main0_in in [[stage_in]], constant quad_vs_params& _21 [[buffer(0)]])
 #   {
@@ -645,7 +645,7 @@ const fsBgSourceMetalMacos: array[620, uint8] = [
 #       out.color = in.color0;
 #       return out;
 #   }
-#   
+#
 #
 const vsQuadSourceMetalMacos: array[636, uint8] = [
     0x23'u8,0x69,0x6e,0x63,0x6c,0x75,0x64,0x65,0x20,0x3c,0x6d,0x65,0x74,0x61,0x6c,0x5f,
@@ -692,19 +692,19 @@ const vsQuadSourceMetalMacos: array[636, uint8] = [
 #
 #   #include <metal_stdlib>
 #   #include <simd/simd.h>
-#   
+#
 #   using namespace metal;
-#   
+#
 #   struct main0_out
 #   {
 #       float4 frag_color [[color(0)]];
 #   };
-#   
+#
 #   struct main0_in
 #   {
 #       float4 color [[user(locn0)]];
 #   };
-#   
+#
 #   #line 9 "examples/shaders/blend.glsl"
 #   fragment main0_out main0(main0_in in [[stage_in]])
 #   {
@@ -713,7 +713,7 @@ const vsQuadSourceMetalMacos: array[636, uint8] = [
 #       out.frag_color = in.color;
 #       return out;
 #   }
-#   
+#
 #
 const fsQuadSourceMetalMacos: array[391, uint8] = [
     0x23'u8,0x69,0x6e,0x63,0x6c,0x75,0x64,0x65,0x20,0x3c,0x6d,0x65,0x74,0x61,0x6c,0x5f,
@@ -746,9 +746,9 @@ proc bgShaderDesc*(backend: sg.Backend): sg.ShaderDesc =
   case backend:
     of backendGlcore33:
       result.attrs[0].name = "position"
-      result.vs.source = cast[cstring](unsafeAddr(vsBgSourceGlsl330))
+      result.vs.source = cast[cstring](addr(vsBgSourceGlsl330))
       result.vs.entry = "main"
-      result.fs.source = cast[cstring](unsafeAddr(fsBgSourceGlsl330))
+      result.fs.source = cast[cstring](addr(fsBgSourceGlsl330))
       result.fs.entry = "main"
       result.fs.uniformBlocks[0].size = 16
       result.fs.uniformBlocks[0].layout = uniformLayoutStd140
@@ -759,19 +759,19 @@ proc bgShaderDesc*(backend: sg.Backend): sg.ShaderDesc =
     of backendD3d11:
       result.attrs[0].semName = "TEXCOORD"
       result.attrs[0].semIndex = 0
-      result.vs.source = cast[cstring](unsafeAddr(vsBgSourceHlsl4))
+      result.vs.source = cast[cstring](addr(vsBgSourceHlsl4))
       result.vs.d3d11Target = "vs_4_0"
       result.vs.entry = "main"
-      result.fs.source = cast[cstring](unsafeAddr(fsBgSourceHlsl4))
+      result.fs.source = cast[cstring](addr(fsBgSourceHlsl4))
       result.fs.d3d11Target = "ps_4_0"
       result.fs.entry = "main"
       result.fs.uniformBlocks[0].size = 16
       result.fs.uniformBlocks[0].layout = uniformLayoutStd140
       result.label = "bgShader"
     of backendMetalMacos:
-      result.vs.source = cast[cstring](unsafeAddr(vsBgSourceMetalMacos))
+      result.vs.source = cast[cstring](addr(vsBgSourceMetalMacos))
       result.vs.entry = "main0"
-      result.fs.source = cast[cstring](unsafeAddr(fsBgSourceMetalMacos))
+      result.fs.source = cast[cstring](addr(fsBgSourceMetalMacos))
       result.fs.entry = "main0"
       result.fs.uniformBlocks[0].size = 16
       result.fs.uniformBlocks[0].layout = uniformLayoutStd140
@@ -783,14 +783,14 @@ proc quadShaderDesc*(backend: sg.Backend): sg.ShaderDesc =
     of backendGlcore33:
       result.attrs[0].name = "position"
       result.attrs[1].name = "color0"
-      result.vs.source = cast[cstring](unsafeAddr(vsQuadSourceGlsl330))
+      result.vs.source = cast[cstring](addr(vsQuadSourceGlsl330))
       result.vs.entry = "main"
       result.vs.uniformBlocks[0].size = 64
       result.vs.uniformBlocks[0].layout = uniformLayoutStd140
       result.vs.uniformBlocks[0].uniforms[0].name = "quad_vs_params"
       result.vs.uniformBlocks[0].uniforms[0].type = uniformTypeFloat4
       result.vs.uniformBlocks[0].uniforms[0].arrayCount = 4
-      result.fs.source = cast[cstring](unsafeAddr(fsQuadSourceGlsl330))
+      result.fs.source = cast[cstring](addr(fsQuadSourceGlsl330))
       result.fs.entry = "main"
       result.label = "quadShader"
     of backendD3d11:
@@ -798,21 +798,21 @@ proc quadShaderDesc*(backend: sg.Backend): sg.ShaderDesc =
       result.attrs[0].semIndex = 0
       result.attrs[1].semName = "TEXCOORD"
       result.attrs[1].semIndex = 1
-      result.vs.source = cast[cstring](unsafeAddr(vsQuadSourceHlsl4))
+      result.vs.source = cast[cstring](addr(vsQuadSourceHlsl4))
       result.vs.d3d11Target = "vs_4_0"
       result.vs.entry = "main"
       result.vs.uniformBlocks[0].size = 64
       result.vs.uniformBlocks[0].layout = uniformLayoutStd140
-      result.fs.source = cast[cstring](unsafeAddr(fsQuadSourceHlsl4))
+      result.fs.source = cast[cstring](addr(fsQuadSourceHlsl4))
       result.fs.d3d11Target = "ps_4_0"
       result.fs.entry = "main"
       result.label = "quadShader"
     of backendMetalMacos:
-      result.vs.source = cast[cstring](unsafeAddr(vsQuadSourceMetalMacos))
+      result.vs.source = cast[cstring](addr(vsQuadSourceMetalMacos))
       result.vs.entry = "main0"
       result.vs.uniformBlocks[0].size = 64
       result.vs.uniformBlocks[0].layout = uniformLayoutStd140
-      result.fs.source = cast[cstring](unsafeAddr(fsQuadSourceMetalMacos))
+      result.fs.source = cast[cstring](addr(fsQuadSourceMetalMacos))
       result.fs.entry = "main0"
       result.label = "quadShader"
     else: discard

@@ -182,7 +182,7 @@ proc init() {.cdecl.} =
   sdtx.setup(sdtx.Desc(
     fonts: [
       sdtx.FontDesc(
-        data: sdtx.Range(addr: userFont.unsafeAddr, size: userFont.sizeof),
+        data: sdtx.Range(addr: userFont.addr, size: userFont.sizeof),
         firstChar: 0x20,
         lastChar: 0x9F
       )

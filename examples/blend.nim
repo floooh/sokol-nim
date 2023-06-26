@@ -43,7 +43,7 @@ proc init() {.cdecl.} =
   ]
   bindings.vertexBuffers[0] = sg.makeBuffer(BufferDesc(
       type: bufferTypeVertexBuffer,
-      data: sg.Range(addr: vertices.unsafeAddr, size: vertices.sizeof)
+      data: sg.Range(addr: vertices.addr, size: vertices.sizeof)
     ))
 
   # pipeline object for rendering the background
@@ -87,7 +87,7 @@ proc frame() {.cdecl.} =
   tick += 1.0 * time
   sg.applyPipeline(bgPip)
   sg.applyBindings(bindings)
-  sg.applyUniforms(shaderStageFs, shd.slotBgFsParams, sg.Range(addr: bgFsParams.unsafeAddr, size: bgFsParams.sizeof))
+  sg.applyUniforms(shaderStageFs, shd.slotBgFsParams, sg.Range(addr: bgFsParams.addr, size: bgFsParams.sizeof))
   sg.draw(0, 4, 1)
 
   # draw the blended quads
@@ -109,7 +109,7 @@ proc frame() {.cdecl.} =
       let quadVsParams = QuadVsParams(mvp: viewProj * model)
       sg.applyPipeline(pip[src][dst])
       sg.applyBindings(bindings)
-      sg.applyUniforms(shaderStageVs, shd.slotQuadVsParams, sg.Range(addr: quadVsParams.unsafeAddr, size: quadVsParams.sizeof))
+      sg.applyUniforms(shaderStageVs, shd.slotQuadVsParams, sg.Range(addr: quadVsParams.addr, size: quadVsParams.sizeof))
       sg.draw(0, 4, 1)
       r0 += 0.6
   sg.endPass()

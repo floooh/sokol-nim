@@ -39,21 +39,21 @@ type VsParams* {.packed.} = object
 
 #
 #   #version 330
-#   
+#
 #   uniform vec4 vs_params[4];
 #   layout(location = 0) in vec4 pos;
 #   out vec4 color;
 #   layout(location = 1) in vec4 color0;
 #   out vec2 uv;
 #   layout(location = 2) in vec2 texcoord0;
-#   
+#
 #   void main()
 #   {
 #       gl_Position = mat4(vs_params[0], vs_params[1], vs_params[2], vs_params[3]) * pos;
 #       color = color0;
 #       uv = texcoord0 * 5.0;
 #   }
-#   
+#
 #
 const vsSourceGlsl330: array[332, uint8] = [
     0x23'u8,0x76,0x65,0x72,0x73,0x69,0x6f,0x6e,0x20,0x33,0x33,0x30,0x0a,0x0a,0x75,0x6e,
@@ -80,18 +80,18 @@ const vsSourceGlsl330: array[332, uint8] = [
 ]
 #
 #   #version 330
-#   
+#
 #   uniform sampler2D tex;
-#   
+#
 #   layout(location = 0) out vec4 frag_color;
 #   in vec2 uv;
 #   in vec4 color;
-#   
+#
 #   void main()
 #   {
 #       frag_color = texture(tex, uv) * color;
 #   }
-#   
+#
 #
 const fsSourceGlsl330: array[169, uint8] = [
     0x23'u8,0x76,0x65,0x72,0x73,0x69,0x6f,0x6e,0x20,0x33,0x33,0x30,0x0a,0x0a,0x75,0x6e,
@@ -111,29 +111,29 @@ const fsSourceGlsl330: array[169, uint8] = [
 #   {
 #       row_major float4x4 _21_mvp : packoffset(c0);
 #   };
-#   
-#   
+#
+#
 #   static float4 gl_Position;
 #   static float4 pos;
 #   static float4 color;
 #   static float4 color0;
 #   static float2 uv;
 #   static float2 texcoord0;
-#   
+#
 #   struct SPIRV_Cross_Input
 #   {
 #       float4 pos : TEXCOORD0;
 #       float4 color0 : TEXCOORD1;
 #       float2 texcoord0 : TEXCOORD2;
 #   };
-#   
+#
 #   struct SPIRV_Cross_Output
 #   {
 #       float4 color : TEXCOORD0;
 #       float2 uv : TEXCOORD1;
 #       float4 gl_Position : SV_Position;
 #   };
-#   
+#
 #   #line 18 "examples/shaders/texcube.glsl"
 #   void vert_main()
 #   {
@@ -144,7 +144,7 @@ const fsSourceGlsl330: array[169, uint8] = [
 #   #line 20 "examples/shaders/texcube.glsl"
 #       uv = texcoord0 * 5.0f;
 #   }
-#   
+#
 #   SPIRV_Cross_Output main(SPIRV_Cross_Input stage_input)
 #   {
 #       pos = stage_input.pos;
@@ -231,29 +231,29 @@ const vsSourceHlsl4: array[1083, uint8] = [
 #
 #   Texture2D<float4> tex : register(t0);
 #   SamplerState _tex_sampler : register(s0);
-#   
+#
 #   static float4 frag_color;
 #   static float2 uv;
 #   static float4 color;
-#   
+#
 #   struct SPIRV_Cross_Input
 #   {
 #       float4 color : TEXCOORD0;
 #       float2 uv : TEXCOORD1;
 #   };
-#   
+#
 #   struct SPIRV_Cross_Output
 #   {
 #       float4 frag_color : SV_Target0;
 #   };
-#   
+#
 #   #line 13 "examples/shaders/texcube.glsl"
 #   void frag_main()
 #   {
 #   #line 13 "examples/shaders/texcube.glsl"
 #       frag_color = tex.Sample(_tex_sampler, uv) * color;
 #   }
-#   
+#
 #   SPIRV_Cross_Output main(SPIRV_Cross_Input stage_input)
 #   {
 #       uv = stage_input.uv;
@@ -313,28 +313,28 @@ const fsSourceHlsl4: array[699, uint8] = [
 #
 #   #include <metal_stdlib>
 #   #include <simd/simd.h>
-#   
+#
 #   using namespace metal;
-#   
+#
 #   struct vs_params
 #   {
 #       float4x4 mvp;
 #   };
-#   
+#
 #   struct main0_out
 #   {
 #       float4 color [[user(locn0)]];
 #       float2 uv [[user(locn1)]];
 #       float4 gl_Position [[position]];
 #   };
-#   
+#
 #   struct main0_in
 #   {
 #       float4 pos [[attribute(0)]];
 #       float4 color0 [[attribute(1)]];
 #       float2 texcoord0 [[attribute(2)]];
 #   };
-#   
+#
 #   #line 18 "examples/shaders/texcube.glsl"
 #   vertex main0_out main0(main0_in in [[stage_in]], constant vs_params& _21 [[buffer(0)]])
 #   {
@@ -347,7 +347,7 @@ const fsSourceHlsl4: array[699, uint8] = [
 #       out.uv = in.texcoord0 * 5.0;
 #       return out;
 #   }
-#   
+#
 #
 const vsSourceMetalMacos: array[766, uint8] = [
     0x23'u8,0x69,0x6e,0x63,0x6c,0x75,0x64,0x65,0x20,0x3c,0x6d,0x65,0x74,0x61,0x6c,0x5f,
@@ -402,20 +402,20 @@ const vsSourceMetalMacos: array[766, uint8] = [
 #
 #   #include <metal_stdlib>
 #   #include <simd/simd.h>
-#   
+#
 #   using namespace metal;
-#   
+#
 #   struct main0_out
 #   {
 #       float4 frag_color [[color(0)]];
 #   };
-#   
+#
 #   struct main0_in
 #   {
 #       float4 color [[user(locn0)]];
 #       float2 uv [[user(locn1)]];
 #   };
-#   
+#
 #   #line 13 "examples/shaders/texcube.glsl"
 #   fragment main0_out main0(main0_in in [[stage_in]], texture2d<float> tex [[texture(0)]], sampler texSmplr [[sampler(0)]])
 #   {
@@ -424,7 +424,7 @@ const vsSourceMetalMacos: array[766, uint8] = [
 #       out.frag_color = tex.sample(texSmplr, in.uv) * in.color;
 #       return out;
 #   }
-#   
+#
 #
 const fsSourceMetalMacos: array[528, uint8] = [
     0x23'u8,0x69,0x6e,0x63,0x6c,0x75,0x64,0x65,0x20,0x3c,0x6d,0x65,0x74,0x61,0x6c,0x5f,
@@ -468,14 +468,14 @@ proc texcubeShaderDesc*(backend: sg.Backend): sg.ShaderDesc =
       result.attrs[0].name = "pos"
       result.attrs[1].name = "color0"
       result.attrs[2].name = "texcoord0"
-      result.vs.source = cast[cstring](unsafeAddr(vsSourceGlsl330))
+      result.vs.source = cast[cstring](addr(vsSourceGlsl330))
       result.vs.entry = "main"
       result.vs.uniformBlocks[0].size = 64
       result.vs.uniformBlocks[0].layout = uniformLayoutStd140
       result.vs.uniformBlocks[0].uniforms[0].name = "vs_params"
       result.vs.uniformBlocks[0].uniforms[0].type = uniformTypeFloat4
       result.vs.uniformBlocks[0].uniforms[0].arrayCount = 4
-      result.fs.source = cast[cstring](unsafeAddr(fsSourceGlsl330))
+      result.fs.source = cast[cstring](addr(fsSourceGlsl330))
       result.fs.entry = "main"
       result.fs.images[0].name = "tex"
       result.fs.images[0].imageType = imageType2d
@@ -488,12 +488,12 @@ proc texcubeShaderDesc*(backend: sg.Backend): sg.ShaderDesc =
       result.attrs[1].semIndex = 1
       result.attrs[2].semName = "TEXCOORD"
       result.attrs[2].semIndex = 2
-      result.vs.source = cast[cstring](unsafeAddr(vsSourceHlsl4))
+      result.vs.source = cast[cstring](addr(vsSourceHlsl4))
       result.vs.d3d11Target = "vs_4_0"
       result.vs.entry = "main"
       result.vs.uniformBlocks[0].size = 64
       result.vs.uniformBlocks[0].layout = uniformLayoutStd140
-      result.fs.source = cast[cstring](unsafeAddr(fsSourceHlsl4))
+      result.fs.source = cast[cstring](addr(fsSourceHlsl4))
       result.fs.d3d11Target = "ps_4_0"
       result.fs.entry = "main"
       result.fs.images[0].name = "tex"
@@ -501,11 +501,11 @@ proc texcubeShaderDesc*(backend: sg.Backend): sg.ShaderDesc =
       result.fs.images[0].samplerType = samplerTypeFloat
       result.label = "texcubeShader"
     of backendMetalMacos:
-      result.vs.source = cast[cstring](unsafeAddr(vsSourceMetalMacos))
+      result.vs.source = cast[cstring](addr(vsSourceMetalMacos))
       result.vs.entry = "main0"
       result.vs.uniformBlocks[0].size = 64
       result.vs.uniformBlocks[0].layout = uniformLayoutStd140
-      result.fs.source = cast[cstring](unsafeAddr(fsSourceMetalMacos))
+      result.fs.source = cast[cstring](addr(fsSourceMetalMacos))
       result.fs.entry = "main0"
       result.fs.images[0].name = "tex"
       result.fs.images[0].imageType = imageType2d
