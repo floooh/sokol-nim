@@ -2,6 +2,8 @@
 
 Auto-generated Nim bindings for the [sokol headers](https://github.com/floooh/sokol).
 
+> NOTE: if you are getting compilation errors about 'addr' please switch to the Nim development version (e.g. choosenim devel)
+
 ## Build and run samples
 
 First install sokol as local module:
