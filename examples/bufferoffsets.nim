@@ -47,11 +47,11 @@ proc init() {.cdecl.} =
     0, 1, 2, 0, 2, 3
   ]
   bindings.vertexBuffers[0] = sg.makeBuffer(BufferDesc(
-    data: sg.Range(addr: vertices.unsafeAddr, size: vertices.sizeof)
+    data: sg.Range(addr: vertices.addr, size: vertices.sizeof)
   ))
   bindings.indexBuffer = sg.makeBuffer(BufferDesc(
     type: bufferTypeIndexBuffer,
-    data: sg.Range(addr: indices.unsafeAddr, size: indices.sizeof)
+    data: sg.Range(addr: indices.addr, size: indices.sizeof)
   ))
 
   # shader and pipeline object

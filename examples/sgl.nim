@@ -38,7 +38,7 @@ proc init() {.cdecl.} =
     width: imgWidth,
     height: imgHeight,
     data: sg.ImageData(
-      subimage: [ [ sg.Range(addr: pixels.unsafeAddr, size: pixels.sizeof) ] ]
+      subimage: [ [ sg.Range(addr: pixels.addr, size: pixels.sizeof) ] ]
     )
   ))
 

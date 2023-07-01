@@ -52,18 +52,18 @@ type VsParams* {.packed.} = object
 
 #
 #   #version 330
-#   
+#
 #   uniform vec4 vs_params[4];
 #   layout(location = 0) in vec4 position;
 #   out vec4 nrm;
 #   layout(location = 1) in vec4 normal;
-#   
+#
 #   void main()
 #   {
 #       gl_Position = mat4(vs_params[0], vs_params[1], vs_params[2], vs_params[3]) * position;
 #       nrm = normal;
 #   }
-#   
+#
 #
 const vsOffscreenSourceGlsl330: array[259, uint8] = [
     0x23'u8,0x76,0x65,0x72,0x73,0x69,0x6f,0x6e,0x20,0x33,0x33,0x30,0x0a,0x0a,0x75,0x6e,
@@ -86,15 +86,15 @@ const vsOffscreenSourceGlsl330: array[259, uint8] = [
 ]
 #
 #   #version 330
-#   
+#
 #   layout(location = 0) out vec4 frag_color;
 #   in vec4 nrm;
-#   
+#
 #   void main()
 #   {
 #       frag_color = vec4((nrm.xyz * 0.5) + vec3(0.5), 1.0);
 #   }
-#   
+#
 #
 const fsOffscreenSourceGlsl330: array[145, uint8] = [
     0x23'u8,0x76,0x65,0x72,0x73,0x69,0x6f,0x6e,0x20,0x33,0x33,0x30,0x0a,0x0a,0x6c,0x61,
@@ -110,14 +110,14 @@ const fsOffscreenSourceGlsl330: array[145, uint8] = [
 ]
 #
 #   #version 330
-#   
+#
 #   uniform vec4 vs_params[4];
 #   layout(location = 0) in vec4 position;
 #   out vec2 uv;
 #   layout(location = 2) in vec2 texcoord0;
 #   out vec4 nrm;
 #   layout(location = 1) in vec4 normal;
-#   
+#
 #   void main()
 #   {
 #       mat4 _24 = mat4(vs_params[0], vs_params[1], vs_params[2], vs_params[3]);
@@ -125,7 +125,7 @@ const fsOffscreenSourceGlsl330: array[145, uint8] = [
 #       uv = texcoord0;
 #       nrm = _24 * normal;
 #   }
-#   
+#
 #
 const vsDefaultSourceGlsl330: array[358, uint8] = [
     0x23'u8,0x76,0x65,0x72,0x73,0x69,0x6f,0x6e,0x20,0x33,0x33,0x30,0x0a,0x0a,0x75,0x6e,
@@ -154,18 +154,18 @@ const vsDefaultSourceGlsl330: array[358, uint8] = [
 ]
 #
 #   #version 330
-#   
+#
 #   uniform sampler2D tex;
-#   
+#
 #   in vec2 uv;
 #   in vec4 nrm;
 #   layout(location = 0) out vec4 frag_color;
-#   
+#
 #   void main()
 #   {
 #       frag_color = vec4(texture(tex, uv * vec2(20.0, 10.0)).xyz * ((clamp(dot(nrm.xyz, vec3(0.57735025882720947265625, 0.57735025882720947265625, -0.57735025882720947265625)), 0.0, 1.0) * 2.0) + 0.25), 1.0);
 #   }
-#   
+#
 #
 const fsDefaultSourceGlsl330: array[330, uint8] = [
     0x23'u8,0x76,0x65,0x72,0x73,0x69,0x6f,0x6e,0x20,0x33,0x33,0x30,0x0a,0x0a,0x75,0x6e,
@@ -195,25 +195,25 @@ const fsDefaultSourceGlsl330: array[330, uint8] = [
 #   {
 #       row_major float4x4 _21_mvp : packoffset(c0);
 #   };
-#   
-#   
+#
+#
 #   static float4 gl_Position;
 #   static float4 position;
 #   static float4 nrm;
 #   static float4 normal;
-#   
+#
 #   struct SPIRV_Cross_Input
 #   {
 #       float4 position : TEXCOORD0;
 #       float4 normal : TEXCOORD1;
 #   };
-#   
+#
 #   struct SPIRV_Cross_Output
 #   {
 #       float4 nrm : TEXCOORD0;
 #       float4 gl_Position : SV_Position;
 #   };
-#   
+#
 #   #line 15 "examples/shaders/offscreen.glsl"
 #   void vert_main()
 #   {
@@ -222,7 +222,7 @@ const fsDefaultSourceGlsl330: array[330, uint8] = [
 #   #line 16 "examples/shaders/offscreen.glsl"
 #       nrm = normal;
 #   }
-#   
+#
 #   SPIRV_Cross_Output main(SPIRV_Cross_Input stage_input)
 #   {
 #       position = stage_input.position;
@@ -294,24 +294,24 @@ const vsOffscreenSourceHlsl4: array[867, uint8] = [
 #
 #   static float4 frag_color;
 #   static float4 nrm;
-#   
+#
 #   struct SPIRV_Cross_Input
 #   {
 #       float4 nrm : TEXCOORD0;
 #   };
-#   
+#
 #   struct SPIRV_Cross_Output
 #   {
 #       float4 frag_color : SV_Target0;
 #   };
-#   
+#
 #   #line 10 "examples/shaders/offscreen.glsl"
 #   void frag_main()
 #   {
 #   #line 10 "examples/shaders/offscreen.glsl"
 #       frag_color = float4((nrm.xyz * 0.5f) + 0.5f.xxx, 1.0f);
 #   }
-#   
+#
 #   SPIRV_Cross_Output main(SPIRV_Cross_Input stage_input)
 #   {
 #       nrm = stage_input.nrm;
@@ -363,29 +363,29 @@ const fsOffscreenSourceHlsl4: array[549, uint8] = [
 #   {
 #       row_major float4x4 _21_mvp : packoffset(c0);
 #   };
-#   
-#   
+#
+#
 #   static float4 gl_Position;
 #   static float4 position;
 #   static float2 uv;
 #   static float2 texcoord0;
 #   static float4 nrm;
 #   static float4 normal;
-#   
+#
 #   struct SPIRV_Cross_Input
 #   {
 #       float4 position : TEXCOORD0;
 #       float4 normal : TEXCOORD1;
 #       float2 texcoord0 : TEXCOORD2;
 #   };
-#   
+#
 #   struct SPIRV_Cross_Output
 #   {
 #       float4 nrm : TEXCOORD0;
 #       float2 uv : TEXCOORD1;
 #       float4 gl_Position : SV_Position;
 #   };
-#   
+#
 #   #line 17 "examples/shaders/offscreen.glsl"
 #   void vert_main()
 #   {
@@ -396,7 +396,7 @@ const fsOffscreenSourceHlsl4: array[549, uint8] = [
 #   #line 19 "examples/shaders/offscreen.glsl"
 #       nrm = mul(normal, _21_mvp);
 #   }
-#   
+#
 #   SPIRV_Cross_Output main(SPIRV_Cross_Input stage_input)
 #   {
 #       position = stage_input.position;
@@ -485,22 +485,22 @@ const vsDefaultSourceHlsl4: array[1113, uint8] = [
 #
 #   Texture2D<float4> tex : register(t0);
 #   SamplerState _tex_sampler : register(s0);
-#   
+#
 #   static float2 uv;
 #   static float4 nrm;
 #   static float4 frag_color;
-#   
+#
 #   struct SPIRV_Cross_Input
 #   {
 #       float4 nrm : TEXCOORD0;
 #       float2 uv : TEXCOORD1;
 #   };
-#   
+#
 #   struct SPIRV_Cross_Output
 #   {
 #       float4 frag_color : SV_Target0;
 #   };
-#   
+#
 #   #line 14 "examples/shaders/offscreen.glsl"
 #   void frag_main()
 #   {
@@ -509,7 +509,7 @@ const vsDefaultSourceHlsl4: array[1113, uint8] = [
 #   #line 16 "examples/shaders/offscreen.glsl"
 #       frag_color = float4(tex.Sample(_tex_sampler, uv * float2(20.0f, 10.0f)).xyz * ((clamp(dot(nrm.xyz, float3(0.57735025882720947265625f, 0.57735025882720947265625f, -0.57735025882720947265625f)), 0.0f, 1.0f) * 2.0f) + 0.25f), 1.0f);
 #   }
-#   
+#
 #   SPIRV_Cross_Output main(SPIRV_Cross_Input stage_input)
 #   {
 #       uv = stage_input.uv;
@@ -586,26 +586,26 @@ const fsDefaultSourceHlsl4: array[960, uint8] = [
 #
 #   #include <metal_stdlib>
 #   #include <simd/simd.h>
-#   
+#
 #   using namespace metal;
-#   
+#
 #   struct vs_params
 #   {
 #       float4x4 mvp;
 #   };
-#   
+#
 #   struct main0_out
 #   {
 #       float4 nrm [[user(locn0)]];
 #       float4 gl_Position [[position]];
 #   };
-#   
+#
 #   struct main0_in
 #   {
 #       float4 position [[attribute(0)]];
 #       float4 normal [[attribute(1)]];
 #   };
-#   
+#
 #   #line 15 "examples/shaders/offscreen.glsl"
 #   vertex main0_out main0(main0_in in [[stage_in]], constant vs_params& _21 [[buffer(0)]])
 #   {
@@ -616,7 +616,7 @@ const fsDefaultSourceHlsl4: array[960, uint8] = [
 #       out.nrm = in.normal;
 #       return out;
 #   }
-#   
+#
 #
 const vsOffscreenSourceMetalMacos: array[634, uint8] = [
     0x23'u8,0x69,0x6e,0x63,0x6c,0x75,0x64,0x65,0x20,0x3c,0x6d,0x65,0x74,0x61,0x6c,0x5f,
@@ -663,19 +663,19 @@ const vsOffscreenSourceMetalMacos: array[634, uint8] = [
 #
 #   #include <metal_stdlib>
 #   #include <simd/simd.h>
-#   
+#
 #   using namespace metal;
-#   
+#
 #   struct main0_out
 #   {
 #       float4 frag_color [[color(0)]];
 #   };
-#   
+#
 #   struct main0_in
 #   {
 #       float4 nrm [[user(locn0)]];
 #   };
-#   
+#
 #   #line 10 "examples/shaders/offscreen.glsl"
 #   fragment main0_out main0(main0_in in [[stage_in]])
 #   {
@@ -684,7 +684,7 @@ const vsOffscreenSourceMetalMacos: array[634, uint8] = [
 #       out.frag_color = float4((in.nrm.xyz * 0.5) + float3(0.5), 1.0);
 #       return out;
 #   }
-#   
+#
 #
 const fsOffscreenSourceMetalMacos: array[436, uint8] = [
     0x23'u8,0x69,0x6e,0x63,0x6c,0x75,0x64,0x65,0x20,0x3c,0x6d,0x65,0x74,0x61,0x6c,0x5f,
@@ -719,28 +719,28 @@ const fsOffscreenSourceMetalMacos: array[436, uint8] = [
 #
 #   #include <metal_stdlib>
 #   #include <simd/simd.h>
-#   
+#
 #   using namespace metal;
-#   
+#
 #   struct vs_params
 #   {
 #       float4x4 mvp;
 #   };
-#   
+#
 #   struct main0_out
 #   {
 #       float4 nrm [[user(locn0)]];
 #       float2 uv [[user(locn1)]];
 #       float4 gl_Position [[position]];
 #   };
-#   
+#
 #   struct main0_in
 #   {
 #       float4 position [[attribute(0)]];
 #       float4 normal [[attribute(1)]];
 #       float2 texcoord0 [[attribute(2)]];
 #   };
-#   
+#
 #   #line 17 "examples/shaders/offscreen.glsl"
 #   vertex main0_out main0(main0_in in [[stage_in]], constant vs_params& _21 [[buffer(0)]])
 #   {
@@ -753,7 +753,7 @@ const fsOffscreenSourceMetalMacos: array[436, uint8] = [
 #       out.nrm = _21.mvp * in.normal;
 #       return out;
 #   }
-#   
+#
 #
 const vsDefaultSourceMetalMacos: array[784, uint8] = [
     0x23'u8,0x69,0x6e,0x63,0x6c,0x75,0x64,0x65,0x20,0x3c,0x6d,0x65,0x74,0x61,0x6c,0x5f,
@@ -810,20 +810,20 @@ const vsDefaultSourceMetalMacos: array[784, uint8] = [
 #
 #   #include <metal_stdlib>
 #   #include <simd/simd.h>
-#   
+#
 #   using namespace metal;
-#   
+#
 #   struct main0_out
 #   {
 #       float4 frag_color [[color(0)]];
 #   };
-#   
+#
 #   struct main0_in
 #   {
 #       float4 nrm [[user(locn0)]];
 #       float2 uv [[user(locn1)]];
 #   };
-#   
+#
 #   #line 14 "examples/shaders/offscreen.glsl"
 #   fragment main0_out main0(main0_in in [[stage_in]], texture2d<float> tex [[texture(0)]], sampler texSmplr [[sampler(0)]])
 #   {
@@ -834,7 +834,7 @@ const vsDefaultSourceMetalMacos: array[784, uint8] = [
 #       out.frag_color = float4(tex.sample(texSmplr, (in.uv * float2(20.0, 10.0))).xyz * ((fast::clamp(dot(in.nrm.xyz, float3(0.57735025882720947265625, 0.57735025882720947265625, -0.57735025882720947265625)), 0.0, 1.0) * 2.0) + 0.25), 1.0);
 #       return out;
 #   }
-#   
+#
 #
 const fsDefaultSourceMetalMacos: array[793, uint8] = [
     0x23'u8,0x69,0x6e,0x63,0x6c,0x75,0x64,0x65,0x20,0x3c,0x6d,0x65,0x74,0x61,0x6c,0x5f,
@@ -894,14 +894,14 @@ proc defaultShaderDesc*(backend: sg.Backend): sg.ShaderDesc =
       result.attrs[0].name = "position"
       result.attrs[1].name = "normal"
       result.attrs[2].name = "texcoord0"
-      result.vs.source = cast[cstring](unsafeAddr(vsDefaultSourceGlsl330))
+      result.vs.source = cast[cstring](addr(vsDefaultSourceGlsl330))
       result.vs.entry = "main"
       result.vs.uniformBlocks[0].size = 64
       result.vs.uniformBlocks[0].layout = uniformLayoutStd140
       result.vs.uniformBlocks[0].uniforms[0].name = "vs_params"
       result.vs.uniformBlocks[0].uniforms[0].type = uniformTypeFloat4
       result.vs.uniformBlocks[0].uniforms[0].arrayCount = 4
-      result.fs.source = cast[cstring](unsafeAddr(fsDefaultSourceGlsl330))
+      result.fs.source = cast[cstring](addr(fsDefaultSourceGlsl330))
       result.fs.entry = "main"
       result.fs.images[0].name = "tex"
       result.fs.images[0].imageType = imageType2d
@@ -914,12 +914,12 @@ proc defaultShaderDesc*(backend: sg.Backend): sg.ShaderDesc =
       result.attrs[1].semIndex = 1
       result.attrs[2].semName = "TEXCOORD"
       result.attrs[2].semIndex = 2
-      result.vs.source = cast[cstring](unsafeAddr(vsDefaultSourceHlsl4))
+      result.vs.source = cast[cstring](addr(vsDefaultSourceHlsl4))
       result.vs.d3d11Target = "vs_4_0"
       result.vs.entry = "main"
       result.vs.uniformBlocks[0].size = 64
       result.vs.uniformBlocks[0].layout = uniformLayoutStd140
-      result.fs.source = cast[cstring](unsafeAddr(fsDefaultSourceHlsl4))
+      result.fs.source = cast[cstring](addr(fsDefaultSourceHlsl4))
       result.fs.d3d11Target = "ps_4_0"
       result.fs.entry = "main"
       result.fs.images[0].name = "tex"
@@ -927,11 +927,11 @@ proc defaultShaderDesc*(backend: sg.Backend): sg.ShaderDesc =
       result.fs.images[0].samplerType = samplerTypeFloat
       result.label = "defaultShader"
     of backendMetalMacos:
-      result.vs.source = cast[cstring](unsafeAddr(vsDefaultSourceMetalMacos))
+      result.vs.source = cast[cstring](addr(vsDefaultSourceMetalMacos))
       result.vs.entry = "main0"
       result.vs.uniformBlocks[0].size = 64
       result.vs.uniformBlocks[0].layout = uniformLayoutStd140
-      result.fs.source = cast[cstring](unsafeAddr(fsDefaultSourceMetalMacos))
+      result.fs.source = cast[cstring](addr(fsDefaultSourceMetalMacos))
       result.fs.entry = "main0"
       result.fs.images[0].name = "tex"
       result.fs.images[0].imageType = imageType2d
@@ -944,14 +944,14 @@ proc offscreenShaderDesc*(backend: sg.Backend): sg.ShaderDesc =
     of backendGlcore33:
       result.attrs[0].name = "position"
       result.attrs[1].name = "normal"
-      result.vs.source = cast[cstring](unsafeAddr(vsOffscreenSourceGlsl330))
+      result.vs.source = cast[cstring](addr(vsOffscreenSourceGlsl330))
       result.vs.entry = "main"
       result.vs.uniformBlocks[0].size = 64
       result.vs.uniformBlocks[0].layout = uniformLayoutStd140
       result.vs.uniformBlocks[0].uniforms[0].name = "vs_params"
       result.vs.uniformBlocks[0].uniforms[0].type = uniformTypeFloat4
       result.vs.uniformBlocks[0].uniforms[0].arrayCount = 4
-      result.fs.source = cast[cstring](unsafeAddr(fsOffscreenSourceGlsl330))
+      result.fs.source = cast[cstring](addr(fsOffscreenSourceGlsl330))
       result.fs.entry = "main"
       result.label = "offscreenShader"
     of backendD3d11:
@@ -959,21 +959,21 @@ proc offscreenShaderDesc*(backend: sg.Backend): sg.ShaderDesc =
       result.attrs[0].semIndex = 0
       result.attrs[1].semName = "TEXCOORD"
       result.attrs[1].semIndex = 1
-      result.vs.source = cast[cstring](unsafeAddr(vsOffscreenSourceHlsl4))
+      result.vs.source = cast[cstring](addr(vsOffscreenSourceHlsl4))
       result.vs.d3d11Target = "vs_4_0"
       result.vs.entry = "main"
       result.vs.uniformBlocks[0].size = 64
       result.vs.uniformBlocks[0].layout = uniformLayoutStd140
-      result.fs.source = cast[cstring](unsafeAddr(fsOffscreenSourceHlsl4))
+      result.fs.source = cast[cstring](addr(fsOffscreenSourceHlsl4))
       result.fs.d3d11Target = "ps_4_0"
       result.fs.entry = "main"
       result.label = "offscreenShader"
     of backendMetalMacos:
-      result.vs.source = cast[cstring](unsafeAddr(vsOffscreenSourceMetalMacos))
+      result.vs.source = cast[cstring](addr(vsOffscreenSourceMetalMacos))
       result.vs.entry = "main0"
       result.vs.uniformBlocks[0].size = 64
       result.vs.uniformBlocks[0].layout = uniformLayoutStd140
-      result.fs.source = cast[cstring](unsafeAddr(fsOffscreenSourceMetalMacos))
+      result.fs.source = cast[cstring](addr(fsOffscreenSourceMetalMacos))
       result.fs.entry = "main0"
       result.label = "offscreenShader"
     else: discard

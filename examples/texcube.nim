@@ -67,7 +67,7 @@ proc init() {.cdecl.} =
     Vertex( x:  1.0, y:  1.0, z: -1.0,  color: 0xFF007FFF'u32, u:     0, v: 32767 ),
   ]
   bindings.vertexBuffers[0] = sg.makeBuffer(BufferDesc(
-    data: sg.Range(addr: vertices.unsafeAddr, size: vertices.sizeof)
+    data: sg.Range(addr: vertices.addr, size: vertices.sizeof)
   ))
 
   # create an index buffer for the cube
@@ -81,7 +81,7 @@ proc init() {.cdecl.} =
   ]
   bindings.indexBuffer = sg.makeBuffer(BufferDesc(
     type: bufferTypeIndexBuffer,
-    data: sg.Range(addr: indices.unsafeAddr, size: indices.sizeof)
+    data: sg.Range(addr: indices.addr, size: indices.sizeof)
   ))
 
   # create a checker board texture
@@ -95,7 +95,7 @@ proc init() {.cdecl.} =
     width: 4,
     height: 4,
     data: ImageData(
-      subimage: [ [ sg.Range(addr: pixels.unsafeAddr, size: pixels.sizeof) ] ]
+      subimage: [ [ sg.Range(addr: pixels.addr, size: pixels.sizeof) ] ]
     )
   ))
 
@@ -133,7 +133,7 @@ proc frame() {.cdecl.} =
   sg.beginDefaultPass(passAction, sapp.width(), sapp.height())
   sg.applyPipeline(pip)
   sg.applyBindings(bindings)
-  sg.applyUniforms(shaderStageVs, shd.slotVsParams, sg.Range(addr: vsParams.unsafeAddr, size: vsParams.sizeof))
+  sg.applyUniforms(shaderStageVs, shd.slotVsParams, sg.Range(addr: vsParams.addr, size: vsParams.sizeof))
   sg.draw(0, 36, 1)
   sg.endPass()
   sg.commit()

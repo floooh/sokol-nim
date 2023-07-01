@@ -34,19 +34,19 @@ type VsParams* {.packed.} = object
 
 #
 #   #version 330
-#   
+#
 #   uniform vec4 vs_params[4];
 #   layout(location = 0) in vec3 pos;
 #   layout(location = 2) in vec3 inst_pos;
 #   out vec4 color;
 #   layout(location = 1) in vec4 color0;
-#   
+#
 #   void main()
 #   {
 #       gl_Position = mat4(vs_params[0], vs_params[1], vs_params[2], vs_params[3]) * vec4(pos + inst_pos, 1.0);
 #       color = color0;
 #   }
-#   
+#
 #
 const vsSourceGlsl330: array[314, uint8] = [
     0x23'u8,0x76,0x65,0x72,0x73,0x69,0x6f,0x6e,0x20,0x33,0x33,0x30,0x0a,0x0a,0x75,0x6e,
@@ -72,15 +72,15 @@ const vsSourceGlsl330: array[314, uint8] = [
 ]
 #
 #   #version 330
-#   
+#
 #   layout(location = 0) out vec4 frag_color;
 #   in vec4 color;
-#   
+#
 #   void main()
 #   {
 #       frag_color = color;
 #   }
-#   
+#
 #
 const fsSourceGlsl330: array[114, uint8] = [
     0x23'u8,0x76,0x65,0x72,0x73,0x69,0x6f,0x6e,0x20,0x33,0x33,0x30,0x0a,0x0a,0x6c,0x61,
@@ -97,27 +97,27 @@ const fsSourceGlsl330: array[114, uint8] = [
 #   {
 #       row_major float4x4 _35_mvp : packoffset(c0);
 #   };
-#   
-#   
+#
+#
 #   static float4 gl_Position;
 #   static float3 pos;
 #   static float3 inst_pos;
 #   static float4 color;
 #   static float4 color0;
-#   
+#
 #   struct SPIRV_Cross_Input
 #   {
 #       float3 pos : TEXCOORD0;
 #       float4 color0 : TEXCOORD1;
 #       float3 inst_pos : TEXCOORD2;
 #   };
-#   
+#
 #   struct SPIRV_Cross_Output
 #   {
 #       float4 color : TEXCOORD0;
 #       float4 gl_Position : SV_Position;
 #   };
-#   
+#
 #   #line 17 "examples/shaders/instancing.glsl"
 #   void vert_main()
 #   {
@@ -127,7 +127,7 @@ const fsSourceGlsl330: array[114, uint8] = [
 #   #line 19 "examples/shaders/instancing.glsl"
 #       color = color0;
 #   }
-#   
+#
 #   SPIRV_Cross_Output main(SPIRV_Cross_Input stage_input)
 #   {
 #       pos = stage_input.pos;
@@ -209,24 +209,24 @@ const vsSourceHlsl4: array[1018, uint8] = [
 #
 #   static float4 frag_color;
 #   static float4 color;
-#   
+#
 #   struct SPIRV_Cross_Input
 #   {
 #       float4 color : TEXCOORD0;
 #   };
-#   
+#
 #   struct SPIRV_Cross_Output
 #   {
 #       float4 frag_color : SV_Target0;
 #   };
-#   
+#
 #   #line 9 "examples/shaders/instancing.glsl"
 #   void frag_main()
 #   {
 #   #line 9 "examples/shaders/instancing.glsl"
 #       frag_color = color;
 #   }
-#   
+#
 #   SPIRV_Cross_Output main(SPIRV_Cross_Input stage_input)
 #   {
 #       color = stage_input.color;
@@ -274,27 +274,27 @@ const fsSourceHlsl4: array[521, uint8] = [
 #
 #   #include <metal_stdlib>
 #   #include <simd/simd.h>
-#   
+#
 #   using namespace metal;
-#   
+#
 #   struct vs_params
 #   {
 #       float4x4 mvp;
 #   };
-#   
+#
 #   struct main0_out
 #   {
 #       float4 color [[user(locn0)]];
 #       float4 gl_Position [[position]];
 #   };
-#   
+#
 #   struct main0_in
 #   {
 #       float3 pos [[attribute(0)]];
 #       float4 color0 [[attribute(1)]];
 #       float3 inst_pos [[attribute(2)]];
 #   };
-#   
+#
 #   #line 17 "examples/shaders/instancing.glsl"
 #   vertex main0_out main0(main0_in in [[stage_in]], constant vs_params& _35 [[buffer(0)]])
 #   {
@@ -306,7 +306,7 @@ const fsSourceHlsl4: array[521, uint8] = [
 #       out.color = in.color0;
 #       return out;
 #   }
-#   
+#
 #
 const vsSourceMetalMacos: array[740, uint8] = [
     0x23'u8,0x69,0x6e,0x63,0x6c,0x75,0x64,0x65,0x20,0x3c,0x6d,0x65,0x74,0x61,0x6c,0x5f,
@@ -360,19 +360,19 @@ const vsSourceMetalMacos: array[740, uint8] = [
 #
 #   #include <metal_stdlib>
 #   #include <simd/simd.h>
-#   
+#
 #   using namespace metal;
-#   
+#
 #   struct main0_out
 #   {
 #       float4 frag_color [[color(0)]];
 #   };
-#   
+#
 #   struct main0_in
 #   {
 #       float4 color [[user(locn0)]];
 #   };
-#   
+#
 #   #line 9 "examples/shaders/instancing.glsl"
 #   fragment main0_out main0(main0_in in [[stage_in]])
 #   {
@@ -381,7 +381,7 @@ const vsSourceMetalMacos: array[740, uint8] = [
 #       out.frag_color = in.color;
 #       return out;
 #   }
-#   
+#
 #
 const fsSourceMetalMacos: array[401, uint8] = [
     0x23'u8,0x69,0x6e,0x63,0x6c,0x75,0x64,0x65,0x20,0x3c,0x6d,0x65,0x74,0x61,0x6c,0x5f,
@@ -417,14 +417,14 @@ proc instancingShaderDesc*(backend: sg.Backend): sg.ShaderDesc =
       result.attrs[0].name = "pos"
       result.attrs[1].name = "color0"
       result.attrs[2].name = "inst_pos"
-      result.vs.source = cast[cstring](unsafeAddr(vsSourceGlsl330))
+      result.vs.source = cast[cstring](addr(vsSourceGlsl330))
       result.vs.entry = "main"
       result.vs.uniformBlocks[0].size = 64
       result.vs.uniformBlocks[0].layout = uniformLayoutStd140
       result.vs.uniformBlocks[0].uniforms[0].name = "vs_params"
       result.vs.uniformBlocks[0].uniforms[0].type = uniformTypeFloat4
       result.vs.uniformBlocks[0].uniforms[0].arrayCount = 4
-      result.fs.source = cast[cstring](unsafeAddr(fsSourceGlsl330))
+      result.fs.source = cast[cstring](addr(fsSourceGlsl330))
       result.fs.entry = "main"
       result.label = "instancingShader"
     of backendD3d11:
@@ -434,21 +434,21 @@ proc instancingShaderDesc*(backend: sg.Backend): sg.ShaderDesc =
       result.attrs[1].semIndex = 1
       result.attrs[2].semName = "TEXCOORD"
       result.attrs[2].semIndex = 2
-      result.vs.source = cast[cstring](unsafeAddr(vsSourceHlsl4))
+      result.vs.source = cast[cstring](addr(vsSourceHlsl4))
       result.vs.d3d11Target = "vs_4_0"
       result.vs.entry = "main"
       result.vs.uniformBlocks[0].size = 64
       result.vs.uniformBlocks[0].layout = uniformLayoutStd140
-      result.fs.source = cast[cstring](unsafeAddr(fsSourceHlsl4))
+      result.fs.source = cast[cstring](addr(fsSourceHlsl4))
       result.fs.d3d11Target = "ps_4_0"
       result.fs.entry = "main"
       result.label = "instancingShader"
     of backendMetalMacos:
-      result.vs.source = cast[cstring](unsafeAddr(vsSourceMetalMacos))
+      result.vs.source = cast[cstring](addr(vsSourceMetalMacos))
       result.vs.entry = "main0"
       result.vs.uniformBlocks[0].size = 64
       result.vs.uniformBlocks[0].layout = uniformLayoutStd140
-      result.fs.source = cast[cstring](unsafeAddr(fsSourceMetalMacos))
+      result.fs.source = cast[cstring](addr(fsSourceMetalMacos))
       result.fs.entry = "main0"
       result.label = "instancingShader"
     else: discard

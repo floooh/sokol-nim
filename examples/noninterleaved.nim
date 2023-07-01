@@ -46,7 +46,7 @@ proc init() {.cdecl.} =
     1.0, 1.0, 0.5, 1.0,  1.0, 1.0, 0.5, 1.0,  1.0, 1.0, 0.5, 1.0,  1.0, 1.0, 0.5, 1.0,
   ]
   let vbuf = sg.makeBuffer(BufferDesc(
-    data: sg.Range(addr: vertices.unsafeAddr, size: vertices.sizeof)
+    data: sg.Range(addr: vertices.addr, size: vertices.sizeof)
   ))
 
   # cube index buffer
@@ -60,7 +60,7 @@ proc init() {.cdecl.} =
   ]
   let ibuf = sg.makeBuffer(BufferDesc(
       type: bufferTypeIndexBuffer,
-      data: sg.Range(addr: indices.unsafeAddr, size: indices.sizeof)
+      data: sg.Range(addr: indices.addr, size: indices.sizeof)
   ))
 
   # shader and pipeline object
@@ -106,7 +106,7 @@ proc frame() {.cdecl.} =
   sg.beginDefaultPass(passAction, sapp.width(), sapp.height())
   sg.applyPipeline(pip)
   sg.applyBindings(bindings)
-  sg.applyUniforms(shaderStageVs, shd.slotVsParams, sg.Range(addr: vsParams.unsafeAddr, size: vsParams.sizeof))
+  sg.applyUniforms(shaderStageVs, shd.slotVsParams, sg.Range(addr: vsParams.addr, size: vsParams.sizeof))
   sg.draw(0, 36, 1)
   sg.endPass()
   sg.commit()

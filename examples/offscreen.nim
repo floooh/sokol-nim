@@ -67,8 +67,8 @@ proc init() {.cdecl.} =
   var vertices: array[4000, sshape.Vertex]
   var indices: array[24000, uint16]
   var buf = sshape.Buffer(
-    vertices: BufferItem(buffer: sshape.Range(addr: vertices.unsafeAddr, size: vertices.sizeof)),
-    indices: BufferItem(buffer: sshape.Range(addr: indices.unsafeAddr, size: indices.sizeof))
+    vertices: BufferItem(buffer: sshape.Range(addr: vertices.addr, size: vertices.sizeof)),
+    indices: BufferItem(buffer: sshape.Range(addr: indices.addr, size: indices.sizeof))
   )
   buf = sshape.buildTorus(buf, Torus(radius:0.5, ringRadius:0.3, sides:20, rings:36))
   donut = sshape.elementRange(buf)
@@ -155,7 +155,7 @@ proc frame() {.cdecl.} =
   sg.beginPass(offscreenPass, offscreenPassAction)
   sg.applyPipeline(offscreenPip)
   sg.applyBindings(offscreenBindings)
-  sg.applyUniforms(shaderStageVs, shd.slotVsParams, sg.Range(addr: offscreenVsParams.unsafeAddr, size: offscreenVsParams.sizeof))
+  sg.applyUniforms(shaderStageVs, shd.slotVsParams, sg.Range(addr: offscreenVsParams.addr, size: offscreenVsParams.sizeof))
   sg.draw(donut.baseElement, donut.numElements, 1)
   sg.endPass()
 
@@ -167,7 +167,7 @@ proc frame() {.cdecl.} =
   sg.beginDefaultPass(defaultPassAction, sapp.width(), sapp.height())
   sg.applyPipeline(defaultPip)
   sg.applyBindings(defaultBindings)
-  sg.applyUniforms(shaderStageVs, shd.slotVsParams, sg.Range(addr: defaultVsParams.unsafeAddr, size: offscreenVsParams.sizeof))
+  sg.applyUniforms(shaderStageVs, shd.slotVsParams, sg.Range(addr: defaultVsParams.addr, size: offscreenVsParams.sizeof))
   sg.draw(sphere.baseElement, sphere.numElements, 1)
   sg.endPass()
   sg.commit()

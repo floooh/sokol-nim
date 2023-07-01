@@ -122,7 +122,7 @@ proc init() {.cdecl.} =
     Vertex(x:  1.0f, y:  1.0f, z: -1.0f, b: 0.7f),
   ]
   offscreenBindings.vertexBuffers[0] = sg.makeBuffer(BufferDesc(
-    data: sg.Range(addr: cubeVertices.unsafeAddr, size: cubeVertices.sizeof)
+    data: sg.Range(addr: cubeVertices.addr, size: cubeVertices.sizeof)
   ))
 
   # cube index buffer
@@ -136,7 +136,7 @@ proc init() {.cdecl.} =
   ]
   offscreenBindings.indexBuffer = sg.makeBuffer(BufferDesc(
     type: bufferTypeIndexBuffer,
-    data: sg.Range(addr: cubeIndices.unsafeAddr, size: cubeIndices.sizeof)
+    data: sg.Range(addr: cubeIndices.addr, size: cubeIndices.sizeof)
   ))
 
   # shader and pipeline for offscreen-renderer cube
@@ -163,7 +163,7 @@ proc init() {.cdecl.} =
   # a vertex buffer to create a fullscreen rectangle
   const quadVertices = [ 0.0f, 0.0f,  1.0f, 0.0f,  0.0f, 1.0f,  1.0f, 1.0f ]
   let quadVbuf = sg.makeBuffer(BufferDesc(
-    data: sg.Range(addr: quadVertices.unsafeAddr, size: quadVertices.sizeof)
+    data: sg.Range(addr: quadVertices.addr, size: quadVertices.sizeof)
   ))
 
   # shader, pipeline and bindings to compose 3 offscreen render targets into default framebuffer
@@ -218,7 +218,7 @@ proc frame() {.cdecl.} =
   sg.beginPass(offscreenPass, offscreenPassAction)
   sg.applyPipeline(offscreenPip)
   sg.applyBindings(offscreenBindings)
-  sg.applyUniforms(shaderStageVs, shd.slotOffscreenParams, sg.Range(addr: offscreenParams.unsafeAddr, size: offscreenParams.sizeof))
+  sg.applyUniforms(shaderStageVs, shd.slotOffscreenParams, sg.Range(addr: offscreenParams.addr, size: offscreenParams.sizeof))
   sg.draw(0, 36, 1)
   sg.endPass()
 
@@ -226,7 +226,7 @@ proc frame() {.cdecl.} =
   sg.beginDefaultPass(defaultPassAction, sapp.width(), sapp.height())
   sg.applyPipeline(fsqPip)
   sg.applyBindings(fsqBindings)
-  sg.applyUniforms(shaderStageVs, shd.slotFsqParams, sg.Range(addr: fsqParams.unsafeAddr, size: fsqParams.sizeof))
+  sg.applyUniforms(shaderStageVs, shd.slotFsqParams, sg.Range(addr: fsqParams.addr, size: fsqParams.sizeof))
   sg.draw(0, 4, 1)
   sg.applyPipeline(dbgPip)
   for i in 0..<3:

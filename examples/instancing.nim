@@ -48,7 +48,7 @@ proc init() {.cdecl.} =
     0.0f,    r, 0.0f,       1.0f, 0.0f, 1.0f, 1.0f
   ]
   bindings.vertexBuffers[0] = sg.makeBuffer(BufferDesc(
-    data: sg.Range(addr: vertices.unsafeAddr, size: vertices.sizeof)
+    data: sg.Range(addr: vertices.addr, size: vertices.sizeof)
   ))
 
   # index buffer for static geometry
@@ -58,7 +58,7 @@ proc init() {.cdecl.} =
   ]
   bindings.indexBuffer = sg.makeBuffer(BufferDesc(
     type: bufferTypeIndexBuffer,
-    data: sg.Range(addr: indices.unsafeAddr, size: indices.sizeof)
+    data: sg.Range(addr: indices.addr, size: indices.sizeof)
   ))
 
   # empty, dynamic instance-data vertex buffer, goes into vertex-buffer-slot 1
@@ -119,7 +119,7 @@ proc frame() {.cdecl.} =
   # update instance data
   # FIXME: this is awkward, we'd need a slice-to-Range converter
   sg.updateBuffer(bindings.vertexBuffers[1], sg.Range(
-    addr: pos.unsafeAddr,
+    addr: pos.addr,
     size: (curNumParticles * Vec3.sizeof)
   ))
 
@@ -134,7 +134,7 @@ proc frame() {.cdecl.} =
   sg.beginDefaultPass(passAction, sapp.width(), sapp.height())
   sg.applyPipeline(pip)
   sg.applyBindings(bindings)
-  sg.applyUniforms(shaderStageVs, shd.slotVsParams, sg.Range(addr: vsParams.unsafeAddr, size: vsParams.sizeof))
+  sg.applyUniforms(shaderStageVs, shd.slotVsParams, sg.Range(addr: vsParams.addr, size: vsParams.sizeof))
   sg.draw(0, 24, curNumParticles.int32)
   sg.endPass()
   sg.commit()

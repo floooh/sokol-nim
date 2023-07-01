@@ -77,18 +77,18 @@ type FsqParams* {.packed.} = object
 
 #
 #   #version 330
-#   
+#
 #   uniform vec4 offscreen_params[4];
 #   layout(location = 0) in vec4 pos;
 #   out float bright;
 #   layout(location = 1) in float bright0;
-#   
+#
 #   void main()
 #   {
 #       gl_Position = mat4(offscreen_params[0], offscreen_params[1], offscreen_params[2], offscreen_params[3]) * pos;
 #       bright = bright0;
 #   }
-#   
+#
 #
 const vsOffscreenSourceGlsl330: array[294, uint8] = [
     0x23'u8,0x76,0x65,0x72,0x73,0x69,0x6f,0x6e,0x20,0x33,0x33,0x30,0x0a,0x0a,0x75,0x6e,
@@ -113,19 +113,19 @@ const vsOffscreenSourceGlsl330: array[294, uint8] = [
 ]
 #
 #   #version 330
-#   
+#
 #   layout(location = 0) out vec4 frag_color_0;
 #   in float bright;
 #   layout(location = 1) out vec4 frag_color_1;
 #   layout(location = 2) out vec4 frag_color_2;
-#   
+#
 #   void main()
 #   {
 #       frag_color_0 = vec4(bright, 0.0, 0.0, 1.0);
 #       frag_color_1 = vec4(0.0, bright, 0.0, 1.0);
 #       frag_color_2 = vec4(0.0, 0.0, bright, 1.0);
 #   }
-#   
+#
 #
 const fsOffscreenSourceGlsl330: array[326, uint8] = [
     0x23'u8,0x76,0x65,0x72,0x73,0x69,0x6f,0x6e,0x20,0x33,0x33,0x30,0x0a,0x0a,0x6c,0x61,
@@ -152,13 +152,13 @@ const fsOffscreenSourceGlsl330: array[326, uint8] = [
 ]
 #
 #   #version 330
-#   
+#
 #   uniform vec4 fsq_params[1];
 #   layout(location = 0) in vec2 pos;
 #   out vec2 uv0;
 #   out vec2 uv1;
 #   out vec2 uv2;
-#   
+#
 #   void main()
 #   {
 #       gl_Position = vec4((pos * 2.0) - vec2(1.0), 0.5, 1.0);
@@ -167,7 +167,7 @@ const fsOffscreenSourceGlsl330: array[326, uint8] = [
 #       uv2 = pos;
 #       gl_Position.y = -gl_Position.y;
 #   }
-#   
+#
 #
 const vsFsqSourceGlsl330: array[335, uint8] = [
     0x23'u8,0x76,0x65,0x72,0x73,0x69,0x6f,0x6e,0x20,0x33,0x33,0x30,0x0a,0x0a,0x75,0x6e,
@@ -194,21 +194,21 @@ const vsFsqSourceGlsl330: array[335, uint8] = [
 ]
 #
 #   #version 330
-#   
+#
 #   uniform sampler2D tex0;
 #   uniform sampler2D tex1;
 #   uniform sampler2D tex2;
-#   
+#
 #   in vec2 uv0;
 #   in vec2 uv1;
 #   in vec2 uv2;
 #   layout(location = 0) out vec4 frag_color;
-#   
+#
 #   void main()
 #   {
 #       frag_color = vec4((texture(tex0, uv0).xyz + texture(tex1, uv1).xyz) + texture(tex2, uv2).xyz, 1.0);
 #   }
-#   
+#
 #
 const fsFsqSourceGlsl330: array[291, uint8] = [
     0x23'u8,0x76,0x65,0x72,0x73,0x69,0x6f,0x6e,0x20,0x33,0x33,0x30,0x0a,0x0a,0x75,0x6e,
@@ -233,17 +233,17 @@ const fsFsqSourceGlsl330: array[291, uint8] = [
 ]
 #
 #   #version 330
-#   
+#
 #   layout(location = 0) in vec2 pos;
 #   out vec2 uv;
-#   
+#
 #   void main()
 #   {
 #       gl_Position = vec4((pos * 2.0) - vec2(1.0), 0.5, 1.0);
 #       uv = pos;
 #       gl_Position.y = -gl_Position.y;
 #   }
-#   
+#
 #
 const vsDbgSourceGlsl330: array[189, uint8] = [
     0x23'u8,0x76,0x65,0x72,0x73,0x69,0x6f,0x6e,0x20,0x33,0x33,0x30,0x0a,0x0a,0x6c,0x61,
@@ -261,17 +261,17 @@ const vsDbgSourceGlsl330: array[189, uint8] = [
 ]
 #
 #   #version 330
-#   
+#
 #   uniform sampler2D tex;
-#   
+#
 #   layout(location = 0) out vec4 frag_color;
 #   in vec2 uv;
-#   
+#
 #   void main()
 #   {
 #       frag_color = vec4(texture(tex, uv).xyz, 1.0);
 #   }
-#   
+#
 #
 const fsDbgSourceGlsl330: array[161, uint8] = [
     0x23'u8,0x76,0x65,0x72,0x73,0x69,0x6f,0x6e,0x20,0x33,0x33,0x30,0x0a,0x0a,0x75,0x6e,
@@ -291,25 +291,25 @@ const fsDbgSourceGlsl330: array[161, uint8] = [
 #   {
 #       row_major float4x4 _21_mvp : packoffset(c0);
 #   };
-#   
-#   
+#
+#
 #   static float4 gl_Position;
 #   static float4 pos;
 #   static float bright;
 #   static float bright0;
-#   
+#
 #   struct SPIRV_Cross_Input
 #   {
 #       float4 pos : TEXCOORD0;
 #       float bright0 : TEXCOORD1;
 #   };
-#   
+#
 #   struct SPIRV_Cross_Output
 #   {
 #       float bright : TEXCOORD0;
 #       float4 gl_Position : SV_Position;
 #   };
-#   
+#
 #   #line 17 "examples/shaders/mrt.glsl"
 #   void vert_main()
 #   {
@@ -318,7 +318,7 @@ const fsDbgSourceGlsl330: array[161, uint8] = [
 #   #line 18 "examples/shaders/mrt.glsl"
 #       bright = bright0;
 #   }
-#   
+#
 #   SPIRV_Cross_Output main(SPIRV_Cross_Input stage_input)
 #   {
 #       pos = stage_input.pos;
@@ -390,19 +390,19 @@ const vsOffscreenSourceHlsl4: array[847, uint8] = [
 #   static float bright;
 #   static float4 frag_color_1;
 #   static float4 frag_color_2;
-#   
+#
 #   struct SPIRV_Cross_Input
 #   {
 #       float bright : TEXCOORD0;
 #   };
-#   
+#
 #   struct SPIRV_Cross_Output
 #   {
 #       float4 frag_color_0 : SV_Target0;
 #       float4 frag_color_1 : SV_Target1;
 #       float4 frag_color_2 : SV_Target2;
 #   };
-#   
+#
 #   #line 13 "examples/shaders/mrt.glsl"
 #   void frag_main()
 #   {
@@ -413,7 +413,7 @@ const vsOffscreenSourceHlsl4: array[847, uint8] = [
 #   #line 15 "examples/shaders/mrt.glsl"
 #       frag_color_2 = float4(0.0f, 0.0f, bright, 1.0f);
 #   }
-#   
+#
 #   SPIRV_Cross_Output main(SPIRV_Cross_Input stage_input)
 #   {
 #       bright = stage_input.bright;
@@ -492,19 +492,19 @@ const fsOffscreenSourceHlsl4: array[952, uint8] = [
 #   {
 #       float2 _38_offset : packoffset(c0);
 #   };
-#   
-#   
+#
+#
 #   static float4 gl_Position;
 #   static float2 pos;
 #   static float2 uv0;
 #   static float2 uv1;
 #   static float2 uv2;
-#   
+#
 #   struct SPIRV_Cross_Input
 #   {
 #       float2 pos : TEXCOORD0;
 #   };
-#   
+#
 #   struct SPIRV_Cross_Output
 #   {
 #       float2 uv0 : TEXCOORD0;
@@ -512,7 +512,7 @@ const fsOffscreenSourceHlsl4: array[952, uint8] = [
 #       float2 uv2 : TEXCOORD2;
 #       float4 gl_Position : SV_Position;
 #   };
-#   
+#
 #   #line 18 "examples/shaders/mrt.glsl"
 #   void vert_main()
 #   {
@@ -525,7 +525,7 @@ const fsOffscreenSourceHlsl4: array[952, uint8] = [
 #   #line 21 "examples/shaders/mrt.glsl"
 #       uv2 = pos;
 #   }
-#   
+#
 #   SPIRV_Cross_Output main(SPIRV_Cross_Input stage_input)
 #   {
 #       pos = stage_input.pos;
@@ -614,24 +614,24 @@ const vsFsqSourceHlsl4: array[1064, uint8] = [
 #   SamplerState _tex1_sampler : register(s1);
 #   Texture2D<float4> tex2 : register(t2);
 #   SamplerState _tex2_sampler : register(s2);
-#   
+#
 #   static float2 uv0;
 #   static float2 uv1;
 #   static float2 uv2;
 #   static float4 frag_color;
-#   
+#
 #   struct SPIRV_Cross_Input
 #   {
 #       float2 uv0 : TEXCOORD0;
 #       float2 uv1 : TEXCOORD1;
 #       float2 uv2 : TEXCOORD2;
 #   };
-#   
+#
 #   struct SPIRV_Cross_Output
 #   {
 #       float4 frag_color : SV_Target0;
 #   };
-#   
+#
 #   #line 17 "examples/shaders/mrt.glsl"
 #   void frag_main()
 #   {
@@ -641,7 +641,7 @@ const vsFsqSourceHlsl4: array[1064, uint8] = [
 #   #line 20 "examples/shaders/mrt.glsl"
 #       frag_color = float4((tex0.Sample(_tex0_sampler, uv0).xyz + tex1.Sample(_tex1_sampler, uv1).xyz) + tex2.Sample(_tex2_sampler, uv2).xyz, 1.0f);
 #   }
-#   
+#
 #   SPIRV_Cross_Output main(SPIRV_Cross_Input stage_input)
 #   {
 #       uv0 = stage_input.uv0;
@@ -730,18 +730,18 @@ const fsFsqSourceHlsl4: array[1129, uint8] = [
 #   static float4 gl_Position;
 #   static float2 pos;
 #   static float2 uv;
-#   
+#
 #   struct SPIRV_Cross_Input
 #   {
 #       float2 pos : TEXCOORD0;
 #   };
-#   
+#
 #   struct SPIRV_Cross_Output
 #   {
 #       float2 uv : TEXCOORD0;
 #       float4 gl_Position : SV_Position;
 #   };
-#   
+#
 #   #line 11 "examples/shaders/mrt.glsl"
 #   void vert_main()
 #   {
@@ -750,7 +750,7 @@ const fsFsqSourceHlsl4: array[1129, uint8] = [
 #   #line 12 "examples/shaders/mrt.glsl"
 #       uv = pos;
 #   }
-#   
+#
 #   SPIRV_Cross_Output main(SPIRV_Cross_Input stage_input)
 #   {
 #       pos = stage_input.pos;
@@ -808,27 +808,27 @@ const vsDbgSourceHlsl4: array[666, uint8] = [
 #
 #   Texture2D<float4> tex : register(t0);
 #   SamplerState _tex_sampler : register(s0);
-#   
+#
 #   static float4 frag_color;
 #   static float2 uv;
-#   
+#
 #   struct SPIRV_Cross_Input
 #   {
 #       float2 uv : TEXCOORD0;
 #   };
-#   
+#
 #   struct SPIRV_Cross_Output
 #   {
 #       float4 frag_color : SV_Target0;
 #   };
-#   
+#
 #   #line 12 "examples/shaders/mrt.glsl"
 #   void frag_main()
 #   {
 #   #line 12 "examples/shaders/mrt.glsl"
 #       frag_color = float4(tex.Sample(_tex_sampler, uv).xyz, 1.0f);
 #   }
-#   
+#
 #   SPIRV_Cross_Output main(SPIRV_Cross_Input stage_input)
 #   {
 #       uv = stage_input.uv;
@@ -882,26 +882,26 @@ const fsDbgSourceHlsl4: array[619, uint8] = [
 #
 #   #include <metal_stdlib>
 #   #include <simd/simd.h>
-#   
+#
 #   using namespace metal;
-#   
+#
 #   struct offscreen_params
 #   {
 #       float4x4 mvp;
 #   };
-#   
+#
 #   struct main0_out
 #   {
 #       float bright [[user(locn0)]];
 #       float4 gl_Position [[position]];
 #   };
-#   
+#
 #   struct main0_in
 #   {
 #       float4 pos [[attribute(0)]];
 #       float bright0 [[attribute(1)]];
 #   };
-#   
+#
 #   #line 17 "examples/shaders/mrt.glsl"
 #   vertex main0_out main0(main0_in in [[stage_in]], constant offscreen_params& _21 [[buffer(0)]])
 #   {
@@ -912,7 +912,7 @@ const fsDbgSourceHlsl4: array[619, uint8] = [
 #       out.bright = in.bright0;
 #       return out;
 #   }
-#   
+#
 #
 const vsOffscreenSourceMetalMacos: array[626, uint8] = [
     0x23'u8,0x69,0x6e,0x63,0x6c,0x75,0x64,0x65,0x20,0x3c,0x6d,0x65,0x74,0x61,0x6c,0x5f,
@@ -959,21 +959,21 @@ const vsOffscreenSourceMetalMacos: array[626, uint8] = [
 #
 #   #include <metal_stdlib>
 #   #include <simd/simd.h>
-#   
+#
 #   using namespace metal;
-#   
+#
 #   struct main0_out
 #   {
 #       float4 frag_color_0 [[color(0)]];
 #       float4 frag_color_1 [[color(1)]];
 #       float4 frag_color_2 [[color(2)]];
 #   };
-#   
+#
 #   struct main0_in
 #   {
 #       float bright [[user(locn0)]];
 #   };
-#   
+#
 #   #line 13 "examples/shaders/mrt.glsl"
 #   fragment main0_out main0(main0_in in [[stage_in]])
 #   {
@@ -986,7 +986,7 @@ const vsOffscreenSourceMetalMacos: array[626, uint8] = [
 #       out.frag_color_2 = float4(0.0, 0.0, in.bright, 1.0);
 #       return out;
 #   }
-#   
+#
 #
 const fsOffscreenSourceMetalMacos: array[681, uint8] = [
     0x23'u8,0x69,0x6e,0x63,0x6c,0x75,0x64,0x65,0x20,0x3c,0x6d,0x65,0x74,0x61,0x6c,0x5f,
@@ -1036,14 +1036,14 @@ const fsOffscreenSourceMetalMacos: array[681, uint8] = [
 #
 #   #include <metal_stdlib>
 #   #include <simd/simd.h>
-#   
+#
 #   using namespace metal;
-#   
+#
 #   struct fsq_params
 #   {
 #       float2 offset;
 #   };
-#   
+#
 #   struct main0_out
 #   {
 #       float2 uv0 [[user(locn0)]];
@@ -1051,12 +1051,12 @@ const fsOffscreenSourceMetalMacos: array[681, uint8] = [
 #       float2 uv2 [[user(locn2)]];
 #       float4 gl_Position [[position]];
 #   };
-#   
+#
 #   struct main0_in
 #   {
 #       float2 pos [[attribute(0)]];
 #   };
-#   
+#
 #   #line 18 "examples/shaders/mrt.glsl"
 #   vertex main0_out main0(main0_in in [[stage_in]], constant fsq_params& _38 [[buffer(0)]])
 #   {
@@ -1071,7 +1071,7 @@ const fsOffscreenSourceMetalMacos: array[681, uint8] = [
 #       out.uv2 = in.pos;
 #       return out;
 #   }
-#   
+#
 #
 const vsFsqSourceMetalMacos: array[838, uint8] = [
     0x23'u8,0x69,0x6e,0x63,0x6c,0x75,0x64,0x65,0x20,0x3c,0x6d,0x65,0x74,0x61,0x6c,0x5f,
@@ -1131,21 +1131,21 @@ const vsFsqSourceMetalMacos: array[838, uint8] = [
 #
 #   #include <metal_stdlib>
 #   #include <simd/simd.h>
-#   
+#
 #   using namespace metal;
-#   
+#
 #   struct main0_out
 #   {
 #       float4 frag_color [[color(0)]];
 #   };
-#   
+#
 #   struct main0_in
 #   {
 #       float2 uv0 [[user(locn0)]];
 #       float2 uv1 [[user(locn1)]];
 #       float2 uv2 [[user(locn2)]];
 #   };
-#   
+#
 #   #line 17 "examples/shaders/mrt.glsl"
 #   fragment main0_out main0(main0_in in [[stage_in]], texture2d<float> tex0 [[texture(0)]], texture2d<float> tex1 [[texture(1)]], texture2d<float> tex2 [[texture(2)]], sampler tex0Smplr [[sampler(0)]], sampler tex1Smplr [[sampler(1)]], sampler tex2Smplr [[sampler(2)]])
 #   {
@@ -1157,7 +1157,7 @@ const vsFsqSourceMetalMacos: array[838, uint8] = [
 #       out.frag_color = float4((tex0.sample(tex0Smplr, in.uv0).xyz + tex1.sample(tex1Smplr, in.uv1).xyz) + tex2.sample(tex2Smplr, in.uv2).xyz, 1.0);
 #       return out;
 #   }
-#   
+#
 #
 const fsFsqSourceMetalMacos: array[893, uint8] = [
     0x23'u8,0x69,0x6e,0x63,0x6c,0x75,0x64,0x65,0x20,0x3c,0x6d,0x65,0x74,0x61,0x6c,0x5f,
@@ -1220,20 +1220,20 @@ const fsFsqSourceMetalMacos: array[893, uint8] = [
 #
 #   #include <metal_stdlib>
 #   #include <simd/simd.h>
-#   
+#
 #   using namespace metal;
-#   
+#
 #   struct main0_out
 #   {
 #       float2 uv [[user(locn0)]];
 #       float4 gl_Position [[position]];
 #   };
-#   
+#
 #   struct main0_in
 #   {
 #       float2 pos [[attribute(0)]];
 #   };
-#   
+#
 #   #line 11 "examples/shaders/mrt.glsl"
 #   vertex main0_out main0(main0_in in [[stage_in]])
 #   {
@@ -1244,7 +1244,7 @@ const fsFsqSourceMetalMacos: array[893, uint8] = [
 #       out.uv = in.pos;
 #       return out;
 #   }
-#   
+#
 #
 const vsDbgSourceMetalMacos: array[515, uint8] = [
     0x23'u8,0x69,0x6e,0x63,0x6c,0x75,0x64,0x65,0x20,0x3c,0x6d,0x65,0x74,0x61,0x6c,0x5f,
@@ -1284,19 +1284,19 @@ const vsDbgSourceMetalMacos: array[515, uint8] = [
 #
 #   #include <metal_stdlib>
 #   #include <simd/simd.h>
-#   
+#
 #   using namespace metal;
-#   
+#
 #   struct main0_out
 #   {
 #       float4 frag_color [[color(0)]];
 #   };
-#   
+#
 #   struct main0_in
 #   {
 #       float2 uv [[user(locn0)]];
 #   };
-#   
+#
 #   #line 12 "examples/shaders/mrt.glsl"
 #   fragment main0_out main0(main0_in in [[stage_in]], texture2d<float> tex [[texture(0)]], sampler texSmplr [[sampler(0)]])
 #   {
@@ -1305,7 +1305,7 @@ const vsDbgSourceMetalMacos: array[515, uint8] = [
 #       out.frag_color = float4(tex.sample(texSmplr, in.uv).xyz, 1.0);
 #       return out;
 #   }
-#   
+#
 #
 const fsDbgSourceMetalMacos: array[492, uint8] = [
     0x23'u8,0x69,0x6e,0x63,0x6c,0x75,0x64,0x65,0x20,0x3c,0x6d,0x65,0x74,0x61,0x6c,0x5f,
@@ -1344,9 +1344,9 @@ proc dbgShaderDesc*(backend: sg.Backend): sg.ShaderDesc =
   case backend:
     of backendGlcore33:
       result.attrs[0].name = "pos"
-      result.vs.source = cast[cstring](unsafeAddr(vsDbgSourceGlsl330))
+      result.vs.source = cast[cstring](addr(vsDbgSourceGlsl330))
       result.vs.entry = "main"
-      result.fs.source = cast[cstring](unsafeAddr(fsDbgSourceGlsl330))
+      result.fs.source = cast[cstring](addr(fsDbgSourceGlsl330))
       result.fs.entry = "main"
       result.fs.images[0].name = "tex"
       result.fs.images[0].imageType = imageType2d
@@ -1355,10 +1355,10 @@ proc dbgShaderDesc*(backend: sg.Backend): sg.ShaderDesc =
     of backendD3d11:
       result.attrs[0].semName = "TEXCOORD"
       result.attrs[0].semIndex = 0
-      result.vs.source = cast[cstring](unsafeAddr(vsDbgSourceHlsl4))
+      result.vs.source = cast[cstring](addr(vsDbgSourceHlsl4))
       result.vs.d3d11Target = "vs_4_0"
       result.vs.entry = "main"
-      result.fs.source = cast[cstring](unsafeAddr(fsDbgSourceHlsl4))
+      result.fs.source = cast[cstring](addr(fsDbgSourceHlsl4))
       result.fs.d3d11Target = "ps_4_0"
       result.fs.entry = "main"
       result.fs.images[0].name = "tex"
@@ -1366,9 +1366,9 @@ proc dbgShaderDesc*(backend: sg.Backend): sg.ShaderDesc =
       result.fs.images[0].samplerType = samplerTypeFloat
       result.label = "dbgShader"
     of backendMetalMacos:
-      result.vs.source = cast[cstring](unsafeAddr(vsDbgSourceMetalMacos))
+      result.vs.source = cast[cstring](addr(vsDbgSourceMetalMacos))
       result.vs.entry = "main0"
-      result.fs.source = cast[cstring](unsafeAddr(fsDbgSourceMetalMacos))
+      result.fs.source = cast[cstring](addr(fsDbgSourceMetalMacos))
       result.fs.entry = "main0"
       result.fs.images[0].name = "tex"
       result.fs.images[0].imageType = imageType2d
@@ -1380,14 +1380,14 @@ proc fsqShaderDesc*(backend: sg.Backend): sg.ShaderDesc =
   case backend:
     of backendGlcore33:
       result.attrs[0].name = "pos"
-      result.vs.source = cast[cstring](unsafeAddr(vsFsqSourceGlsl330))
+      result.vs.source = cast[cstring](addr(vsFsqSourceGlsl330))
       result.vs.entry = "main"
       result.vs.uniformBlocks[0].size = 16
       result.vs.uniformBlocks[0].layout = uniformLayoutStd140
       result.vs.uniformBlocks[0].uniforms[0].name = "fsq_params"
       result.vs.uniformBlocks[0].uniforms[0].type = uniformTypeFloat4
       result.vs.uniformBlocks[0].uniforms[0].arrayCount = 1
-      result.fs.source = cast[cstring](unsafeAddr(fsFsqSourceGlsl330))
+      result.fs.source = cast[cstring](addr(fsFsqSourceGlsl330))
       result.fs.entry = "main"
       result.fs.images[0].name = "tex0"
       result.fs.images[0].imageType = imageType2d
@@ -1402,12 +1402,12 @@ proc fsqShaderDesc*(backend: sg.Backend): sg.ShaderDesc =
     of backendD3d11:
       result.attrs[0].semName = "TEXCOORD"
       result.attrs[0].semIndex = 0
-      result.vs.source = cast[cstring](unsafeAddr(vsFsqSourceHlsl4))
+      result.vs.source = cast[cstring](addr(vsFsqSourceHlsl4))
       result.vs.d3d11Target = "vs_4_0"
       result.vs.entry = "main"
       result.vs.uniformBlocks[0].size = 16
       result.vs.uniformBlocks[0].layout = uniformLayoutStd140
-      result.fs.source = cast[cstring](unsafeAddr(fsFsqSourceHlsl4))
+      result.fs.source = cast[cstring](addr(fsFsqSourceHlsl4))
       result.fs.d3d11Target = "ps_4_0"
       result.fs.entry = "main"
       result.fs.images[0].name = "tex0"
@@ -1421,11 +1421,11 @@ proc fsqShaderDesc*(backend: sg.Backend): sg.ShaderDesc =
       result.fs.images[2].samplerType = samplerTypeFloat
       result.label = "fsqShader"
     of backendMetalMacos:
-      result.vs.source = cast[cstring](unsafeAddr(vsFsqSourceMetalMacos))
+      result.vs.source = cast[cstring](addr(vsFsqSourceMetalMacos))
       result.vs.entry = "main0"
       result.vs.uniformBlocks[0].size = 16
       result.vs.uniformBlocks[0].layout = uniformLayoutStd140
-      result.fs.source = cast[cstring](unsafeAddr(fsFsqSourceMetalMacos))
+      result.fs.source = cast[cstring](addr(fsFsqSourceMetalMacos))
       result.fs.entry = "main0"
       result.fs.images[0].name = "tex0"
       result.fs.images[0].imageType = imageType2d
@@ -1444,14 +1444,14 @@ proc offscreenShaderDesc*(backend: sg.Backend): sg.ShaderDesc =
     of backendGlcore33:
       result.attrs[0].name = "pos"
       result.attrs[1].name = "bright0"
-      result.vs.source = cast[cstring](unsafeAddr(vsOffscreenSourceGlsl330))
+      result.vs.source = cast[cstring](addr(vsOffscreenSourceGlsl330))
       result.vs.entry = "main"
       result.vs.uniformBlocks[0].size = 64
       result.vs.uniformBlocks[0].layout = uniformLayoutStd140
       result.vs.uniformBlocks[0].uniforms[0].name = "offscreen_params"
       result.vs.uniformBlocks[0].uniforms[0].type = uniformTypeFloat4
       result.vs.uniformBlocks[0].uniforms[0].arrayCount = 4
-      result.fs.source = cast[cstring](unsafeAddr(fsOffscreenSourceGlsl330))
+      result.fs.source = cast[cstring](addr(fsOffscreenSourceGlsl330))
       result.fs.entry = "main"
       result.label = "offscreenShader"
     of backendD3d11:
@@ -1459,21 +1459,21 @@ proc offscreenShaderDesc*(backend: sg.Backend): sg.ShaderDesc =
       result.attrs[0].semIndex = 0
       result.attrs[1].semName = "TEXCOORD"
       result.attrs[1].semIndex = 1
-      result.vs.source = cast[cstring](unsafeAddr(vsOffscreenSourceHlsl4))
+      result.vs.source = cast[cstring](addr(vsOffscreenSourceHlsl4))
       result.vs.d3d11Target = "vs_4_0"
       result.vs.entry = "main"
       result.vs.uniformBlocks[0].size = 64
       result.vs.uniformBlocks[0].layout = uniformLayoutStd140
-      result.fs.source = cast[cstring](unsafeAddr(fsOffscreenSourceHlsl4))
+      result.fs.source = cast[cstring](addr(fsOffscreenSourceHlsl4))
       result.fs.d3d11Target = "ps_4_0"
       result.fs.entry = "main"
       result.label = "offscreenShader"
     of backendMetalMacos:
-      result.vs.source = cast[cstring](unsafeAddr(vsOffscreenSourceMetalMacos))
+      result.vs.source = cast[cstring](addr(vsOffscreenSourceMetalMacos))
       result.vs.entry = "main0"
       result.vs.uniformBlocks[0].size = 64
       result.vs.uniformBlocks[0].layout = uniformLayoutStd140
-      result.fs.source = cast[cstring](unsafeAddr(fsOffscreenSourceMetalMacos))
+      result.fs.source = cast[cstring](addr(fsOffscreenSourceMetalMacos))
       result.fs.entry = "main0"
       result.label = "offscreenShader"
     else: discard
