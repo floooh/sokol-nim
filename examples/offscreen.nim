@@ -48,10 +48,6 @@ proc init() {.cdecl.} =
     width: 256,
     height: 256,
     pixelFormat: pixelFormatRgba8,
-    minFilter: filterLinear,
-    magFilter: filterLinear,
-    wrapU: wrapRepeat,
-    wrapV: wrapRepeat,
     sampleCount: offscreenSampleCount,
   )
   let colorImg = sg.makeImage(imgDesc)
@@ -81,11 +77,11 @@ proc init() {.cdecl.} =
   # pipeline object for offscreen-rendered donut, don't need vertex coords here
   offscreenPip = sg.makePipeline(PipelineDesc(
     shader: sg.makeShader(offscreenShaderDesc(sg.queryBackend())),
-    layout: LayoutDesc(
-      buffers: [ sshape.bufferLayoutDesc() ],
+    layout: VertexLayoutState(
+      buffers: [ sshape.vertexBufferLayoutState() ],
       attrs: [
-        sshape.positionAttrDesc(),
-        sshape.normalAttrDesc()
+        sshape.positionVertexAttrState(),
+        sshape.normalVertexAttrState()
       ]
     ),
     indexType: indexTypeUint16,
@@ -97,19 +93,19 @@ proc init() {.cdecl.} =
       writeEnabled: true
     ),
     colors: [
-      ColorState(pixelFormat: pixelFormatRgba8)
+      ColorTargetState(pixelFormat: pixelFormatRgba8)
     ]
   ))
 
   # ...and another pipeline object for the default pass
   defaultPip = sg.makePipeline(PipelineDesc(
     shader: sg.makeShader(defaultShaderDesc(sg.queryBackend())),
-    layout: LayoutDesc(
-      buffers: [ sshape.bufferLayoutDesc() ],
+    layout: VertexLayoutState(
+      buffers: [ sshape.vertexBufferLayoutState() ],
       attrs: [
-        sshape.positionAttrDesc(),
-        sshape.normalAttrDesc(),
-        sshape.texcoordAttrDesc()
+        sshape.positionVertexAttrState(),
+        sshape.normalVertexAttrState(),
+        sshape.texcoordVertexAttrState()
       ]
     ),
     indexType: indexTypeUint16,
@@ -120,6 +116,14 @@ proc init() {.cdecl.} =
     )
   ))
 
+  # a sampler object for sampling the render target as texture
+  let smp = sg.makeSampler(SamplerDesc(
+    minFilter: filterLinear,
+    magFilter: filterLinear,
+    wrapU: wrapRepeat,
+    wrapV: wrapRepeat,
+  ))
+
   # the resource bindings for rendering a non-textured cube into offscreen render target
   offscreenBindings = Bindings(
     vertexBuffers: [ vbuf ],
@@ -128,9 +132,12 @@ proc init() {.cdecl.} =
 
   # resource bindings to render a textured cube, using the offscreen render target as texture
   defaultBindings = Bindings(
-     vertexBuffers: [ vbuf ],
-     indexBuffer: ibuf,
-     fsImages: [ colorImg ]
+    vertexBuffers: [ vbuf ],
+    indexBuffer: ibuf,
+    fs: StageBindings(
+      images: [ colorImg ],
+      samplers: [ smp ]
+    )
   )
 
 # a helper function to computer model-view-projection matrix

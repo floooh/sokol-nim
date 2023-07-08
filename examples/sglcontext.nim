@@ -27,6 +27,7 @@ var
   offscreenPass: Pass
   offscreenImage: Image
   offscreenContext: sgl.Context
+  displaySampler: Sampler
   displayPipeline: sgl.Pipeline
 
 proc init() {.cdecl.} =
@@ -66,13 +67,17 @@ proc init() {.cdecl.} =
     height: offscreenHeight,
     pixelFormat: offscreenPixelFormat,
     sampleCount: offscreenSampleCount,
+  ))
+  offscreenPass = sg.makePass(PassDesc(
+    colorAttachments: [ PassAttachmentDesc(image: offscreenImage) ]
+  ))
+
+  # create a sampler to sample the offscreen render target as texture
+  displaySampler = sg.makeSampler(SamplerDesc(
     wrapU: wrapClampToEdge,
     wrapV: wrapClampToEdge,
     minFilter: filterNearest,
     magFilter: filterNearest
-  ))
-  offscreenPass = sg.makePass(PassDesc(
-    colorAttachments: [ PassAttachmentDesc(image: offscreenImage) ]
   ))
 
 # helper function to draw a colored quad with sokol-gl
@@ -127,7 +132,7 @@ proc frame() {.cdecl.} =
   sgl.setContext(sgl.defaultContext())
   sgl.defaults()
   sgl.enableTexture()
-  sgl.texture(offscreenImage)
+  sgl.texture(offscreenImage, displaySampler)
   sgl.loadPipeline(displayPipeline)
   sgl.matrixModeProjection()
   sgl.perspective(sgl.asRadians(45), sapp.widthf() / sapp.heightf(), 0.1, 100)

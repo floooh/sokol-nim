@@ -67,10 +67,10 @@ proc init() {.cdecl.} =
   # NOTE how the vertex components are pulled from different buffer bind slots
   pip = sg.makePipeline(PipelineDesc(
     shader: sg.makeShader(shd.noninterleavedShaderDesc(sg.queryBackend())),
-    layout: LayoutDesc(
+    layout: VertexLayoutState(
       attrs: [
-        VertexAttrDesc(format: vertexFormatFloat3, bufferIndex: 0),
-        VertexAttrDesc(format: vertexFormatFloat4, bufferIndex: 1),
+        VertexAttrState(format: vertexFormatFloat3, bufferIndex: 0),
+        VertexAttrState(format: vertexFormatFloat4, bufferIndex: 1),
       ]
     ),
     indexType: indexTypeUint16,

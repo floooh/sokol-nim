@@ -70,16 +70,16 @@ proc init() {.cdecl.} =
   # shader and pipeline object
   pip = sg.makePipeline(PipelineDesc(
     shader: sg.makeShader(instancingShaderDesc(sg.queryBackend())),
-    layout: LayoutDesc(
+    layout: VertexLayoutState(
       # vertex buffer at slot 1 must step per instance
       buffers: [
-        BufferLayoutDesc(),
-        BufferLayoutDesc( stepFunc: vertexStepPerInstance )
+        VertexBufferLayoutState(),
+        VertexBufferLayoutState( stepFunc: vertexStepPerInstance )
       ],
       attrs: [
-        VertexAttrDesc(format: vertexFormatFloat3, bufferIndex: 0),  # pos
-        VertexAttrDesc(format: vertexFormatFloat4, bufferIndex: 0),  # color0
-        VertexAttrDesc(format: vertexFormatFloat3, bufferIndex: 1),  # inst_pos
+        VertexAttrState(format: vertexFormatFloat3, bufferIndex: 0),  # pos
+        VertexAttrState(format: vertexFormatFloat4, bufferIndex: 0),  # color0
+        VertexAttrState(format: vertexFormatFloat3, bufferIndex: 1),  # inst_pos
       ]
     ),
     indexType: indexTypeUint16,

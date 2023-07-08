@@ -156,9 +156,9 @@ proc c_disableTexture():void {.cdecl, importc:"sgl_disable_texture".}
 proc disableTexture*():void =
     c_disableTexture()
 
-proc c_texture(img:gfx.Image):void {.cdecl, importc:"sgl_texture".}
-proc texture*(img:gfx.Image):void =
-    c_texture(img)
+proc c_texture(img:gfx.Image, smp:gfx.Sampler):void {.cdecl, importc:"sgl_texture".}
+proc texture*(img:gfx.Image, smp:gfx.Sampler):void =
+    c_texture(img, smp)
 
 proc c_layer(layerId:int32):void {.cdecl, importc:"sgl_layer".}
 proc layer*(layerId:int32):void =

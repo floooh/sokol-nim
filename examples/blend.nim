@@ -48,9 +48,9 @@ proc init() {.cdecl.} =
 
   # pipeline object for rendering the background
   bgPip = sg.makePipeline(PipelineDesc(
-    layout: LayoutDesc(
-      buffers: [ BufferLayoutDesc(stride: 28) ],
-      attrs: [ VertexAttrDesc(offset: 0, format: vertexFormatFloat2 )]
+    layout: VertexLayoutState(
+      buffers: [ VertexBufferLayoutState(stride: 28) ],
+      attrs: [ VertexAttrState(offset: 0, format: vertexFormatFloat2 )]
     ),
     shader: sg.makeShader(shd.bgShaderDesc(sg.queryBackend())),
     primitiveType: primitiveTypeTriangleStrip,
@@ -58,17 +58,17 @@ proc init() {.cdecl.} =
 
   # lot of pipeline objects for rendering the blended quads
   var pipDesc = PipelineDesc(
-    layout: LayoutDesc(
+    layout: VertexLayoutState(
       attrs: [
-        VertexAttrDesc(format: vertexFormatFloat3),
-        VertexAttrDesc(format: vertexFormatFloat4)
+        VertexAttrState(format: vertexFormatFloat3),
+        VertexAttrState(format: vertexFormatFloat4)
       ]
     ),
     shader: sg.makeShader(shd.quadShaderDesc(sg.queryBackend())),
     primitiveType: primitiveTypeTriangleStrip,
     blendColor: (1.0, 0.0, 0.0, 1.0),
     colors: [
-      ColorState(blend: BlendState(enabled: true, srcFactorAlpha: blendFactorOne, dstFactorAlpha: blendFactorZero))
+      ColorTargetState(blend: BlendState(enabled: true, srcFactorAlpha: blendFactorOne, dstFactorAlpha: blendFactorZero))
     ]
   )
   for src in 0..<numBlendFactors:

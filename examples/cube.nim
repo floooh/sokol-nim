@@ -80,13 +80,13 @@ proc init() {.cdecl.} =
 
   pip = sg.makePipeline(PipelineDesc(
     shader: sg.makeShader(shd.cubeShaderDesc(sg.queryBackend())),
-    layout: LayoutDesc(
+    layout: VertexLayoutState(
       buffers: [
-        BufferLayoutDesc(stride: 28),
+        VertexBufferLayoutState(stride: 28),
       ],
       attrs: [
-        VertexAttrDesc(bufferIndex: 0, offset: 0,  format: vertexFormatFloat3),
-        VertexAttrDesc(bufferIndex: 0, offset: 12, format: vertexFormatFloat4),
+        VertexAttrState(bufferIndex: 0, offset: 0,  format: vertexFormatFloat3),
+        VertexAttrState(bufferIndex: 0, offset: 12, format: vertexFormatFloat4),
       ],
     ),
     indexType: indexTypeUint16,
