@@ -131,7 +131,7 @@ task build_all, "Build all examples in release mode":
       exec &"nim c --outdir:build {backendSwitch()} {compilerSwitch()} -d:release examples/{example}"
 
 task shaders, "Compile all shaders (requires ../sokol-tools-bin)":
-  let binDir = "../../../sokol-tools-bin/bin/"
+  let binDir = "../sokol-tools-bin/bin/"
   let shdcPath =
     when defined(windows):
       &"{binDir}win32/sokol-shdc"
