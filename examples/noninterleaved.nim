@@ -86,7 +86,7 @@ proc init() {.cdecl.} =
   # are used to point to the position- and color-components.
   bindings = Bindings(
     vertexBuffers: [ vbuf, vbuf ],
-    vertexBufferOffsets: [ 0'i32, 24 * 3 * sizeof(float32)],
+    vertexBufferOffsets: [ 0, 24 * 3 * sizeof(float32)],
     indexBuffer: ibuf,
   )
 
