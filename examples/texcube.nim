@@ -91,7 +91,7 @@ proc init() {.cdecl.} =
     0xFFFFFFFF'u32, 0xFF000000'u32, 0xFFFFFFFF'u32, 0xFF000000'u32,
     0xFF000000'u32, 0xFFFFFFFF'u32, 0xFF000000'u32, 0xFFFFFFFF'u32,
   ]
-  bindings.fsImages[shd.slotTex] = sg.makeImage(sg.ImageDesc(
+  bindings.fs.images[shd.slotTex] = sg.makeImage(sg.ImageDesc(
     width: 4,
     height: 4,
     data: ImageData(
@@ -99,14 +99,20 @@ proc init() {.cdecl.} =
     )
   ))
 
+  # create a matching sampler
+  bindings.fs.samplers[shd.slotSmp] = sg.makeSampler(sg.SamplerDesc(
+    minFilter: filterNearest,
+    magFilter: filterNearest,
+  ));
+
   # shader and pipeline object
   pip = sg.makePipeline(PipelineDesc(
     shader: sg.makeShader(texcubeShaderDesc(sg.queryBackend())),
-    layout: LayoutDesc(
+    layout: VertexLayoutState(
       attrs: [
-        VertexAttrDesc(format: vertexFormatFloat3),    # pos
-        VertexAttrDesc(format: vertexFormatUbyte4n),   # color0
-        VertexAttrDesc(format: vertexFormatShort2n)    # texcoord0
+        VertexAttrState(format: vertexFormatFloat3),    # pos
+        VertexAttrState(format: vertexFormatUbyte4n),   # color0
+        VertexAttrState(format: vertexFormatShort2n)    # texcoord0
       ]
     ),
     indexType: indexTypeUint16,

@@ -45,10 +45,6 @@ proc createOffscreenPass(width: int32, height: int32) =
     renderTarget: true,
     width: width,
     height: height,
-    minFilter: filterLinear,
-    magFilter: filterLinear,
-    wrapU: wrapClampToEdge,
-    wrapV: wrapClampToEdge,
     sampleCount: offscreenSampleCount
   )
   var depthImageDesc = colorImageDesc
@@ -65,7 +61,7 @@ proc createOffscreenPass(width: int32, height: int32) =
 
   # also need to update the fullscreen-quad texture bindings
   for i in 0..<3:
-    fsqBindings.fsImages[i] = offscreenPassDesc.colorAttachments[i].image
+    fsqBindings.fs.images[i] = offscreenPassDesc.colorAttachments[i].image
 
 # listen for window-resize events and recreate offscreen rendertargets
 proc event(ev: ptr Event) {.cdecl.} =
@@ -142,11 +138,11 @@ proc init() {.cdecl.} =
   # shader and pipeline for offscreen-renderer cube
   offscreenPip = sg.makePipeline(PipelineDesc(
     shader: sg.makeShader(offscreenShaderDesc(sg.queryBackend())),
-    layout: LayoutDesc(
-      buffers: [ BufferLayoutDesc(stride: sizeof(Vertex).int32) ],
+    layout: VertexLayoutState(
+      buffers: [ VertexBufferLayoutState(stride: sizeof(Vertex).int32) ],
       attrs: [
-        VertexAttrDesc(offset: offsetOf(Vertex,x).int32, format: vertexFormatFloat3),
-        VertexAttrDesc(offset: offsetOf(Vertex,b).int32, format: vertexFormatFloat)
+        VertexAttrState(offset: offsetOf(Vertex,x).int32, format: vertexFormatFloat3),
+        VertexAttrState(offset: offsetOf(Vertex,b).int32, format: vertexFormatFloat)
       ]
     ),
     indexType: indexTypeUint16,
@@ -166,36 +162,51 @@ proc init() {.cdecl.} =
     data: sg.Range(addr: quadVertices.addr, size: quadVertices.sizeof)
   ))
 
+  # create a sampler for sampling the render targets as textures
+  let smp = sg.makeSampler(SamplerDesc(
+    minFilter: filterLinear,
+    magFilter: filterLinear,
+    wrapU: wrapClampToEdge,
+    wrapV: wrapClampToEdge,
+  ));
+
   # shader, pipeline and bindings to compose 3 offscreen render targets into default framebuffer
   fsqPip = sg.makePipeline(PipelineDesc(
     shader: sg.makeShader(fsqShaderDesc(sg.queryBackend())),
-    layout: LayoutDesc(
+    layout: VertexLayoutState(
       attrs: [
-        VertexAttrDesc(format: vertexFormatFloat2)
+        VertexAttrState(format: vertexFormatFloat2)
       ]
     ),
     primitiveType: primitiveTypeTriangleStrip,
   ))
+
   fsqBindings = Bindings(
     vertexBuffers: [ quadVbuf ],
-    fsImages: [
-      offscreenPassDesc.colorAttachments[0].image,
-      offscreenPassDesc.colorAttachments[1].image,
-      offscreenPassDesc.colorAttachments[2].image
-    ]
+    fs: StageBindings(
+      images: [
+        offscreenPassDesc.colorAttachments[0].image,
+        offscreenPassDesc.colorAttachments[1].image,
+        offscreenPassDesc.colorAttachments[2].image
+      ],
+      samplers: [
+        smp,
+      ]
+    )
   )
 
   # shader, pipeline and bindings to render debug-visualization quads
   dbgPip = sg.makePipeline(PipelineDesc(
     shader: sg.makeShader(dbgShaderDesc(sg.queryBackend())),
-    layout: LayoutDesc(
+    layout: VertexLayoutState(
       attrs: [
-        VertexAttrDesc(format: vertexFormatFloat2)
+        VertexAttrState(format: vertexFormatFloat2)
       ]
     ),
     primitiveType: primitiveTypeTriangleStrip,
   ))
   dbgBindings.vertexBuffers[0] = quadVbuf
+  dbgBindings.fs.samplers[0] = smp
 
 proc frame() {.cdecl.} =
   let t = sapp.frameDuration().float32 * 60
@@ -231,7 +242,7 @@ proc frame() {.cdecl.} =
   sg.applyPipeline(dbgPip)
   for i in 0..<3:
     sg.applyViewport(i.int32*100, 0, 100, 100, false)
-    dbgBindings.fsImages[0] = offscreenPassDesc.colorAttachments[i].image
+    dbgBindings.fs.images[0] = offscreenPassDesc.colorAttachments[i].image
     sg.applyBindings(dbgBindings)
     sg.draw(0, 4, 1)
   sg.endPass()

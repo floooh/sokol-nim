@@ -16,6 +16,7 @@ const
 
 var
   img: sg.Image
+  smp: sg.Sampler
   pip3d: sgl.Pipeline
 
 proc init() {.cdecl.} =
@@ -40,6 +41,12 @@ proc init() {.cdecl.} =
     data: sg.ImageData(
       subimage: [ [ sg.Range(addr: pixels.addr, size: pixels.sizeof) ] ]
     )
+  ))
+
+  # and a sampler
+  smp = sg.makeSampler(sg.SamplerDesc(
+    minFilter: filterNearest,
+    magFilter: filterNearest,
   ))
 
   # create a pipeline object for 3d rendering, with less-equal
@@ -161,7 +168,7 @@ proc drawTexCube(t: float32) =
     sgl.loadPipeline(pip3d)
 
     sgl.enableTexture()
-    sgl.texture(img)
+    sgl.texture(img, smp)
 
     sgl.matrixModeProjection()
     sgl.perspective(sgl.asRadians(45), 1, 0.1, 100)

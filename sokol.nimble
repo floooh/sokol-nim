@@ -132,7 +132,7 @@ task build_all, "Build all examples in release mode":
 
 task shaders, "Compile all shaders (requires ../sokol-tools-bin)":
   let binDir = "../sokol-tools-bin/bin/"
-  let shdcPath = 
+  let shdcPath =
     when defined(windows):
       &"{binDir}win32/sokol-shdc"
     elif defined(macosx) and defined(arm64):

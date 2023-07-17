@@ -147,25 +147,25 @@ proc c_indexBufferDesc(buf:ptr Buffer):gfx.BufferDesc {.cdecl, importc:"sshape_i
 proc indexBufferDesc*(buf:Buffer):gfx.BufferDesc =
     c_indexBufferDesc(addr(buf))
 
-proc c_bufferLayoutDesc():gfx.BufferLayoutDesc {.cdecl, importc:"sshape_buffer_layout_desc".}
-proc bufferLayoutDesc*():gfx.BufferLayoutDesc =
-    c_bufferLayoutDesc()
+proc c_vertexBufferLayoutState():gfx.VertexBufferLayoutState {.cdecl, importc:"sshape_vertex_buffer_layout_state".}
+proc vertexBufferLayoutState*():gfx.VertexBufferLayoutState =
+    c_vertexBufferLayoutState()
 
-proc c_positionAttrDesc():gfx.VertexAttrDesc {.cdecl, importc:"sshape_position_attr_desc".}
-proc positionAttrDesc*():gfx.VertexAttrDesc =
-    c_positionAttrDesc()
+proc c_positionVertexAttrState():gfx.VertexAttrState {.cdecl, importc:"sshape_position_vertex_attr_state".}
+proc positionVertexAttrState*():gfx.VertexAttrState =
+    c_positionVertexAttrState()
 
-proc c_normalAttrDesc():gfx.VertexAttrDesc {.cdecl, importc:"sshape_normal_attr_desc".}
-proc normalAttrDesc*():gfx.VertexAttrDesc =
-    c_normalAttrDesc()
+proc c_normalVertexAttrState():gfx.VertexAttrState {.cdecl, importc:"sshape_normal_vertex_attr_state".}
+proc normalVertexAttrState*():gfx.VertexAttrState =
+    c_normalVertexAttrState()
 
-proc c_texcoordAttrDesc():gfx.VertexAttrDesc {.cdecl, importc:"sshape_texcoord_attr_desc".}
-proc texcoordAttrDesc*():gfx.VertexAttrDesc =
-    c_texcoordAttrDesc()
+proc c_texcoordVertexAttrState():gfx.VertexAttrState {.cdecl, importc:"sshape_texcoord_vertex_attr_state".}
+proc texcoordVertexAttrState*():gfx.VertexAttrState =
+    c_texcoordVertexAttrState()
 
-proc c_colorAttrDesc():gfx.VertexAttrDesc {.cdecl, importc:"sshape_color_attr_desc".}
-proc colorAttrDesc*():gfx.VertexAttrDesc =
-    c_colorAttrDesc()
+proc c_colorVertexAttrState():gfx.VertexAttrState {.cdecl, importc:"sshape_color_vertex_attr_state".}
+proc colorVertexAttrState*():gfx.VertexAttrState =
+    c_colorVertexAttrState()
 
 proc c_color4f(r:float32, g:float32, b:float32, a:float32):uint32 {.cdecl, importc:"sshape_color_4f".}
 proc color4f*(r:float32, g:float32, b:float32, a:float32):uint32 =

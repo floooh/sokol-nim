@@ -7,6 +7,9 @@ type Buffer* = object
 type Image* = object
   id*:uint32
 
+type Sampler* = object
+  id*:uint32
+
 type Shader* = object
   id*:uint32
 
@@ -28,8 +31,10 @@ const
   numShaderStages* = 2
   numInflightFrames* = 2
   maxColorAttachments* = 4
-  maxShaderstageBuffers* = 8
+  maxVertexBuffers* = 8
   maxShaderstageImages* = 12
+  maxShaderstageSamplers* = 8
+  maxShaderstageImagesamplerpairs* = 12
   maxShaderstageUbs* = 4
   maxUbMembers* = 16
   maxVertexAttributes* = 16
@@ -181,11 +186,18 @@ type
     imageTypeArray,
 
 type
+  ImageSampleType* {.size:sizeof(int32).} = enum
+    imagesampletypeDefault,
+    imagesampletypeFloat,
+    imagesampletypeDepth,
+    imagesampletypeSint,
+    imagesampletypeUint,
+
+type
   SamplerType* {.size:sizeof(int32).} = enum
     samplerTypeDefault,
-    samplerTypeFloat,
-    samplerTypeSint,
-    samplerTypeUint,
+    samplerTypeSample,
+    samplerTypeCompare,
 
 type
   CubeFace* {.size:sizeof(int32).} = enum
@@ -213,12 +225,9 @@ type
 type
   Filter* {.size:sizeof(int32).} = enum
     filterDefault,
+    filterNone,
     filterNearest,
     filterLinear,
-    filterNearestMipmapNearest,
-    filterNearestMipmapLinear,
-    filterLinearMipmapNearest,
-    filterLinearMipmapLinear,
 
 type
   Wrap* {.size:sizeof(int32).} = enum
@@ -403,14 +412,26 @@ converter toPassActioncolors*[N:static[int]](items: array[N, ColorAttachmentActi
   static: assert(N < 4)
   for index,item in items.pairs: result[index]=item
 
+type StageBindings* = object
+  images*:array[12, Image]
+  samplers*:array[8, Sampler]
+
+converter toStageBindingsimages*[N:static[int]](items: array[N, Image]): array[12, Image] =
+  static: assert(N < 12)
+  for index,item in items.pairs: result[index]=item
+
+converter toStageBindingssamplers*[N:static[int]](items: array[N, Sampler]): array[8, Sampler] =
+  static: assert(N < 8)
+  for index,item in items.pairs: result[index]=item
+
 type Bindings* = object
   startCanary:uint32
   vertexBuffers*:array[8, Buffer]
   vertexBufferOffsets*:array[8, int32]
   indexBuffer*:Buffer
   indexBufferOffset*:int32
-  vsImages*:array[12, Image]
-  fsImages*:array[12, Image]
+  vs*:StageBindings
+  fs*:StageBindings
   endCanary:uint32
 
 converter toBindingsvertexBuffers*[N:static[int]](items: array[N, Buffer]): array[8, Buffer] =
@@ -419,14 +440,6 @@ converter toBindingsvertexBuffers*[N:static[int]](items: array[N, Buffer]): arra
 
 converter toBindingsvertexBufferOffsets*[N:static[int]](items: array[N, int32]): array[8, int32] =
   static: assert(N < 8)
-  for index,item in items.pairs: result[index]=item
-
-converter toBindingsvsImages*[N:static[int]](items: array[N, Image]): array[12, Image] =
-  static: assert(N < 12)
-  for index,item in items.pairs: result[index]=item
-
-converter toBindingsfsImages*[N:static[int]](items: array[N, Image]): array[12, Image] =
-  static: assert(N < 12)
   for index,item in items.pairs: result[index]=item
 
 type BufferDesc* = object
@@ -471,15 +484,6 @@ type ImageDesc* = object
   usage*:Usage
   pixelFormat*:PixelFormat
   sampleCount*:int32
-  minFilter*:Filter
-  magFilter*:Filter
-  wrapU*:Wrap
-  wrapV*:Wrap
-  wrapW*:Wrap
-  borderColor*:BorderColor
-  maxAnisotropy*:uint32
-  minLod*:float32
-  maxLod*:float32
   data*:ImageData
   label*:cstring
   glTextures*:array[2, uint32]
@@ -497,6 +501,26 @@ converter toImageDescglTextures*[N:static[int]](items: array[N, uint32]): array[
 converter toImageDescmtlTextures*[N:static[int]](items: array[N, pointer]): array[2, pointer] =
   static: assert(N < 2)
   for index,item in items.pairs: result[index]=item
+
+type SamplerDesc* = object
+  startCanary:uint32
+  minFilter*:Filter
+  magFilter*:Filter
+  mipmapFilter*:Filter
+  wrapU*:Wrap
+  wrapV*:Wrap
+  wrapW*:Wrap
+  minLod*:float32
+  maxLod*:float32
+  borderColor*:BorderColor
+  compare*:CompareFunc
+  maxAnisotropy*:uint32
+  label*:cstring
+  glSampler*:uint32
+  mtlSampler*:pointer
+  d3d11Sampler*:pointer
+  wgpuSampler*:pointer
+  endCanary:uint32
 
 type ShaderAttrDesc* = object
   name*:cstring
@@ -518,9 +542,20 @@ converter toShaderUniformBlockDescuniforms*[N:static[int]](items: array[N, Shade
   for index,item in items.pairs: result[index]=item
 
 type ShaderImageDesc* = object
-  name*:cstring
+  used*:bool
+  multisampled*:bool
   imageType*:ImageType
+  sampleType*:ImageSampleType
+
+type ShaderSamplerDesc* = object
+  used*:bool
   samplerType*:SamplerType
+
+type ShaderImageSamplerPairDesc* = object
+  used*:bool
+  imageSlot*:int32
+  samplerSlot*:int32
+  glslName*:cstring
 
 type ShaderStageDesc* = object
   source*:cstring
@@ -529,12 +564,22 @@ type ShaderStageDesc* = object
   d3d11Target*:cstring
   uniformBlocks*:array[4, ShaderUniformBlockDesc]
   images*:array[12, ShaderImageDesc]
+  samplers*:array[8, ShaderSamplerDesc]
+  imageSamplerPairs*:array[12, ShaderImageSamplerPairDesc]
 
 converter toShaderStageDescuniformBlocks*[N:static[int]](items: array[N, ShaderUniformBlockDesc]): array[4, ShaderUniformBlockDesc] =
   static: assert(N < 4)
   for index,item in items.pairs: result[index]=item
 
 converter toShaderStageDescimages*[N:static[int]](items: array[N, ShaderImageDesc]): array[12, ShaderImageDesc] =
+  static: assert(N < 12)
+  for index,item in items.pairs: result[index]=item
+
+converter toShaderStageDescsamplers*[N:static[int]](items: array[N, ShaderSamplerDesc]): array[8, ShaderSamplerDesc] =
+  static: assert(N < 8)
+  for index,item in items.pairs: result[index]=item
+
+converter toShaderStageDescimageSamplerPairs*[N:static[int]](items: array[N, ShaderImageSamplerPairDesc]): array[12, ShaderImageSamplerPairDesc] =
   static: assert(N < 12)
   for index,item in items.pairs: result[index]=item
 
@@ -550,25 +595,25 @@ converter toShaderDescattrs*[N:static[int]](items: array[N, ShaderAttrDesc]): ar
   static: assert(N < 16)
   for index,item in items.pairs: result[index]=item
 
-type BufferLayoutDesc* = object
+type VertexBufferLayoutState* = object
   stride*:int32
   stepFunc*:VertexStep
   stepRate*:int32
 
-type VertexAttrDesc* = object
+type VertexAttrState* = object
   bufferIndex*:int32
   offset*:int32
   format*:VertexFormat
 
-type LayoutDesc* = object
-  buffers*:array[8, BufferLayoutDesc]
-  attrs*:array[16, VertexAttrDesc]
+type VertexLayoutState* = object
+  buffers*:array[8, VertexBufferLayoutState]
+  attrs*:array[16, VertexAttrState]
 
-converter toLayoutDescbuffers*[N:static[int]](items: array[N, BufferLayoutDesc]): array[8, BufferLayoutDesc] =
+converter toVertexLayoutStatebuffers*[N:static[int]](items: array[N, VertexBufferLayoutState]): array[8, VertexBufferLayoutState] =
   static: assert(N < 8)
   for index,item in items.pairs: result[index]=item
 
-converter toLayoutDescattrs*[N:static[int]](items: array[N, VertexAttrDesc]): array[16, VertexAttrDesc] =
+converter toVertexLayoutStateattrs*[N:static[int]](items: array[N, VertexAttrState]): array[16, VertexAttrState] =
   static: assert(N < 16)
   for index,item in items.pairs: result[index]=item
 
@@ -603,7 +648,7 @@ type BlendState* = object
   dstFactorAlpha*:BlendFactor
   opAlpha*:BlendOp
 
-type ColorState* = object
+type ColorTargetState* = object
   pixelFormat*:PixelFormat
   writeMask*:ColorMask
   blend*:BlendState
@@ -611,11 +656,11 @@ type ColorState* = object
 type PipelineDesc* = object
   startCanary:uint32
   shader*:Shader
-  layout*:LayoutDesc
+  layout*:VertexLayoutState
   depth*:DepthState
   stencil*:StencilState
   colorCount*:int32
-  colors*:array[4, ColorState]
+  colors*:array[4, ColorTargetState]
   primitiveType*:PrimitiveType
   indexType*:IndexType
   cullMode*:CullMode
@@ -626,7 +671,7 @@ type PipelineDesc* = object
   label*:cstring
   endCanary:uint32
 
-converter toPipelineDesccolors*[N:static[int]](items: array[N, ColorState]): array[4, ColorState] =
+converter toPipelineDesccolors*[N:static[int]](items: array[N, ColorTargetState]): array[4, ColorTargetState] =
   static: assert(N < 4)
   for index,item in items.pairs: result[index]=item
 
@@ -656,11 +701,13 @@ type TraceHooks* = object
   resetStateCache*:proc(a1:pointer) {.cdecl.}
   makeBuffer*:proc(a1:ptr BufferDesc, a2:Buffer, a3:pointer) {.cdecl.}
   makeImage*:proc(a1:ptr ImageDesc, a2:Image, a3:pointer) {.cdecl.}
+  makeSampler*:proc(a1:ptr SamplerDesc, a2:Sampler, a3:pointer) {.cdecl.}
   makeShader*:proc(a1:ptr ShaderDesc, a2:Shader, a3:pointer) {.cdecl.}
   makePipeline*:proc(a1:ptr PipelineDesc, a2:Pipeline, a3:pointer) {.cdecl.}
   makePass*:proc(a1:ptr PassDesc, a2:Pass, a3:pointer) {.cdecl.}
   destroyBuffer*:proc(a1:Buffer, a2:pointer) {.cdecl.}
   destroyImage*:proc(a1:Image, a2:pointer) {.cdecl.}
+  destroySampler*:proc(a1:Sampler, a2:pointer) {.cdecl.}
   destroyShader*:proc(a1:Shader, a2:pointer) {.cdecl.}
   destroyPipeline*:proc(a1:Pipeline, a2:pointer) {.cdecl.}
   destroyPass*:proc(a1:Pass, a2:pointer) {.cdecl.}
@@ -679,40 +726,36 @@ type TraceHooks* = object
   commit*:proc(a1:pointer) {.cdecl.}
   allocBuffer*:proc(a1:Buffer, a2:pointer) {.cdecl.}
   allocImage*:proc(a1:Image, a2:pointer) {.cdecl.}
+  allocSampler*:proc(a1:Sampler, a2:pointer) {.cdecl.}
   allocShader*:proc(a1:Shader, a2:pointer) {.cdecl.}
   allocPipeline*:proc(a1:Pipeline, a2:pointer) {.cdecl.}
   allocPass*:proc(a1:Pass, a2:pointer) {.cdecl.}
   deallocBuffer*:proc(a1:Buffer, a2:pointer) {.cdecl.}
   deallocImage*:proc(a1:Image, a2:pointer) {.cdecl.}
+  deallocSampler*:proc(a1:Sampler, a2:pointer) {.cdecl.}
   deallocShader*:proc(a1:Shader, a2:pointer) {.cdecl.}
   deallocPipeline*:proc(a1:Pipeline, a2:pointer) {.cdecl.}
   deallocPass*:proc(a1:Pass, a2:pointer) {.cdecl.}
   initBuffer*:proc(a1:Buffer, a2:ptr BufferDesc, a3:pointer) {.cdecl.}
   initImage*:proc(a1:Image, a2:ptr ImageDesc, a3:pointer) {.cdecl.}
+  initSampler*:proc(a1:Sampler, a2:ptr SamplerDesc, a3:pointer) {.cdecl.}
   initShader*:proc(a1:Shader, a2:ptr ShaderDesc, a3:pointer) {.cdecl.}
   initPipeline*:proc(a1:Pipeline, a2:ptr PipelineDesc, a3:pointer) {.cdecl.}
   initPass*:proc(a1:Pass, a2:ptr PassDesc, a3:pointer) {.cdecl.}
   uninitBuffer*:proc(a1:Buffer, a2:pointer) {.cdecl.}
   uninitImage*:proc(a1:Image, a2:pointer) {.cdecl.}
+  uninitSampler*:proc(a1:Sampler, a2:pointer) {.cdecl.}
   uninitShader*:proc(a1:Shader, a2:pointer) {.cdecl.}
   uninitPipeline*:proc(a1:Pipeline, a2:pointer) {.cdecl.}
   uninitPass*:proc(a1:Pass, a2:pointer) {.cdecl.}
   failBuffer*:proc(a1:Buffer, a2:pointer) {.cdecl.}
   failImage*:proc(a1:Image, a2:pointer) {.cdecl.}
+  failSampler*:proc(a1:Sampler, a2:pointer) {.cdecl.}
   failShader*:proc(a1:Shader, a2:pointer) {.cdecl.}
   failPipeline*:proc(a1:Pipeline, a2:pointer) {.cdecl.}
   failPass*:proc(a1:Pass, a2:pointer) {.cdecl.}
   pushDebugGroup*:proc(a1:cstring, a2:pointer) {.cdecl.}
   popDebugGroup*:proc(a1:pointer) {.cdecl.}
-  errBufferPoolExhausted*:proc(a1:pointer) {.cdecl.}
-  errImagePoolExhausted*:proc(a1:pointer) {.cdecl.}
-  errShaderPoolExhausted*:proc(a1:pointer) {.cdecl.}
-  errPipelinePoolExhausted*:proc(a1:pointer) {.cdecl.}
-  errPassPoolExhausted*:proc(a1:pointer) {.cdecl.}
-  errContextMismatch*:proc(a1:pointer) {.cdecl.}
-  errPassInvalid*:proc(a1:pointer) {.cdecl.}
-  errDrawInvalid*:proc(a1:pointer) {.cdecl.}
-  errBindingsInvalid*:proc(a1:pointer) {.cdecl.}
 
 type SlotInfo* = object
   state*:ResourceState
@@ -733,6 +776,9 @@ type ImageInfo* = object
   updFrameIndex*:uint32
   numSlots*:int32
   activeSlot*:int32
+
+type SamplerInfo* = object
+  slot*:SlotInfo
 
 type ShaderInfo* = object
   slot*:SlotInfo
@@ -795,6 +841,7 @@ type
     logitemWgpuActivateContextFixme,
     logitemUninitBufferActiveContextMismatch,
     logitemUninitImageActiveContextMismatch,
+    logitemUninitSamplerActiveContextMismatch,
     logitemUninitShaderActiveContextMismatch,
     logitemUninitPipelineActiveContextMismatch,
     logitemUninitPassActiveContextMismatch,
@@ -803,26 +850,31 @@ type
     logitemTraceHooksNotEnabled,
     logitemDeallocBufferInvalidState,
     logitemDeallocImageInvalidState,
+    logitemDeallocSamplerInvalidState,
     logitemDeallocShaderInvalidState,
     logitemDeallocPipelineInvalidState,
     logitemDeallocPassInvalidState,
     logitemInitBufferInvalidState,
     logitemInitImageInvalidState,
+    logitemInitSamplerInvalidState,
     logitemInitShaderInvalidState,
     logitemInitPipelineInvalidState,
     logitemInitPassInvalidState,
     logitemUninitBufferInvalidState,
     logitemUninitImageInvalidState,
+    logitemUninitSamplerInvalidState,
     logitemUninitShaderInvalidState,
     logitemUninitPipelineInvalidState,
     logitemUninitPassInvalidState,
     logitemFailBufferInvalidState,
     logitemFailImageInvalidState,
+    logitemFailSamplerInvalidState,
     logitemFailShaderInvalidState,
     logitemFailPipelineInvalidState,
     logitemFailPassInvalidState,
     logitemBufferPoolExhausted,
     logitemImagePoolExhausted,
+    logitemSamplerPoolExhausted,
     logitemShaderPoolExhausted,
     logitemPipelinePoolExhausted,
     logitemPassPoolExhausted,
@@ -849,6 +901,9 @@ type
     logitemValidateImagedescInjectedNoData,
     logitemValidateImagedescDynamicNoData,
     logitemValidateImagedescCompressedImmutable,
+    logitemValidateSamplerdescCanary,
+    logitemValidateSamplerdescMinfilterNone,
+    logitemValidateSamplerdescMagfilterNone,
     logitemValidateShaderdescCanary,
     logitemValidateShaderdescSource,
     logitemValidateShaderdescBytecode,
@@ -861,8 +916,17 @@ type
     logitemValidateShaderdescUbSizeMismatch,
     logitemValidateShaderdescUbArrayCount,
     logitemValidateShaderdescUbStd140ArrayType,
-    logitemValidateShaderdescNoContImgs,
-    logitemValidateShaderdescImgName,
+    logitemValidateShaderdescNoContImages,
+    logitemValidateShaderdescNoContSamplers,
+    logitemValidateShaderdescImageSamplerPairImageSlotOutOfRange,
+    logitemValidateShaderdescImageSamplerPairSamplerSlotOutOfRange,
+    logitemValidateShaderdescImageSamplerPairNameRequiredForGl,
+    logitemValidateShaderdescImageSamplerPairHasNameButNotUsed,
+    logitemValidateShaderdescImageSamplerPairHasImageButNotUsed,
+    logitemValidateShaderdescImageSamplerPairHasSamplerButNotUsed,
+    logitemValidateShaderdescImageNotReferencedByImageSamplerPairs,
+    logitemValidateShaderdescSamplerNotReferencedByImageSamplerPairs,
+    logitemValidateShaderdescNoContImageSamplerPairs,
     logitemValidateShaderdescAttrSemantics,
     logitemValidateShaderdescAttrStringTooLong,
     logitemValidatePipelinedescCanary,
@@ -871,7 +935,7 @@ type
     logitemValidatePipelinedescLayoutStride4,
     logitemValidatePipelinedescAttrSemantics,
     logitemValidatePassdescCanary,
-    logitemValidatePassdescNoColorAtts,
+    logitemValidatePassdescNoAttachments,
     logitemValidatePassdescNoContColorAtts,
     logitemValidatePassdescImage,
     logitemValidatePassdescMiplevel,
@@ -926,16 +990,28 @@ type
     logitemValidateAbndIbExists,
     logitemValidateAbndIbType,
     logitemValidateAbndIbOverflow,
-    logitemValidateAbndVsImgs,
+    logitemValidateAbndVsExpectedImageBinding,
     logitemValidateAbndVsImgExists,
-    logitemValidateAbndVsImgTypes,
-    logitemValidateAbndVsImgMsaa,
-    logitemValidateAbndVsImgDepth,
-    logitemValidateAbndFsImgs,
+    logitemValidateAbndVsImageTypeMismatch,
+    logitemValidateAbndVsImageMsaa,
+    logitemValidateAbndVsUnexpectedImageBinding,
+    logitemValidateAbndVsExpectedSamplerBinding,
+    logitemValidateAbndVsUnexpectedSamplerCompareNever,
+    logitemValidateAbndVsExpectedSamplerCompareNever,
+    logitemValidateAbndVsUnexpectedSamplerBinding,
+    logitemValidateAbndVsSmpExists,
+    logitemValidateAbndVsImgSmpMipmaps,
+    logitemValidateAbndFsExpectedImageBinding,
     logitemValidateAbndFsImgExists,
-    logitemValidateAbndFsImgTypes,
-    logitemValidateAbndFsImgMsaa,
-    logitemValidateAbndFsImgDepth,
+    logitemValidateAbndFsImageTypeMismatch,
+    logitemValidateAbndFsImageMsaa,
+    logitemValidateAbndFsUnexpectedImageBinding,
+    logitemValidateAbndFsExpectedSamplerBinding,
+    logitemValidateAbndFsUnexpectedSamplerCompareNever,
+    logitemValidateAbndFsExpectedSamplerCompareNever,
+    logitemValidateAbndFsUnexpectedSamplerBinding,
+    logitemValidateAbndFsSmpExists,
+    logitemValidateAbndFsImgSmpMipmaps,
     logitemValidateAubNoPipeline,
     logitemValidateAubNoUbAtSlot,
     logitemValidateAubSize,
@@ -1002,15 +1078,16 @@ type Desc* = object
   startCanary:uint32
   bufferPoolSize*:int32
   imagePoolSize*:int32
+  samplerPoolSize*:int32
   shaderPoolSize*:int32
   pipelinePoolSize*:int32
   passPoolSize*:int32
   contextPoolSize*:int32
   uniformBufferSize*:int32
   stagingBufferSize*:int32
-  samplerCacheSize*:int32
   maxCommitListeners*:int32
   disableValidation*:bool
+  mtlForceManagedStorageMode*:bool
   allocator*:Allocator
   logger*:Logger
   context*:ContextDesc
@@ -1060,6 +1137,10 @@ proc c_makeImage(desc:ptr ImageDesc):Image {.cdecl, importc:"sg_make_image".}
 proc makeImage*(desc:ImageDesc):Image =
     c_makeImage(addr(desc))
 
+proc c_makeSampler(desc:ptr SamplerDesc):Sampler {.cdecl, importc:"sg_make_sampler".}
+proc makeSampler*(desc:SamplerDesc):Sampler =
+    c_makeSampler(addr(desc))
+
 proc c_makeShader(desc:ptr ShaderDesc):Shader {.cdecl, importc:"sg_make_shader".}
 proc makeShader*(desc:ShaderDesc):Shader =
     c_makeShader(addr(desc))
@@ -1079,6 +1160,10 @@ proc destroyBuffer*(buf:Buffer):void =
 proc c_destroyImage(img:Image):void {.cdecl, importc:"sg_destroy_image".}
 proc destroyImage*(img:Image):void =
     c_destroyImage(img)
+
+proc c_destroySampler(smp:Sampler):void {.cdecl, importc:"sg_destroy_sampler".}
+proc destroySampler*(smp:Sampler):void =
+    c_destroySampler(smp)
 
 proc c_destroyShader(shd:Shader):void {.cdecl, importc:"sg_destroy_shader".}
 proc destroyShader*(shd:Shader):void =
@@ -1192,6 +1277,10 @@ proc c_queryImageState(img:Image):ResourceState {.cdecl, importc:"sg_query_image
 proc queryImageState*(img:Image):ResourceState =
     c_queryImageState(img)
 
+proc c_querySamplerState(smp:Sampler):ResourceState {.cdecl, importc:"sg_query_sampler_state".}
+proc querySamplerState*(smp:Sampler):ResourceState =
+    c_querySamplerState(smp)
+
 proc c_queryShaderState(shd:Shader):ResourceState {.cdecl, importc:"sg_query_shader_state".}
 proc queryShaderState*(shd:Shader):ResourceState =
     c_queryShaderState(shd)
@@ -1211,6 +1300,10 @@ proc queryBufferInfo*(buf:Buffer):BufferInfo =
 proc c_queryImageInfo(img:Image):ImageInfo {.cdecl, importc:"sg_query_image_info".}
 proc queryImageInfo*(img:Image):ImageInfo =
     c_queryImageInfo(img)
+
+proc c_querySamplerInfo(smp:Sampler):SamplerInfo {.cdecl, importc:"sg_query_sampler_info".}
+proc querySamplerInfo*(smp:Sampler):SamplerInfo =
+    c_querySamplerInfo(smp)
 
 proc c_queryShaderInfo(shd:Shader):ShaderInfo {.cdecl, importc:"sg_query_shader_info".}
 proc queryShaderInfo*(shd:Shader):ShaderInfo =
@@ -1232,6 +1325,10 @@ proc c_queryImageDesc(img:Image):ImageDesc {.cdecl, importc:"sg_query_image_desc
 proc queryImageDesc*(img:Image):ImageDesc =
     c_queryImageDesc(img)
 
+proc c_querySamplerDesc(smp:Sampler):SamplerDesc {.cdecl, importc:"sg_query_sampler_desc".}
+proc querySamplerDesc*(smp:Sampler):SamplerDesc =
+    c_querySamplerDesc(smp)
+
 proc c_queryShaderDesc(shd:Shader):ShaderDesc {.cdecl, importc:"sg_query_shader_desc".}
 proc queryShaderDesc*(shd:Shader):ShaderDesc =
     c_queryShaderDesc(shd)
@@ -1251,6 +1348,10 @@ proc queryBufferDefaults*(desc:BufferDesc):BufferDesc =
 proc c_queryImageDefaults(desc:ptr ImageDesc):ImageDesc {.cdecl, importc:"sg_query_image_defaults".}
 proc queryImageDefaults*(desc:ImageDesc):ImageDesc =
     c_queryImageDefaults(addr(desc))
+
+proc c_querySamplerDefaults(desc:ptr SamplerDesc):SamplerDesc {.cdecl, importc:"sg_query_sampler_defaults".}
+proc querySamplerDefaults*(desc:SamplerDesc):SamplerDesc =
+    c_querySamplerDefaults(addr(desc))
 
 proc c_queryShaderDefaults(desc:ptr ShaderDesc):ShaderDesc {.cdecl, importc:"sg_query_shader_defaults".}
 proc queryShaderDefaults*(desc:ShaderDesc):ShaderDesc =
@@ -1272,6 +1373,10 @@ proc c_allocImage():Image {.cdecl, importc:"sg_alloc_image".}
 proc allocImage*():Image =
     c_allocImage()
 
+proc c_allocSampler():Sampler {.cdecl, importc:"sg_alloc_sampler".}
+proc allocSampler*():Sampler =
+    c_allocSampler()
+
 proc c_allocShader():Shader {.cdecl, importc:"sg_alloc_shader".}
 proc allocShader*():Shader =
     c_allocShader()
@@ -1291,6 +1396,10 @@ proc deallocBuffer*(buf:Buffer):void =
 proc c_deallocImage(img:Image):void {.cdecl, importc:"sg_dealloc_image".}
 proc deallocImage*(img:Image):void =
     c_deallocImage(img)
+
+proc c_deallocSampler(smp:Sampler):void {.cdecl, importc:"sg_dealloc_sampler".}
+proc deallocSampler*(smp:Sampler):void =
+    c_deallocSampler(smp)
 
 proc c_deallocShader(shd:Shader):void {.cdecl, importc:"sg_dealloc_shader".}
 proc deallocShader*(shd:Shader):void =
@@ -1312,6 +1421,10 @@ proc c_initImage(img:Image, desc:ptr ImageDesc):void {.cdecl, importc:"sg_init_i
 proc initImage*(img:Image, desc:ImageDesc):void =
     c_initImage(img, addr(desc))
 
+proc c_initSampler(smg:Sampler, desc:ptr SamplerDesc):void {.cdecl, importc:"sg_init_sampler".}
+proc initSampler*(smg:Sampler, desc:SamplerDesc):void =
+    c_initSampler(smg, addr(desc))
+
 proc c_initShader(shd:Shader, desc:ptr ShaderDesc):void {.cdecl, importc:"sg_init_shader".}
 proc initShader*(shd:Shader, desc:ShaderDesc):void =
     c_initShader(shd, addr(desc))
@@ -1332,6 +1445,10 @@ proc c_uninitImage(img:Image):void {.cdecl, importc:"sg_uninit_image".}
 proc uninitImage*(img:Image):void =
     c_uninitImage(img)
 
+proc c_uninitSampler(smp:Sampler):void {.cdecl, importc:"sg_uninit_sampler".}
+proc uninitSampler*(smp:Sampler):void =
+    c_uninitSampler(smp)
+
 proc c_uninitShader(shd:Shader):void {.cdecl, importc:"sg_uninit_shader".}
 proc uninitShader*(shd:Shader):void =
     c_uninitShader(shd)
@@ -1351,6 +1468,10 @@ proc failBuffer*(buf:Buffer):void =
 proc c_failImage(img:Image):void {.cdecl, importc:"sg_fail_image".}
 proc failImage*(img:Image):void =
     c_failImage(img)
+
+proc c_failSampler(smp:Sampler):void {.cdecl, importc:"sg_fail_sampler".}
+proc failSampler*(smp:Sampler):void =
+    c_failSampler(smp)
 
 proc c_failShader(shd:Shader):void {.cdecl, importc:"sg_fail_shader".}
 proc failShader*(shd:Shader):void =

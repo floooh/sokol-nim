@@ -22,6 +22,7 @@ const attrVsPosition* = 0
 const attrVsColor0* = 1
 
 
+
 #
 #   #version 330
 #   

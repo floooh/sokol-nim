@@ -32,10 +32,10 @@ proc init() {.cdecl.} =
   # create shader and pipeline object
   pip = sg.makePipeline(PipelineDesc(
     shader: sg.makeShader(shd.triangleShaderDesc(sg.queryBackend())),
-    layout: LayoutDesc(
+    layout: VertexLayoutState(
       attrs: [
-        VertexAttrDesc(format: vertexFormatFloat3),
-        VertexAttrDesc(format: vertexFormatFloat4)
+        VertexAttrState(format: vertexFormatFloat3),
+        VertexAttrState(format: vertexFormatFloat4)
       ]
     )
   ))

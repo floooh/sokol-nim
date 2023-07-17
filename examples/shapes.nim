@@ -49,13 +49,13 @@ proc init() {.cdecl.} =
   # shader and pipeline object for rendering the shapes
   pip = sg.makePipeline(PipelineDesc(
     shader: sg.makeShader(shapesShaderDesc(sg.queryBackend())),
-    layout: LayoutDesc(
-      buffers: [ sshape.bufferLayoutDesc() ],
+    layout: VertexLayoutState(
+      buffers: [ sshape.vertexBufferLayoutState() ],
       attrs: [
-        sshape.positionAttrDesc(),
-        sshape.normalAttrDesc(),
-        sshape.texcoordAttrDesc(),
-        sshape.colorAttrDesc()
+        sshape.positionVertexAttrState(),
+        sshape.normalVertexAttrState(),
+        sshape.texcoordVertexAttrState(),
+        sshape.colorVertexAttrState()
       ],
     ),
     indexType: indexTypeUint16,
