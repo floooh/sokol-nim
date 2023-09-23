@@ -1057,6 +1057,11 @@ type WgpuContextDesc* = object
   depthStencilViewUserdataCb*:proc(a1:pointer):pointer {.cdecl.}
   userData*:pointer
 
+type GlContextDesc* = object
+  defaultFramebufferCb*:proc():uint32 {.cdecl.}
+  defaultFramebufferUserdataCb*:proc(a1:pointer):uint32 {.cdecl.}
+  userData*:pointer
+
 type ContextDesc* = object
   colorFormat*:int32
   depthFormat*:int32
@@ -1064,6 +1069,7 @@ type ContextDesc* = object
   metal*:MetalContextDesc
   d3d11*:D3d11ContextDesc
   wgpu*:WgpuContextDesc
+  gl*:GlContextDesc
 
 type CommitListener* = object
   fn*:proc(a1:pointer) {.cdecl.}
