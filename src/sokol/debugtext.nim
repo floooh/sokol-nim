@@ -38,8 +38,8 @@ type ContextDesc* = object
   sampleCount*:int32
 
 type Allocator* = object
-  alloc*:proc(a1:int, a2:pointer):pointer {.cdecl.}
-  free*:proc(a1:pointer, a2:pointer) {.cdecl.}
+  allocFn*:proc(a1:int, a2:pointer):pointer {.cdecl.}
+  freeFn*:proc(a1:pointer, a2:pointer) {.cdecl.}
   userData*:pointer
 
 type Desc* = object
