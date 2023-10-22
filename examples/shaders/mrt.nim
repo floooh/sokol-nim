@@ -19,7 +19,7 @@
 #                   Multisampled: false
 #                   Bind slot: SLOT_tex = 0
 #               Sampler 'smp':
-#                   Type: samplerTypeSample
+#                   Type: samplerTypeFiltering
 #                   Bind slot: SLOT_smp = 0
 #               Image Sampler Pair 'tex_smp':
 #                   Image: tex
@@ -50,7 +50,7 @@
 #                   Multisampled: false
 #                   Bind slot: SLOT_tex2 = 2
 #               Sampler 'smp':
-#                   Type: samplerTypeSample
+#                   Type: samplerTypeFiltering
 #                   Bind slot: SLOT_smp = 0
 #               Image Sampler Pair 'tex0_smp':
 #                   Image: tex0
@@ -1216,7 +1216,7 @@ proc dbgShaderDesc*(backend: sg.Backend): sg.ShaderDesc =
       result.fs.images[0].imageType = imageType2d
       result.fs.images[0].sampleType = imageSampleTypeFloat
       result.fs.samplers[0].used = true
-      result.fs.samplers[0].samplerType = samplerTypeSample
+      result.fs.samplers[0].samplerType = samplerTypeFiltering
       result.fs.imageSamplerPairs[0].used = true
       result.fs.imageSamplerPairs[0].imageSlot = 0
       result.fs.imageSamplerPairs[0].samplerSlot = 0
@@ -1236,7 +1236,7 @@ proc dbgShaderDesc*(backend: sg.Backend): sg.ShaderDesc =
       result.fs.images[0].imageType = imageType2d
       result.fs.images[0].sampleType = imageSampleTypeFloat
       result.fs.samplers[0].used = true
-      result.fs.samplers[0].samplerType = samplerTypeSample
+      result.fs.samplers[0].samplerType = samplerTypeFiltering
       result.fs.imageSamplerPairs[0].used = true
       result.fs.imageSamplerPairs[0].imageSlot = 0
       result.fs.imageSamplerPairs[0].samplerSlot = 0
@@ -1251,7 +1251,7 @@ proc dbgShaderDesc*(backend: sg.Backend): sg.ShaderDesc =
       result.fs.images[0].imageType = imageType2d
       result.fs.images[0].sampleType = imageSampleTypeFloat
       result.fs.samplers[0].used = true
-      result.fs.samplers[0].samplerType = samplerTypeSample
+      result.fs.samplers[0].samplerType = samplerTypeFiltering
       result.fs.imageSamplerPairs[0].used = true
       result.fs.imageSamplerPairs[0].imageSlot = 0
       result.fs.imageSamplerPairs[0].samplerSlot = 0
@@ -1284,7 +1284,7 @@ proc fsqShaderDesc*(backend: sg.Backend): sg.ShaderDesc =
       result.fs.images[2].imageType = imageType2d
       result.fs.images[2].sampleType = imageSampleTypeFloat
       result.fs.samplers[0].used = true
-      result.fs.samplers[0].samplerType = samplerTypeSample
+      result.fs.samplers[0].samplerType = samplerTypeFiltering
       result.fs.imageSamplerPairs[0].used = true
       result.fs.imageSamplerPairs[0].imageSlot = 0
       result.fs.imageSamplerPairs[0].samplerSlot = 0
@@ -1322,7 +1322,7 @@ proc fsqShaderDesc*(backend: sg.Backend): sg.ShaderDesc =
       result.fs.images[2].imageType = imageType2d
       result.fs.images[2].sampleType = imageSampleTypeFloat
       result.fs.samplers[0].used = true
-      result.fs.samplers[0].samplerType = samplerTypeSample
+      result.fs.samplers[0].samplerType = samplerTypeFiltering
       result.fs.imageSamplerPairs[0].used = true
       result.fs.imageSamplerPairs[0].imageSlot = 0
       result.fs.imageSamplerPairs[0].samplerSlot = 0
@@ -1353,7 +1353,7 @@ proc fsqShaderDesc*(backend: sg.Backend): sg.ShaderDesc =
       result.fs.images[2].imageType = imageType2d
       result.fs.images[2].sampleType = imageSampleTypeFloat
       result.fs.samplers[0].used = true
-      result.fs.samplers[0].samplerType = samplerTypeSample
+      result.fs.samplers[0].samplerType = samplerTypeFiltering
       result.fs.imageSamplerPairs[0].used = true
       result.fs.imageSamplerPairs[0].imageSlot = 0
       result.fs.imageSamplerPairs[0].samplerSlot = 0

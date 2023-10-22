@@ -192,12 +192,14 @@ type
     imagesampletypeDepth,
     imagesampletypeSint,
     imagesampletypeUint,
+    imagesampletypeUnfilterableFloat,
 
 type
   SamplerType* {.size:sizeof(int32).} = enum
     samplerTypeDefault,
-    samplerTypeSample,
-    samplerTypeCompare,
+    samplerTypeFiltering,
+    samplerTypeNonfiltering,
+    samplerTypeComparison,
 
 type
   CubeFace* {.size:sizeof(int32).} = enum
@@ -789,6 +791,136 @@ type PipelineInfo* = object
 type PassInfo* = object
   slot*:SlotInfo
 
+type FrameStatsGl* = object
+  numBindBuffer*:uint32
+  numActiveTexture*:uint32
+  numBindTexture*:uint32
+  numBindSampler*:uint32
+  numUseProgram*:uint32
+  numRenderState*:uint32
+  numVertexAttribPointer*:uint32
+  numVertexAttribDivisor*:uint32
+  numEnableVertexAttribArray*:uint32
+  numDisableVertexAttribArray*:uint32
+  numUniform*:uint32
+
+type FrameStatsD3d11Pass* = object
+  numOmSetRenderTargets*:uint32
+  numClearRenderTargetView*:uint32
+  numClearDepthStencilView*:uint32
+  numResolveSubresource*:uint32
+
+type FrameStatsD3d11Pipeline* = object
+  numRsSetState*:uint32
+  numOmSetDepthStencilState*:uint32
+  numOmSetBlendState*:uint32
+  numIaSetPrimitiveTopology*:uint32
+  numIaSetInputLayout*:uint32
+  numVsSetShader*:uint32
+  numVsSetConstantBuffers*:uint32
+  numPsSetShader*:uint32
+  numPsSetConstantBuffers*:uint32
+
+type FrameStatsD3d11Bindings* = object
+  numIaSetVertexBuffers*:uint32
+  numIaSetIndexBuffer*:uint32
+  numVsSetShaderResources*:uint32
+  numPsSetShaderResources*:uint32
+  numVsSetSamplers*:uint32
+  numPsSetSamplers*:uint32
+
+type FrameStatsD3d11Uniforms* = object
+  numUpdateSubresource*:uint32
+
+type FrameStatsD3d11Draw* = object
+  numDrawIndexedInstanced*:uint32
+  numDrawIndexed*:uint32
+  numDrawInstanced*:uint32
+  numDraw*:uint32
+
+type FrameStatsD3d11* = object
+  pass*:FrameStatsD3d11Pass
+  pipeline*:FrameStatsD3d11Pipeline
+  bindings*:FrameStatsD3d11Bindings
+  uniforms*:FrameStatsD3d11Uniforms
+  draw*:FrameStatsD3d11Draw
+  numMap*:uint32
+  numUnmap*:uint32
+
+type FrameStatsMetalIdpool* = object
+  numAdded*:uint32
+  numReleased*:uint32
+  numGarbageCollected*:uint32
+
+type FrameStatsMetalPipeline* = object
+  numSetBlendColor*:uint32
+  numSetCullMode*:uint32
+  numSetFrontFacingWinding*:uint32
+  numSetStencilReferenceValue*:uint32
+  numSetDepthBias*:uint32
+  numSetRenderPipelineState*:uint32
+  numSetDepthStencilState*:uint32
+
+type FrameStatsMetalBindings* = object
+  numSetVertexBuffer*:uint32
+  numSetVertexTexture*:uint32
+  numSetVertexSamplerState*:uint32
+  numSetFragmentTexture*:uint32
+  numSetFragmentSamplerState*:uint32
+
+type FrameStatsMetalUniforms* = object
+  numSetVertexBufferOffset*:uint32
+  numSetFragmentBufferOffset*:uint32
+
+type FrameStatsMetal* = object
+  idpool*:FrameStatsMetalIdpool
+  pipeline*:FrameStatsMetalPipeline
+  bindings*:FrameStatsMetalBindings
+  uniforms*:FrameStatsMetalUniforms
+
+type FrameStatsWgpuUniforms* = object
+  numSetBindgroup*:uint32
+  sizeWriteBuffer*:uint32
+
+type FrameStatsWgpuBindings* = object
+  numSetVertexBuffer*:uint32
+  numSkipRedundantVertexBuffer*:uint32
+  numSetIndexBuffer*:uint32
+  numSkipRedundantIndexBuffer*:uint32
+  numCreateBindgroup*:uint32
+  numDiscardBindgroup*:uint32
+  numSetBindgroup*:uint32
+  numSkipRedundantBindgroup*:uint32
+  numBindgroupCacheHits*:uint32
+  numBindgroupCacheMisses*:uint32
+  numBindgroupCacheCollisions*:uint32
+  numBindgroupCacheHashVsKeyMismatch*:uint32
+
+type FrameStatsWgpu* = object
+  uniforms*:FrameStatsWgpuUniforms
+  bindings*:FrameStatsWgpuBindings
+
+type FrameStats* = object
+  frameIndex*:uint32
+  numPasses*:uint32
+  numApplyViewport*:uint32
+  numApplyScissorRect*:uint32
+  numApplyPipeline*:uint32
+  numApplyBindings*:uint32
+  numApplyUniforms*:uint32
+  numDraw*:uint32
+  numUpdateBuffer*:uint32
+  numAppendBuffer*:uint32
+  numUpdateImage*:uint32
+  sizeApplyUniforms*:uint32
+  sizeUpdateBuffer*:uint32
+  sizeAppendBuffer*:uint32
+  sizeUpdateImage*:uint32
+  gl*:FrameStatsGl
+  d3d11*:FrameStatsD3d11
+  metal*:FrameStatsMetal
+  wgpu*:FrameStatsWgpu
+
 type
   LogItem* {.size:sizeof(int32).} = enum
     logitemOk,
@@ -838,11 +970,21 @@ type
     logitemMetalCreateRpsFailed,
     logitemMetalCreateRpsOutput,
     logitemMetalCreateDssFailed,
-    logitemWgpuMapUniformBufferFailed,
-    logitemWgpuStagingBufferFullCopyToBuffer,
-    logitemWgpuStagingBufferFullCopyToTexture,
-    logitemWgpuResetStateCacheFixme,
-    logitemWgpuActivateContextFixme,
+    logitemWgpuBindgroupsPoolExhausted,
+    logitemWgpuBindgroupscacheSizeGreaterOne,
+    logitemWgpuBindgroupscacheSizePow2,
+    logitemWgpuCreatebindgroupFailed,
+    logitemWgpuCreateBufferFailed,
+    logitemWgpuCreateTextureFailed,
+    logitemWgpuCreateTextureViewFailed,
+    logitemWgpuCreateSamplerFailed,
+    logitemWgpuCreateShaderModuleFailed,
+    logitemWgpuShaderTooManyImages,
+    logitemWgpuShaderTooManySamplers,
+    logitemWgpuShaderCreateBindgroupLayoutFailed,
+    logitemWgpuCreatePipelineLayoutFailed,
+    logitemWgpuCreateRenderPipelineFailed,
+    logitemWgpuPassCreateTextureViewFailed,
     logitemUninitBufferActiveContextMismatch,
     logitemUninitImageActiveContextMismatch,
     logitemUninitSamplerActiveContextMismatch,
@@ -908,6 +1050,7 @@ type
     logitemValidateSamplerdescCanary,
     logitemValidateSamplerdescMinfilterNone,
     logitemValidateSamplerdescMagfilterNone,
+    logitemValidateSamplerdescAnistropicRequiresLinearFiltering,
     logitemValidateShaderdescCanary,
     logitemValidateShaderdescSource,
     logitemValidateShaderdescBytecode,
@@ -928,6 +1071,8 @@ type
     logitemValidateShaderdescImageSamplerPairHasNameButNotUsed,
     logitemValidateShaderdescImageSamplerPairHasImageButNotUsed,
     logitemValidateShaderdescImageSamplerPairHasSamplerButNotUsed,
+    logitemValidateShaderdescNonfilteringSamplerRequired,
+    logitemValidateShaderdescComparisonSamplerRequired,
     logitemValidateShaderdescImageNotReferencedByImageSamplerPairs,
     logitemValidateShaderdescSamplerNotReferencedByImageSamplerPairs,
     logitemValidateShaderdescNoContImageSamplerPairs,
@@ -998,10 +1143,13 @@ type
     logitemValidateAbndVsImgExists,
     logitemValidateAbndVsImageTypeMismatch,
     logitemValidateAbndVsImageMsaa,
+    logitemValidateAbndVsExpectedFilterableImage,
+    logitemValidateAbndVsExpectedDepthImage,
     logitemValidateAbndVsUnexpectedImageBinding,
     logitemValidateAbndVsExpectedSamplerBinding,
     logitemValidateAbndVsUnexpectedSamplerCompareNever,
     logitemValidateAbndVsExpectedSamplerCompareNever,
+    logitemValidateAbndVsExpectedNonfilteringSampler,
     logitemValidateAbndVsUnexpectedSamplerBinding,
     logitemValidateAbndVsSmpExists,
     logitemValidateAbndVsImgSmpMipmaps,
@@ -1009,10 +1157,13 @@ type
     logitemValidateAbndFsImgExists,
     logitemValidateAbndFsImageTypeMismatch,
     logitemValidateAbndFsImageMsaa,
+    logitemValidateAbndFsExpectedFilterableImage,
+    logitemValidateAbndFsExpectedDepthImage,
     logitemValidateAbndFsUnexpectedImageBinding,
     logitemValidateAbndFsExpectedSamplerBinding,
     logitemValidateAbndFsUnexpectedSamplerCompareNever,
     logitemValidateAbndFsExpectedSamplerCompareNever,
+    logitemValidateAbndFsExpectedNonfilteringSampler,
     logitemValidateAbndFsUnexpectedSamplerBinding,
     logitemValidateAbndFsSmpExists,
     logitemValidateAbndFsImgSmpMipmaps,
@@ -1094,10 +1245,11 @@ type Desc* = object
   passPoolSize*:int32
   contextPoolSize*:int32
   uniformBufferSize*:int32
-  stagingBufferSize*:int32
   maxCommitListeners*:int32
   disableValidation*:bool
   mtlForceManagedStorageMode*:bool
+  wgpuDisableBindgroupsCache*:bool
+  wgpuBindgroupsCacheSize*:int32
   allocator*:Allocator
   logger*:Logger
   context*:ContextDesc
@@ -1495,6 +1647,22 @@ proc c_failPass(pass:Pass):void {.cdecl, importc:"sg_fail_pass".}
 proc failPass*(pass:Pass):void =
     c_failPass(pass)
 
+proc c_enableFrameStats():void {.cdecl, importc:"sg_enable_frame_stats".}
+proc enableFrameStats*():void =
+    c_enableFrameStats()
+
+proc c_disableFrameStats():void {.cdecl, importc:"sg_disable_frame_stats".}
+proc disableFrameStats*():void =
+    c_disableFrameStats()
+
+proc c_frameStatsEnabled():bool {.cdecl, importc:"sg_frame_stats_enabled".}
+proc frameStatsEnabled*():bool =
+    c_frameStatsEnabled()
+
+proc c_queryFrameStats():FrameStats {.cdecl, importc:"sg_query_frame_stats".}
+proc queryFrameStats*():FrameStats =
+    c_queryFrameStats()
+
 proc c_setupContext():Context {.cdecl, importc:"sg_setup_context".}
 proc setupContext*():Context =
     c_setupContext()
@@ -1518,6 +1686,22 @@ proc mtlDevice*():pointer =
 proc c_mtlRenderCommandEncoder():pointer {.cdecl, importc:"sg_mtl_render_command_encoder".}
 proc mtlRenderCommandEncoder*():pointer =
     c_mtlRenderCommandEncoder()
+
+proc c_wgpuDevice():pointer {.cdecl, importc:"sg_wgpu_device".}
+proc wgpuDevice*():pointer =
+    c_wgpuDevice()
+
+proc c_wgpuQueue():pointer {.cdecl, importc:"sg_wgpu_queue".}
+proc wgpuQueue*():pointer =
+    c_wgpuQueue()
+
+proc c_wgpuCommandEncoder():pointer {.cdecl, importc:"sg_wgpu_command_encoder".}
+proc wgpuCommandEncoder*():pointer =
+    c_wgpuCommandEncoder()
+
+proc c_wgpuRenderPassEncoder():pointer {.cdecl, importc:"sg_wgpu_render_pass_encoder".}
+proc wgpuRenderPassEncoder*():pointer =
+    c_wgpuRenderPassEncoder()
 
 when defined gl:
   const gl*    = true
