@@ -59,8 +59,12 @@ proc backendSwitch(): string =
   else:
     return ""
 
+proc build(name: string) =
+  exec &"nim c --outdir:build {compilerSwitch()} {backendSwitch()} examples/{name}"
+
 proc run(name: string) =
-  exec &"nim r {compilerSwitch()} {backendSwitch()} examples/{name}"
+  build(name)
+  exec &"build/{name}"
 
 # Tasks
 task clear, "Runs the clear example":
@@ -128,7 +132,7 @@ task build_debug, "Build all examples in debug mode":
 task build_all, "Build all examples in release mode":
   # hmm, is there a better way?
   for example in examples:
-      exec &"nim c --outdir:build {backendSwitch()} {compilerSwitch()} -d:release examples/{example}"
+      build(example)
 
 task shaders, "Compile all shaders (requires ../sokol-tools-bin)":
   let binDir = "../sokol-tools-bin/bin/"
