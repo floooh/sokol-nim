@@ -494,6 +494,7 @@ type ImageDesc* = object
   d3d11Texture*:pointer
   d3d11ShaderResourceView*:pointer
   wgpuTexture*:pointer
+  wgpuTextureView*:pointer
   endCanary:uint32
 
 converter toImageDescglTextures*[N:static[int]](items: array[N, uint32]): array[2, uint32] =
@@ -1677,9 +1678,174 @@ proc c_discardContext(ctxId:Context):void {.cdecl, importc:"sg_discard_context".
 proc discardContext*(ctxId:Context):void =
     c_discardContext(ctx_id)
 
+type D3d11BufferInfo* = object
+  buf*:pointer
+
+type D3d11ImageInfo* = object
+  tex2d*:pointer
+  tex3d*:pointer
+  res*:pointer
+  srv*:pointer
+
+type D3d11SamplerInfo* = object
+  smp*:pointer
+
+type D3d11ShaderInfo* = object
+  vsCbufs*:array[4, pointer]
+  fsCbufs*:array[4, pointer]
+  vs*:pointer
+  fs*:pointer
+
+converter toD3d11ShaderInfovsCbufs*[N:static[int]](items: array[N, pointer]): array[4, pointer] =
+  static: assert(N < 4)
+  for index,item in items.pairs: result[index]=item
+
+converter toD3d11ShaderInfofsCbufs*[N:static[int]](items: array[N, pointer]): array[4, pointer] =
+  static: assert(N < 4)
+  for index,item in items.pairs: result[index]=item
+
+type D3d11PipelineInfo* = object
+  il*:pointer
+  rs*:pointer
+  dss*:pointer
+  bs*:pointer
+
+type D3d11PassInfo* = object
+  colorRtv*:array[4, pointer]
+  resolveRtv*:array[4, pointer]
+  dsv*:pointer
+
+converter toD3d11PassInfocolorRtv*[N:static[int]](items: array[N, pointer]): array[4, pointer] =
+  static: assert(N < 4)
+  for index,item in items.pairs: result[index]=item
+
+converter toD3d11PassInforesolveRtv*[N:static[int]](items: array[N, pointer]): array[4, pointer] =
+  static: assert(N < 4)
+  for index,item in items.pairs: result[index]=item
+
+type MtlBufferInfo* = object
+  buf*:array[2, pointer]
+  activeSlot*:int32
+
+converter toMtlBufferInfobuf*[N:static[int]](items: array[N, pointer]): array[2, pointer] =
+  static: assert(N < 2)
+  for index,item in items.pairs: result[index]=item
+
+type MtlImageInfo* = object
+  tex*:array[2, pointer]
+  activeSlot*:int32
+
+converter toMtlImageInfotex*[N:static[int]](items: array[N, pointer]): array[2, pointer] =
+  static: assert(N < 2)
+  for index,item in items.pairs: result[index]=item
+
+type MtlSamplerInfo* = object
+  smp*:pointer
+
+type MtlShaderInfo* = object
+  vsLib*:pointer
+  fsLib*:pointer
+  vsFunc*:pointer
+  fsFunc*:pointer
+
+type MtlPipelineInfo* = object
+  rps*:pointer
+  dss*:pointer
+
+type WgpuBufferInfo* = object
+  buf*:pointer
+
+type WgpuImageInfo* = object
+  tex*:pointer
+  view*:pointer
+
+type WgpuSamplerInfo* = object
+  smp*:pointer
+
+type WgpuShaderInfo* = object
+  vsMod*:pointer
+  fsMod*:pointer
+  bgl*:pointer
+
+type WgpuPipelineInfo* = object
+  pip*:pointer
+
+type WgpuPassInfo* = object
+  colorView*:array[4, pointer]
+  resolveView*:array[4, pointer]
+  dsView*:pointer
+
+converter toWgpuPassInfocolorView*[N:static[int]](items: array[N, pointer]): array[4, pointer] =
+  static: assert(N < 4)
+  for index,item in items.pairs: result[index]=item
+
+converter toWgpuPassInforesolveView*[N:static[int]](items: array[N, pointer]): array[4, pointer] =
+  static: assert(N < 4)
+  for index,item in items.pairs: result[index]=item
+
+type GlBufferInfo* = object
+  buf*:array[2, uint32]
+  activeSlot*:int32
+
+converter toGlBufferInfobuf*[N:static[int]](items: array[N, uint32]): array[2, uint32] =
+  static: assert(N < 2)
+  for index,item in items.pairs: result[index]=item
+
+type GlImageInfo* = object
+  tex*:array[2, uint32]
+  texTarget*:uint32
+  msaaRenderBuffer*:uint32
+  activeSlot*:int32
+
+converter toGlImageInfotex*[N:static[int]](items: array[N, uint32]): array[2, uint32] =
+  static: assert(N < 2)
+  for index,item in items.pairs: result[index]=item
+
+type GlSamplerInfo* = object
+  smp*:uint32
+
+type GlShaderInfo* = object
+  prog*:uint32
+
+type GlPassInfo* = object
+  frameBuffer*:uint32
+  msaaResolveFramebuffer*:array[4, uint32]
+
+converter toGlPassInfomsaaResolveFramebuffer*[N:static[int]](items: array[N, uint32]): array[4, uint32] =
+  static: assert(N < 4)
+  for index,item in items.pairs: result[index]=item
+
 proc c_d3d11Device():pointer {.cdecl, importc:"sg_d3d11_device".}
 proc d3d11Device*():pointer =
     c_d3d11Device()
+
+proc c_d3d11DeviceContext():pointer {.cdecl, importc:"sg_d3d11_device_context".}
+proc d3d11DeviceContext*():pointer =
+    c_d3d11DeviceContext()
+
+proc c_d3d11QueryBufferInfo(buf:Buffer):D3d11BufferInfo {.cdecl, importc:"sg_d3d11_query_buffer_info".}
+proc d3d11QueryBufferInfo*(buf:Buffer):D3d11BufferInfo =
+    c_d3d11QueryBufferInfo(buf)
+
+proc c_d3d11QueryImageInfo(img:Image):D3d11ImageInfo {.cdecl, importc:"sg_d3d11_query_image_info".}
+proc d3d11QueryImageInfo*(img:Image):D3d11ImageInfo =
+    c_d3d11QueryImageInfo(img)
+
+proc c_d3d11QuerySamplerInfo(smp:Sampler):D3d11SamplerInfo {.cdecl, importc:"sg_d3d11_query_sampler_info".}
+proc d3d11QuerySamplerInfo*(smp:Sampler):D3d11SamplerInfo =
+    c_d3d11QuerySamplerInfo(smp)
+
+proc c_d3d11QueryShaderInfo(shd:Shader):D3d11ShaderInfo {.cdecl, importc:"sg_d3d11_query_shader_info".}
+proc d3d11QueryShaderInfo*(shd:Shader):D3d11ShaderInfo =
+    c_d3d11QueryShaderInfo(shd)
+
+proc c_d3d11QueryPipelineInfo(pip:Pipeline):D3d11PipelineInfo {.cdecl, importc:"sg_d3d11_query_pipeline_info".}
+proc d3d11QueryPipelineInfo*(pip:Pipeline):D3d11PipelineInfo =
+    c_d3d11QueryPipelineInfo(pip)
+
+proc c_d3d11QueryPassInfo(pass:Pass):D3d11PassInfo {.cdecl, importc:"sg_d3d11_query_pass_info".}
+proc d3d11QueryPassInfo*(pass:Pass):D3d11PassInfo =
+    c_d3d11QueryPassInfo(pass)
 
 proc c_mtlDevice():pointer {.cdecl, importc:"sg_mtl_device".}
 proc mtlDevice*():pointer =
@@ -1688,6 +1854,26 @@ proc mtlDevice*():pointer =
 proc c_mtlRenderCommandEncoder():pointer {.cdecl, importc:"sg_mtl_render_command_encoder".}
 proc mtlRenderCommandEncoder*():pointer =
     c_mtlRenderCommandEncoder()
+
+proc c_mtlQueryBufferInfo(buf:Buffer):MtlBufferInfo {.cdecl, importc:"sg_mtl_query_buffer_info".}
+proc mtlQueryBufferInfo*(buf:Buffer):MtlBufferInfo =
+    c_mtlQueryBufferInfo(buf)
+
+proc c_mtlQueryImageInfo(img:Image):MtlImageInfo {.cdecl, importc:"sg_mtl_query_image_info".}
+proc mtlQueryImageInfo*(img:Image):MtlImageInfo =
+    c_mtlQueryImageInfo(img)
+
+proc c_mtlQuerySamplerInfo(smp:Sampler):MtlSamplerInfo {.cdecl, importc:"sg_mtl_query_sampler_info".}
+proc mtlQuerySamplerInfo*(smp:Sampler):MtlSamplerInfo =
+    c_mtlQuerySamplerInfo(smp)
+
+proc c_mtlQueryShaderInfo(shd:Shader):MtlShaderInfo {.cdecl, importc:"sg_mtl_query_shader_info".}
+proc mtlQueryShaderInfo*(shd:Shader):MtlShaderInfo =
+    c_mtlQueryShaderInfo(shd)
+
+proc c_mtlQueryPipelineInfo(pip:Pipeline):MtlPipelineInfo {.cdecl, importc:"sg_mtl_query_pipeline_info".}
+proc mtlQueryPipelineInfo*(pip:Pipeline):MtlPipelineInfo =
+    c_mtlQueryPipelineInfo(pip)
 
 proc c_wgpuDevice():pointer {.cdecl, importc:"sg_wgpu_device".}
 proc wgpuDevice*():pointer =
@@ -1704,6 +1890,50 @@ proc wgpuCommandEncoder*():pointer =
 proc c_wgpuRenderPassEncoder():pointer {.cdecl, importc:"sg_wgpu_render_pass_encoder".}
 proc wgpuRenderPassEncoder*():pointer =
     c_wgpuRenderPassEncoder()
+
+proc c_wgpuQueryBufferInfo(buf:Buffer):WgpuBufferInfo {.cdecl, importc:"sg_wgpu_query_buffer_info".}
+proc wgpuQueryBufferInfo*(buf:Buffer):WgpuBufferInfo =
+    c_wgpuQueryBufferInfo(buf)
+
+proc c_wgpuQueryImageInfo(img:Image):WgpuImageInfo {.cdecl, importc:"sg_wgpu_query_image_info".}
+proc wgpuQueryImageInfo*(img:Image):WgpuImageInfo =
+    c_wgpuQueryImageInfo(img)
+
+proc c_wgpuQuerySamplerInfo(smp:Sampler):WgpuSamplerInfo {.cdecl, importc:"sg_wgpu_query_sampler_info".}
+proc wgpuQuerySamplerInfo*(smp:Sampler):WgpuSamplerInfo =
+    c_wgpuQuerySamplerInfo(smp)
+
+proc c_wgpuQueryShaderInfo(shd:Shader):WgpuShaderInfo {.cdecl, importc:"sg_wgpu_query_shader_info".}
+proc wgpuQueryShaderInfo*(shd:Shader):WgpuShaderInfo =
+    c_wgpuQueryShaderInfo(shd)
+
+proc c_wgpuQueryPipelineInfo(pip:Pipeline):WgpuPipelineInfo {.cdecl, importc:"sg_wgpu_query_pipeline_info".}
+proc wgpuQueryPipelineInfo*(pip:Pipeline):WgpuPipelineInfo =
+    c_wgpuQueryPipelineInfo(pip)
+
+proc c_wgpuQueryPassInfo(pass:Pass):WgpuPassInfo {.cdecl, importc:"sg_wgpu_query_pass_info".}
+proc wgpuQueryPassInfo*(pass:Pass):WgpuPassInfo =
+    c_wgpuQueryPassInfo(pass)
+
+proc c_glQueryBufferInfo(buf:Buffer):GlBufferInfo {.cdecl, importc:"sg_gl_query_buffer_info".}
+proc glQueryBufferInfo*(buf:Buffer):GlBufferInfo =
+    c_glQueryBufferInfo(buf)
+
+proc c_glQueryImageInfo(img:Image):GlImageInfo {.cdecl, importc:"sg_gl_query_image_info".}
+proc glQueryImageInfo*(img:Image):GlImageInfo =
+    c_glQueryImageInfo(img)
+
+proc c_glQuerySamplerInfo(smp:Sampler):GlSamplerInfo {.cdecl, importc:"sg_gl_query_sampler_info".}
+proc glQuerySamplerInfo*(smp:Sampler):GlSamplerInfo =
+    c_glQuerySamplerInfo(smp)
+
+proc c_glQueryShaderInfo(shd:Shader):GlShaderInfo {.cdecl, importc:"sg_gl_query_shader_info".}
+proc glQueryShaderInfo*(shd:Shader):GlShaderInfo =
+    c_glQueryShaderInfo(shd)
+
+proc c_glQueryPassInfo(pass:Pass):GlPassInfo {.cdecl, importc:"sg_gl_query_pass_info".}
+proc glQueryPassInfo*(pass:Pass):GlPassInfo =
+    c_glQueryPassInfo(pass)
 
 when defined gl:
   const gl*    = true
