@@ -2,7 +2,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define SOKOL_ASSERT(x) ((x)?(1):(sokol_assert_failed(__FILE__,__LINE__,#x),0))
+#ifndef NDEBUG
+    #define SOKOL_ASSERT(x) ((x)?(1):(sokol_assert_failed(__FILE__,__LINE__,#x),0))
+#endif
 
 static inline void
 sokol_assert_failed(const char* file, int line, const char* expr) {
