@@ -192,4 +192,6 @@ proc mat4Transpose*(m:ptr float32):Mat4 =
     c_mat4Transpose(m)
 
 {.passc:"-DSOKOL_NIM_IMPL".}
+when defined(release):
+  {.passc:"-DNDEBUG".}
 {.compile:"c/sokol_shape.c".}

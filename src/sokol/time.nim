@@ -42,4 +42,6 @@ proc ns*(ticks:uint64):float64 =
     c_ns(ticks)
 
 {.passc:"-DSOKOL_NIM_IMPL".}
+when defined(release):
+  {.passc:"-DNDEBUG".}
 {.compile:"c/sokol_time.c".}

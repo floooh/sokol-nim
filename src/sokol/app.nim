@@ -661,4 +661,6 @@ else:
   error("unsupported platform")
 
 {.passc:"-DSOKOL_NIM_IMPL".}
+when defined(release):
+  {.passc:"-DNDEBUG".}
 {.compile:"c/sokol_app.c".}

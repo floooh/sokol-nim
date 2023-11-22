@@ -401,4 +401,6 @@ proc `end`*():void =
     c_end()
 
 {.passc:"-DSOKOL_NIM_IMPL".}
+when defined(release):
+  {.passc:"-DNDEBUG".}
 {.compile:"c/sokol_gl.c".}

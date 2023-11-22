@@ -7,4 +7,6 @@ proc context*():gfx.ContextDesc =
     c_context()
 
 {.passc:"-DSOKOL_NIM_IMPL".}
+when defined(release):
+  {.passc:"-DNDEBUG".}
 {.compile:"c/sokol_glue.c".}

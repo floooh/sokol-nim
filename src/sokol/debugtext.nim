@@ -203,4 +203,6 @@ proc putr*(str:cstring, len:int32):void =
     c_putr(str, len)
 
 {.passc:"-DSOKOL_NIM_IMPL".}
+when defined(release):
+  {.passc:"-DNDEBUG".}
 {.compile:"c/sokol_debugtext.c".}
