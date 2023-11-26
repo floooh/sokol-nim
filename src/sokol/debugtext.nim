@@ -51,7 +51,7 @@ type Desc* = object
   logger*:Logger
 
 converter toDescfonts*[N:static[int]](items: array[N, FontDesc]): array[8, FontDesc] =
-  static: assert(N < 8)
+  static: assert(N <= 8)
   for index,item in items.pairs: result[index]=item
 
 proc c_setup(desc:ptr Desc):void {.cdecl, importc:"sdtx_setup".}

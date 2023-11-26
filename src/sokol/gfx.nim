@@ -411,7 +411,7 @@ type PassAction* = object
   endCanary:uint32
 
 converter toPassActioncolors*[N:static[int]](items: array[N, ColorAttachmentAction]): array[4, ColorAttachmentAction] =
-  static: assert(N < 4)
+  static: assert(N <= 4)
   for index,item in items.pairs: result[index]=item
 
 type StageBindings* = object
@@ -419,11 +419,11 @@ type StageBindings* = object
   samplers*:array[8, Sampler]
 
 converter toStageBindingsimages*[N:static[int]](items: array[N, Image]): array[12, Image] =
-  static: assert(N < 12)
+  static: assert(N <= 12)
   for index,item in items.pairs: result[index]=item
 
 converter toStageBindingssamplers*[N:static[int]](items: array[N, Sampler]): array[8, Sampler] =
-  static: assert(N < 8)
+  static: assert(N <= 8)
   for index,item in items.pairs: result[index]=item
 
 type Bindings* = object
@@ -437,11 +437,11 @@ type Bindings* = object
   endCanary:uint32
 
 converter toBindingsvertexBuffers*[N:static[int]](items: array[N, Buffer]): array[8, Buffer] =
-  static: assert(N < 8)
+  static: assert(N <= 8)
   for index,item in items.pairs: result[index]=item
 
 converter toBindingsvertexBufferOffsets*[N:static[int]](items: array[N, int32]): array[8, int32] =
-  static: assert(N < 8)
+  static: assert(N <= 8)
   for index,item in items.pairs: result[index]=item
 
 type BufferDesc* = object
@@ -458,19 +458,19 @@ type BufferDesc* = object
   endCanary:uint32
 
 converter toBufferDescglBuffers*[N:static[int]](items: array[N, uint32]): array[2, uint32] =
-  static: assert(N < 2)
+  static: assert(N <= 2)
   for index,item in items.pairs: result[index]=item
 
 converter toBufferDescmtlBuffers*[N:static[int]](items: array[N, pointer]): array[2, pointer] =
-  static: assert(N < 2)
+  static: assert(N <= 2)
   for index,item in items.pairs: result[index]=item
 
 type ImageData* = object
   subimage*:array[6, array[16, Range]]
 
 converter toImageDatasubimage*[Y:static[int], X:static[int]](items: array[Y, array[X, Range]]): array[6, array[16, Range]] =
-  static: assert(X < 16)
-  static: assert(Y < 6)
+  static: assert(X <= 16)
+  static: assert(Y <= 6)
   for indexY,itemY in items.pairs:
     for indexX, itemX in itemY.pairs:
       result[indexY][indexX] = itemX
@@ -498,11 +498,11 @@ type ImageDesc* = object
   endCanary:uint32
 
 converter toImageDescglTextures*[N:static[int]](items: array[N, uint32]): array[2, uint32] =
-  static: assert(N < 2)
+  static: assert(N <= 2)
   for index,item in items.pairs: result[index]=item
 
 converter toImageDescmtlTextures*[N:static[int]](items: array[N, pointer]): array[2, pointer] =
-  static: assert(N < 2)
+  static: assert(N <= 2)
   for index,item in items.pairs: result[index]=item
 
 type SamplerDesc* = object
@@ -541,7 +541,7 @@ type ShaderUniformBlockDesc* = object
   uniforms*:array[16, ShaderUniformDesc]
 
 converter toShaderUniformBlockDescuniforms*[N:static[int]](items: array[N, ShaderUniformDesc]): array[16, ShaderUniformDesc] =
-  static: assert(N < 16)
+  static: assert(N <= 16)
   for index,item in items.pairs: result[index]=item
 
 type ShaderImageDesc* = object
@@ -571,19 +571,19 @@ type ShaderStageDesc* = object
   imageSamplerPairs*:array[12, ShaderImageSamplerPairDesc]
 
 converter toShaderStageDescuniformBlocks*[N:static[int]](items: array[N, ShaderUniformBlockDesc]): array[4, ShaderUniformBlockDesc] =
-  static: assert(N < 4)
+  static: assert(N <= 4)
   for index,item in items.pairs: result[index]=item
 
 converter toShaderStageDescimages*[N:static[int]](items: array[N, ShaderImageDesc]): array[12, ShaderImageDesc] =
-  static: assert(N < 12)
+  static: assert(N <= 12)
   for index,item in items.pairs: result[index]=item
 
 converter toShaderStageDescsamplers*[N:static[int]](items: array[N, ShaderSamplerDesc]): array[8, ShaderSamplerDesc] =
-  static: assert(N < 8)
+  static: assert(N <= 8)
   for index,item in items.pairs: result[index]=item
 
 converter toShaderStageDescimageSamplerPairs*[N:static[int]](items: array[N, ShaderImageSamplerPairDesc]): array[12, ShaderImageSamplerPairDesc] =
-  static: assert(N < 12)
+  static: assert(N <= 12)
   for index,item in items.pairs: result[index]=item
 
 type ShaderDesc* = object
@@ -595,7 +595,7 @@ type ShaderDesc* = object
   endCanary:uint32
 
 converter toShaderDescattrs*[N:static[int]](items: array[N, ShaderAttrDesc]): array[16, ShaderAttrDesc] =
-  static: assert(N < 16)
+  static: assert(N <= 16)
   for index,item in items.pairs: result[index]=item
 
 type VertexBufferLayoutState* = object
@@ -613,11 +613,11 @@ type VertexLayoutState* = object
   attrs*:array[16, VertexAttrState]
 
 converter toVertexLayoutStatebuffers*[N:static[int]](items: array[N, VertexBufferLayoutState]): array[8, VertexBufferLayoutState] =
-  static: assert(N < 8)
+  static: assert(N <= 8)
   for index,item in items.pairs: result[index]=item
 
 converter toVertexLayoutStateattrs*[N:static[int]](items: array[N, VertexAttrState]): array[16, VertexAttrState] =
-  static: assert(N < 16)
+  static: assert(N <= 16)
   for index,item in items.pairs: result[index]=item
 
 type StencilFaceState* = object
@@ -675,7 +675,7 @@ type PipelineDesc* = object
   endCanary:uint32
 
 converter toPipelineDesccolors*[N:static[int]](items: array[N, ColorTargetState]): array[4, ColorTargetState] =
-  static: assert(N < 4)
+  static: assert(N <= 4)
   for index,item in items.pairs: result[index]=item
 
 type PassAttachmentDesc* = object
@@ -692,11 +692,11 @@ type PassDesc* = object
   endCanary:uint32
 
 converter toPassDesccolorAttachments*[N:static[int]](items: array[N, PassAttachmentDesc]): array[4, PassAttachmentDesc] =
-  static: assert(N < 4)
+  static: assert(N <= 4)
   for index,item in items.pairs: result[index]=item
 
 converter toPassDescresolveAttachments*[N:static[int]](items: array[N, PassAttachmentDesc]): array[4, PassAttachmentDesc] =
-  static: assert(N < 4)
+  static: assert(N <= 4)
   for index,item in items.pairs: result[index]=item
 
 type TraceHooks* = object
@@ -1697,11 +1697,11 @@ type D3d11ShaderInfo* = object
   fs*:pointer
 
 converter toD3d11ShaderInfovsCbufs*[N:static[int]](items: array[N, pointer]): array[4, pointer] =
-  static: assert(N < 4)
+  static: assert(N <= 4)
   for index,item in items.pairs: result[index]=item
 
 converter toD3d11ShaderInfofsCbufs*[N:static[int]](items: array[N, pointer]): array[4, pointer] =
-  static: assert(N < 4)
+  static: assert(N <= 4)
   for index,item in items.pairs: result[index]=item
 
 type D3d11PipelineInfo* = object
@@ -1716,11 +1716,11 @@ type D3d11PassInfo* = object
   dsv*:pointer
 
 converter toD3d11PassInfocolorRtv*[N:static[int]](items: array[N, pointer]): array[4, pointer] =
-  static: assert(N < 4)
+  static: assert(N <= 4)
   for index,item in items.pairs: result[index]=item
 
 converter toD3d11PassInforesolveRtv*[N:static[int]](items: array[N, pointer]): array[4, pointer] =
-  static: assert(N < 4)
+  static: assert(N <= 4)
   for index,item in items.pairs: result[index]=item
 
 type MtlBufferInfo* = object
@@ -1728,7 +1728,7 @@ type MtlBufferInfo* = object
   activeSlot*:int32
 
 converter toMtlBufferInfobuf*[N:static[int]](items: array[N, pointer]): array[2, pointer] =
-  static: assert(N < 2)
+  static: assert(N <= 2)
   for index,item in items.pairs: result[index]=item
 
 type MtlImageInfo* = object
@@ -1736,7 +1736,7 @@ type MtlImageInfo* = object
   activeSlot*:int32
 
 converter toMtlImageInfotex*[N:static[int]](items: array[N, pointer]): array[2, pointer] =
-  static: assert(N < 2)
+  static: assert(N <= 2)
   for index,item in items.pairs: result[index]=item
 
 type MtlSamplerInfo* = object
@@ -1776,11 +1776,11 @@ type WgpuPassInfo* = object
   dsView*:pointer
 
 converter toWgpuPassInfocolorView*[N:static[int]](items: array[N, pointer]): array[4, pointer] =
-  static: assert(N < 4)
+  static: assert(N <= 4)
   for index,item in items.pairs: result[index]=item
 
 converter toWgpuPassInforesolveView*[N:static[int]](items: array[N, pointer]): array[4, pointer] =
-  static: assert(N < 4)
+  static: assert(N <= 4)
   for index,item in items.pairs: result[index]=item
 
 type GlBufferInfo* = object
@@ -1788,7 +1788,7 @@ type GlBufferInfo* = object
   activeSlot*:int32
 
 converter toGlBufferInfobuf*[N:static[int]](items: array[N, uint32]): array[2, uint32] =
-  static: assert(N < 2)
+  static: assert(N <= 2)
   for index,item in items.pairs: result[index]=item
 
 type GlImageInfo* = object
@@ -1798,7 +1798,7 @@ type GlImageInfo* = object
   activeSlot*:int32
 
 converter toGlImageInfotex*[N:static[int]](items: array[N, uint32]): array[2, uint32] =
-  static: assert(N < 2)
+  static: assert(N <= 2)
   for index,item in items.pairs: result[index]=item
 
 type GlSamplerInfo* = object
@@ -1812,7 +1812,7 @@ type GlPassInfo* = object
   msaaResolveFramebuffer*:array[4, uint32]
 
 converter toGlPassInfomsaaResolveFramebuffer*[N:static[int]](items: array[N, uint32]): array[4, uint32] =
-  static: assert(N < 4)
+  static: assert(N <= 4)
   for index,item in items.pairs: result[index]=item
 
 proc c_d3d11Device():pointer {.cdecl, importc:"sg_d3d11_device".}

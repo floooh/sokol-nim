@@ -210,7 +210,7 @@ type Event* = object
   framebufferHeight*:int32
 
 converter toEventtouches*[N:static[int]](items: array[N, Touchpoint]): array[8, Touchpoint] =
-  static: assert(N < 8)
+  static: assert(N <= 8)
   for index,item in items.pairs: result[index]=item
 
 type Range* = object
@@ -227,7 +227,7 @@ type IconDesc* = object
   images*:array[8, ImageDesc]
 
 converter toIconDescimages*[N:static[int]](items: array[N, ImageDesc]): array[8, ImageDesc] =
-  static: assert(N < 8)
+  static: assert(N <= 8)
   for index,item in items.pairs: result[index]=item
 
 type Allocator* = object
