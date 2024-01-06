@@ -91,6 +91,7 @@ type
     pixelFormatBgra8,
     pixelFormatRgb10a2,
     pixelFormatRg11b10f,
+    pixelFormatRgb9e5,
     pixelFormatRg32ui,
     pixelFormatRg32si,
     pixelFormatRg32f,
@@ -123,7 +124,6 @@ type
     pixelFormatEtc2Rgba8,
     pixelFormatEtc2Rg11,
     pixelFormatEtc2Rg11sn,
-    pixelFormatRgb9e5,
 
 type PixelformatInfo* = object
   sample*:bool
@@ -132,6 +132,8 @@ type PixelformatInfo* = object
   blend*:bool
   msaa*:bool
   depth*:bool
+  compressed*:bool
+  bytesPerPixel*:int32
 
 type Features* = object
   originTopLeft*:bool
@@ -1433,6 +1435,14 @@ proc queryLimits*():Limits =
 proc c_queryPixelformat(fmt:PixelFormat):PixelformatInfo {.cdecl, importc:"sg_query_pixelformat".}
 proc queryPixelformat*(fmt:PixelFormat):PixelformatInfo =
     c_queryPixelformat(fmt)
+
+proc c_queryRowPitch(fmt:PixelFormat, width:int32, rowAlignBytes:int32):int32 {.cdecl, importc:"sg_query_row_pitch".}
+proc queryRowPitch*(fmt:PixelFormat, width:int32, rowAlignBytes:int32):int32 =
+    c_queryRowPitch(fmt, width, row_align_bytes)
+
+proc c_querySurfacePitch(fmt:PixelFormat, width:int32, height:int32, rowAlignBytes:int32):int32 {.cdecl, importc:"sg_query_surface_pitch".}
+proc querySurfacePitch*(fmt:PixelFormat, width:int32, height:int32, rowAlignBytes:int32):int32 =
+    c_querySurfacePitch(fmt, width, height, row_align_bytes)
 
 proc c_queryBufferState(buf:Buffer):ResourceState {.cdecl, importc:"sg_query_buffer_state".}
 proc queryBufferState*(buf:Buffer):ResourceState =
