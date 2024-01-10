@@ -30,7 +30,8 @@ let examples = [
   "sgl",
   "sglcontext",
   "sglpoints",
-  "saudio"
+  "saudio",
+  "mui",
 ]
 
 let shaders = [
@@ -44,7 +45,7 @@ let shaders = [
   "offscreen",
   "instancing",
   "mrt",
-  "blend"
+  "blend",
 ]
 
 proc compilerSwitch(): string =
@@ -67,6 +68,12 @@ proc run(name: string) =
   exec &"build/{name}"
 
 # Tasks
+taskRequires "mui", "mui"
+taskRequires "build_all", "mui"
+taskRequires "build_debug", "mui"
+task mui, "Runs the mui example":
+  run "mui"
+
 task clear, "Runs the clear example":
   run "clear"
 
