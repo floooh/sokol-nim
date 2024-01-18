@@ -108,6 +108,7 @@ type
     pixelFormatBc1Rgba,
     pixelFormatBc2Rgba,
     pixelFormatBc3Rgba,
+    pixelFormatBc3Srgba,
     pixelFormatBc4R,
     pixelFormatBc4Rsn,
     pixelFormatBc5Rg,
@@ -115,15 +116,20 @@ type
     pixelFormatBc6hRgbf,
     pixelFormatBc6hRgbuf,
     pixelFormatBc7Rgba,
+    pixelFormatBc7Srgba,
     pixelFormatPvrtcRgb2bpp,
     pixelFormatPvrtcRgb4bpp,
     pixelFormatPvrtcRgba2bpp,
     pixelFormatPvrtcRgba4bpp,
     pixelFormatEtc2Rgb8,
+    pixelFormatEtc2Srgb8,
     pixelFormatEtc2Rgb8a1,
     pixelFormatEtc2Rgba8,
+    pixelFormatEtc2Srgb8a8,
     pixelFormatEtc2Rg11,
     pixelFormatEtc2Rg11sn,
+    pixelFormatAstc4x4Rgba,
+    pixelFormatAstc4x4Srgba,
 
 type PixelformatInfo* = object
   sample*:bool
