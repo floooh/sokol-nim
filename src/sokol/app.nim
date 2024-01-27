@@ -376,6 +376,11 @@ type Desc* = object
   html5PreserveDrawingBuffer*:bool
   html5PremultipliedAlpha*:bool
   html5AskLeaveSite*:bool
+  html5BubbleMouseEvents*:bool
+  html5BubbleTouchEvents*:bool
+  html5BubbleWheelEvents*:bool
+  html5BubbleKeyEvents*:bool
+  html5BubbleCharEvents*:bool
   iosKeyboardResizesCanvas*:bool
 
 type
