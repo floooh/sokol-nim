@@ -21,8 +21,8 @@ const
 
 var
   offscreenPassAction: PassAction
-  offscreenPassDesc: PassDesc
-  offscreenPass: Pass
+  offscreenAttachmentsDesc: AttachmentsDesc
+  offscreenAttachments: Attachments
   offscreenPip: Pipeline
   offscreenBindings: Bindings
   fsqPip: Pipeline
@@ -33,12 +33,12 @@ var
   rx, ry: float32
 
 # called initially and when window size changes
-proc createOffscreenPass(width: int32, height: int32) =
+proc createOffscreenAttachments(width: int32, height: int32) =
   # destroy previous resource (can be called for invalid id)
-  sg.destroyPass(offscreenPass)
+  sg.destroyAttachments(offscreenAttachments)
   for i in 0..<3:
-    sg.destroyImage(offscreenPassDesc.colorAttachments[i].image)
-  sg.destroyImage(offscreenPassDesc.depthStencilAttachment.image)
+    sg.destroyImage(offscreenAttachmentsDesc.colors[i].image)
+  sg.destroyImage(offscreenAttachmentsDesc.depthStencil.image)
 
   # create offscreen rendertarget images and pass
   let colorImageDesc = sg.ImageDesc(
@@ -49,28 +49,28 @@ proc createOffscreenPass(width: int32, height: int32) =
   )
   var depthImageDesc = colorImageDesc
   depthImageDesc.pixelFormat = pixelFormatDepth
-  offscreenPassDesc = PassDesc(
-    colorAttachments: [
-      PassAttachmentDesc(image: sg.makeImage(colorImageDesc)),
-      PassAttachmentDesc(image: sg.makeImage(colorImageDesc)),
-      PassAttachmentDesc(image: sg.makeImage(colorImageDesc))
+  offscreenAttachmentsDesc = sg.AttachmentsDesc(
+    colors: [
+      AttachmentDesc(image: sg.makeImage(colorImageDesc)),
+      AttachmentDesc(image: sg.makeImage(colorImageDesc)),
+      AttachmentDesc(image: sg.makeImage(colorImageDesc))
     ],
-    depthStencilAttachment: PassAttachmentDesc(image: sg.makeImage(depthImageDesc))
+    depthStencil: AttachmentDesc(image: sg.makeImage(depthImageDesc))
   )
-  offscreenPass = sg.makePass(offscreenPassDesc)
+  offscreenAttachments = sg.makeAttachments(offscreenAttachmentsDesc)
 
   # also need to update the fullscreen-quad texture bindings
   for i in 0..<3:
-    fsqBindings.fs.images[i] = offscreenPassDesc.colorAttachments[i].image
+    fsqBindings.fs.images[i] = offscreenAttachmentsDesc.colors[i].image
 
 # listen for window-resize events and recreate offscreen rendertargets
 proc event(ev: ptr Event) {.cdecl.} =
   if ev.type == eventTypeResized:
-    createOffscreenPass(ev.framebufferWidth, ev.framebufferHeight)
+    createOffscreenAttachments(ev.framebufferWidth, ev.framebufferHeight)
 
 proc init() {.cdecl.} =
   sg.setup(sg.Desc(
-    context: sglue.context(),
+    environment: sglue.environment(),
     logger: sg.Logger(fn: slog.fn),
   ))
 
@@ -87,7 +87,7 @@ proc init() {.cdecl.} =
   ]
 
   # a render pass with 3 color attachment images, and a depth attachment image
-  createOffscreenPass(sapp.width(), sapp.height())
+  createOffscreenAttachments(sapp.width(), sapp.height())
 
   # a cube vertex buffer
   const cubeVertices = [
@@ -185,9 +185,9 @@ proc init() {.cdecl.} =
     vertexBuffers: [ quadVbuf ],
     fs: StageBindings(
       images: [
-        offscreenPassDesc.colorAttachments[0].image,
-        offscreenPassDesc.colorAttachments[1].image,
-        offscreenPassDesc.colorAttachments[2].image
+        offscreenAttachmentsDesc.colors[0].image,
+        offscreenAttachmentsDesc.colors[1].image,
+        offscreenAttachmentsDesc.colors[2].image
       ],
       samplers: [
         smp,
@@ -226,7 +226,7 @@ proc frame() {.cdecl.} =
   let fsqParams = FsqParams(offset: vec2(math.sin(rx*0.01)*0.1, math.sin(ry*0.01)*0.1))
 
   # render cube into MRT offscreen render targets
-  sg.beginPass(offscreenPass, offscreenPassAction)
+  sg.beginPass(Pass(action: offscreenPassAction, attachments: offscreenAttachments))
   sg.applyPipeline(offscreenPip)
   sg.applyBindings(offscreenBindings)
   sg.applyUniforms(shaderStageVs, shd.slotOffscreenParams, sg.Range(addr: offscreenParams.addr, size: offscreenParams.sizeof))
@@ -234,7 +234,7 @@ proc frame() {.cdecl.} =
   sg.endPass()
 
   # render fullscreen quad with the 'composed image', plus 3 small debug-view quads
-  sg.beginDefaultPass(defaultPassAction, sapp.width(), sapp.height())
+  sg.beginPass(Pass(action: defaultPassAction, swapchain: sglue.swapchain()))
   sg.applyPipeline(fsqPip)
   sg.applyBindings(fsqBindings)
   sg.applyUniforms(shaderStageVs, shd.slotFsqParams, sg.Range(addr: fsqParams.addr, size: fsqParams.sizeof))
@@ -242,7 +242,7 @@ proc frame() {.cdecl.} =
   sg.applyPipeline(dbgPip)
   for i in 0..<3:
     sg.applyViewport(i.int32*100, 0, 100, 100, false)
-    dbgBindings.fs.images[0] = offscreenPassDesc.colorAttachments[i].image
+    dbgBindings.fs.images[0] = offscreenAttachmentsDesc.colors[i].image
     sg.applyBindings(dbgBindings)
     sg.draw(0, 4, 1)
   sg.endPass()

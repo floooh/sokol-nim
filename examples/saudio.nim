@@ -21,7 +21,7 @@ var
 
 proc init() {.cdecl.} =
   sg.setup(sg.Desc(
-    context: sglue.context(),
+    environment: sglue.environment(),
     logger: sg.Logger(fn: slog.fn),
   ))
   saudio.setup(saudio.Desc(
@@ -39,7 +39,7 @@ proc frame() {.cdecl.} =
       samplePos = 0
       discard saudio.push(addr(samples[0]), 32)
   # render a cleared framebuffer
-  sg.beginDefaultPass(passAction, sapp.width(), sapp.height())
+  sg.beginPass(Pass(action: passAction, swapchain: sglue.swapchain()))
   sg.endPass()
   sg.commit()
 

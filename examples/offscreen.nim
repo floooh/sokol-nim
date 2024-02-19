@@ -17,7 +17,7 @@ const
 
 var
   offscreenPassAction: PassAction
-  offscreenPass: Pass
+  offscreenAttachments: Attachments
   offscreenPip: Pipeline
   offscreenBindings: Bindings
   defaultPassAction: PassAction
@@ -28,7 +28,7 @@ var
 
 proc init() {.cdecl.} =
   sg.setup(sg.Desc(
-    context: sglue.context(),
+    environment: sglue.environment(),
     logger: sg.Logger(fn: slog.fn),
   ))
 
@@ -53,9 +53,9 @@ proc init() {.cdecl.} =
   let colorImg = sg.makeImage(imgDesc)
   imgDesc.pixelFormat = pixelFormatDepth
   let depthImg = sg.makeImage(imgDesc)
-  offscreenPass = sg.makePass(PassDesc(
-    colorAttachments: [ PassAttachmentDesc(image: colorImg) ],
-    depthStencilAttachment: PassAttachmentDesc(image: depthImg)
+  offscreenAttachments = sg.makeAttachments(AttachmentsDesc(
+    colors: [ AttachmentDesc(image: colorImg) ],
+    depthStencil: AttachmentDesc(image: depthImg)
   ))
 
   # a donut shape which is rendered into the offscreen render target, and
@@ -159,7 +159,7 @@ proc frame() {.cdecl.} =
   let offscreenVsParams = shd.VsParams(
     mvp: computeMVP(rx, ry, 1.0, 2.5)
   )
-  sg.beginPass(offscreenPass, offscreenPassAction)
+  sg.beginPass(Pass(action: offscreenPassAction, attachments: offscreenAttachments))
   sg.applyPipeline(offscreenPip)
   sg.applyBindings(offscreenBindings)
   sg.applyUniforms(shaderStageVs, shd.slotVsParams, sg.Range(addr: offscreenVsParams.addr, size: offscreenVsParams.sizeof))
@@ -171,7 +171,7 @@ proc frame() {.cdecl.} =
   let defaultVsParams = shd.VsParams(
     mvp: computeMVP(-rx * 0.25, ry * 0.25, sapp.widthf()/sapp.heightf(), 2.0)
   )
-  sg.beginDefaultPass(defaultPassAction, sapp.width(), sapp.height())
+  sg.beginPass(Pass(action: defaultPassAction, swapchain: sglue.swapchain()))
   sg.applyPipeline(defaultPip)
   sg.applyBindings(defaultBindings)
   sg.applyUniforms(shaderStageVs, shd.slotVsParams, sg.Range(addr: defaultVsParams.addr, size: offscreenVsParams.sizeof))

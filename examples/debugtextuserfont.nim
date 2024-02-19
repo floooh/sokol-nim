@@ -172,7 +172,7 @@ const userFont = [
   ]
 proc init() {.cdecl.} =
   sg.setup(sg.Desc(
-    context: sglue.context(),
+    environment: sglue.environment(),
     logger: sg.Logger(fn: slog.fn),
   ))
 
@@ -204,7 +204,7 @@ proc frame() {.cdecl.} =
     let rgb = colorPalette[(c + line + (sapp.frameCount().int shr 1)) and 15]
     sdtx.color3b(rgb.r, rgb.g, rgb.b)
     sdtx.putc(c.char)
-  sg.beginDefaultPass(passAction, sapp.width(), sapp.height())
+  sg.beginPass(Pass(action: passAction, swapchain: sglue.swapchain()))
   sdtx.draw()
   sg.endPass()
   sg.commit()

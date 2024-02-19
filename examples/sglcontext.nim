@@ -24,7 +24,7 @@ const
   )
 
 var
-  offscreenPass: Pass
+  offscreenAttachments: Attachments
   offscreenImage: Image
   offscreenContext: sgl.Context
   displaySampler: Sampler
@@ -32,7 +32,7 @@ var
 
 proc init() {.cdecl.} =
   sg.setup(sg.Desc(
-    context: sglue.context(),
+    environment: sglue.environment(),
     logger: sg.Logger(fn: slog.fn),
   ))
   sgl.setup(sgl.Desc(
@@ -68,8 +68,8 @@ proc init() {.cdecl.} =
     pixelFormat: offscreenPixelFormat,
     sampleCount: offscreenSampleCount,
   ))
-  offscreenPass = sg.makePass(PassDesc(
-    colorAttachments: [ PassAttachmentDesc(image: offscreenImage) ]
+  offscreenAttachments = sg.makeAttachments(AttachmentsDesc(
+    colors: [ AttachmentDesc(image: offscreenImage) ]
   ))
 
   # create a sampler to sample the offscreen render target as texture
@@ -142,10 +142,10 @@ proc frame() {.cdecl.} =
   drawCube()
 
   # do the actual offscreen and display rendering in sokol/gfx passes
-  sg.beginPass(offscreenPass, offscreenPassAction)
+  sg.beginPass(Pass(action: offscreenPassAction, attachments: offscreenAttachments))
   sgl.contextDraw(offscreenContext)
   sg.endPass()
-  sg.beginDefaultPass(displayPassAction, sapp.width(), sapp.height())
+  sg.beginPass(Pass(action: displayPassAction, swapchain: sglue.swapchain()))
   sgl.contextDraw(sgl.defaultContext())
   sg.endPass()
   sg.commit()

@@ -16,10 +16,7 @@ type Shader* = object
 type Pipeline* = object
   id*:uint32
 
-type Pass* = object
-  id*:uint32
-
-type Context* = object
+type Attachments* = object
   id*:uint32
 
 type Range* = object
@@ -154,7 +151,7 @@ type Limits* = object
   maxImageSizeArray*:int32
   maxImageArrayLayers*:int32
   maxVertexAttrs*:int32
-  glMaxVertexUniformVectors*:int32
+  glMaxVertexUniformComponents*:int32
   glMaxCombinedTextureImageUnits*:int32
 
 type
@@ -412,15 +409,50 @@ type StencilAttachmentAction* = object
   clearValue*:uint8
 
 type PassAction* = object
-  startCanary:uint32
   colors*:array[4, ColorAttachmentAction]
   depth*:DepthAttachmentAction
   stencil*:StencilAttachmentAction
-  endCanary:uint32
 
 converter toPassActioncolors*[N:static[int]](items: array[N, ColorAttachmentAction]): array[4, ColorAttachmentAction] =
   static: assert(N <= 4)
   for index,item in items.pairs: result[index]=item
+
+type MetalSwapchain* = object
+  currentDrawable*:pointer
+  depthStencilTexture*:pointer
+  msaaColorTexture*:pointer
+
+type D3d11Swapchain* = object
+  renderView*:pointer
+  resolveView*:pointer
+  depthStencilView*:pointer
+
+type WgpuSwapchain* = object
+  renderView*:pointer
+  resolveView*:pointer
+  depthStencilView*:pointer
+
+type GlSwapchain* = object
+  framebuffer*:uint32
+
+type Swapchain* = object
+  width*:int32
+  height*:int32
+  sampleCount*:int32
+  colorFormat*:PixelFormat
+  depthFormat*:PixelFormat
+  metal*:MetalSwapchain
+  d3d11*:D3d11Swapchain
+  wgpu*:WgpuSwapchain
+  gl*:GlSwapchain
+
+type Pass* = object
+  startCanary:uint32
+  action*:PassAction
+  attachments*:Attachments
+  swapchain*:Swapchain
+  label*:cstring
+  endCanary:uint32
 
 type StageBindings* = object
   images*:array[12, Image]
@@ -686,24 +718,24 @@ converter toPipelineDesccolors*[N:static[int]](items: array[N, ColorTargetState]
   static: assert(N <= 4)
   for index,item in items.pairs: result[index]=item
 
-type PassAttachmentDesc* = object
+type AttachmentDesc* = object
   image*:Image
   mipLevel*:int32
   slice*:int32
 
-type PassDesc* = object
+type AttachmentsDesc* = object
   startCanary:uint32
-  colorAttachments*:array[4, PassAttachmentDesc]
-  resolveAttachments*:array[4, PassAttachmentDesc]
-  depthStencilAttachment*:PassAttachmentDesc
+  colors*:array[4, AttachmentDesc]
+  resolves*:array[4, AttachmentDesc]
+  depthStencil*:AttachmentDesc
   label*:cstring
   endCanary:uint32
 
-converter toPassDesccolorAttachments*[N:static[int]](items: array[N, PassAttachmentDesc]): array[4, PassAttachmentDesc] =
+converter toAttachmentsDesccolors*[N:static[int]](items: array[N, AttachmentDesc]): array[4, AttachmentDesc] =
   static: assert(N <= 4)
   for index,item in items.pairs: result[index]=item
 
-converter toPassDescresolveAttachments*[N:static[int]](items: array[N, PassAttachmentDesc]): array[4, PassAttachmentDesc] =
+converter toAttachmentsDescresolves*[N:static[int]](items: array[N, AttachmentDesc]): array[4, AttachmentDesc] =
   static: assert(N <= 4)
   for index,item in items.pairs: result[index]=item
 
@@ -715,18 +747,17 @@ type TraceHooks* = object
   makeSampler*:proc(a1:ptr SamplerDesc, a2:Sampler, a3:pointer) {.cdecl.}
   makeShader*:proc(a1:ptr ShaderDesc, a2:Shader, a3:pointer) {.cdecl.}
   makePipeline*:proc(a1:ptr PipelineDesc, a2:Pipeline, a3:pointer) {.cdecl.}
-  makePass*:proc(a1:ptr PassDesc, a2:Pass, a3:pointer) {.cdecl.}
+  makeAttachments*:proc(a1:ptr AttachmentsDesc, a2:Attachments, a3:pointer) {.cdecl.}
   destroyBuffer*:proc(a1:Buffer, a2:pointer) {.cdecl.}
   destroyImage*:proc(a1:Image, a2:pointer) {.cdecl.}
   destroySampler*:proc(a1:Sampler, a2:pointer) {.cdecl.}
   destroyShader*:proc(a1:Shader, a2:pointer) {.cdecl.}
   destroyPipeline*:proc(a1:Pipeline, a2:pointer) {.cdecl.}
-  destroyPass*:proc(a1:Pass, a2:pointer) {.cdecl.}
+  destroyAttachments*:proc(a1:Attachments, a2:pointer) {.cdecl.}
   updateBuffer*:proc(a1:Buffer, a2:ptr Range, a3:pointer) {.cdecl.}
   updateImage*:proc(a1:Image, a2:ptr ImageData, a3:pointer) {.cdecl.}
   appendBuffer*:proc(a1:Buffer, a2:ptr Range, a3:int32, a4:pointer) {.cdecl.}
-  beginDefaultPass*:proc(a1:ptr PassAction, a2:int32, a3:int32, a4:pointer) {.cdecl.}
-  beginPass*:proc(a1:Pass, a2:ptr PassAction, a3:pointer) {.cdecl.}
+  beginPass*:proc(a1:ptr Pass, a2:pointer) {.cdecl.}
   applyViewport*:proc(a1:int32, a2:int32, a3:int32, a4:int32, a5:bool, a6:pointer) {.cdecl.}
   applyScissorRect*:proc(a1:int32, a2:int32, a3:int32, a4:int32, a5:bool, a6:pointer) {.cdecl.}
   applyPipeline*:proc(a1:Pipeline, a2:pointer) {.cdecl.}
@@ -740,38 +771,37 @@ type TraceHooks* = object
   allocSampler*:proc(a1:Sampler, a2:pointer) {.cdecl.}
   allocShader*:proc(a1:Shader, a2:pointer) {.cdecl.}
   allocPipeline*:proc(a1:Pipeline, a2:pointer) {.cdecl.}
-  allocPass*:proc(a1:Pass, a2:pointer) {.cdecl.}
+  allocAttachments*:proc(a1:Attachments, a2:pointer) {.cdecl.}
   deallocBuffer*:proc(a1:Buffer, a2:pointer) {.cdecl.}
   deallocImage*:proc(a1:Image, a2:pointer) {.cdecl.}
   deallocSampler*:proc(a1:Sampler, a2:pointer) {.cdecl.}
   deallocShader*:proc(a1:Shader, a2:pointer) {.cdecl.}
   deallocPipeline*:proc(a1:Pipeline, a2:pointer) {.cdecl.}
-  deallocPass*:proc(a1:Pass, a2:pointer) {.cdecl.}
+  deallocAttachments*:proc(a1:Attachments, a2:pointer) {.cdecl.}
   initBuffer*:proc(a1:Buffer, a2:ptr BufferDesc, a3:pointer) {.cdecl.}
   initImage*:proc(a1:Image, a2:ptr ImageDesc, a3:pointer) {.cdecl.}
   initSampler*:proc(a1:Sampler, a2:ptr SamplerDesc, a3:pointer) {.cdecl.}
   initShader*:proc(a1:Shader, a2:ptr ShaderDesc, a3:pointer) {.cdecl.}
   initPipeline*:proc(a1:Pipeline, a2:ptr PipelineDesc, a3:pointer) {.cdecl.}
-  initPass*:proc(a1:Pass, a2:ptr PassDesc, a3:pointer) {.cdecl.}
+  initAttachments*:proc(a1:Attachments, a2:ptr AttachmentsDesc, a3:pointer) {.cdecl.}
   uninitBuffer*:proc(a1:Buffer, a2:pointer) {.cdecl.}
   uninitImage*:proc(a1:Image, a2:pointer) {.cdecl.}
   uninitSampler*:proc(a1:Sampler, a2:pointer) {.cdecl.}
   uninitShader*:proc(a1:Shader, a2:pointer) {.cdecl.}
   uninitPipeline*:proc(a1:Pipeline, a2:pointer) {.cdecl.}
-  uninitPass*:proc(a1:Pass, a2:pointer) {.cdecl.}
+  uninitAttachments*:proc(a1:Attachments, a2:pointer) {.cdecl.}
   failBuffer*:proc(a1:Buffer, a2:pointer) {.cdecl.}
   failImage*:proc(a1:Image, a2:pointer) {.cdecl.}
   failSampler*:proc(a1:Sampler, a2:pointer) {.cdecl.}
   failShader*:proc(a1:Shader, a2:pointer) {.cdecl.}
   failPipeline*:proc(a1:Pipeline, a2:pointer) {.cdecl.}
-  failPass*:proc(a1:Pass, a2:pointer) {.cdecl.}
+  failAttachments*:proc(a1:Attachments, a2:pointer) {.cdecl.}
   pushDebugGroup*:proc(a1:cstring, a2:pointer) {.cdecl.}
   popDebugGroup*:proc(a1:pointer) {.cdecl.}
 
 type SlotInfo* = object
   state*:ResourceState
   resId*:uint32
-  ctxId*:uint32
 
 type BufferInfo* = object
   slot*:SlotInfo
@@ -797,7 +827,7 @@ type ShaderInfo* = object
 type PipelineInfo* = object
   slot*:SlotInfo
 
-type PassInfo* = object
+type AttachmentsInfo* = object
   slot*:SlotInfo
 
 type FrameStatsGl* = object
@@ -997,13 +1027,7 @@ type
     logitemWgpuShaderCreateBindgroupLayoutFailed,
     logitemWgpuCreatePipelineLayoutFailed,
     logitemWgpuCreateRenderPipelineFailed,
-    logitemWgpuPassCreateTextureViewFailed,
-    logitemUninitBufferActiveContextMismatch,
-    logitemUninitImageActiveContextMismatch,
-    logitemUninitSamplerActiveContextMismatch,
-    logitemUninitShaderActiveContextMismatch,
-    logitemUninitPipelineActiveContextMismatch,
-    logitemUninitPassActiveContextMismatch,
+    logitemWgpuAttachmentsCreateTextureViewFailed,
     logitemIdenticalCommitListener,
     logitemCommitListenerArrayFull,
     logitemTraceHooksNotEnabled,
@@ -1012,31 +1036,32 @@ type
     logitemDeallocSamplerInvalidState,
     logitemDeallocShaderInvalidState,
     logitemDeallocPipelineInvalidState,
-    logitemDeallocPassInvalidState,
+    logitemDeallocAttachmentsInvalidState,
     logitemInitBufferInvalidState,
     logitemInitImageInvalidState,
     logitemInitSamplerInvalidState,
     logitemInitShaderInvalidState,
     logitemInitPipelineInvalidState,
-    logitemInitPassInvalidState,
+    logitemInitAttachmentsInvalidState,
     logitemUninitBufferInvalidState,
     logitemUninitImageInvalidState,
     logitemUninitSamplerInvalidState,
     logitemUninitShaderInvalidState,
     logitemUninitPipelineInvalidState,
-    logitemUninitPassInvalidState,
+    logitemUninitAttachmentsInvalidState,
     logitemFailBufferInvalidState,
     logitemFailImageInvalidState,
     logitemFailSamplerInvalidState,
     logitemFailShaderInvalidState,
     logitemFailPipelineInvalidState,
-    logitemFailPassInvalidState,
+    logitemFailAttachmentsInvalidState,
     logitemBufferPoolExhausted,
     logitemImagePoolExhausted,
     logitemSamplerPoolExhausted,
     logitemShaderPoolExhausted,
     logitemPipelinePoolExhausted,
     logitemPassPoolExhausted,
+    logitemBeginpassAttachmentInvalid,
     logitemDrawWithoutBindings,
     logitemValidateBufferdescCanary,
     logitemValidateBufferdescSize,
@@ -1096,46 +1121,78 @@ type
     logitemValidatePipelinedescNoAttrs,
     logitemValidatePipelinedescLayoutStride4,
     logitemValidatePipelinedescAttrSemantics,
-    logitemValidatePassdescCanary,
-    logitemValidatePassdescNoAttachments,
-    logitemValidatePassdescNoContColorAtts,
-    logitemValidatePassdescImage,
-    logitemValidatePassdescMiplevel,
-    logitemValidatePassdescFace,
-    logitemValidatePassdescLayer,
-    logitemValidatePassdescSlice,
-    logitemValidatePassdescImageNoRt,
-    logitemValidatePassdescColorInvPixelformat,
-    logitemValidatePassdescDepthInvPixelformat,
-    logitemValidatePassdescImageSizes,
-    logitemValidatePassdescImageSampleCounts,
-    logitemValidatePassdescResolveColorImageMsaa,
-    logitemValidatePassdescResolveImage,
-    logitemValidatePassdescResolveSampleCount,
-    logitemValidatePassdescResolveMiplevel,
-    logitemValidatePassdescResolveFace,
-    logitemValidatePassdescResolveLayer,
-    logitemValidatePassdescResolveSlice,
-    logitemValidatePassdescResolveImageNoRt,
-    logitemValidatePassdescResolveImageSizes,
-    logitemValidatePassdescResolveImageFormat,
-    logitemValidatePassdescDepthImage,
-    logitemValidatePassdescDepthMiplevel,
-    logitemValidatePassdescDepthFace,
-    logitemValidatePassdescDepthLayer,
-    logitemValidatePassdescDepthSlice,
-    logitemValidatePassdescDepthImageNoRt,
-    logitemValidatePassdescDepthImageSizes,
-    logitemValidatePassdescDepthImageSampleCount,
-    logitemValidateBeginpassPass,
+    logitemValidateAttachmentsdescCanary,
+    logitemValidateAttachmentsdescNoAttachments,
+    logitemValidateAttachmentsdescNoContColorAtts,
+    logitemValidateAttachmentsdescImage,
+    logitemValidateAttachmentsdescMiplevel,
+    logitemValidateAttachmentsdescFace,
+    logitemValidateAttachmentsdescLayer,
+    logitemValidateAttachmentsdescSlice,
+    logitemValidateAttachmentsdescImageNoRt,
+    logitemValidateAttachmentsdescColorInvPixelformat,
+    logitemValidateAttachmentsdescDepthInvPixelformat,
+    logitemValidateAttachmentsdescImageSizes,
+    logitemValidateAttachmentsdescImageSampleCounts,
+    logitemValidateAttachmentsdescResolveColorImageMsaa,
+    logitemValidateAttachmentsdescResolveImage,
+    logitemValidateAttachmentsdescResolveSampleCount,
+    logitemValidateAttachmentsdescResolveMiplevel,
+    logitemValidateAttachmentsdescResolveFace,
+    logitemValidateAttachmentsdescResolveLayer,
+    logitemValidateAttachmentsdescResolveSlice,
+    logitemValidateAttachmentsdescResolveImageNoRt,
+    logitemValidateAttachmentsdescResolveImageSizes,
+    logitemValidateAttachmentsdescResolveImageFormat,
+    logitemValidateAttachmentsdescDepthImage,
+    logitemValidateAttachmentsdescDepthMiplevel,
+    logitemValidateAttachmentsdescDepthFace,
+    logitemValidateAttachmentsdescDepthLayer,
+    logitemValidateAttachmentsdescDepthSlice,
+    logitemValidateAttachmentsdescDepthImageNoRt,
+    logitemValidateAttachmentsdescDepthImageSizes,
+    logitemValidateAttachmentsdescDepthImageSampleCount,
+    logitemValidateBeginpassCanary,
+    logitemValidateBeginpassAttachmentsExists,
+    logitemValidateBeginpassAttachmentsValid,
     logitemValidateBeginpassColorAttachmentImage,
     logitemValidateBeginpassResolveAttachmentImage,
     logitemValidateBeginpassDepthstencilAttachmentImage,
+    logitemValidateBeginpassSwapchainExpectWidth,
+    logitemValidateBeginpassSwapchainExpectWidthNotset,
+    logitemValidateBeginpassSwapchainExpectHeight,
+    logitemValidateBeginpassSwapchainExpectHeightNotset,
+    logitemValidateBeginpassSwapchainExpectSamplecount,
+    logitemValidateBeginpassSwapchainExpectSamplecountNotset,
+    logitemValidateBeginpassSwapchainExpectColorformat,
+    logitemValidateBeginpassSwapchainExpectColorformatNotset,
+    logitemValidateBeginpassSwapchainExpectDepthformatNotset,
+    logitemValidateBeginpassSwapchainMetalExpectCurrentdrawable,
+    logitemValidateBeginpassSwapchainMetalExpectCurrentdrawableNotset,
+    logitemValidateBeginpassSwapchainMetalExpectDepthstenciltexture,
+    logitemValidateBeginpassSwapchainMetalExpectDepthstenciltextureNotset,
+    logitemValidateBeginpassSwapchainMetalExpectMsaacolortexture,
+    logitemValidateBeginpassSwapchainMetalExpectMsaacolortextureNotset,
+    logitemValidateBeginpassSwapchainD3d11ExpectRenderview,
+    logitemValidateBeginpassSwapchainD3d11ExpectRenderviewNotset,
+    logitemValidateBeginpassSwapchainD3d11ExpectResolveview,
+    logitemValidateBeginpassSwapchainD3d11ExpectResolveviewNotset,
+    logitemValidateBeginpassSwapchainD3d11ExpectDepthstencilview,
+    logitemValidateBeginpassSwapchainD3d11ExpectDepthstencilviewNotset,
+    logitemValidateBeginpassSwapchainWgpuExpectRenderview,
+    logitemValidateBeginpassSwapchainWgpuExpectRenderviewNotset,
+    logitemValidateBeginpassSwapchainWgpuExpectResolveview,
+    logitemValidateBeginpassSwapchainWgpuExpectResolveviewNotset,
+    logitemValidateBeginpassSwapchainWgpuExpectDepthstencilview,
+    logitemValidateBeginpassSwapchainWgpuExpectDepthstencilviewNotset,
+    logitemValidateBeginpassSwapchainGlExpectFramebufferNotset,
     logitemValidateApipPipelineValidId,
     logitemValidateApipPipelineExists,
     logitemValidateApipPipelineValid,
     logitemValidateApipShaderExists,
     logitemValidateApipShaderValid,
+    logitemValidateApipCurpassAttachmentsExists,
+    logitemValidateApipCurpassAttachmentsValid,
     logitemValidateApipAttCount,
     logitemValidateApipColorFormat,
     logitemValidateApipDepthFormat,
@@ -1192,46 +1249,26 @@ type
     logitemValidateUpdimgOnce,
     logitemValidationFailed,
 
-type MetalContextDesc* = object
-  device*:pointer
-  renderpassDescriptorCb*:proc():pointer {.cdecl.}
-  renderpassDescriptorUserdataCb*:proc(a1:pointer):pointer {.cdecl.}
-  drawableCb*:proc():pointer {.cdecl.}
-  drawableUserdataCb*:proc(a1:pointer):pointer {.cdecl.}
-  userData*:pointer
+type EnvironmentDefaults* = object
+  colorFormat*:PixelFormat
+  depthFormat*:PixelFormat
+  sampleCount*:int32
 
-type D3d11ContextDesc* = object
+type MetalEnvironment* = object
+  device*:pointer
+
+type D3d11Environment* = object
   device*:pointer
   deviceContext*:pointer
-  renderTargetViewCb*:proc():pointer {.cdecl.}
-  renderTargetViewUserdataCb*:proc(a1:pointer):pointer {.cdecl.}
-  depthStencilViewCb*:proc():pointer {.cdecl.}
-  depthStencilViewUserdataCb*:proc(a1:pointer):pointer {.cdecl.}
-  userData*:pointer
 
-type WgpuContextDesc* = object
+type WgpuEnvironment* = object
   device*:pointer
-  renderViewCb*:proc():pointer {.cdecl.}
-  renderViewUserdataCb*:proc(a1:pointer):pointer {.cdecl.}
-  resolveViewCb*:proc():pointer {.cdecl.}
-  resolveViewUserdataCb*:proc(a1:pointer):pointer {.cdecl.}
-  depthStencilViewCb*:proc():pointer {.cdecl.}
-  depthStencilViewUserdataCb*:proc(a1:pointer):pointer {.cdecl.}
-  userData*:pointer
 
-type GlContextDesc* = object
-  defaultFramebufferCb*:proc():uint32 {.cdecl.}
-  defaultFramebufferUserdataCb*:proc(a1:pointer):uint32 {.cdecl.}
-  userData*:pointer
-
-type ContextDesc* = object
-  colorFormat*:int32
-  depthFormat*:int32
-  sampleCount*:int32
-  metal*:MetalContextDesc
-  d3d11*:D3d11ContextDesc
-  wgpu*:WgpuContextDesc
-  gl*:GlContextDesc
+type Environment* = object
+  defaults*:EnvironmentDefaults
+  metal*:MetalEnvironment
+  d3d11*:D3d11Environment
+  wgpu*:WgpuEnvironment
 
 type CommitListener* = object
   fn*:proc(a1:pointer) {.cdecl.}
@@ -1253,17 +1290,17 @@ type Desc* = object
   samplerPoolSize*:int32
   shaderPoolSize*:int32
   pipelinePoolSize*:int32
-  passPoolSize*:int32
-  contextPoolSize*:int32
+  attachmentsPoolSize*:int32
   uniformBufferSize*:int32
   maxCommitListeners*:int32
   disableValidation*:bool
   mtlForceManagedStorageMode*:bool
+  mtlUseCommandBufferWithRetainedReferences*:bool
   wgpuDisableBindgroupsCache*:bool
   wgpuBindgroupsCacheSize*:int32
   allocator*:Allocator
   logger*:Logger
-  context*:ContextDesc
+  environment*:Environment
   endCanary:uint32
 
 proc c_setup(desc:ptr Desc):void {.cdecl, importc:"sg_setup".}
@@ -1322,9 +1359,9 @@ proc c_makePipeline(desc:ptr PipelineDesc):Pipeline {.cdecl, importc:"sg_make_pi
 proc makePipeline*(desc:PipelineDesc):Pipeline =
     c_makePipeline(addr(desc))
 
-proc c_makePass(desc:ptr PassDesc):Pass {.cdecl, importc:"sg_make_pass".}
-proc makePass*(desc:PassDesc):Pass =
-    c_makePass(addr(desc))
+proc c_makeAttachments(desc:ptr AttachmentsDesc):Attachments {.cdecl, importc:"sg_make_attachments".}
+proc makeAttachments*(desc:AttachmentsDesc):Attachments =
+    c_makeAttachments(addr(desc))
 
 proc c_destroyBuffer(buf:Buffer):void {.cdecl, importc:"sg_destroy_buffer".}
 proc destroyBuffer*(buf:Buffer):void =
@@ -1346,9 +1383,9 @@ proc c_destroyPipeline(pip:Pipeline):void {.cdecl, importc:"sg_destroy_pipeline"
 proc destroyPipeline*(pip:Pipeline):void =
     c_destroyPipeline(pip)
 
-proc c_destroyPass(pass:Pass):void {.cdecl, importc:"sg_destroy_pass".}
-proc destroyPass*(pass:Pass):void =
-    c_destroyPass(pass)
+proc c_destroyAttachments(atts:Attachments):void {.cdecl, importc:"sg_destroy_attachments".}
+proc destroyAttachments*(atts:Attachments):void =
+    c_destroyAttachments(atts)
 
 proc c_updateBuffer(buf:Buffer, data:ptr Range):void {.cdecl, importc:"sg_update_buffer".}
 proc updateBuffer*(buf:Buffer, data:Range):void =
@@ -1370,17 +1407,9 @@ proc c_queryBufferWillOverflow(buf:Buffer, size:int):bool {.cdecl, importc:"sg_q
 proc queryBufferWillOverflow*(buf:Buffer, size:int):bool =
     c_queryBufferWillOverflow(buf, size)
 
-proc c_beginDefaultPass(passAction:ptr PassAction, width:int32, height:int32):void {.cdecl, importc:"sg_begin_default_pass".}
-proc beginDefaultPass*(passAction:PassAction, width:int32, height:int32):void =
-    c_beginDefaultPass(addr(pass_action), width, height)
-
-proc c_beginDefaultPassf(passAction:ptr PassAction, width:float32, height:float32):void {.cdecl, importc:"sg_begin_default_passf".}
-proc beginDefaultPassf*(passAction:PassAction, width:float32, height:float32):void =
-    c_beginDefaultPassf(addr(pass_action), width, height)
-
-proc c_beginPass(pass:Pass, passAction:ptr PassAction):void {.cdecl, importc:"sg_begin_pass".}
-proc beginPass*(pass:Pass, passAction:PassAction):void =
-    c_beginPass(pass, addr(pass_action))
+proc c_beginPass(pass:ptr Pass):void {.cdecl, importc:"sg_begin_pass".}
+proc beginPass*(pass:Pass):void =
+    c_beginPass(addr(pass))
 
 proc c_applyViewport(x:int32, y:int32, width:int32, height:int32, originTopLeft:bool):void {.cdecl, importc:"sg_apply_viewport".}
 proc applyViewport*(x:int32, y:int32, width:int32, height:int32, originTopLeft:bool):void =
@@ -1470,9 +1499,9 @@ proc c_queryPipelineState(pip:Pipeline):ResourceState {.cdecl, importc:"sg_query
 proc queryPipelineState*(pip:Pipeline):ResourceState =
     c_queryPipelineState(pip)
 
-proc c_queryPassState(pass:Pass):ResourceState {.cdecl, importc:"sg_query_pass_state".}
-proc queryPassState*(pass:Pass):ResourceState =
-    c_queryPassState(pass)
+proc c_queryAttachmentsState(atts:Attachments):ResourceState {.cdecl, importc:"sg_query_attachments_state".}
+proc queryAttachmentsState*(atts:Attachments):ResourceState =
+    c_queryAttachmentsState(atts)
 
 proc c_queryBufferInfo(buf:Buffer):BufferInfo {.cdecl, importc:"sg_query_buffer_info".}
 proc queryBufferInfo*(buf:Buffer):BufferInfo =
@@ -1494,9 +1523,9 @@ proc c_queryPipelineInfo(pip:Pipeline):PipelineInfo {.cdecl, importc:"sg_query_p
 proc queryPipelineInfo*(pip:Pipeline):PipelineInfo =
     c_queryPipelineInfo(pip)
 
-proc c_queryPassInfo(pass:Pass):PassInfo {.cdecl, importc:"sg_query_pass_info".}
-proc queryPassInfo*(pass:Pass):PassInfo =
-    c_queryPassInfo(pass)
+proc c_queryAttachmentsInfo(atts:Attachments):AttachmentsInfo {.cdecl, importc:"sg_query_attachments_info".}
+proc queryAttachmentsInfo*(atts:Attachments):AttachmentsInfo =
+    c_queryAttachmentsInfo(atts)
 
 proc c_queryBufferDesc(buf:Buffer):BufferDesc {.cdecl, importc:"sg_query_buffer_desc".}
 proc queryBufferDesc*(buf:Buffer):BufferDesc =
@@ -1518,9 +1547,9 @@ proc c_queryPipelineDesc(pip:Pipeline):PipelineDesc {.cdecl, importc:"sg_query_p
 proc queryPipelineDesc*(pip:Pipeline):PipelineDesc =
     c_queryPipelineDesc(pip)
 
-proc c_queryPassDesc(pass:Pass):PassDesc {.cdecl, importc:"sg_query_pass_desc".}
-proc queryPassDesc*(pass:Pass):PassDesc =
-    c_queryPassDesc(pass)
+proc c_queryAttachmentsDesc(atts:Attachments):AttachmentsDesc {.cdecl, importc:"sg_query_attachments_desc".}
+proc queryAttachmentsDesc*(atts:Attachments):AttachmentsDesc =
+    c_queryAttachmentsDesc(atts)
 
 proc c_queryBufferDefaults(desc:ptr BufferDesc):BufferDesc {.cdecl, importc:"sg_query_buffer_defaults".}
 proc queryBufferDefaults*(desc:BufferDesc):BufferDesc =
@@ -1542,9 +1571,9 @@ proc c_queryPipelineDefaults(desc:ptr PipelineDesc):PipelineDesc {.cdecl, import
 proc queryPipelineDefaults*(desc:PipelineDesc):PipelineDesc =
     c_queryPipelineDefaults(addr(desc))
 
-proc c_queryPassDefaults(desc:ptr PassDesc):PassDesc {.cdecl, importc:"sg_query_pass_defaults".}
-proc queryPassDefaults*(desc:PassDesc):PassDesc =
-    c_queryPassDefaults(addr(desc))
+proc c_queryAttachmentsDefaults(desc:ptr AttachmentsDesc):AttachmentsDesc {.cdecl, importc:"sg_query_attachments_defaults".}
+proc queryAttachmentsDefaults*(desc:AttachmentsDesc):AttachmentsDesc =
+    c_queryAttachmentsDefaults(addr(desc))
 
 proc c_allocBuffer():Buffer {.cdecl, importc:"sg_alloc_buffer".}
 proc allocBuffer*():Buffer =
@@ -1566,9 +1595,9 @@ proc c_allocPipeline():Pipeline {.cdecl, importc:"sg_alloc_pipeline".}
 proc allocPipeline*():Pipeline =
     c_allocPipeline()
 
-proc c_allocPass():Pass {.cdecl, importc:"sg_alloc_pass".}
-proc allocPass*():Pass =
-    c_allocPass()
+proc c_allocAttachments():Attachments {.cdecl, importc:"sg_alloc_attachments".}
+proc allocAttachments*():Attachments =
+    c_allocAttachments()
 
 proc c_deallocBuffer(buf:Buffer):void {.cdecl, importc:"sg_dealloc_buffer".}
 proc deallocBuffer*(buf:Buffer):void =
@@ -1590,9 +1619,9 @@ proc c_deallocPipeline(pip:Pipeline):void {.cdecl, importc:"sg_dealloc_pipeline"
 proc deallocPipeline*(pip:Pipeline):void =
     c_deallocPipeline(pip)
 
-proc c_deallocPass(pass:Pass):void {.cdecl, importc:"sg_dealloc_pass".}
-proc deallocPass*(pass:Pass):void =
-    c_deallocPass(pass)
+proc c_deallocAttachments(attachments:Attachments):void {.cdecl, importc:"sg_dealloc_attachments".}
+proc deallocAttachments*(attachments:Attachments):void =
+    c_deallocAttachments(attachments)
 
 proc c_initBuffer(buf:Buffer, desc:ptr BufferDesc):void {.cdecl, importc:"sg_init_buffer".}
 proc initBuffer*(buf:Buffer, desc:BufferDesc):void =
@@ -1614,9 +1643,9 @@ proc c_initPipeline(pip:Pipeline, desc:ptr PipelineDesc):void {.cdecl, importc:"
 proc initPipeline*(pip:Pipeline, desc:PipelineDesc):void =
     c_initPipeline(pip, addr(desc))
 
-proc c_initPass(pass:Pass, desc:ptr PassDesc):void {.cdecl, importc:"sg_init_pass".}
-proc initPass*(pass:Pass, desc:PassDesc):void =
-    c_initPass(pass, addr(desc))
+proc c_initAttachments(attachments:Attachments, desc:ptr AttachmentsDesc):void {.cdecl, importc:"sg_init_attachments".}
+proc initAttachments*(attachments:Attachments, desc:AttachmentsDesc):void =
+    c_initAttachments(attachments, addr(desc))
 
 proc c_uninitBuffer(buf:Buffer):void {.cdecl, importc:"sg_uninit_buffer".}
 proc uninitBuffer*(buf:Buffer):void =
@@ -1638,9 +1667,9 @@ proc c_uninitPipeline(pip:Pipeline):void {.cdecl, importc:"sg_uninit_pipeline".}
 proc uninitPipeline*(pip:Pipeline):void =
     c_uninitPipeline(pip)
 
-proc c_uninitPass(pass:Pass):void {.cdecl, importc:"sg_uninit_pass".}
-proc uninitPass*(pass:Pass):void =
-    c_uninitPass(pass)
+proc c_uninitAttachments(atts:Attachments):void {.cdecl, importc:"sg_uninit_attachments".}
+proc uninitAttachments*(atts:Attachments):void =
+    c_uninitAttachments(atts)
 
 proc c_failBuffer(buf:Buffer):void {.cdecl, importc:"sg_fail_buffer".}
 proc failBuffer*(buf:Buffer):void =
@@ -1662,9 +1691,9 @@ proc c_failPipeline(pip:Pipeline):void {.cdecl, importc:"sg_fail_pipeline".}
 proc failPipeline*(pip:Pipeline):void =
     c_failPipeline(pip)
 
-proc c_failPass(pass:Pass):void {.cdecl, importc:"sg_fail_pass".}
-proc failPass*(pass:Pass):void =
-    c_failPass(pass)
+proc c_failAttachments(atts:Attachments):void {.cdecl, importc:"sg_fail_attachments".}
+proc failAttachments*(atts:Attachments):void =
+    c_failAttachments(atts)
 
 proc c_enableFrameStats():void {.cdecl, importc:"sg_enable_frame_stats".}
 proc enableFrameStats*():void =
@@ -1681,18 +1710,6 @@ proc frameStatsEnabled*():bool =
 proc c_queryFrameStats():FrameStats {.cdecl, importc:"sg_query_frame_stats".}
 proc queryFrameStats*():FrameStats =
     c_queryFrameStats()
-
-proc c_setupContext():Context {.cdecl, importc:"sg_setup_context".}
-proc setupContext*():Context =
-    c_setupContext()
-
-proc c_activateContext(ctxId:Context):void {.cdecl, importc:"sg_activate_context".}
-proc activateContext*(ctxId:Context):void =
-    c_activateContext(ctx_id)
-
-proc c_discardContext(ctxId:Context):void {.cdecl, importc:"sg_discard_context".}
-proc discardContext*(ctxId:Context):void =
-    c_discardContext(ctx_id)
 
 type D3d11BufferInfo* = object
   buf*:pointer
@@ -1726,16 +1743,16 @@ type D3d11PipelineInfo* = object
   dss*:pointer
   bs*:pointer
 
-type D3d11PassInfo* = object
+type D3d11AttachmentsInfo* = object
   colorRtv*:array[4, pointer]
   resolveRtv*:array[4, pointer]
   dsv*:pointer
 
-converter toD3d11PassInfocolorRtv*[N:static[int]](items: array[N, pointer]): array[4, pointer] =
+converter toD3d11AttachmentsInfocolorRtv*[N:static[int]](items: array[N, pointer]): array[4, pointer] =
   static: assert(N <= 4)
   for index,item in items.pairs: result[index]=item
 
-converter toD3d11PassInforesolveRtv*[N:static[int]](items: array[N, pointer]): array[4, pointer] =
+converter toD3d11AttachmentsInforesolveRtv*[N:static[int]](items: array[N, pointer]): array[4, pointer] =
   static: assert(N <= 4)
   for index,item in items.pairs: result[index]=item
 
@@ -1786,16 +1803,16 @@ type WgpuShaderInfo* = object
 type WgpuPipelineInfo* = object
   pip*:pointer
 
-type WgpuPassInfo* = object
+type WgpuAttachmentsInfo* = object
   colorView*:array[4, pointer]
   resolveView*:array[4, pointer]
   dsView*:pointer
 
-converter toWgpuPassInfocolorView*[N:static[int]](items: array[N, pointer]): array[4, pointer] =
+converter toWgpuAttachmentsInfocolorView*[N:static[int]](items: array[N, pointer]): array[4, pointer] =
   static: assert(N <= 4)
   for index,item in items.pairs: result[index]=item
 
-converter toWgpuPassInforesolveView*[N:static[int]](items: array[N, pointer]): array[4, pointer] =
+converter toWgpuAttachmentsInforesolveView*[N:static[int]](items: array[N, pointer]): array[4, pointer] =
   static: assert(N <= 4)
   for index,item in items.pairs: result[index]=item
 
@@ -1823,11 +1840,11 @@ type GlSamplerInfo* = object
 type GlShaderInfo* = object
   prog*:uint32
 
-type GlPassInfo* = object
-  frameBuffer*:uint32
+type GlAttachmentsInfo* = object
+  framebuffer*:uint32
   msaaResolveFramebuffer*:array[4, uint32]
 
-converter toGlPassInfomsaaResolveFramebuffer*[N:static[int]](items: array[N, uint32]): array[4, uint32] =
+converter toGlAttachmentsInfomsaaResolveFramebuffer*[N:static[int]](items: array[N, uint32]): array[4, uint32] =
   static: assert(N <= 4)
   for index,item in items.pairs: result[index]=item
 
@@ -1859,9 +1876,9 @@ proc c_d3d11QueryPipelineInfo(pip:Pipeline):D3d11PipelineInfo {.cdecl, importc:"
 proc d3d11QueryPipelineInfo*(pip:Pipeline):D3d11PipelineInfo =
     c_d3d11QueryPipelineInfo(pip)
 
-proc c_d3d11QueryPassInfo(pass:Pass):D3d11PassInfo {.cdecl, importc:"sg_d3d11_query_pass_info".}
-proc d3d11QueryPassInfo*(pass:Pass):D3d11PassInfo =
-    c_d3d11QueryPassInfo(pass)
+proc c_d3d11QueryAttachmentsInfo(atts:Attachments):D3d11AttachmentsInfo {.cdecl, importc:"sg_d3d11_query_attachments_info".}
+proc d3d11QueryAttachmentsInfo*(atts:Attachments):D3d11AttachmentsInfo =
+    c_d3d11QueryAttachmentsInfo(atts)
 
 proc c_mtlDevice():pointer {.cdecl, importc:"sg_mtl_device".}
 proc mtlDevice*():pointer =
@@ -1927,9 +1944,9 @@ proc c_wgpuQueryPipelineInfo(pip:Pipeline):WgpuPipelineInfo {.cdecl, importc:"sg
 proc wgpuQueryPipelineInfo*(pip:Pipeline):WgpuPipelineInfo =
     c_wgpuQueryPipelineInfo(pip)
 
-proc c_wgpuQueryPassInfo(pass:Pass):WgpuPassInfo {.cdecl, importc:"sg_wgpu_query_pass_info".}
-proc wgpuQueryPassInfo*(pass:Pass):WgpuPassInfo =
-    c_wgpuQueryPassInfo(pass)
+proc c_wgpuQueryAttachmentsInfo(atts:Attachments):WgpuAttachmentsInfo {.cdecl, importc:"sg_wgpu_query_attachments_info".}
+proc wgpuQueryAttachmentsInfo*(atts:Attachments):WgpuAttachmentsInfo =
+    c_wgpuQueryAttachmentsInfo(atts)
 
 proc c_glQueryBufferInfo(buf:Buffer):GlBufferInfo {.cdecl, importc:"sg_gl_query_buffer_info".}
 proc glQueryBufferInfo*(buf:Buffer):GlBufferInfo =
@@ -1947,9 +1964,9 @@ proc c_glQueryShaderInfo(shd:Shader):GlShaderInfo {.cdecl, importc:"sg_gl_query_
 proc glQueryShaderInfo*(shd:Shader):GlShaderInfo =
     c_glQueryShaderInfo(shd)
 
-proc c_glQueryPassInfo(pass:Pass):GlPassInfo {.cdecl, importc:"sg_gl_query_pass_info".}
-proc glQueryPassInfo*(pass:Pass):GlPassInfo =
-    c_glQueryPassInfo(pass)
+proc c_glQueryAttachmentsInfo(atts:Attachments):GlAttachmentsInfo {.cdecl, importc:"sg_gl_query_attachments_info".}
+proc glQueryAttachmentsInfo*(atts:Attachments):GlAttachmentsInfo =
+    c_glQueryAttachmentsInfo(atts)
 
 when defined gl:
   const gl*    = true
