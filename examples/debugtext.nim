@@ -16,7 +16,7 @@ const passAction = PassAction(
 
 proc init() {.cdecl.} =
   sg.setup(sg.Desc(
-    context: sglue.context(),
+    environment: sglue.environment(),
     logger: sg.Logger(fn: slog.fn),
   ))
 
@@ -56,7 +56,7 @@ proc frame() {.cdecl.} =
     print_font(4, "C64:\n",         0x79, 0x86, 0xcb)
     print_font(5, "Oric Atmos:\n",  0xff, 0x98, 0x00)
 
-    sg.beginDefaultPass(passAction, sapp.width(), sapp.height())
+    sg.beginPass(Pass(action: passAction, swapchain: sglue.swapchain()))
     sdtx.draw()
     sg.endPass()
     sg.commit()

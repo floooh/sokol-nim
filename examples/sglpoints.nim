@@ -34,7 +34,7 @@ const palette = [
 
 proc init() {.cdecl.} =
   sg.setup(sg.Desc(
-    context: sglue.context(),
+    environment: sglue.environment(),
     logger: sg.Logger(fn: slog.fn),
   ))
   sgl.setup(sgl.Desc(
@@ -77,7 +77,7 @@ proc frame() {.cdecl.} =
   const passAction = PassAction(
     colors: [ ColorAttachmentAction(loadAction: loadActionClear, clearValue: (0, 0, 0, 1)) ]
   )
-  sg.beginDefaultPass(passAction, sapp.width(), sapp.height())
+  sg.beginPass(Pass(action: passAction, swapchain: sglue.swapchain()))
   sgl.draw()
   sg.endPass()
   sg.commit()

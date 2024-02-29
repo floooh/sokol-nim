@@ -29,7 +29,7 @@ const passAction = PassAction(
 proc init() {.cdecl.} =
   sg.setup(sg.Desc(
       pipelinePoolSize: numBlendFactors * numBlendFactors + 1,
-      context: sglue.context(),
+      environment: sglue.environment(),
       logger: sg.Logger(fn: slog.fn),
     ))
 
@@ -80,7 +80,7 @@ proc init() {.cdecl.} =
 proc frame() {.cdecl.} =
   let time = sapp.frameDuration() * 60.0
 
-  sg.beginDefaultPass(passAction, sapp.width(), sapp.height())
+  sg.beginPass(Pass(action: passAction, swapchain: sglue.swapchain()))
 
   # draw background
   let bgFsParams = BgFsParams(tick: tick)

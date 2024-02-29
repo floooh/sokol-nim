@@ -13,7 +13,7 @@ var passAction = PassAction(
 
 proc init() {.cdecl.} =
   sg.setup(sg.Desc(
-    context: sglue.context(),
+    environment: sglue.environment(),
     logger: sg.Logger(fn: slog.fn),
   ))
   case sg.queryBackend():
@@ -25,7 +25,7 @@ proc init() {.cdecl.} =
 proc frame() {.cdecl.} =
   var g = passAction.colors[0].clearValue.g + 0.01
   passAction.colors[0].clearValue.g = if g > 1.0: 0.0 else: g
-  beginDefaultPass(passAction, sapp.width(), sapp.height())
+  beginPass(Pass(action: passAction, swapchain: sglue.swapchain()))
   endPass()
   commit()
 

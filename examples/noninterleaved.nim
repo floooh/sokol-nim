@@ -24,7 +24,7 @@ var
 
 proc init() {.cdecl.} =
   sg.setup(sg.Desc(
-    context: sglue.context(),
+    environment: sglue.environment(),
     logger: sg.Logger(fn: slog.fn),
   ))
 
@@ -103,7 +103,7 @@ proc frame() {.cdecl.} =
   rx += 1f * dt
   ry += 2f * dt
   let vsParams = computeVsParams()
-  sg.beginDefaultPass(passAction, sapp.width(), sapp.height())
+  sg.beginPass(Pass(action: passAction, swapchain: sglue.swapchain()))
   sg.applyPipeline(pip)
   sg.applyBindings(bindings)
   sg.applyUniforms(shaderStageVs, shd.slotVsParams, sg.Range(addr: vsParams.addr, size: vsParams.sizeof))

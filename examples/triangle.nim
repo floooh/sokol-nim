@@ -14,7 +14,7 @@ var
 
 proc init() {.cdecl.} =
   sg.setup(sg.Desc(
-    context: sglue.context(),
+    environment: sglue.environment(),
     logger: sg.Logger(fn: slog.fn),
   ))
 
@@ -42,7 +42,7 @@ proc init() {.cdecl.} =
 
 proc frame() {.cdecl.} =
   # default PassAction clears to grey
-  sg.beginDefaultPass(PassAction(), sapp.width(), sapp.height())
+  sg.beginPass(Pass(swapchain: sglue.swapchain()))
   sg.applyPipeline(pip)
   sg.applyBindings(bindings)
   sg.draw(0, 3, 1)

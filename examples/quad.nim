@@ -15,7 +15,7 @@ var
 
 proc init() {.cdecl.} =
   sg.setup(sg.Desc(
-    context: sglue.context(),
+    environment: sglue.environment(),
     logger: sg.Logger(fn: slog.fn),
   ))
 
@@ -54,7 +54,7 @@ proc init() {.cdecl.} =
   passAction.colors[0] = ColorAttachmentAction( loadAction: loadActionClear, clearValue: (0f, 0f, 0f, 1f))
 
 proc frame() {.cdecl.} =
-  sg.beginDefaultPass(passAction, sapp.width(), sapp.height())
+  sg.beginPass(Pass(action: passAction, swapchain: sglue.swapchain()))
   sg.applyPipeline(pip)
   sg.applyBindings(bindings)
   sg.draw(0, 6, 1)

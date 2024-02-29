@@ -38,7 +38,7 @@ var
 
 proc init() {.cdecl.} =
   sg.setup(sg.Desc(
-    context: sglue.context(),
+    environment: sglue.environment(),
     logger: sg.Logger(fn: slog.fn),
   ))
   sdtx.setup(sdtx.Desc(
@@ -112,7 +112,7 @@ proc frame() {.cdecl.} =
   let rm = rxm * rym
 
   # render shapes...
-  sg.beginDefaultPass(passAction, sapp.width(), sapp.height())
+  sg.beginPass(Pass(action: passAction, swapchain: sglue.swapchain()))
   sg.applyPipeline(pip)
   sg.applyBindings(Bindings(vertexBuffers: [ vbuf ], indexBuffer: ibuf))
   for i in 0..<numShapes:

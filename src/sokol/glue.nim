@@ -2,9 +2,13 @@
 
 import gfx
 
-proc c_context():gfx.ContextDesc {.cdecl, importc:"sapp_sgcontext".}
-proc context*():gfx.ContextDesc =
-    c_context()
+proc c_environment():gfx.Environment {.cdecl, importc:"sglue_environment".}
+proc environment*():gfx.Environment =
+    c_environment()
+
+proc c_swapchain():gfx.Swapchain {.cdecl, importc:"sglue_swapchain".}
+proc swapchain*():gfx.Swapchain =
+    c_swapchain()
 
 {.passc:"-DSOKOL_NIM_IMPL".}
 when defined(release):

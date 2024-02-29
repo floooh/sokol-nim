@@ -581,13 +581,17 @@ proc c_metalGetDevice():pointer {.cdecl, importc:"sapp_metal_get_device".}
 proc metalGetDevice*():pointer =
     c_metalGetDevice()
 
-proc c_metalGetRenderpassDescriptor():pointer {.cdecl, importc:"sapp_metal_get_renderpass_descriptor".}
-proc metalGetRenderpassDescriptor*():pointer =
-    c_metalGetRenderpassDescriptor()
+proc c_metalGetCurrentDrawable():pointer {.cdecl, importc:"sapp_metal_get_current_drawable".}
+proc metalGetCurrentDrawable*():pointer =
+    c_metalGetCurrentDrawable()
 
-proc c_metalGetDrawable():pointer {.cdecl, importc:"sapp_metal_get_drawable".}
-proc metalGetDrawable*():pointer =
-    c_metalGetDrawable()
+proc c_metalGetDepthStencilTexture():pointer {.cdecl, importc:"sapp_metal_get_depth_stencil_texture".}
+proc metalGetDepthStencilTexture*():pointer =
+    c_metalGetDepthStencilTexture()
+
+proc c_metalGetMsaaColorTexture():pointer {.cdecl, importc:"sapp_metal_get_msaa_color_texture".}
+proc metalGetMsaaColorTexture*():pointer =
+    c_metalGetMsaaColorTexture()
 
 proc c_macosGetWindow():pointer {.cdecl, importc:"sapp_macos_get_window".}
 proc macosGetWindow*():pointer =
@@ -609,9 +613,13 @@ proc c_d3d11GetSwapChain():pointer {.cdecl, importc:"sapp_d3d11_get_swap_chain".
 proc d3d11GetSwapChain*():pointer =
     c_d3d11GetSwapChain()
 
-proc c_d3d11GetRenderTargetView():pointer {.cdecl, importc:"sapp_d3d11_get_render_target_view".}
-proc d3d11GetRenderTargetView*():pointer =
-    c_d3d11GetRenderTargetView()
+proc c_d3d11GetRenderView():pointer {.cdecl, importc:"sapp_d3d11_get_render_view".}
+proc d3d11GetRenderView*():pointer =
+    c_d3d11GetRenderView()
+
+proc c_d3d11GetResolveView():pointer {.cdecl, importc:"sapp_d3d11_get_resolve_view".}
+proc d3d11GetResolveView*():pointer =
+    c_d3d11GetResolveView()
 
 proc c_d3d11GetDepthStencilView():pointer {.cdecl, importc:"sapp_d3d11_get_depth_stencil_view".}
 proc d3d11GetDepthStencilView*():pointer =
@@ -636,6 +644,10 @@ proc wgpuGetResolveView*():pointer =
 proc c_wgpuGetDepthStencilView():pointer {.cdecl, importc:"sapp_wgpu_get_depth_stencil_view".}
 proc wgpuGetDepthStencilView*():pointer =
     c_wgpuGetDepthStencilView()
+
+proc c_glGetFramebuffer():uint32 {.cdecl, importc:"sapp_gl_get_framebuffer".}
+proc glGetFramebuffer*():uint32 =
+    c_glGetFramebuffer()
 
 proc c_androidGetNativeActivity():pointer {.cdecl, importc:"sapp_android_get_native_activity".}
 proc androidGetNativeActivity*():pointer =

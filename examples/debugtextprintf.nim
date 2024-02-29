@@ -28,7 +28,7 @@ const
 
 proc init() {.cdecl.} =
   sg.setup(sg.Desc(
-    context: sglue.context(),
+    environment: sglue.environment(),
     logger: sg.Logger(fn: slog.fn),
   ))
   sdtx.setup(sdtx.Desc(
@@ -57,7 +57,7 @@ proc frame() {.cdecl.} =
     sdtx.putr("Range Test 1 (xyzbla)", 12)
     sdtx.putr("\nRange Test 2\n", 32)
     sdtx.moveY(2)
-  sg.beginDefaultPass(passAction, sapp.width(), sapp.height())
+  sg.beginPass(Pass(action: passAction, swapchain: sglue.swapchain()))
   sdtx.draw()
   sg.endPass()
   sg.commit()
