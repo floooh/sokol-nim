@@ -381,6 +381,8 @@ type Desc* = object
   html5BubbleWheelEvents*:bool
   html5BubbleKeyEvents*:bool
   html5BubbleCharEvents*:bool
+  html5UseEmscSetMainLoop*:bool
+  html5EmscSetMainLoopSimulateInfiniteLoop*:bool
   iosKeyboardResizesCanvas*:bool
 
 type
