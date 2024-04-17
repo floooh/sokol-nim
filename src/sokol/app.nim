@@ -674,8 +674,16 @@ elif defined macosx:
     {.passc:"-DSOKOL_METAL".}
     {.passl:"-framework Metal -framework MetalKit".}
 elif defined linux:
-  {.passc:"-DSOKOL_GLCORE33".}
-  {.passl:"-lX11 -lXi -lXcursor -lGL -lm -ldl -lpthread".}
+  when defined disable_wayland:
+    {.passc:"-DSOKOL_DISABLE_WAYLAND".}
+  else:
+    {.passl:"-lwayland-client -lwayland-cursor -lwayland-egl -lEGL -lxkbcommon".}
+
+  when defined disable_x11:
+    {.passc:"-DSOKOL_DISABLE_X11".}
+  else:
+    {.passc:"-DSOKOL_GLCORE33".}
+    {.passl:"-lX11 -lXi -lXcursor -lGL -lm -ldl -lpthread".}
 else:
   error("unsupported platform")
 
