@@ -146,6 +146,6 @@ task shaders, "Compile all shaders (requires ../sokol-tools-bin)":
     else:
       &"{binDir}linux/sokol-shdc"
   for shader in shaders:
-    let cmd = &"{shdcPath} -i examples/shaders/{shader}.glsl -o examples/shaders/{shader}.nim -l glsl330:metal_macos:hlsl4 -f sokol_nim"
+    let cmd = &"{shdcPath} -i examples/shaders/{shader}.glsl -o examples/shaders/{shader}.nim -l glsl430:metal_macos:hlsl5 -f sokol_nim"
     echo &"    {cmd}"
     exec cmd

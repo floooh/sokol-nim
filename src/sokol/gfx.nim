@@ -32,6 +32,7 @@ const
   maxShaderstageImages* = 12
   maxShaderstageSamplers* = 8
   maxShaderstageImagesamplerpairs* = 12
+  maxShaderstageStorageBuffers* = 8
   maxShaderstageUbs* = 4
   maxUbMembers* = 16
   maxVertexAttributes* = 16
@@ -46,7 +47,7 @@ type Color* = object
 
 type
   Backend* {.size:sizeof(int32).} = enum
-    backendGlcore33,
+    backendGlcore,
     backendGles3,
     backendD3d11,
     backendMetalIos,
@@ -143,6 +144,7 @@ type Features* = object
   imageClampToBorder*:bool
   mrtIndependentBlendState*:bool
   mrtIndependentWriteMask*:bool
+  storageBuffer*:bool
 
 type Limits* = object
   maxImageSize2d*:int32
@@ -174,6 +176,7 @@ type
     bufferTypeDefault,
     bufferTypeVertexBuffer,
     bufferTypeIndexBuffer,
+    bufferTypeStoragebuffer,
 
 type
   IndexType* {.size:sizeof(int32).} = enum
@@ -457,12 +460,17 @@ type Pass* = object
 type StageBindings* = object
   images*:array[12, Image]
   samplers*:array[8, Sampler]
+  storageBuffers*:array[8, Buffer]
 
 converter toStageBindingsimages*[N:static[int]](items: array[N, Image]): array[12, Image] =
   static: assert(N <= 12)
   for index,item in items.pairs: result[index]=item
 
 converter toStageBindingssamplers*[N:static[int]](items: array[N, Sampler]): array[8, Sampler] =
+  static: assert(N <= 8)
+  for index,item in items.pairs: result[index]=item
+
+converter toStageBindingsstorageBuffers*[N:static[int]](items: array[N, Buffer]): array[8, Buffer] =
   static: assert(N <= 8)
   for index,item in items.pairs: result[index]=item
 
@@ -584,6 +592,10 @@ converter toShaderUniformBlockDescuniforms*[N:static[int]](items: array[N, Shade
   static: assert(N <= 16)
   for index,item in items.pairs: result[index]=item
 
+type ShaderStorageBufferDesc* = object
+  used*:bool
+  readonly*:bool
+
 type ShaderImageDesc* = object
   used*:bool
   multisampled*:bool
@@ -606,12 +618,17 @@ type ShaderStageDesc* = object
   entry*:cstring
   d3d11Target*:cstring
   uniformBlocks*:array[4, ShaderUniformBlockDesc]
+  storageBuffers*:array[8, ShaderStorageBufferDesc]
   images*:array[12, ShaderImageDesc]
   samplers*:array[8, ShaderSamplerDesc]
   imageSamplerPairs*:array[12, ShaderImageSamplerPairDesc]
 
 converter toShaderStageDescuniformBlocks*[N:static[int]](items: array[N, ShaderUniformBlockDesc]): array[4, ShaderUniformBlockDesc] =
   static: assert(N <= 4)
+  for index,item in items.pairs: result[index]=item
+
+converter toShaderStageDescstorageBuffers*[N:static[int]](items: array[N, ShaderStorageBufferDesc]): array[8, ShaderStorageBufferDesc] =
+  static: assert(N <= 8)
   for index,item in items.pairs: result[index]=item
 
 converter toShaderStageDescimages*[N:static[int]](items: array[N, ShaderImageDesc]): array[12, ShaderImageDesc] =
@@ -904,6 +921,7 @@ type FrameStatsMetalBindings* = object
   numSetVertexBuffer*:uint32
   numSetVertexTexture*:uint32
   numSetVertexSamplerState*:uint32
+  numSetFragmentBuffer*:uint32
   numSetFragmentTexture*:uint32
   numSetFragmentSamplerState*:uint32
 
@@ -978,6 +996,7 @@ type
     logitemGlFramebufferStatusIncompleteMultisample,
     logitemGlFramebufferStatusUnknown,
     logitemD3d11CreateBufferFailed,
+    logitemD3d11CreateBufferSrvFailed,
     logitemD3d11CreateDepthTextureUnsupportedPixelFormat,
     logitemD3d11CreateDepthTextureFailed,
     logitemD3d11Create2dTextureUnsupportedPixelFormat,
@@ -1024,6 +1043,7 @@ type
     logitemWgpuCreateShaderModuleFailed,
     logitemWgpuShaderTooManyImages,
     logitemWgpuShaderTooManySamplers,
+    logitemWgpuShaderTooManyStoragebuffers,
     logitemWgpuShaderCreateBindgroupLayoutFailed,
     logitemWgpuCreatePipelineLayoutFailed,
     logitemWgpuCreateRenderPipelineFailed,
@@ -1068,6 +1088,8 @@ type
     logitemValidateBufferdescData,
     logitemValidateBufferdescDataSize,
     logitemValidateBufferdescNoData,
+    logitemValidateBufferdescStoragebufferSupported,
+    logitemValidateBufferdescStoragebufferSizeMultiple4,
     logitemValidateImagedataNodata,
     logitemValidateImagedataDataSize,
     logitemValidateImagedescCanary,
@@ -1101,6 +1123,8 @@ type
     logitemValidateShaderdescUbSizeMismatch,
     logitemValidateShaderdescUbArrayCount,
     logitemValidateShaderdescUbStd140ArrayType,
+    logitemValidateShaderdescNoContStoragebuffers,
+    logitemValidateShaderdescStoragebufferReadonly,
     logitemValidateShaderdescNoContImages,
     logitemValidateShaderdescNoContSamplers,
     logitemValidateShaderdescImageSamplerPairImageSlotOutOfRange,
@@ -1114,11 +1138,10 @@ type
     logitemValidateShaderdescImageNotReferencedByImageSamplerPairs,
     logitemValidateShaderdescSamplerNotReferencedByImageSamplerPairs,
     logitemValidateShaderdescNoContImageSamplerPairs,
-    logitemValidateShaderdescAttrSemantics,
     logitemValidateShaderdescAttrStringTooLong,
     logitemValidatePipelinedescCanary,
     logitemValidatePipelinedescShader,
-    logitemValidatePipelinedescNoAttrs,
+    logitemValidatePipelinedescNoContAttrs,
     logitemValidatePipelinedescLayoutStride4,
     logitemValidatePipelinedescAttrSemantics,
     logitemValidateAttachmentsdescCanary,
@@ -1222,6 +1245,10 @@ type
     logitemValidateAbndVsExpectedNonfilteringSampler,
     logitemValidateAbndVsUnexpectedSamplerBinding,
     logitemValidateAbndVsSmpExists,
+    logitemValidateAbndVsExpectedStoragebufferBinding,
+    logitemValidateAbndVsStoragebufferExists,
+    logitemValidateAbndVsStoragebufferBindingBuffertype,
+    logitemValidateAbndVsUnexpectedStoragebufferBinding,
     logitemValidateAbndFsExpectedImageBinding,
     logitemValidateAbndFsImgExists,
     logitemValidateAbndFsImageTypeMismatch,
@@ -1235,6 +1262,10 @@ type
     logitemValidateAbndFsExpectedNonfilteringSampler,
     logitemValidateAbndFsUnexpectedSamplerBinding,
     logitemValidateAbndFsSmpExists,
+    logitemValidateAbndFsExpectedStoragebufferBinding,
+    logitemValidateAbndFsStoragebufferExists,
+    logitemValidateAbndFsStoragebufferBindingBuffertype,
+    logitemValidateAbndFsUnexpectedStoragebufferBinding,
     logitemValidateAubNoPipeline,
     logitemValidateAubNoUbAtSlot,
     logitemValidateAubSize,
@@ -1264,11 +1295,16 @@ type D3d11Environment* = object
 type WgpuEnvironment* = object
   device*:pointer
 
+type GlEnvironment* = object
+  majorVersion*:int32
+  minorVersion*:int32
+
 type Environment* = object
   defaults*:EnvironmentDefaults
   metal*:MetalEnvironment
   d3d11*:D3d11Environment
   wgpu*:WgpuEnvironment
+  gl*:GlEnvironment
 
 type CommitListener* = object
   fn*:proc(a1:pointer) {.cdecl.}
@@ -1991,7 +2027,7 @@ when defined windows:
   when not defined vcc:
     {.passl:"-lkernel32 -luser32 -lshell32 -lgdi32".}
   when defined gl:
-    {.passc:"-DSOKOL_GLCORE33".}
+    {.passc:"-DSOKOL_GLCORE".}
   else:
     {.passc:"-DSOKOL_D3D11".}
     when not defined vcc:
@@ -2000,13 +2036,13 @@ elif defined macosx:
   {.passc:"-x objective-c".}
   {.passl:"-framework Cocoa -framework QuartzCore".}
   when defined gl:
-    {.passc:"-DSOKOL_GLCORE33".}
+    {.passc:"-DSOKOL_GLCORE".}
     {.passl:"-framework OpenGL".}
   else:
     {.passc:"-DSOKOL_METAL".}
     {.passl:"-framework Metal -framework MetalKit".}
 elif defined linux:
-  {.passc:"-DSOKOL_GLCORE33".}
+  {.passc:"-DSOKOL_GLCORE".}
   {.passl:"-lX11 -lXi -lXcursor -lGL -lm -ldl -lpthread".}
 else:
   error("unsupported platform")

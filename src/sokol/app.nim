@@ -651,6 +651,14 @@ proc c_glGetFramebuffer():uint32 {.cdecl, importc:"sapp_gl_get_framebuffer".}
 proc glGetFramebuffer*():uint32 =
     c_glGetFramebuffer()
 
+proc c_glGetMajorVersion():int32 {.cdecl, importc:"sapp_gl_get_major_version".}
+proc glGetMajorVersion*():int32 =
+    c_glGetMajorVersion()
+
+proc c_glGetMinorVersion():int32 {.cdecl, importc:"sapp_gl_get_minor_version".}
+proc glGetMinorVersion*():int32 =
+    c_glGetMinorVersion()
+
 proc c_androidGetNativeActivity():pointer {.cdecl, importc:"sapp_android_get_native_activity".}
 proc androidGetNativeActivity*():pointer =
     c_androidGetNativeActivity()
@@ -659,7 +667,7 @@ when defined windows:
   when not defined vcc:
     {.passl:"-lkernel32 -luser32 -lshell32 -lgdi32".}
   when defined gl:
-    {.passc:"-DSOKOL_GLCORE33".}
+    {.passc:"-DSOKOL_GLCORE".}
   else:
     {.passc:"-DSOKOL_D3D11".}
     when not defined vcc:
@@ -668,13 +676,13 @@ elif defined macosx:
   {.passc:"-x objective-c".}
   {.passl:"-framework Cocoa -framework QuartzCore".}
   when defined gl:
-    {.passc:"-DSOKOL_GLCORE33".}
+    {.passc:"-DSOKOL_GLCORE".}
     {.passl:"-framework OpenGL".}
   else:
     {.passc:"-DSOKOL_METAL".}
     {.passl:"-framework Metal -framework MetalKit".}
 elif defined linux:
-  {.passc:"-DSOKOL_GLCORE33".}
+  {.passc:"-DSOKOL_GLCORE".}
   {.passl:"-lX11 -lXi -lXcursor -lGL -lm -ldl -lpthread".}
 else:
   error("unsupported platform")
