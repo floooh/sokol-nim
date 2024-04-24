@@ -30,7 +30,8 @@ let examples = [
   "sgl",
   "sglcontext",
   "sglpoints",
-  "saudio"
+  "saudio",
+  "vertexpull"
 ]
 
 let shaders = [
@@ -44,7 +45,8 @@ let shaders = [
   "offscreen",
   "instancing",
   "mrt",
-  "blend"
+  "blend",
+  "vertexpull"
 ]
 
 proc compilerSwitch(): string =
@@ -123,6 +125,9 @@ task sglpoints, "Runs the sglpoints example":
 
 task saudio, "Runs the saudio example":
   run "saudio"
+
+task vertexpull, "Runs the vertexpull example":
+  run "vertexpull"
 
 task build_debug, "Build all examples in debug mode":
   # hmm, is there a better way?
