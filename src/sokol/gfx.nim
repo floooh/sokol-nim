@@ -32,7 +32,7 @@ const
   maxShaderstageImages* = 12
   maxShaderstageSamplers* = 8
   maxShaderstageImagesamplerpairs* = 12
-  maxShaderstageStorageBuffers* = 8
+  maxShaderstageStoragebuffers* = 8
   maxShaderstageUbs* = 4
   maxUbMembers* = 16
   maxVertexAttributes* = 16
