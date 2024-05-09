@@ -17,7 +17,7 @@ proc init() {.cdecl.} =
     logger: sg.Logger(fn: slog.fn),
   ))
   case sg.queryBackend():
-    of backendGlcore33: echo "using GLCORE33 backend"
+    of backendGlcore: echo "using GLCORE backend"
     of backendD3d11: echo "using D3D11 backend"
     of backendMetalMacos: echo "using Metal backend"
     else: echo "using untested backend"
