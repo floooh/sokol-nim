@@ -1295,16 +1295,11 @@ type D3d11Environment* = object
 type WgpuEnvironment* = object
   device*:pointer
 
-type GlEnvironment* = object
-  majorVersion*:int32
-  minorVersion*:int32
-
 type Environment* = object
   defaults*:EnvironmentDefaults
   metal*:MetalEnvironment
   d3d11*:D3d11Environment
   wgpu*:WgpuEnvironment
-  gl*:GlEnvironment
 
 type CommitListener* = object
   fn*:proc(a1:pointer) {.cdecl.}
