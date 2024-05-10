@@ -124,8 +124,10 @@ type
     pixelFormatEtc2Rgb8a1,
     pixelFormatEtc2Rgba8,
     pixelFormatEtc2Srgb8a8,
-    pixelFormatEtc2Rg11,
-    pixelFormatEtc2Rg11sn,
+    pixelFormatEacR11,
+    pixelFormatEacR11sn,
+    pixelFormatEacRg11,
+    pixelFormatEacRg11sn,
     pixelFormatAstc4x4Rgba,
     pixelFormatAstc4x4Srgba,
 
