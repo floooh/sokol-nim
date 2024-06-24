@@ -252,7 +252,7 @@ type
     logitemWin32WglSetPixelformatFailed,
     logitemWin32WglArbCreateContextRequired,
     logitemWin32WglArbCreateContextProfileRequired,
-    logitemWin32WglOpengl32NotSupported,
+    logitemWin32WglOpenglVersionNotSupported,
     logitemWin32WglOpenglProfileNotSupported,
     logitemWin32WglIncompatibleDeviceContext,
     logitemWin32WglCreateContextAttribsFailedOther,
