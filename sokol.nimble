@@ -1,5 +1,5 @@
 # Package
-version       = "0.5.0"
+version       = "0.5.1"
 author        = "Andre Weissflog, Garett Bass, Gustav Olsson"
 description   = "Nim bindings for the sokol C headers"
 license       = "MIT"
@@ -151,6 +151,6 @@ task shaders, "Compile all shaders (requires ../sokol-tools-bin)":
     else:
       &"{binDir}linux/sokol-shdc"
   for shader in shaders:
-    let cmd = &"{shdcPath} -i examples/shaders/{shader}.glsl -o examples/shaders/{shader}.nim -l glsl430:metal_macos:hlsl5 -f sokol_nim"
+    let cmd = &"{shdcPath} -i examples/shaders/{shader}.glsl -o examples/shaders/{shader}.nim -l glsl430:metal_macos:hlsl5:glsl300es -f sokol_nim"
     echo &"    {cmd}"
     exec cmd

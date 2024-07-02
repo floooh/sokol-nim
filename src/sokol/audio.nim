@@ -111,7 +111,8 @@ when defined windows:
 elif defined macosx:
   {.passl:"-framework AudioToolbox".}
 elif defined linux:
-  {.passl:"-lasound -lm -lpthread".}
+  when not defined emscripten:
+    {.passl:"-lasound -lm -lpthread".}
 else:
   error("unsupported platform")
 
