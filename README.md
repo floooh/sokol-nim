@@ -100,7 +100,7 @@ when defined(emscripten):
   # Pass this to Emscripten linker to generate html file scaffold for us.
   switch("passL", "-o build/index.html --shell-file template.html")
 
-# new lines are optional to optimize build for speed
+# next lines are optional to optimize build for speed
 # when defined(release):
 #  --opt:speed
 ```
