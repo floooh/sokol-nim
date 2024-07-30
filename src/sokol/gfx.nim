@@ -2001,26 +2001,39 @@ proc c_glQueryAttachmentsInfo(atts:Attachments):GlAttachmentsInfo {.cdecl, impor
 proc glQueryAttachmentsInfo*(atts:Attachments):GlAttachmentsInfo =
     c_glQueryAttachmentsInfo(atts)
 
-when defined gl:
+when defined emscripten:
   const gl*    = true
   const d3d11* = false
   const metal* = false
+  const emscripten* = true
+elif defined gl:
+  const gl*    = true
+  const d3d11* = false
+  const metal* = false
+  const emscripten* = false
 elif defined windows:
   const gl*    = false
   const d3d11* = true
   const metal* = false
+  const emscripten* = false
 elif defined macosx:
   const gl*    = false
   const d3d11* = false
   const metal* = true
+  const emscripten* = false
 elif defined linux:
   const gl*    = true
   const d3d11* = false
   const metal* = false
+  const emscripten* = false
 else:
   error("unsupported platform")
 
-when defined windows:
+when defined emscripten:
+  {.passl:"-lGL -ldl".}
+  {.passc:"-DSOKOL_GLES3".} 
+  {.passL: "-s USE_WEBGL2=1".}
+elif defined windows:
   when not defined vcc:
     {.passl:"-lkernel32 -luser32 -lshell32 -lgdi32".}
   when defined gl:
