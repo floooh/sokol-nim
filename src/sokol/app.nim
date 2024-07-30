@@ -665,7 +665,7 @@ proc androidGetNativeActivity*():pointer =
 
 when defined emscripten:
   {.passl:"-lGL -ldl".}
-  {.passc:"-DSOKOL_GLES3".} 
+  {.passc:"-DSOKOL_GLES3".}
   {.passL: "-s USE_WEBGL2=1".}
 elif defined windows:
   when not defined vcc:
