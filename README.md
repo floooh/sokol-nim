@@ -70,7 +70,7 @@ To use `sokol-nim` with `emscripten` we need the [toolchain installed](https://g
 a [shell-file](https://github.com/emscripten-core/emscripten/blob/main/src/shell_minimal.html) and the following `config.nims` file:
 (based on [this](https://github.com/treeform/nim_emscripten_tutorial?tab=readme-ov-file#step-1-using-nim-with-emscripten))
 
-```nim 
+```nim
 when defined(emscripten):
   # This path will only run if -d:emscripten is passed to nim.
 
@@ -105,5 +105,5 @@ when defined(emscripten):
 #  --opt:speed
 ```
 
-If you're using `sokol` as dependenciy in your proyect you can just do `nimble build -d:release -d:emscripten` and serve 
+If you're using `sokol` as dependency in your project you can just do `nimble build -d:release -d:emscripten` and serve
 your template file using any HTTP server.
