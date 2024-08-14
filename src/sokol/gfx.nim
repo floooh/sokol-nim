@@ -2032,7 +2032,7 @@ else:
 when defined emscripten:
   {.passl:"-lGL -ldl".}
   {.passc:"-DSOKOL_GLES3".}
-  {.passL: "-s USE_WEBGL2=1".}
+  {.passL: "-s MIN_WEBGL_VERSION=2 -s MAX_WEBGL_VERSION=2".}
 elif defined windows:
   when not defined vcc:
     {.passl:"-lkernel32 -luser32 -lshell32 -lgdi32".}
