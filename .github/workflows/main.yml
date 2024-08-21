@@ -10,15 +10,6 @@ jobs:
     runs-on: ${{matrix.os}}
     steps:
       - uses: actions/checkout@main
-      - if: runner.os != 'Windows'
-        name: cache nimble
-        id: cache-nimble
-        uses: actions/cache@main
-        with:
-          path: ~/.nimble
-          key: ${{ runner.os }}-nimble-${{ hashFiles('*.nimble') }}
-          restore-keys: |
-            ${{ runner.os }}-nimble-
       - uses: jiro4989/setup-nim-action@v2
         with:
           nim-version: 2.0.x
