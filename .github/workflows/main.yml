@@ -9,10 +9,11 @@ jobs:
         os: [ubuntu-latest, macos-latest]
     runs-on: ${{matrix.os}}
     steps:
-      - uses: actions/checkout@v3
-      - uses: iffy/install-nim@v5
+      - uses: actions/checkout@main
+      - uses: jiro4989/setup-nim-action@v2
         with:
-          version: devel
+          nim-version: 2.0.x
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
       - if: runner.os == 'Linux'
         name: prepare
         run: |
