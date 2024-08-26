@@ -22,15 +22,14 @@ type Pipeline* = object
 type Context* = object
   id*:uint32
 
-type
-  Error* {.size:sizeof(int32).} = enum
-    errorNoError = 0,
-    errorVerticesFull = 1,
-    errorUniformsFull = 2,
-    errorCommandsFull = 3,
-    errorStackOverflow = 4,
-    errorStackUnderflow = 5,
-    errorNoContext = 6,
+type Error* = object
+  any*:bool
+  verticesFull*:bool
+  uniformsFull*:bool
+  commandsFull*:bool
+  stackOverflow*:bool
+  stackUnderflow*:bool
+  noContext*:bool
 
 type ContextDesc* = object
   maxVertices*:int32
@@ -99,6 +98,14 @@ proc getContext*():Context =
 proc c_defaultContext():Context {.cdecl, importc:"sgl_default_context".}
 proc defaultContext*():Context =
     c_defaultContext()
+
+proc c_numVertices():int32 {.cdecl, importc:"sgl_num_vertices".}
+proc numVertices*():int32 =
+    c_numVertices()
+
+proc c_numCommands():int32 {.cdecl, importc:"sgl_num_commands".}
+proc numCommands*():int32 =
+    c_numCommands()
 
 proc c_draw():void {.cdecl, importc:"sgl_draw".}
 proc draw*():void =
