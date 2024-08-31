@@ -953,6 +953,7 @@ type FrameStatsWgpuBindings* = object
   numBindgroupCacheHits*:uint32
   numBindgroupCacheMisses*:uint32
   numBindgroupCacheCollisions*:uint32
+  numBindgroupCacheInvalidates*:uint32
   numBindgroupCacheHashVsKeyMismatch*:uint32
 
 type FrameStatsWgpu* = object
