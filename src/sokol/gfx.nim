@@ -1328,6 +1328,7 @@ type Desc* = object
   uniformBufferSize*:int32
   maxCommitListeners*:int32
   disableValidation*:bool
+  d3d11ShaderDebugging*:bool
   mtlForceManagedStorageMode*:bool
   mtlUseCommandBufferWithRetainedReferences*:bool
   wgpuDisableBindgroupsCache*:bool
