@@ -237,7 +237,6 @@ type
 type
   Filter* {.size:sizeof(int32).} = enum
     filterDefault,
-    filterNone,
     filterNearest,
     filterLinear,
 
@@ -1111,8 +1110,6 @@ type
     logitemValidateImagedescDynamicNoData,
     logitemValidateImagedescCompressedImmutable,
     logitemValidateSamplerdescCanary,
-    logitemValidateSamplerdescMinfilterNone,
-    logitemValidateSamplerdescMagfilterNone,
     logitemValidateSamplerdescAnistropicRequiresLinearFiltering,
     logitemValidateShaderdescCanary,
     logitemValidateShaderdescSource,
