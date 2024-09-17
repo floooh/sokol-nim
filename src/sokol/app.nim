@@ -288,6 +288,7 @@ type
     logitemLinuxX11OpenDisplayFailed,
     logitemLinuxX11QuerySystemDpiFailed,
     logitemLinuxX11DroppedFileUriWrongScheme,
+    logitemLinuxX11FailedToBecomeOwnerOfClipboard,
     logitemAndroidUnsupportedInputEventInputCb,
     logitemAndroidUnsupportedInputEventMainCb,
     logitemAndroidReadMsgFailed,
