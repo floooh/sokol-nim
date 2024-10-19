@@ -25,19 +25,18 @@ type Range* = object
 
 const
   invalidId* = 0
-  numShaderStages* = 2
   numInflightFrames* = 2
   maxColorAttachments* = 4
-  maxVertexBuffers* = 8
-  maxShaderstageImages* = 12
-  maxShaderstageSamplers* = 8
-  maxShaderstageImagesamplerpairs* = 12
-  maxShaderstageStoragebuffers* = 8
-  maxShaderstageUbs* = 4
-  maxUbMembers* = 16
+  maxUniformblockMembers* = 16
   maxVertexAttributes* = 16
   maxMipmaps* = 16
   maxTexturearrayLayers* = 128
+  maxUniformblockBindslots* = 8
+  maxVertexbufferBindslots* = 8
+  maxImageBindslots* = 16
+  maxSamplerBindslots* = 16
+  maxStoragebufferBindslots* = 8
+  maxImageSamplerPairs* = 16
 
 type Color* = object
   r*:float32
@@ -219,11 +218,6 @@ type
     cubeFaceNegY,
     cubeFacePosZ,
     cubeFaceNegZ,
-
-type
-  ShaderStage* {.size:sizeof(int32).} = enum
-    shaderStageVs,
-    shaderStageFs,
 
 type
   PrimitiveType* {.size:sizeof(int32).} = enum
@@ -458,31 +452,15 @@ type Pass* = object
   label*:cstring
   endCanary:uint32
 
-type StageBindings* = object
-  images*:array[12, Image]
-  samplers*:array[8, Sampler]
-  storageBuffers*:array[8, Buffer]
-
-converter toStageBindingsimages*[N:static[int]](items: array[N, Image]): array[12, Image] =
-  static: assert(N <= 12)
-  for index,item in items.pairs: result[index]=item
-
-converter toStageBindingssamplers*[N:static[int]](items: array[N, Sampler]): array[8, Sampler] =
-  static: assert(N <= 8)
-  for index,item in items.pairs: result[index]=item
-
-converter toStageBindingsstorageBuffers*[N:static[int]](items: array[N, Buffer]): array[8, Buffer] =
-  static: assert(N <= 8)
-  for index,item in items.pairs: result[index]=item
-
 type Bindings* = object
   startCanary:uint32
   vertexBuffers*:array[8, Buffer]
   vertexBufferOffsets*:array[8, int32]
   indexBuffer*:Buffer
   indexBufferOffset*:int32
-  vs*:StageBindings
-  fs*:StageBindings
+  images*:array[16, Image]
+  samplers*:array[16, Sampler]
+  storageBuffers*:array[8, Buffer]
   endCanary:uint32
 
 converter toBindingsvertexBuffers*[N:static[int]](items: array[N, Buffer]): array[8, Buffer] =
@@ -490,6 +468,18 @@ converter toBindingsvertexBuffers*[N:static[int]](items: array[N, Buffer]): arra
   for index,item in items.pairs: result[index]=item
 
 converter toBindingsvertexBufferOffsets*[N:static[int]](items: array[N, int32]): array[8, int32] =
+  static: assert(N <= 8)
+  for index,item in items.pairs: result[index]=item
+
+converter toBindingsimages*[N:static[int]](items: array[N, Image]): array[16, Image] =
+  static: assert(N <= 16)
+  for index,item in items.pairs: result[index]=item
+
+converter toBindingssamplers*[N:static[int]](items: array[N, Sampler]): array[16, Sampler] =
+  static: assert(N <= 16)
+  for index,item in items.pairs: result[index]=item
+
+converter toBindingsstorageBuffers*[N:static[int]](items: array[N, Buffer]): array[8, Buffer] =
   static: assert(N <= 8)
   for index,item in items.pairs: result[index]=item
 
@@ -574,85 +564,106 @@ type SamplerDesc* = object
   wgpuSampler*:pointer
   endCanary:uint32
 
-type ShaderAttrDesc* = object
-  name*:cstring
-  semName*:cstring
-  semIndex*:int32
+type
+  ShaderStage* {.size:sizeof(int32).} = enum
+    shaderStageNone,
+    shaderStageVertex,
+    shaderStageFragment,
 
-type ShaderUniformDesc* = object
-  name*:cstring
+type ShaderVertexAttr* = object
+  glslName*:cstring
+  hlslSemName*:cstring
+  hlslSemIndex*:uint8
+
+type GlslShaderUniform* = object
   `type`*:UniformType
-  arrayCount*:int32
+  offset*:uint32
+  arrayCount*:uint16
+  glslName*:cstring
 
-type ShaderUniformBlockDesc* = object
-  size*:int
+type ShaderUniformBlock* = object
+  stage*:ShaderStage
   layout*:UniformLayout
-  uniforms*:array[16, ShaderUniformDesc]
+  size*:uint32
+  hlslRegisterBN*:uint8
+  mslBufferN*:uint8
+  wgslGroup0BindingN*:uint8
+  glslUniforms*:array[16, GlslShaderUniform]
 
-converter toShaderUniformBlockDescuniforms*[N:static[int]](items: array[N, ShaderUniformDesc]): array[16, ShaderUniformDesc] =
+converter toShaderUniformBlockglslUniforms*[N:static[int]](items: array[N, GlslShaderUniform]): array[16, GlslShaderUniform] =
   static: assert(N <= 16)
   for index,item in items.pairs: result[index]=item
 
-type ShaderStorageBufferDesc* = object
-  used*:bool
-  readonly*:bool
-
-type ShaderImageDesc* = object
-  used*:bool
-  multisampled*:bool
+type ShaderImage* = object
+  stage*:ShaderStage
   imageType*:ImageType
   sampleType*:ImageSampleType
+  multisampled*:bool
+  hlslRegisterTN*:uint8
+  mslTextureN*:uint8
+  wgslGroup1BindingN*:uint8
 
-type ShaderSamplerDesc* = object
-  used*:bool
+type ShaderSampler* = object
+  stage*:ShaderStage
   samplerType*:SamplerType
+  hlslRegisterSN*:uint8
+  mslSamplerN*:uint8
+  wgslGroup1BindingN*:uint8
 
-type ShaderImageSamplerPairDesc* = object
-  used*:bool
-  imageSlot*:int32
-  samplerSlot*:int32
+type ShaderStorageBuffer* = object
+  stage*:ShaderStage
+  readonly*:bool
+  hlslRegisterTN*:uint8
+  mslBufferN*:uint8
+  wgslGroup1BindingN*:uint8
+  glslBindingN*:uint8
+
+type ShaderImageSamplerPair* = object
+  stage*:ShaderStage
+  imageSlot*:uint8
+  samplerSlot*:uint8
   glslName*:cstring
 
-type ShaderStageDesc* = object
+type ShaderFunction* = object
   source*:cstring
   bytecode*:Range
   entry*:cstring
   d3d11Target*:cstring
-  uniformBlocks*:array[4, ShaderUniformBlockDesc]
-  storageBuffers*:array[8, ShaderStorageBufferDesc]
-  images*:array[12, ShaderImageDesc]
-  samplers*:array[8, ShaderSamplerDesc]
-  imageSamplerPairs*:array[12, ShaderImageSamplerPairDesc]
-
-converter toShaderStageDescuniformBlocks*[N:static[int]](items: array[N, ShaderUniformBlockDesc]): array[4, ShaderUniformBlockDesc] =
-  static: assert(N <= 4)
-  for index,item in items.pairs: result[index]=item
-
-converter toShaderStageDescstorageBuffers*[N:static[int]](items: array[N, ShaderStorageBufferDesc]): array[8, ShaderStorageBufferDesc] =
-  static: assert(N <= 8)
-  for index,item in items.pairs: result[index]=item
-
-converter toShaderStageDescimages*[N:static[int]](items: array[N, ShaderImageDesc]): array[12, ShaderImageDesc] =
-  static: assert(N <= 12)
-  for index,item in items.pairs: result[index]=item
-
-converter toShaderStageDescsamplers*[N:static[int]](items: array[N, ShaderSamplerDesc]): array[8, ShaderSamplerDesc] =
-  static: assert(N <= 8)
-  for index,item in items.pairs: result[index]=item
-
-converter toShaderStageDescimageSamplerPairs*[N:static[int]](items: array[N, ShaderImageSamplerPairDesc]): array[12, ShaderImageSamplerPairDesc] =
-  static: assert(N <= 12)
-  for index,item in items.pairs: result[index]=item
 
 type ShaderDesc* = object
   startCanary:uint32
-  attrs*:array[16, ShaderAttrDesc]
-  vs*:ShaderStageDesc
-  fs*:ShaderStageDesc
+  vertexFunc*:ShaderFunction
+  fragmentFunc*:ShaderFunction
+  attrs*:array[16, ShaderVertexAttr]
+  uniformBlocks*:array[8, ShaderUniformBlock]
+  storageBuffers*:array[8, ShaderStorageBuffer]
+  images*:array[16, ShaderImage]
+  samplers*:array[16, ShaderSampler]
+  imageSamplerPairs*:array[16, ShaderImageSamplerPair]
   label*:cstring
   endCanary:uint32
 
-converter toShaderDescattrs*[N:static[int]](items: array[N, ShaderAttrDesc]): array[16, ShaderAttrDesc] =
+converter toShaderDescattrs*[N:static[int]](items: array[N, ShaderVertexAttr]): array[16, ShaderVertexAttr] =
+  static: assert(N <= 16)
+  for index,item in items.pairs: result[index]=item
+
+converter toShaderDescuniformBlocks*[N:static[int]](items: array[N, ShaderUniformBlock]): array[8, ShaderUniformBlock] =
+  static: assert(N <= 8)
+  for index,item in items.pairs: result[index]=item
+
+converter toShaderDescstorageBuffers*[N:static[int]](items: array[N, ShaderStorageBuffer]): array[8, ShaderStorageBuffer] =
+  static: assert(N <= 8)
+  for index,item in items.pairs: result[index]=item
+
+converter toShaderDescimages*[N:static[int]](items: array[N, ShaderImage]): array[16, ShaderImage] =
+  static: assert(N <= 16)
+  for index,item in items.pairs: result[index]=item
+
+converter toShaderDescsamplers*[N:static[int]](items: array[N, ShaderSampler]): array[16, ShaderSampler] =
+  static: assert(N <= 16)
+  for index,item in items.pairs: result[index]=item
+
+converter toShaderDescimageSamplerPairs*[N:static[int]](items: array[N, ShaderImageSamplerPair]): array[16, ShaderImageSamplerPair] =
   static: assert(N <= 16)
   for index,item in items.pairs: result[index]=item
 
@@ -780,7 +791,7 @@ type TraceHooks* = object
   applyScissorRect*:proc(a1:int32, a2:int32, a3:int32, a4:int32, a5:bool, a6:pointer) {.cdecl.}
   applyPipeline*:proc(a1:Pipeline, a2:pointer) {.cdecl.}
   applyBindings*:proc(a1:ptr Bindings, a2:pointer) {.cdecl.}
-  applyUniforms*:proc(a1:ShaderStage, a2:int32, a3:ptr Range, a4:pointer) {.cdecl.}
+  applyUniforms*:proc(a1:int32, a2:ptr Range, a3:pointer) {.cdecl.}
   draw*:proc(a1:int32, a2:int32, a3:int32, a4:pointer) {.cdecl.}
   endPass*:proc(a1:pointer) {.cdecl.}
   commit*:proc(a1:pointer) {.cdecl.}
@@ -990,7 +1001,7 @@ type
     logitemGlShaderCompilationFailed,
     logitemGlShaderLinkingFailed,
     logitemGlVertexAttributeNotFoundInShader,
-    logitemGlTextureNameNotFoundInShader,
+    logitemGlImageSamplerNameNotFoundInShader,
     logitemGlFramebufferStatusUndefined,
     logitemGlFramebufferStatusIncompleteAttachment,
     logitemGlFramebufferStatusIncompleteMissingAttachment,
@@ -1029,8 +1040,7 @@ type
     logitemMetalShaderCompilationFailed,
     logitemMetalShaderCreationFailed,
     logitemMetalShaderCompilationOutput,
-    logitemMetalVertexShaderEntryNotFound,
-    logitemMetalFragmentShaderEntryNotFound,
+    logitemMetalShaderEntryNotFound,
     logitemMetalCreateRpsFailed,
     logitemMetalCreateRpsOutput,
     logitemMetalCreateDssFailed,
@@ -1043,9 +1053,6 @@ type
     logitemWgpuCreateTextureViewFailed,
     logitemWgpuCreateSamplerFailed,
     logitemWgpuCreateShaderModuleFailed,
-    logitemWgpuShaderTooManyImages,
-    logitemWgpuShaderTooManySamplers,
-    logitemWgpuShaderTooManyStoragebuffers,
     logitemWgpuShaderCreateBindgroupLayoutFailed,
     logitemWgpuCreatePipelineLayoutFailed,
     logitemWgpuCreateRenderPipelineFailed,
@@ -1116,28 +1123,49 @@ type
     logitemValidateShaderdescBytecode,
     logitemValidateShaderdescSourceOrBytecode,
     logitemValidateShaderdescNoBytecodeSize,
-    logitemValidateShaderdescNoContUbs,
     logitemValidateShaderdescNoContUbMembers,
+    logitemValidateShaderdescUbSizeIsZero,
+    logitemValidateShaderdescUbMetalBufferSlotOutOfRange,
+    logitemValidateShaderdescUbMetalBufferSlotCollision,
+    logitemValidateShaderdescUbHlslRegisterBOutOfRange,
+    logitemValidateShaderdescUbHlslRegisterBCollision,
+    logitemValidateShaderdescUbWgslGroup0BindingOutOfRange,
+    logitemValidateShaderdescUbWgslGroup0BindingCollision,
     logitemValidateShaderdescNoUbMembers,
-    logitemValidateShaderdescUbMemberName,
+    logitemValidateShaderdescUbUniformGlslName,
     logitemValidateShaderdescUbSizeMismatch,
     logitemValidateShaderdescUbArrayCount,
     logitemValidateShaderdescUbStd140ArrayType,
-    logitemValidateShaderdescNoContStoragebuffers,
+    logitemValidateShaderdescStoragebufferMetalBufferSlotOutOfRange,
+    logitemValidateShaderdescStoragebufferMetalBufferSlotCollision,
+    logitemValidateShaderdescStoragebufferHlslRegisterTOutOfRange,
+    logitemValidateShaderdescStoragebufferHlslRegisterTCollision,
+    logitemValidateShaderdescStoragebufferGlslBindingOutOfRange,
+    logitemValidateShaderdescStoragebufferGlslBindingCollision,
+    logitemValidateShaderdescStoragebufferWgslGroup1BindingOutOfRange,
+    logitemValidateShaderdescStoragebufferWgslGroup1BindingCollision,
     logitemValidateShaderdescStoragebufferReadonly,
-    logitemValidateShaderdescNoContImages,
-    logitemValidateShaderdescNoContSamplers,
+    logitemValidateShaderdescImageMetalTextureSlotOutOfRange,
+    logitemValidateShaderdescImageMetalTextureSlotCollision,
+    logitemValidateShaderdescImageHlslRegisterTOutOfRange,
+    logitemValidateShaderdescImageHlslRegisterTCollision,
+    logitemValidateShaderdescImageWgslGroup1BindingOutOfRange,
+    logitemValidateShaderdescImageWgslGroup1BindingCollision,
+    logitemValidateShaderdescSamplerMetalSamplerSlotOutOfRange,
+    logitemValidateShaderdescSamplerMetalSamplerSlotCollision,
+    logitemValidateShaderdescSamplerHlslRegisterSOutOfRange,
+    logitemValidateShaderdescSamplerHlslRegisterSCollision,
+    logitemValidateShaderdescSamplerWgslGroup1BindingOutOfRange,
+    logitemValidateShaderdescSamplerWgslGroup1BindingCollision,
     logitemValidateShaderdescImageSamplerPairImageSlotOutOfRange,
     logitemValidateShaderdescImageSamplerPairSamplerSlotOutOfRange,
-    logitemValidateShaderdescImageSamplerPairNameRequiredForGl,
-    logitemValidateShaderdescImageSamplerPairHasNameButNotUsed,
-    logitemValidateShaderdescImageSamplerPairHasImageButNotUsed,
-    logitemValidateShaderdescImageSamplerPairHasSamplerButNotUsed,
+    logitemValidateShaderdescImageSamplerPairImageStageMismatch,
+    logitemValidateShaderdescImageSamplerPairSamplerStageMismatch,
+    logitemValidateShaderdescImageSamplerPairGlslName,
     logitemValidateShaderdescNonfilteringSamplerRequired,
     logitemValidateShaderdescComparisonSamplerRequired,
     logitemValidateShaderdescImageNotReferencedByImageSamplerPairs,
     logitemValidateShaderdescSamplerNotReferencedByImageSamplerPairs,
-    logitemValidateShaderdescNoContImageSamplerPairs,
     logitemValidateShaderdescAttrStringTooLong,
     logitemValidatePipelinedescCanary,
     logitemValidatePipelinedescShader,
@@ -1232,40 +1260,23 @@ type
     logitemValidateAbndIbExists,
     logitemValidateAbndIbType,
     logitemValidateAbndIbOverflow,
-    logitemValidateAbndVsExpectedImageBinding,
-    logitemValidateAbndVsImgExists,
-    logitemValidateAbndVsImageTypeMismatch,
-    logitemValidateAbndVsImageMsaa,
-    logitemValidateAbndVsExpectedFilterableImage,
-    logitemValidateAbndVsExpectedDepthImage,
-    logitemValidateAbndVsUnexpectedImageBinding,
-    logitemValidateAbndVsExpectedSamplerBinding,
-    logitemValidateAbndVsUnexpectedSamplerCompareNever,
-    logitemValidateAbndVsExpectedSamplerCompareNever,
-    logitemValidateAbndVsExpectedNonfilteringSampler,
-    logitemValidateAbndVsUnexpectedSamplerBinding,
-    logitemValidateAbndVsSmpExists,
-    logitemValidateAbndVsExpectedStoragebufferBinding,
-    logitemValidateAbndVsStoragebufferExists,
-    logitemValidateAbndVsStoragebufferBindingBuffertype,
-    logitemValidateAbndVsUnexpectedStoragebufferBinding,
-    logitemValidateAbndFsExpectedImageBinding,
-    logitemValidateAbndFsImgExists,
-    logitemValidateAbndFsImageTypeMismatch,
-    logitemValidateAbndFsImageMsaa,
-    logitemValidateAbndFsExpectedFilterableImage,
-    logitemValidateAbndFsExpectedDepthImage,
-    logitemValidateAbndFsUnexpectedImageBinding,
-    logitemValidateAbndFsExpectedSamplerBinding,
-    logitemValidateAbndFsUnexpectedSamplerCompareNever,
-    logitemValidateAbndFsExpectedSamplerCompareNever,
-    logitemValidateAbndFsExpectedNonfilteringSampler,
-    logitemValidateAbndFsUnexpectedSamplerBinding,
-    logitemValidateAbndFsSmpExists,
-    logitemValidateAbndFsExpectedStoragebufferBinding,
-    logitemValidateAbndFsStoragebufferExists,
-    logitemValidateAbndFsStoragebufferBindingBuffertype,
-    logitemValidateAbndFsUnexpectedStoragebufferBinding,
+    logitemValidateAbndExpectedImageBinding,
+    logitemValidateAbndImgExists,
+    logitemValidateAbndImageTypeMismatch,
+    logitemValidateAbndImageMsaa,
+    logitemValidateAbndExpectedFilterableImage,
+    logitemValidateAbndExpectedDepthImage,
+    logitemValidateAbndUnexpectedImageBinding,
+    logitemValidateAbndExpectedSamplerBinding,
+    logitemValidateAbndUnexpectedSamplerCompareNever,
+    logitemValidateAbndExpectedSamplerCompareNever,
+    logitemValidateAbndExpectedNonfilteringSampler,
+    logitemValidateAbndUnexpectedSamplerBinding,
+    logitemValidateAbndSmpExists,
+    logitemValidateAbndExpectedStoragebufferBinding,
+    logitemValidateAbndStoragebufferExists,
+    logitemValidateAbndStoragebufferBindingBuffertype,
+    logitemValidateAbndUnexpectedStoragebufferBinding,
     logitemValidateAubNoPipeline,
     logitemValidateAubNoUbAtSlot,
     logitemValidateAubSize,
@@ -1467,9 +1478,9 @@ proc c_applyBindings(bindings:ptr Bindings):void {.cdecl, importc:"sg_apply_bind
 proc applyBindings*(bindings:Bindings):void =
     c_applyBindings(addr(bindings))
 
-proc c_applyUniforms(stage:ShaderStage, ubIndex:int32, data:ptr Range):void {.cdecl, importc:"sg_apply_uniforms".}
-proc applyUniforms*(stage:ShaderStage, ubIndex:int32, data:Range):void =
-    c_applyUniforms(stage, ub_index, addr(data))
+proc c_applyUniforms(ubSlot:int32, data:ptr Range):void {.cdecl, importc:"sg_apply_uniforms".}
+proc applyUniforms*(ubSlot:int32, data:Range):void =
+    c_applyUniforms(ub_slot, addr(data))
 
 proc c_draw(baseElement:int32, numElements:int32, numInstances:int32):void {.cdecl, importc:"sg_draw".}
 proc draw*(baseElement:int32, numElements:int32, numInstances:int32):void =
@@ -1756,17 +1767,12 @@ type D3d11SamplerInfo* = object
   smp*:pointer
 
 type D3d11ShaderInfo* = object
-  vsCbufs*:array[4, pointer]
-  fsCbufs*:array[4, pointer]
+  cbufs*:array[8, pointer]
   vs*:pointer
   fs*:pointer
 
-converter toD3d11ShaderInfovsCbufs*[N:static[int]](items: array[N, pointer]): array[4, pointer] =
-  static: assert(N <= 4)
-  for index,item in items.pairs: result[index]=item
-
-converter toD3d11ShaderInfofsCbufs*[N:static[int]](items: array[N, pointer]): array[4, pointer] =
-  static: assert(N <= 4)
+converter toD3d11ShaderInfocbufs*[N:static[int]](items: array[N, pointer]): array[8, pointer] =
+  static: assert(N <= 8)
   for index,item in items.pairs: result[index]=item
 
 type D3d11PipelineInfo* = object
@@ -1808,10 +1814,10 @@ type MtlSamplerInfo* = object
   smp*:pointer
 
 type MtlShaderInfo* = object
-  vsLib*:pointer
-  fsLib*:pointer
-  vsFunc*:pointer
-  fsFunc*:pointer
+  vertexLib*:pointer
+  fragmentLib*:pointer
+  vertexFunc*:pointer
+  fragmentFunc*:pointer
 
 type MtlPipelineInfo* = object
   rps*:pointer

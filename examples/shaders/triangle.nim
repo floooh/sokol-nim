@@ -11,14 +11,15 @@ import sokol/gfx as sg
 #    =========
 #    Shader program: 'triangle':
 #        Get shader desc: triangleShaderDesc(sg.queryBackend())
-#        Vertex shader: vs
-#            Attributes:
-#                attrVsPosition => 0
-#                attrVsColor0 => 1
-#        Fragment shader: fs
+#        Vertex Shader: vs
+#        Fragment Shader: fs
+#        Attributes:
+#            attrTrianglePosition => 0
+#            attrTriangleColor0 => 1
+#    Bindings:
 #
-const attrVsPosition* = 0
-const attrVsColor0* = 1
+const attrTrianglePosition* = 0
+const attrTriangleColor0* = 1
 #
 #    #version 430
 #
@@ -368,33 +369,33 @@ proc triangleShaderDesc*(backend: sg.Backend): sg.ShaderDesc =
     result.label = "triangle_shader"
     case backend:
         of backendGlcore:
-            result.attrs[0].name = "position"
-            result.attrs[1].name = "color0"
-            result.vs.source = cast[cstring](addr(vsSourceGlsl430))
-            result.vs.entry = "main"
-            result.fs.source = cast[cstring](addr(fsSourceGlsl430))
-            result.fs.entry = "main"
+            result.vertexFunc.source = cast[cstring](addr(vsSourceGlsl430))
+            result.vertexFunc.entry = "main"
+            result.fragmentFunc.source = cast[cstring](addr(fsSourceGlsl430))
+            result.fragmentFunc.entry = "main"
+            result.attrs[0].glslName = "position"
+            result.attrs[1].glslName = "color0"
         of backendGles3:
-            result.attrs[0].name = "position"
-            result.attrs[1].name = "color0"
-            result.vs.source = cast[cstring](addr(vsSourceGlsl300es))
-            result.vs.entry = "main"
-            result.fs.source = cast[cstring](addr(fsSourceGlsl300es))
-            result.fs.entry = "main"
+            result.vertexFunc.source = cast[cstring](addr(vsSourceGlsl300es))
+            result.vertexFunc.entry = "main"
+            result.fragmentFunc.source = cast[cstring](addr(fsSourceGlsl300es))
+            result.fragmentFunc.entry = "main"
+            result.attrs[0].glslName = "position"
+            result.attrs[1].glslName = "color0"
         of backendD3d11:
-            result.attrs[0].semName = "TEXCOORD"
-            result.attrs[0].semIndex = 0
-            result.attrs[1].semName = "TEXCOORD"
-            result.attrs[1].semIndex = 1
-            result.vs.source = cast[cstring](addr(vsSourceHlsl5))
-            result.vs.d3d11Target = "vs_5_0"
-            result.vs.entry = "main"
-            result.fs.source = cast[cstring](addr(fsSourceHlsl5))
-            result.fs.d3d11Target = "ps_5_0"
-            result.fs.entry = "main"
+            result.vertexFunc.source = cast[cstring](addr(vsSourceHlsl5))
+            result.vertexFunc.d3d11Target = "vs_5_0"
+            result.vertexFunc.entry = "main"
+            result.fragmentFunc.source = cast[cstring](addr(fsSourceHlsl5))
+            result.fragmentFunc.d3d11Target = "ps_5_0"
+            result.fragmentFunc.entry = "main"
+            result.attrs[0].hlslSemName = "TEXCOORD"
+            result.attrs[0].hlslSemIndex = 0
+            result.attrs[1].hlslSemName = "TEXCOORD"
+            result.attrs[1].hlslSemIndex = 1
         of backendMetalMacos:
-            result.vs.source = cast[cstring](addr(vsSourceMetalMacos))
-            result.vs.entry = "main0"
-            result.fs.source = cast[cstring](addr(fsSourceMetalMacos))
-            result.fs.entry = "main0"
+            result.vertexFunc.source = cast[cstring](addr(vsSourceMetalMacos))
+            result.vertexFunc.entry = "main0"
+            result.fragmentFunc.source = cast[cstring](addr(fsSourceMetalMacos))
+            result.fragmentFunc.entry = "main0"
         else: discard

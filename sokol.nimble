@@ -1,5 +1,5 @@
 # Package
-version       = "0.5.1"
+version       = "0.6.0"
 author        = "Andre Weissflog, Garett Bass, Gustav Olsson"
 description   = "Nim bindings for the sokol C headers"
 license       = "MIT"

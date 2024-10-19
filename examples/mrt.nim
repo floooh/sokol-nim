@@ -61,7 +61,7 @@ proc createOffscreenAttachments(width: int32, height: int32) =
 
   # also need to update the fullscreen-quad texture bindings
   for i in 0..<3:
-    fsqBindings.fs.images[i] = offscreenAttachmentsDesc.colors[i].image
+    fsqBindings.images[i] = offscreenAttachmentsDesc.colors[i].image
 
 # listen for window-resize events and recreate offscreen rendertargets
 proc event(ev: ptr Event) {.cdecl.} =
@@ -183,16 +183,14 @@ proc init() {.cdecl.} =
 
   fsqBindings = Bindings(
     vertexBuffers: [ quadVbuf ],
-    fs: StageBindings(
-      images: [
-        offscreenAttachmentsDesc.colors[0].image,
-        offscreenAttachmentsDesc.colors[1].image,
-        offscreenAttachmentsDesc.colors[2].image
-      ],
-      samplers: [
-        smp,
-      ]
-    )
+    images: [
+      offscreenAttachmentsDesc.colors[0].image,
+      offscreenAttachmentsDesc.colors[1].image,
+      offscreenAttachmentsDesc.colors[2].image
+    ],
+    samplers: [
+      smp,
+    ]
   )
 
   # shader, pipeline and bindings to render debug-visualization quads
@@ -206,7 +204,7 @@ proc init() {.cdecl.} =
     primitiveType: primitiveTypeTriangleStrip,
   ))
   dbgBindings.vertexBuffers[0] = quadVbuf
-  dbgBindings.fs.samplers[0] = smp
+  dbgBindings.samplers[0] = smp
 
 proc frame() {.cdecl.} =
   let t = sapp.frameDuration().float32 * 60
@@ -229,7 +227,7 @@ proc frame() {.cdecl.} =
   sg.beginPass(Pass(action: offscreenPassAction, attachments: offscreenAttachments))
   sg.applyPipeline(offscreenPip)
   sg.applyBindings(offscreenBindings)
-  sg.applyUniforms(shaderStageVs, shd.slotOffscreenParams, sg.Range(addr: offscreenParams.addr, size: offscreenParams.sizeof))
+  sg.applyUniforms(shd.ubOffscreenParams, sg.Range(addr: offscreenParams.addr, size: offscreenParams.sizeof))
   sg.draw(0, 36, 1)
   sg.endPass()
 
@@ -237,12 +235,12 @@ proc frame() {.cdecl.} =
   sg.beginPass(Pass(action: defaultPassAction, swapchain: sglue.swapchain()))
   sg.applyPipeline(fsqPip)
   sg.applyBindings(fsqBindings)
-  sg.applyUniforms(shaderStageVs, shd.slotFsqParams, sg.Range(addr: fsqParams.addr, size: fsqParams.sizeof))
+  sg.applyUniforms(shd.ubFsqParams, sg.Range(addr: fsqParams.addr, size: fsqParams.sizeof))
   sg.draw(0, 4, 1)
   sg.applyPipeline(dbgPip)
   for i in 0..<3:
     sg.applyViewport(i.int32*100, 0, 100, 100, false)
-    dbgBindings.fs.images[0] = offscreenAttachmentsDesc.colors[i].image
+    dbgBindings.images[0] = offscreenAttachmentsDesc.colors[i].image
     sg.applyBindings(dbgBindings)
     sg.draw(0, 4, 1)
   sg.endPass()

@@ -3,7 +3,7 @@
 
 // shared code for all shaders
 @block uniforms
-uniform vs_params {
+layout(binding=0) uniform vs_params {
     mat4 mvp;
 };
 @end
@@ -51,8 +51,8 @@ void main() {
 @end
 
 @fs fs_default
-uniform texture2D tex;
-uniform sampler smp;
+layout(binding=0) uniform texture2D tex;
+layout(binding=0) uniform sampler smp;
 
 in vec4 nrm;
 in vec2 uv;

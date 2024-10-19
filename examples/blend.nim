@@ -87,7 +87,7 @@ proc frame() {.cdecl.} =
   tick += 1.0 * time
   sg.applyPipeline(bgPip)
   sg.applyBindings(bindings)
-  sg.applyUniforms(shaderStageFs, shd.slotBgFsParams, sg.Range(addr: bgFsParams.addr, size: bgFsParams.sizeof))
+  sg.applyUniforms(shd.ubBgFsParams, sg.Range(addr: bgFsParams.addr, size: bgFsParams.sizeof))
   sg.draw(0, 4, 1)
 
   # draw the blended quads
@@ -109,7 +109,7 @@ proc frame() {.cdecl.} =
       let quadVsParams = QuadVsParams(mvp: viewProj * model)
       sg.applyPipeline(pip[src][dst])
       sg.applyBindings(bindings)
-      sg.applyUniforms(shaderStageVs, shd.slotQuadVsParams, sg.Range(addr: quadVsParams.addr, size: quadVsParams.sizeof))
+      sg.applyUniforms(shd.ubQuadVsParams, sg.Range(addr: quadVsParams.addr, size: quadVsParams.sizeof))
       sg.draw(0, 4, 1)
       r0 += 0.6
   sg.endPass()

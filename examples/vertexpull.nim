@@ -67,7 +67,7 @@ proc init() {.cdecl.} =
     shd.SbVertex(pos: [ 1.0,  1.0,  1.0],  color: [1.0, 0.0, 0.5, 1.0]),
     shd.SbVertex(pos: [ 1.0,  1.0, -1.0],  color: [1.0, 0.0, 0.5, 1.0]),
   ]
-  bindings.vs.storageBuffers[shd.slotSsbo] = sg.makeBuffer(BufferDesc(
+  bindings.storageBuffers[shd.sbufSsbo] = sg.makeBuffer(BufferDesc(
     type: sg.bufferTypeStoragebuffer,
     data: sg.Range(addr: vertices.addr, size: vertices.sizeof)
   ))
@@ -116,7 +116,7 @@ proc frame() {.cdecl.} =
   if sg.queryFeatures().storageBuffer:
     sg.applyPipeline(pip)
     sg.applyBindings(bindings)
-    sg.applyUniforms(shaderStageVs, shd.slotVsParams, sg.Range(addr: vsParams.addr, size: vsParams.sizeof))
+    sg.applyUniforms(shd.ubVsParams, sg.Range(addr: vsParams.addr, size: vsParams.sizeof))
     sg.draw(0, 36, 1)
   sg.endPass()
   sg.commit()

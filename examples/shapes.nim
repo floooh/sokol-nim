@@ -120,7 +120,7 @@ proc frame() {.cdecl.} =
     let model = translate(shapes[i].pos) * rm
     # model-view-proj matrix
     vsParams.mvp = viewProj * model
-    sg.applyUniforms(shaderStageVs, shd.slotVsParams, sg.Range(addr: vsParams.addr, size: vsParams.sizeof))
+    sg.applyUniforms(shd.ubVsParams, sg.Range(addr: vsParams.addr, size: vsParams.sizeof))
     sg.draw(shapes[i].draw.baseElement, shapes[i].draw.numElements, 1)
   sdtx.draw()
   sg.endPass()
