@@ -570,6 +570,12 @@ type
     shaderStageVertex,
     shaderStageFragment,
 
+type ShaderFunction* = object
+  source*:cstring
+  bytecode*:Range
+  entry*:cstring
+  d3d11Target*:cstring
+
 type ShaderVertexAttr* = object
   glslName*:cstring
   hlslSemName*:cstring
@@ -577,17 +583,16 @@ type ShaderVertexAttr* = object
 
 type GlslShaderUniform* = object
   `type`*:UniformType
-  offset*:uint32
   arrayCount*:uint16
   glslName*:cstring
 
 type ShaderUniformBlock* = object
   stage*:ShaderStage
-  layout*:UniformLayout
   size*:uint32
   hlslRegisterBN*:uint8
   mslBufferN*:uint8
   wgslGroup0BindingN*:uint8
+  layout*:UniformLayout
   glslUniforms*:array[16, GlslShaderUniform]
 
 converter toShaderUniformBlockglslUniforms*[N:static[int]](items: array[N, GlslShaderUniform]): array[16, GlslShaderUniform] =
@@ -623,12 +628,6 @@ type ShaderImageSamplerPair* = object
   imageSlot*:uint8
   samplerSlot*:uint8
   glslName*:cstring
-
-type ShaderFunction* = object
-  source*:cstring
-  bytecode*:Range
-  entry*:cstring
-  d3d11Target*:cstring
 
 type ShaderDesc* = object
   startCanary:uint32
@@ -1057,6 +1056,7 @@ type
     logitemWgpuCreatePipelineLayoutFailed,
     logitemWgpuCreateRenderPipelineFailed,
     logitemWgpuAttachmentsCreateTextureViewFailed,
+    logitemDrawRequiredBindingsOrUniformsMissing,
     logitemIdenticalCommitListener,
     logitemCommitListenerArrayFull,
     logitemTraceHooksNotEnabled,
@@ -1251,7 +1251,7 @@ type
     logitemValidateAbndPipeline,
     logitemValidateAbndPipelineExists,
     logitemValidateAbndPipelineValid,
-    logitemValidateAbndVbs,
+    logitemValidateAbndExpectedVb,
     logitemValidateAbndVbExists,
     logitemValidateAbndVbType,
     logitemValidateAbndVbOverflow,
@@ -1266,17 +1266,14 @@ type
     logitemValidateAbndImageMsaa,
     logitemValidateAbndExpectedFilterableImage,
     logitemValidateAbndExpectedDepthImage,
-    logitemValidateAbndUnexpectedImageBinding,
     logitemValidateAbndExpectedSamplerBinding,
     logitemValidateAbndUnexpectedSamplerCompareNever,
     logitemValidateAbndExpectedSamplerCompareNever,
     logitemValidateAbndExpectedNonfilteringSampler,
-    logitemValidateAbndUnexpectedSamplerBinding,
     logitemValidateAbndSmpExists,
     logitemValidateAbndExpectedStoragebufferBinding,
     logitemValidateAbndStoragebufferExists,
     logitemValidateAbndStoragebufferBindingBuffertype,
-    logitemValidateAbndUnexpectedStoragebufferBinding,
     logitemValidateAubNoPipeline,
     logitemValidateAubNoUbAtSlot,
     logitemValidateAubSize,
