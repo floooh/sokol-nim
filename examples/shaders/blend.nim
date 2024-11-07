@@ -12,29 +12,30 @@ import ../math/mat4
 #    =========
 #    Shader program: 'bg':
 #        Get shader desc: bgShaderDesc(sg.queryBackend())
-#        Vertex shader: vs_bg
-#            Attributes:
-#                attrVsBgPosition => 0
-#        Fragment shader: fs_bg
-#            Uniform block 'bg_fs_params':
-#                Nim struct: BgFsParams
-#                Bind slot: slotBgFsParams => 0
+#        Vertex Shader: vs_bg
+#        Fragment Shader: fs_bg
+#        Attributes:
+#            attrBgPosition => 0
 #    Shader program: 'quad':
 #        Get shader desc: quadShaderDesc(sg.queryBackend())
-#        Vertex shader: vs_quad
-#            Attributes:
-#                attrVsQuadPosition => 0
-#                attrVsQuadColor0 => 1
-#            Uniform block 'quad_vs_params':
-#                Nim struct: QuadVsParams
-#                Bind slot: slotQuadVsParams => 0
-#        Fragment shader: fs_quad
+#        Vertex Shader: vs_quad
+#        Fragment Shader: fs_quad
+#        Attributes:
+#            attrQuadPosition => 0
+#            attrQuadColor0 => 1
+#    Bindings:
+#        Uniform block 'bg_fs_params':
+#            Nim struct: BgFsParams
+#            Bind slot: ubBgFsParams => 0
+#        Uniform block 'quad_vs_params':
+#            Nim struct: QuadVsParams
+#            Bind slot: ubQuadVsParams => 0
 #
-const attrVsBgPosition* = 0
-const attrVsQuadPosition* = 0
-const attrVsQuadColor0* = 1
-const slotBgFsParams* = 0
-const slotQuadVsParams* = 0
+const attrBgPosition* = 0
+const attrQuadPosition* = 0
+const attrQuadColor0* = 1
+const ubBgFsParams* = 0
+const ubQuadVsParams* = 0
 type BgFsParams* {.packed.} = object
     tick* {.align(16).}: float32
     pad_4: array[12, uint8]
@@ -801,91 +802,103 @@ proc bgShaderDesc*(backend: sg.Backend): sg.ShaderDesc =
     result.label = "bg_shader"
     case backend:
         of backendGlcore:
-            result.attrs[0].name = "position"
-            result.vs.source = cast[cstring](addr(vsBgSourceGlsl430))
-            result.vs.entry = "main"
-            result.fs.source = cast[cstring](addr(fsBgSourceGlsl430))
-            result.fs.entry = "main"
-            result.fs.uniformBlocks[0].size = 16
-            result.fs.uniformBlocks[0].layout = uniformLayoutStd140
-            result.fs.uniformBlocks[0].uniforms[0].name = "bg_fs_params"
-            result.fs.uniformBlocks[0].uniforms[0].type = uniformTypeFloat4
-            result.fs.uniformBlocks[0].uniforms[0].arrayCount = 1
+            result.vertexFunc.source = cast[cstring](addr(vsBgSourceGlsl430))
+            result.vertexFunc.entry = "main"
+            result.fragmentFunc.source = cast[cstring](addr(fsBgSourceGlsl430))
+            result.fragmentFunc.entry = "main"
+            result.attrs[0].glslName = "position"
+            result.uniformBlocks[0].stage = shaderStageFragment
+            result.uniformBlocks[0].layout = uniformLayoutStd140
+            result.uniformBlocks[0].size = 16
+            result.uniformBlocks[0].glslUniforms[0].type = uniformTypeFloat4
+            result.uniformBlocks[0].glslUniforms[0].arrayCount = 1
+            result.uniformBlocks[0].glslUniforms[0].glslName = "bg_fs_params"
         of backendGles3:
-            result.attrs[0].name = "position"
-            result.vs.source = cast[cstring](addr(vsBgSourceGlsl300es))
-            result.vs.entry = "main"
-            result.fs.source = cast[cstring](addr(fsBgSourceGlsl300es))
-            result.fs.entry = "main"
-            result.fs.uniformBlocks[0].size = 16
-            result.fs.uniformBlocks[0].layout = uniformLayoutStd140
-            result.fs.uniformBlocks[0].uniforms[0].name = "bg_fs_params"
-            result.fs.uniformBlocks[0].uniforms[0].type = uniformTypeFloat4
-            result.fs.uniformBlocks[0].uniforms[0].arrayCount = 1
+            result.vertexFunc.source = cast[cstring](addr(vsBgSourceGlsl300es))
+            result.vertexFunc.entry = "main"
+            result.fragmentFunc.source = cast[cstring](addr(fsBgSourceGlsl300es))
+            result.fragmentFunc.entry = "main"
+            result.attrs[0].glslName = "position"
+            result.uniformBlocks[0].stage = shaderStageFragment
+            result.uniformBlocks[0].layout = uniformLayoutStd140
+            result.uniformBlocks[0].size = 16
+            result.uniformBlocks[0].glslUniforms[0].type = uniformTypeFloat4
+            result.uniformBlocks[0].glslUniforms[0].arrayCount = 1
+            result.uniformBlocks[0].glslUniforms[0].glslName = "bg_fs_params"
         of backendD3d11:
-            result.attrs[0].semName = "TEXCOORD"
-            result.attrs[0].semIndex = 0
-            result.vs.source = cast[cstring](addr(vsBgSourceHlsl5))
-            result.vs.d3d11Target = "vs_5_0"
-            result.vs.entry = "main"
-            result.fs.source = cast[cstring](addr(fsBgSourceHlsl5))
-            result.fs.d3d11Target = "ps_5_0"
-            result.fs.entry = "main"
-            result.fs.uniformBlocks[0].size = 16
-            result.fs.uniformBlocks[0].layout = uniformLayoutStd140
+            result.vertexFunc.source = cast[cstring](addr(vsBgSourceHlsl5))
+            result.vertexFunc.d3d11Target = "vs_5_0"
+            result.vertexFunc.entry = "main"
+            result.fragmentFunc.source = cast[cstring](addr(fsBgSourceHlsl5))
+            result.fragmentFunc.d3d11Target = "ps_5_0"
+            result.fragmentFunc.entry = "main"
+            result.attrs[0].hlslSemName = "TEXCOORD"
+            result.attrs[0].hlslSemIndex = 0
+            result.uniformBlocks[0].stage = shaderStageFragment
+            result.uniformBlocks[0].layout = uniformLayoutStd140
+            result.uniformBlocks[0].size = 16
+            result.uniformBlocks[0].hlslRegisterBN = 0
         of backendMetalMacos:
-            result.vs.source = cast[cstring](addr(vsBgSourceMetalMacos))
-            result.vs.entry = "main0"
-            result.fs.source = cast[cstring](addr(fsBgSourceMetalMacos))
-            result.fs.entry = "main0"
-            result.fs.uniformBlocks[0].size = 16
-            result.fs.uniformBlocks[0].layout = uniformLayoutStd140
+            result.vertexFunc.source = cast[cstring](addr(vsBgSourceMetalMacos))
+            result.vertexFunc.entry = "main0"
+            result.fragmentFunc.source = cast[cstring](addr(fsBgSourceMetalMacos))
+            result.fragmentFunc.entry = "main0"
+            result.uniformBlocks[0].stage = shaderStageFragment
+            result.uniformBlocks[0].layout = uniformLayoutStd140
+            result.uniformBlocks[0].size = 16
+            result.uniformBlocks[0].mslBufferN = 0
         else: discard
 proc quadShaderDesc*(backend: sg.Backend): sg.ShaderDesc =
     result.label = "quad_shader"
     case backend:
         of backendGlcore:
-            result.attrs[0].name = "position"
-            result.attrs[1].name = "color0"
-            result.vs.source = cast[cstring](addr(vsQuadSourceGlsl430))
-            result.vs.entry = "main"
-            result.vs.uniformBlocks[0].size = 64
-            result.vs.uniformBlocks[0].layout = uniformLayoutStd140
-            result.vs.uniformBlocks[0].uniforms[0].name = "quad_vs_params"
-            result.vs.uniformBlocks[0].uniforms[0].type = uniformTypeFloat4
-            result.vs.uniformBlocks[0].uniforms[0].arrayCount = 4
-            result.fs.source = cast[cstring](addr(fsQuadSourceGlsl430))
-            result.fs.entry = "main"
+            result.vertexFunc.source = cast[cstring](addr(vsQuadSourceGlsl430))
+            result.vertexFunc.entry = "main"
+            result.fragmentFunc.source = cast[cstring](addr(fsQuadSourceGlsl430))
+            result.fragmentFunc.entry = "main"
+            result.attrs[0].glslName = "position"
+            result.attrs[1].glslName = "color0"
+            result.uniformBlocks[0].stage = shaderStageVertex
+            result.uniformBlocks[0].layout = uniformLayoutStd140
+            result.uniformBlocks[0].size = 64
+            result.uniformBlocks[0].glslUniforms[0].type = uniformTypeFloat4
+            result.uniformBlocks[0].glslUniforms[0].arrayCount = 4
+            result.uniformBlocks[0].glslUniforms[0].glslName = "quad_vs_params"
         of backendGles3:
-            result.attrs[0].name = "position"
-            result.attrs[1].name = "color0"
-            result.vs.source = cast[cstring](addr(vsQuadSourceGlsl300es))
-            result.vs.entry = "main"
-            result.vs.uniformBlocks[0].size = 64
-            result.vs.uniformBlocks[0].layout = uniformLayoutStd140
-            result.vs.uniformBlocks[0].uniforms[0].name = "quad_vs_params"
-            result.vs.uniformBlocks[0].uniforms[0].type = uniformTypeFloat4
-            result.vs.uniformBlocks[0].uniforms[0].arrayCount = 4
-            result.fs.source = cast[cstring](addr(fsQuadSourceGlsl300es))
-            result.fs.entry = "main"
+            result.vertexFunc.source = cast[cstring](addr(vsQuadSourceGlsl300es))
+            result.vertexFunc.entry = "main"
+            result.fragmentFunc.source = cast[cstring](addr(fsQuadSourceGlsl300es))
+            result.fragmentFunc.entry = "main"
+            result.attrs[0].glslName = "position"
+            result.attrs[1].glslName = "color0"
+            result.uniformBlocks[0].stage = shaderStageVertex
+            result.uniformBlocks[0].layout = uniformLayoutStd140
+            result.uniformBlocks[0].size = 64
+            result.uniformBlocks[0].glslUniforms[0].type = uniformTypeFloat4
+            result.uniformBlocks[0].glslUniforms[0].arrayCount = 4
+            result.uniformBlocks[0].glslUniforms[0].glslName = "quad_vs_params"
         of backendD3d11:
-            result.attrs[0].semName = "TEXCOORD"
-            result.attrs[0].semIndex = 0
-            result.attrs[1].semName = "TEXCOORD"
-            result.attrs[1].semIndex = 1
-            result.vs.source = cast[cstring](addr(vsQuadSourceHlsl5))
-            result.vs.d3d11Target = "vs_5_0"
-            result.vs.entry = "main"
-            result.vs.uniformBlocks[0].size = 64
-            result.vs.uniformBlocks[0].layout = uniformLayoutStd140
-            result.fs.source = cast[cstring](addr(fsQuadSourceHlsl5))
-            result.fs.d3d11Target = "ps_5_0"
-            result.fs.entry = "main"
+            result.vertexFunc.source = cast[cstring](addr(vsQuadSourceHlsl5))
+            result.vertexFunc.d3d11Target = "vs_5_0"
+            result.vertexFunc.entry = "main"
+            result.fragmentFunc.source = cast[cstring](addr(fsQuadSourceHlsl5))
+            result.fragmentFunc.d3d11Target = "ps_5_0"
+            result.fragmentFunc.entry = "main"
+            result.attrs[0].hlslSemName = "TEXCOORD"
+            result.attrs[0].hlslSemIndex = 0
+            result.attrs[1].hlslSemName = "TEXCOORD"
+            result.attrs[1].hlslSemIndex = 1
+            result.uniformBlocks[0].stage = shaderStageVertex
+            result.uniformBlocks[0].layout = uniformLayoutStd140
+            result.uniformBlocks[0].size = 64
+            result.uniformBlocks[0].hlslRegisterBN = 0
         of backendMetalMacos:
-            result.vs.source = cast[cstring](addr(vsQuadSourceMetalMacos))
-            result.vs.entry = "main0"
-            result.vs.uniformBlocks[0].size = 64
-            result.vs.uniformBlocks[0].layout = uniformLayoutStd140
-            result.fs.source = cast[cstring](addr(fsQuadSourceMetalMacos))
-            result.fs.entry = "main0"
+            result.vertexFunc.source = cast[cstring](addr(vsQuadSourceMetalMacos))
+            result.vertexFunc.entry = "main0"
+            result.fragmentFunc.source = cast[cstring](addr(fsQuadSourceMetalMacos))
+            result.fragmentFunc.entry = "main0"
+            result.uniformBlocks[0].stage = shaderStageVertex
+            result.uniformBlocks[0].layout = uniformLayoutStd140
+            result.uniformBlocks[0].size = 64
+            result.uniformBlocks[0].mslBufferN = 0
         else: discard

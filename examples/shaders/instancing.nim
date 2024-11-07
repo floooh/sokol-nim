@@ -12,20 +12,21 @@ import ../math/mat4
 #    =========
 #    Shader program: 'instancing':
 #        Get shader desc: instancingShaderDesc(sg.queryBackend())
-#        Vertex shader: vs
-#            Attributes:
-#                attrVsPos => 0
-#                attrVsColor0 => 1
-#                attrVsInstPos => 2
-#            Uniform block 'vs_params':
-#                Nim struct: VsParams
-#                Bind slot: slotVsParams => 0
-#        Fragment shader: fs
+#        Vertex Shader: vs
+#        Fragment Shader: fs
+#        Attributes:
+#            attrInstancingPos => 0
+#            attrInstancingColor0 => 1
+#            attrInstancingInstPos => 2
+#    Bindings:
+#        Uniform block 'vs_params':
+#            Nim struct: VsParams
+#            Bind slot: ubVsParams => 0
 #
-const attrVsPos* = 0
-const attrVsColor0* = 1
-const attrVsInstPos* = 2
-const slotVsParams* = 0
+const attrInstancingPos* = 0
+const attrInstancingColor0* = 1
+const attrInstancingInstPos* = 2
+const ubVsParams* = 0
 type VsParams* {.packed.} = object
     mvp* {.align(16).}: Mat4
 
@@ -434,51 +435,57 @@ proc instancingShaderDesc*(backend: sg.Backend): sg.ShaderDesc =
     result.label = "instancing_shader"
     case backend:
         of backendGlcore:
-            result.attrs[0].name = "pos"
-            result.attrs[1].name = "color0"
-            result.attrs[2].name = "inst_pos"
-            result.vs.source = cast[cstring](addr(vsSourceGlsl430))
-            result.vs.entry = "main"
-            result.vs.uniformBlocks[0].size = 64
-            result.vs.uniformBlocks[0].layout = uniformLayoutStd140
-            result.vs.uniformBlocks[0].uniforms[0].name = "vs_params"
-            result.vs.uniformBlocks[0].uniforms[0].type = uniformTypeFloat4
-            result.vs.uniformBlocks[0].uniforms[0].arrayCount = 4
-            result.fs.source = cast[cstring](addr(fsSourceGlsl430))
-            result.fs.entry = "main"
+            result.vertexFunc.source = cast[cstring](addr(vsSourceGlsl430))
+            result.vertexFunc.entry = "main"
+            result.fragmentFunc.source = cast[cstring](addr(fsSourceGlsl430))
+            result.fragmentFunc.entry = "main"
+            result.attrs[0].glslName = "pos"
+            result.attrs[1].glslName = "color0"
+            result.attrs[2].glslName = "inst_pos"
+            result.uniformBlocks[0].stage = shaderStageVertex
+            result.uniformBlocks[0].layout = uniformLayoutStd140
+            result.uniformBlocks[0].size = 64
+            result.uniformBlocks[0].glslUniforms[0].type = uniformTypeFloat4
+            result.uniformBlocks[0].glslUniforms[0].arrayCount = 4
+            result.uniformBlocks[0].glslUniforms[0].glslName = "vs_params"
         of backendGles3:
-            result.attrs[0].name = "pos"
-            result.attrs[1].name = "color0"
-            result.attrs[2].name = "inst_pos"
-            result.vs.source = cast[cstring](addr(vsSourceGlsl300es))
-            result.vs.entry = "main"
-            result.vs.uniformBlocks[0].size = 64
-            result.vs.uniformBlocks[0].layout = uniformLayoutStd140
-            result.vs.uniformBlocks[0].uniforms[0].name = "vs_params"
-            result.vs.uniformBlocks[0].uniforms[0].type = uniformTypeFloat4
-            result.vs.uniformBlocks[0].uniforms[0].arrayCount = 4
-            result.fs.source = cast[cstring](addr(fsSourceGlsl300es))
-            result.fs.entry = "main"
+            result.vertexFunc.source = cast[cstring](addr(vsSourceGlsl300es))
+            result.vertexFunc.entry = "main"
+            result.fragmentFunc.source = cast[cstring](addr(fsSourceGlsl300es))
+            result.fragmentFunc.entry = "main"
+            result.attrs[0].glslName = "pos"
+            result.attrs[1].glslName = "color0"
+            result.attrs[2].glslName = "inst_pos"
+            result.uniformBlocks[0].stage = shaderStageVertex
+            result.uniformBlocks[0].layout = uniformLayoutStd140
+            result.uniformBlocks[0].size = 64
+            result.uniformBlocks[0].glslUniforms[0].type = uniformTypeFloat4
+            result.uniformBlocks[0].glslUniforms[0].arrayCount = 4
+            result.uniformBlocks[0].glslUniforms[0].glslName = "vs_params"
         of backendD3d11:
-            result.attrs[0].semName = "TEXCOORD"
-            result.attrs[0].semIndex = 0
-            result.attrs[1].semName = "TEXCOORD"
-            result.attrs[1].semIndex = 1
-            result.attrs[2].semName = "TEXCOORD"
-            result.attrs[2].semIndex = 2
-            result.vs.source = cast[cstring](addr(vsSourceHlsl5))
-            result.vs.d3d11Target = "vs_5_0"
-            result.vs.entry = "main"
-            result.vs.uniformBlocks[0].size = 64
-            result.vs.uniformBlocks[0].layout = uniformLayoutStd140
-            result.fs.source = cast[cstring](addr(fsSourceHlsl5))
-            result.fs.d3d11Target = "ps_5_0"
-            result.fs.entry = "main"
+            result.vertexFunc.source = cast[cstring](addr(vsSourceHlsl5))
+            result.vertexFunc.d3d11Target = "vs_5_0"
+            result.vertexFunc.entry = "main"
+            result.fragmentFunc.source = cast[cstring](addr(fsSourceHlsl5))
+            result.fragmentFunc.d3d11Target = "ps_5_0"
+            result.fragmentFunc.entry = "main"
+            result.attrs[0].hlslSemName = "TEXCOORD"
+            result.attrs[0].hlslSemIndex = 0
+            result.attrs[1].hlslSemName = "TEXCOORD"
+            result.attrs[1].hlslSemIndex = 1
+            result.attrs[2].hlslSemName = "TEXCOORD"
+            result.attrs[2].hlslSemIndex = 2
+            result.uniformBlocks[0].stage = shaderStageVertex
+            result.uniformBlocks[0].layout = uniformLayoutStd140
+            result.uniformBlocks[0].size = 64
+            result.uniformBlocks[0].hlslRegisterBN = 0
         of backendMetalMacos:
-            result.vs.source = cast[cstring](addr(vsSourceMetalMacos))
-            result.vs.entry = "main0"
-            result.vs.uniformBlocks[0].size = 64
-            result.vs.uniformBlocks[0].layout = uniformLayoutStd140
-            result.fs.source = cast[cstring](addr(fsSourceMetalMacos))
-            result.fs.entry = "main0"
+            result.vertexFunc.source = cast[cstring](addr(vsSourceMetalMacos))
+            result.vertexFunc.entry = "main0"
+            result.fragmentFunc.source = cast[cstring](addr(fsSourceMetalMacos))
+            result.fragmentFunc.entry = "main0"
+            result.uniformBlocks[0].stage = shaderStageVertex
+            result.uniformBlocks[0].layout = uniformLayoutStd140
+            result.uniformBlocks[0].size = 64
+            result.uniformBlocks[0].mslBufferN = 0
         else: discard

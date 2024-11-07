@@ -91,7 +91,7 @@ proc init() {.cdecl.} =
     0xFFFFFFFF'u32, 0xFF000000'u32, 0xFFFFFFFF'u32, 0xFF000000'u32,
     0xFF000000'u32, 0xFFFFFFFF'u32, 0xFF000000'u32, 0xFFFFFFFF'u32,
   ]
-  bindings.fs.images[shd.slotTex] = sg.makeImage(sg.ImageDesc(
+  bindings.images[shd.imgTex] = sg.makeImage(sg.ImageDesc(
     width: 4,
     height: 4,
     data: ImageData(
@@ -100,7 +100,7 @@ proc init() {.cdecl.} =
   ))
 
   # create a matching sampler
-  bindings.fs.samplers[shd.slotSmp] = sg.makeSampler(sg.SamplerDesc(
+  bindings.samplers[shd.smpSmp] = sg.makeSampler(sg.SamplerDesc(
     minFilter: filterNearest,
     magFilter: filterNearest,
   ));
@@ -139,7 +139,7 @@ proc frame() {.cdecl.} =
   sg.beginPass(Pass(action: passAction, swapchain: sglue.swapchain()))
   sg.applyPipeline(pip)
   sg.applyBindings(bindings)
-  sg.applyUniforms(shaderStageVs, shd.slotVsParams, sg.Range(addr: vsParams.addr, size: vsParams.sizeof))
+  sg.applyUniforms(shd.ubVsParams, sg.Range(addr: vsParams.addr, size: vsParams.sizeof))
   sg.draw(0, 36, 1)
   sg.endPass()
   sg.commit()

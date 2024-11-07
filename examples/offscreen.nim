@@ -134,10 +134,8 @@ proc init() {.cdecl.} =
   defaultBindings = Bindings(
     vertexBuffers: [ vbuf ],
     indexBuffer: ibuf,
-    fs: StageBindings(
-      images: [ colorImg ],
-      samplers: [ smp ]
-    )
+    images: [ colorImg ],
+    samplers: [ smp ]
   )
 
 # a helper function to computer model-view-projection matrix
@@ -162,7 +160,7 @@ proc frame() {.cdecl.} =
   sg.beginPass(Pass(action: offscreenPassAction, attachments: offscreenAttachments))
   sg.applyPipeline(offscreenPip)
   sg.applyBindings(offscreenBindings)
-  sg.applyUniforms(shaderStageVs, shd.slotVsParams, sg.Range(addr: offscreenVsParams.addr, size: offscreenVsParams.sizeof))
+  sg.applyUniforms(shd.ubVsParams, sg.Range(addr: offscreenVsParams.addr, size: offscreenVsParams.sizeof))
   sg.draw(donut.baseElement, donut.numElements, 1)
   sg.endPass()
 
@@ -174,7 +172,7 @@ proc frame() {.cdecl.} =
   sg.beginPass(Pass(action: defaultPassAction, swapchain: sglue.swapchain()))
   sg.applyPipeline(defaultPip)
   sg.applyBindings(defaultBindings)
-  sg.applyUniforms(shaderStageVs, shd.slotVsParams, sg.Range(addr: defaultVsParams.addr, size: offscreenVsParams.sizeof))
+  sg.applyUniforms(shd.ubVsParams, sg.Range(addr: defaultVsParams.addr, size: offscreenVsParams.sizeof))
   sg.draw(sphere.baseElement, sphere.numElements, 1)
   sg.endPass()
   sg.commit()

@@ -13,85 +13,83 @@ import ../math/vec2
 #    =========
 #    Shader program: 'dbg':
 #        Get shader desc: dbgShaderDesc(sg.queryBackend())
-#        Vertex shader: vs_dbg
-#            Attributes:
-#                attrVsDbgPos => 0
-#        Fragment shader: fs_dbg
-#            Image 'tex':
-#                Image type: imageType2d
-#                Sample type: imageSampleTypeFloat
-#                Multisampled: false
-#                Bind slot: slotTex => 0
-#            Sampler 'smp':
-#                Type: samplerTypeFiltering
-#                Bind slot: slotSmp => 0
-#            Image Sampler Pair 'tex_smp':
-#                Image: tex
-#                Sampler: smp
+#        Vertex Shader: vs_dbg
+#        Fragment Shader: fs_dbg
+#        Attributes:
+#            attrDbgPos => 0
 #    Shader program: 'fsq':
 #        Get shader desc: fsqShaderDesc(sg.queryBackend())
-#        Vertex shader: vs_fsq
-#            Attributes:
-#                attrVsFsqPos => 0
-#            Uniform block 'fsq_params':
-#                Nim struct: FsqParams
-#                Bind slot: slotFsqParams => 0
-#        Fragment shader: fs_fsq
-#            Image 'tex0':
-#                Image type: imageType2d
-#                Sample type: imageSampleTypeFloat
-#                Multisampled: false
-#                Bind slot: slotTex0 => 0
-#            Image 'tex1':
-#                Image type: imageType2d
-#                Sample type: imageSampleTypeFloat
-#                Multisampled: false
-#                Bind slot: slotTex1 => 1
-#            Image 'tex2':
-#                Image type: imageType2d
-#                Sample type: imageSampleTypeFloat
-#                Multisampled: false
-#                Bind slot: slotTex2 => 2
-#            Sampler 'smp':
-#                Type: samplerTypeFiltering
-#                Bind slot: slotSmp => 0
-#            Image Sampler Pair 'tex0_smp':
-#                Image: tex0
-#                Sampler: smp
-#            Image Sampler Pair 'tex1_smp':
-#                Image: tex1
-#                Sampler: smp
-#            Image Sampler Pair 'tex2_smp':
-#                Image: tex2
-#                Sampler: smp
+#        Vertex Shader: vs_fsq
+#        Fragment Shader: fs_fsq
+#        Attributes:
+#            attrFsqPos => 0
 #    Shader program: 'offscreen':
 #        Get shader desc: offscreenShaderDesc(sg.queryBackend())
-#        Vertex shader: vs_offscreen
-#            Attributes:
-#                attrVsOffscreenPos => 0
-#                attrVsOffscreenBright0 => 1
-#            Uniform block 'offscreen_params':
-#                Nim struct: OffscreenParams
-#                Bind slot: slotOffscreenParams => 0
-#        Fragment shader: fs_offscreen
+#        Vertex Shader: vs_offscreen
+#        Fragment Shader: fs_offscreen
+#        Attributes:
+#            attrOffscreenPos => 0
+#            attrOffscreenBright0 => 1
+#    Bindings:
+#        Uniform block 'fsq_params':
+#            Nim struct: FsqParams
+#            Bind slot: ubFsqParams => 0
+#        Uniform block 'offscreen_params':
+#            Nim struct: OffscreenParams
+#            Bind slot: ubOffscreenParams => 0
+#        Image 'tex':
+#            Image type: imageType2d
+#            Sample type: imageSampleTypeFloat
+#            Multisampled: false
+#            Bind slot: imgTex => 0
+#        Image 'tex0':
+#            Image type: imageType2d
+#            Sample type: imageSampleTypeFloat
+#            Multisampled: false
+#            Bind slot: imgTex0 => 0
+#        Image 'tex1':
+#            Image type: imageType2d
+#            Sample type: imageSampleTypeFloat
+#            Multisampled: false
+#            Bind slot: imgTex1 => 1
+#        Image 'tex2':
+#            Image type: imageType2d
+#            Sample type: imageSampleTypeFloat
+#            Multisampled: false
+#            Bind slot: imgTex2 => 2
+#        Sampler 'smp':
+#            Type: samplerTypeFiltering
+#            Bind slot: smpSmp => 0
+#        Image Sampler Pair 'tex_smp':
+#            Image: tex
+#            Sampler: smp
+#        Image Sampler Pair 'tex0_smp':
+#            Image: tex0
+#            Sampler: smp
+#        Image Sampler Pair 'tex1_smp':
+#            Image: tex1
+#            Sampler: smp
+#        Image Sampler Pair 'tex2_smp':
+#            Image: tex2
+#            Sampler: smp
 #
-const attrVsDbgPos* = 0
-const attrVsFsqPos* = 0
-const attrVsOffscreenPos* = 0
-const attrVsOffscreenBright0* = 1
-const slotOffscreenParams* = 0
-const slotFsqParams* = 0
-const slotTex0* = 0
-const slotTex1* = 1
-const slotTex2* = 2
-const slotTex* = 0
-const slotSmp* = 0
-type OffscreenParams* {.packed.} = object
-    mvp* {.align(16).}: Mat4
-
+const attrDbgPos* = 0
+const attrFsqPos* = 0
+const attrOffscreenPos* = 0
+const attrOffscreenBright0* = 1
+const ubFsqParams* = 0
+const ubOffscreenParams* = 0
+const imgTex* = 0
+const imgTex0* = 0
+const imgTex1* = 1
+const imgTex2* = 2
+const smpSmp* = 0
 type FsqParams* {.packed.} = object
     offset* {.align(16).}: Vec2
     pad_8: array[8, uint8]
+
+type OffscreenParams* {.packed.} = object
+    mvp* {.align(16).}: Mat4
 
 #
 #    #version 430
@@ -219,9 +217,9 @@ const vsFsqSourceGlsl430: array[398, uint8] = [
 #
 #    #version 430
 #
-#    layout(binding = 0) uniform sampler2D tex0_smp;
-#    layout(binding = 1) uniform sampler2D tex1_smp;
-#    layout(binding = 2) uniform sampler2D tex2_smp;
+#    layout(binding = 16) uniform sampler2D tex0_smp;
+#    layout(binding = 17) uniform sampler2D tex1_smp;
+#    layout(binding = 18) uniform sampler2D tex2_smp;
 #
 #    layout(location = 0) in vec2 uv0;
 #    layout(location = 1) in vec2 uv1;
@@ -234,35 +232,35 @@ const vsFsqSourceGlsl430: array[398, uint8] = [
 #    }
 #
 #
-const fsFsqSourceGlsl430: array[438, uint8] = [
+const fsFsqSourceGlsl430: array[441, uint8] = [
     0x23'u8,0x76,0x65,0x72,0x73,0x69,0x6f,0x6e,0x20,0x34,0x33,0x30,0x0a,0x0a,0x6c,0x61,
-    0x79,0x6f,0x75,0x74,0x28,0x62,0x69,0x6e,0x64,0x69,0x6e,0x67,0x20,0x3d,0x20,0x30,
-    0x29,0x20,0x75,0x6e,0x69,0x66,0x6f,0x72,0x6d,0x20,0x73,0x61,0x6d,0x70,0x6c,0x65,
-    0x72,0x32,0x44,0x20,0x74,0x65,0x78,0x30,0x5f,0x73,0x6d,0x70,0x3b,0x0a,0x6c,0x61,
     0x79,0x6f,0x75,0x74,0x28,0x62,0x69,0x6e,0x64,0x69,0x6e,0x67,0x20,0x3d,0x20,0x31,
-    0x29,0x20,0x75,0x6e,0x69,0x66,0x6f,0x72,0x6d,0x20,0x73,0x61,0x6d,0x70,0x6c,0x65,
-    0x72,0x32,0x44,0x20,0x74,0x65,0x78,0x31,0x5f,0x73,0x6d,0x70,0x3b,0x0a,0x6c,0x61,
-    0x79,0x6f,0x75,0x74,0x28,0x62,0x69,0x6e,0x64,0x69,0x6e,0x67,0x20,0x3d,0x20,0x32,
-    0x29,0x20,0x75,0x6e,0x69,0x66,0x6f,0x72,0x6d,0x20,0x73,0x61,0x6d,0x70,0x6c,0x65,
-    0x72,0x32,0x44,0x20,0x74,0x65,0x78,0x32,0x5f,0x73,0x6d,0x70,0x3b,0x0a,0x0a,0x6c,
-    0x61,0x79,0x6f,0x75,0x74,0x28,0x6c,0x6f,0x63,0x61,0x74,0x69,0x6f,0x6e,0x20,0x3d,
-    0x20,0x30,0x29,0x20,0x69,0x6e,0x20,0x76,0x65,0x63,0x32,0x20,0x75,0x76,0x30,0x3b,
-    0x0a,0x6c,0x61,0x79,0x6f,0x75,0x74,0x28,0x6c,0x6f,0x63,0x61,0x74,0x69,0x6f,0x6e,
-    0x20,0x3d,0x20,0x31,0x29,0x20,0x69,0x6e,0x20,0x76,0x65,0x63,0x32,0x20,0x75,0x76,
-    0x31,0x3b,0x0a,0x6c,0x61,0x79,0x6f,0x75,0x74,0x28,0x6c,0x6f,0x63,0x61,0x74,0x69,
-    0x6f,0x6e,0x20,0x3d,0x20,0x32,0x29,0x20,0x69,0x6e,0x20,0x76,0x65,0x63,0x32,0x20,
-    0x75,0x76,0x32,0x3b,0x0a,0x6c,0x61,0x79,0x6f,0x75,0x74,0x28,0x6c,0x6f,0x63,0x61,
-    0x74,0x69,0x6f,0x6e,0x20,0x3d,0x20,0x30,0x29,0x20,0x6f,0x75,0x74,0x20,0x76,0x65,
-    0x63,0x34,0x20,0x66,0x72,0x61,0x67,0x5f,0x63,0x6f,0x6c,0x6f,0x72,0x3b,0x0a,0x0a,
-    0x76,0x6f,0x69,0x64,0x20,0x6d,0x61,0x69,0x6e,0x28,0x29,0x0a,0x7b,0x0a,0x20,0x20,
-    0x20,0x20,0x66,0x72,0x61,0x67,0x5f,0x63,0x6f,0x6c,0x6f,0x72,0x20,0x3d,0x20,0x76,
-    0x65,0x63,0x34,0x28,0x28,0x74,0x65,0x78,0x74,0x75,0x72,0x65,0x28,0x74,0x65,0x78,
-    0x30,0x5f,0x73,0x6d,0x70,0x2c,0x20,0x75,0x76,0x30,0x29,0x2e,0x78,0x79,0x7a,0x20,
-    0x2b,0x20,0x74,0x65,0x78,0x74,0x75,0x72,0x65,0x28,0x74,0x65,0x78,0x31,0x5f,0x73,
-    0x6d,0x70,0x2c,0x20,0x75,0x76,0x31,0x29,0x2e,0x78,0x79,0x7a,0x29,0x20,0x2b,0x20,
-    0x74,0x65,0x78,0x74,0x75,0x72,0x65,0x28,0x74,0x65,0x78,0x32,0x5f,0x73,0x6d,0x70,
-    0x2c,0x20,0x75,0x76,0x32,0x29,0x2e,0x78,0x79,0x7a,0x2c,0x20,0x31,0x2e,0x30,0x29,
-    0x3b,0x0a,0x7d,0x0a,0x0a,0x00,
+    0x36,0x29,0x20,0x75,0x6e,0x69,0x66,0x6f,0x72,0x6d,0x20,0x73,0x61,0x6d,0x70,0x6c,
+    0x65,0x72,0x32,0x44,0x20,0x74,0x65,0x78,0x30,0x5f,0x73,0x6d,0x70,0x3b,0x0a,0x6c,
+    0x61,0x79,0x6f,0x75,0x74,0x28,0x62,0x69,0x6e,0x64,0x69,0x6e,0x67,0x20,0x3d,0x20,
+    0x31,0x37,0x29,0x20,0x75,0x6e,0x69,0x66,0x6f,0x72,0x6d,0x20,0x73,0x61,0x6d,0x70,
+    0x6c,0x65,0x72,0x32,0x44,0x20,0x74,0x65,0x78,0x31,0x5f,0x73,0x6d,0x70,0x3b,0x0a,
+    0x6c,0x61,0x79,0x6f,0x75,0x74,0x28,0x62,0x69,0x6e,0x64,0x69,0x6e,0x67,0x20,0x3d,
+    0x20,0x31,0x38,0x29,0x20,0x75,0x6e,0x69,0x66,0x6f,0x72,0x6d,0x20,0x73,0x61,0x6d,
+    0x70,0x6c,0x65,0x72,0x32,0x44,0x20,0x74,0x65,0x78,0x32,0x5f,0x73,0x6d,0x70,0x3b,
+    0x0a,0x0a,0x6c,0x61,0x79,0x6f,0x75,0x74,0x28,0x6c,0x6f,0x63,0x61,0x74,0x69,0x6f,
+    0x6e,0x20,0x3d,0x20,0x30,0x29,0x20,0x69,0x6e,0x20,0x76,0x65,0x63,0x32,0x20,0x75,
+    0x76,0x30,0x3b,0x0a,0x6c,0x61,0x79,0x6f,0x75,0x74,0x28,0x6c,0x6f,0x63,0x61,0x74,
+    0x69,0x6f,0x6e,0x20,0x3d,0x20,0x31,0x29,0x20,0x69,0x6e,0x20,0x76,0x65,0x63,0x32,
+    0x20,0x75,0x76,0x31,0x3b,0x0a,0x6c,0x61,0x79,0x6f,0x75,0x74,0x28,0x6c,0x6f,0x63,
+    0x61,0x74,0x69,0x6f,0x6e,0x20,0x3d,0x20,0x32,0x29,0x20,0x69,0x6e,0x20,0x76,0x65,
+    0x63,0x32,0x20,0x75,0x76,0x32,0x3b,0x0a,0x6c,0x61,0x79,0x6f,0x75,0x74,0x28,0x6c,
+    0x6f,0x63,0x61,0x74,0x69,0x6f,0x6e,0x20,0x3d,0x20,0x30,0x29,0x20,0x6f,0x75,0x74,
+    0x20,0x76,0x65,0x63,0x34,0x20,0x66,0x72,0x61,0x67,0x5f,0x63,0x6f,0x6c,0x6f,0x72,
+    0x3b,0x0a,0x0a,0x76,0x6f,0x69,0x64,0x20,0x6d,0x61,0x69,0x6e,0x28,0x29,0x0a,0x7b,
+    0x0a,0x20,0x20,0x20,0x20,0x66,0x72,0x61,0x67,0x5f,0x63,0x6f,0x6c,0x6f,0x72,0x20,
+    0x3d,0x20,0x76,0x65,0x63,0x34,0x28,0x28,0x74,0x65,0x78,0x74,0x75,0x72,0x65,0x28,
+    0x74,0x65,0x78,0x30,0x5f,0x73,0x6d,0x70,0x2c,0x20,0x75,0x76,0x30,0x29,0x2e,0x78,
+    0x79,0x7a,0x20,0x2b,0x20,0x74,0x65,0x78,0x74,0x75,0x72,0x65,0x28,0x74,0x65,0x78,
+    0x31,0x5f,0x73,0x6d,0x70,0x2c,0x20,0x75,0x76,0x31,0x29,0x2e,0x78,0x79,0x7a,0x29,
+    0x20,0x2b,0x20,0x74,0x65,0x78,0x74,0x75,0x72,0x65,0x28,0x74,0x65,0x78,0x32,0x5f,
+    0x73,0x6d,0x70,0x2c,0x20,0x75,0x76,0x32,0x29,0x2e,0x78,0x79,0x7a,0x2c,0x20,0x31,
+    0x2e,0x30,0x29,0x3b,0x0a,0x7d,0x0a,0x0a,0x00,
 ]
 #
 #    #version 430
@@ -297,7 +295,7 @@ const vsDbgSourceGlsl430: array[210, uint8] = [
 #
 #    #version 430
 #
-#    layout(binding = 0) uniform sampler2D tex_smp;
+#    layout(binding = 16) uniform sampler2D tex_smp;
 #
 #    layout(location = 0) out vec4 frag_color;
 #    layout(location = 0) in vec2 uv;
@@ -308,21 +306,21 @@ const vsDbgSourceGlsl430: array[210, uint8] = [
 #    }
 #
 #
-const fsDbgSourceGlsl430: array[210, uint8] = [
+const fsDbgSourceGlsl430: array[211, uint8] = [
     0x23'u8,0x76,0x65,0x72,0x73,0x69,0x6f,0x6e,0x20,0x34,0x33,0x30,0x0a,0x0a,0x6c,0x61,
-    0x79,0x6f,0x75,0x74,0x28,0x62,0x69,0x6e,0x64,0x69,0x6e,0x67,0x20,0x3d,0x20,0x30,
-    0x29,0x20,0x75,0x6e,0x69,0x66,0x6f,0x72,0x6d,0x20,0x73,0x61,0x6d,0x70,0x6c,0x65,
-    0x72,0x32,0x44,0x20,0x74,0x65,0x78,0x5f,0x73,0x6d,0x70,0x3b,0x0a,0x0a,0x6c,0x61,
-    0x79,0x6f,0x75,0x74,0x28,0x6c,0x6f,0x63,0x61,0x74,0x69,0x6f,0x6e,0x20,0x3d,0x20,
-    0x30,0x29,0x20,0x6f,0x75,0x74,0x20,0x76,0x65,0x63,0x34,0x20,0x66,0x72,0x61,0x67,
-    0x5f,0x63,0x6f,0x6c,0x6f,0x72,0x3b,0x0a,0x6c,0x61,0x79,0x6f,0x75,0x74,0x28,0x6c,
-    0x6f,0x63,0x61,0x74,0x69,0x6f,0x6e,0x20,0x3d,0x20,0x30,0x29,0x20,0x69,0x6e,0x20,
-    0x76,0x65,0x63,0x32,0x20,0x75,0x76,0x3b,0x0a,0x0a,0x76,0x6f,0x69,0x64,0x20,0x6d,
-    0x61,0x69,0x6e,0x28,0x29,0x0a,0x7b,0x0a,0x20,0x20,0x20,0x20,0x66,0x72,0x61,0x67,
-    0x5f,0x63,0x6f,0x6c,0x6f,0x72,0x20,0x3d,0x20,0x76,0x65,0x63,0x34,0x28,0x74,0x65,
-    0x78,0x74,0x75,0x72,0x65,0x28,0x74,0x65,0x78,0x5f,0x73,0x6d,0x70,0x2c,0x20,0x75,
-    0x76,0x29,0x2e,0x78,0x79,0x7a,0x2c,0x20,0x31,0x2e,0x30,0x29,0x3b,0x0a,0x7d,0x0a,
-    0x0a,0x00,
+    0x79,0x6f,0x75,0x74,0x28,0x62,0x69,0x6e,0x64,0x69,0x6e,0x67,0x20,0x3d,0x20,0x31,
+    0x36,0x29,0x20,0x75,0x6e,0x69,0x66,0x6f,0x72,0x6d,0x20,0x73,0x61,0x6d,0x70,0x6c,
+    0x65,0x72,0x32,0x44,0x20,0x74,0x65,0x78,0x5f,0x73,0x6d,0x70,0x3b,0x0a,0x0a,0x6c,
+    0x61,0x79,0x6f,0x75,0x74,0x28,0x6c,0x6f,0x63,0x61,0x74,0x69,0x6f,0x6e,0x20,0x3d,
+    0x20,0x30,0x29,0x20,0x6f,0x75,0x74,0x20,0x76,0x65,0x63,0x34,0x20,0x66,0x72,0x61,
+    0x67,0x5f,0x63,0x6f,0x6c,0x6f,0x72,0x3b,0x0a,0x6c,0x61,0x79,0x6f,0x75,0x74,0x28,
+    0x6c,0x6f,0x63,0x61,0x74,0x69,0x6f,0x6e,0x20,0x3d,0x20,0x30,0x29,0x20,0x69,0x6e,
+    0x20,0x76,0x65,0x63,0x32,0x20,0x75,0x76,0x3b,0x0a,0x0a,0x76,0x6f,0x69,0x64,0x20,
+    0x6d,0x61,0x69,0x6e,0x28,0x29,0x0a,0x7b,0x0a,0x20,0x20,0x20,0x20,0x66,0x72,0x61,
+    0x67,0x5f,0x63,0x6f,0x6c,0x6f,0x72,0x20,0x3d,0x20,0x76,0x65,0x63,0x34,0x28,0x74,
+    0x65,0x78,0x74,0x75,0x72,0x65,0x28,0x74,0x65,0x78,0x5f,0x73,0x6d,0x70,0x2c,0x20,
+    0x75,0x76,0x29,0x2e,0x78,0x79,0x7a,0x2c,0x20,0x31,0x2e,0x30,0x29,0x3b,0x0a,0x7d,
+    0x0a,0x0a,0x00,
 ]
 #
 #    #version 300 es
@@ -1454,257 +1452,281 @@ proc dbgShaderDesc*(backend: sg.Backend): sg.ShaderDesc =
     result.label = "dbg_shader"
     case backend:
         of backendGlcore:
-            result.attrs[0].name = "pos"
-            result.vs.source = cast[cstring](addr(vsDbgSourceGlsl430))
-            result.vs.entry = "main"
-            result.fs.source = cast[cstring](addr(fsDbgSourceGlsl430))
-            result.fs.entry = "main"
-            result.fs.images[0].used = true
-            result.fs.images[0].multisampled = false
-            result.fs.images[0].imageType = imageType2d
-            result.fs.images[0].sampleType = imageSampleTypeFloat
-            result.fs.samplers[0].used = true
-            result.fs.samplers[0].samplerType = samplerTypeFiltering
-            result.fs.imageSamplerPairs[0].used = true
-            result.fs.imageSamplerPairs[0].imageSlot = 0
-            result.fs.imageSamplerPairs[0].samplerSlot = 0
-            result.fs.imageSamplerPairs[0].glslName = "tex_smp"
+            result.vertexFunc.source = cast[cstring](addr(vsDbgSourceGlsl430))
+            result.vertexFunc.entry = "main"
+            result.fragmentFunc.source = cast[cstring](addr(fsDbgSourceGlsl430))
+            result.fragmentFunc.entry = "main"
+            result.attrs[0].glslName = "pos"
+            result.images[0].stage = shaderStageFragment
+            result.images[0].multisampled = false
+            result.images[0].imageType = imageType2d
+            result.images[0].sampleType = imageSampleTypeFloat
+            result.samplers[0].stage = shaderStageFragment
+            result.samplers[0].samplerType = samplerTypeFiltering
+            result.imageSamplerPairs[0].stage = shaderStageFragment
+            result.imageSamplerPairs[0].imageSlot = 0
+            result.imageSamplerPairs[0].samplerSlot = 0
+            result.imageSamplerPairs[0].glslName = "tex_smp"
         of backendGles3:
-            result.attrs[0].name = "pos"
-            result.vs.source = cast[cstring](addr(vsDbgSourceGlsl300es))
-            result.vs.entry = "main"
-            result.fs.source = cast[cstring](addr(fsDbgSourceGlsl300es))
-            result.fs.entry = "main"
-            result.fs.images[0].used = true
-            result.fs.images[0].multisampled = false
-            result.fs.images[0].imageType = imageType2d
-            result.fs.images[0].sampleType = imageSampleTypeFloat
-            result.fs.samplers[0].used = true
-            result.fs.samplers[0].samplerType = samplerTypeFiltering
-            result.fs.imageSamplerPairs[0].used = true
-            result.fs.imageSamplerPairs[0].imageSlot = 0
-            result.fs.imageSamplerPairs[0].samplerSlot = 0
-            result.fs.imageSamplerPairs[0].glslName = "tex_smp"
+            result.vertexFunc.source = cast[cstring](addr(vsDbgSourceGlsl300es))
+            result.vertexFunc.entry = "main"
+            result.fragmentFunc.source = cast[cstring](addr(fsDbgSourceGlsl300es))
+            result.fragmentFunc.entry = "main"
+            result.attrs[0].glslName = "pos"
+            result.images[0].stage = shaderStageFragment
+            result.images[0].multisampled = false
+            result.images[0].imageType = imageType2d
+            result.images[0].sampleType = imageSampleTypeFloat
+            result.samplers[0].stage = shaderStageFragment
+            result.samplers[0].samplerType = samplerTypeFiltering
+            result.imageSamplerPairs[0].stage = shaderStageFragment
+            result.imageSamplerPairs[0].imageSlot = 0
+            result.imageSamplerPairs[0].samplerSlot = 0
+            result.imageSamplerPairs[0].glslName = "tex_smp"
         of backendD3d11:
-            result.attrs[0].semName = "TEXCOORD"
-            result.attrs[0].semIndex = 0
-            result.vs.source = cast[cstring](addr(vsDbgSourceHlsl5))
-            result.vs.d3d11Target = "vs_5_0"
-            result.vs.entry = "main"
-            result.fs.source = cast[cstring](addr(fsDbgSourceHlsl5))
-            result.fs.d3d11Target = "ps_5_0"
-            result.fs.entry = "main"
-            result.fs.images[0].used = true
-            result.fs.images[0].multisampled = false
-            result.fs.images[0].imageType = imageType2d
-            result.fs.images[0].sampleType = imageSampleTypeFloat
-            result.fs.samplers[0].used = true
-            result.fs.samplers[0].samplerType = samplerTypeFiltering
-            result.fs.imageSamplerPairs[0].used = true
-            result.fs.imageSamplerPairs[0].imageSlot = 0
-            result.fs.imageSamplerPairs[0].samplerSlot = 0
+            result.vertexFunc.source = cast[cstring](addr(vsDbgSourceHlsl5))
+            result.vertexFunc.d3d11Target = "vs_5_0"
+            result.vertexFunc.entry = "main"
+            result.fragmentFunc.source = cast[cstring](addr(fsDbgSourceHlsl5))
+            result.fragmentFunc.d3d11Target = "ps_5_0"
+            result.fragmentFunc.entry = "main"
+            result.attrs[0].hlslSemName = "TEXCOORD"
+            result.attrs[0].hlslSemIndex = 0
+            result.images[0].stage = shaderStageFragment
+            result.images[0].multisampled = false
+            result.images[0].imageType = imageType2d
+            result.images[0].sampleType = imageSampleTypeFloat
+            result.images[0].hlslRegisterTN = 0
+            result.samplers[0].stage = shaderStageFragment
+            result.samplers[0].samplerType = samplerTypeFiltering
+            result.samplers[0].hlslRegisterSN = 0
+            result.imageSamplerPairs[0].stage = shaderStageFragment
+            result.imageSamplerPairs[0].imageSlot = 0
+            result.imageSamplerPairs[0].samplerSlot = 0
         of backendMetalMacos:
-            result.vs.source = cast[cstring](addr(vsDbgSourceMetalMacos))
-            result.vs.entry = "main0"
-            result.fs.source = cast[cstring](addr(fsDbgSourceMetalMacos))
-            result.fs.entry = "main0"
-            result.fs.images[0].used = true
-            result.fs.images[0].multisampled = false
-            result.fs.images[0].imageType = imageType2d
-            result.fs.images[0].sampleType = imageSampleTypeFloat
-            result.fs.samplers[0].used = true
-            result.fs.samplers[0].samplerType = samplerTypeFiltering
-            result.fs.imageSamplerPairs[0].used = true
-            result.fs.imageSamplerPairs[0].imageSlot = 0
-            result.fs.imageSamplerPairs[0].samplerSlot = 0
+            result.vertexFunc.source = cast[cstring](addr(vsDbgSourceMetalMacos))
+            result.vertexFunc.entry = "main0"
+            result.fragmentFunc.source = cast[cstring](addr(fsDbgSourceMetalMacos))
+            result.fragmentFunc.entry = "main0"
+            result.images[0].stage = shaderStageFragment
+            result.images[0].multisampled = false
+            result.images[0].imageType = imageType2d
+            result.images[0].sampleType = imageSampleTypeFloat
+            result.images[0].mslTextureN = 0
+            result.samplers[0].stage = shaderStageFragment
+            result.samplers[0].samplerType = samplerTypeFiltering
+            result.samplers[0].mslSamplerN = 0
+            result.imageSamplerPairs[0].stage = shaderStageFragment
+            result.imageSamplerPairs[0].imageSlot = 0
+            result.imageSamplerPairs[0].samplerSlot = 0
         else: discard
 proc fsqShaderDesc*(backend: sg.Backend): sg.ShaderDesc =
     result.label = "fsq_shader"
     case backend:
         of backendGlcore:
-            result.attrs[0].name = "pos"
-            result.vs.source = cast[cstring](addr(vsFsqSourceGlsl430))
-            result.vs.entry = "main"
-            result.vs.uniformBlocks[0].size = 16
-            result.vs.uniformBlocks[0].layout = uniformLayoutStd140
-            result.vs.uniformBlocks[0].uniforms[0].name = "fsq_params"
-            result.vs.uniformBlocks[0].uniforms[0].type = uniformTypeFloat4
-            result.vs.uniformBlocks[0].uniforms[0].arrayCount = 1
-            result.fs.source = cast[cstring](addr(fsFsqSourceGlsl430))
-            result.fs.entry = "main"
-            result.fs.images[0].used = true
-            result.fs.images[0].multisampled = false
-            result.fs.images[0].imageType = imageType2d
-            result.fs.images[0].sampleType = imageSampleTypeFloat
-            result.fs.images[1].used = true
-            result.fs.images[1].multisampled = false
-            result.fs.images[1].imageType = imageType2d
-            result.fs.images[1].sampleType = imageSampleTypeFloat
-            result.fs.images[2].used = true
-            result.fs.images[2].multisampled = false
-            result.fs.images[2].imageType = imageType2d
-            result.fs.images[2].sampleType = imageSampleTypeFloat
-            result.fs.samplers[0].used = true
-            result.fs.samplers[0].samplerType = samplerTypeFiltering
-            result.fs.imageSamplerPairs[0].used = true
-            result.fs.imageSamplerPairs[0].imageSlot = 0
-            result.fs.imageSamplerPairs[0].samplerSlot = 0
-            result.fs.imageSamplerPairs[0].glslName = "tex0_smp"
-            result.fs.imageSamplerPairs[1].used = true
-            result.fs.imageSamplerPairs[1].imageSlot = 1
-            result.fs.imageSamplerPairs[1].samplerSlot = 0
-            result.fs.imageSamplerPairs[1].glslName = "tex1_smp"
-            result.fs.imageSamplerPairs[2].used = true
-            result.fs.imageSamplerPairs[2].imageSlot = 2
-            result.fs.imageSamplerPairs[2].samplerSlot = 0
-            result.fs.imageSamplerPairs[2].glslName = "tex2_smp"
+            result.vertexFunc.source = cast[cstring](addr(vsFsqSourceGlsl430))
+            result.vertexFunc.entry = "main"
+            result.fragmentFunc.source = cast[cstring](addr(fsFsqSourceGlsl430))
+            result.fragmentFunc.entry = "main"
+            result.attrs[0].glslName = "pos"
+            result.uniformBlocks[0].stage = shaderStageVertex
+            result.uniformBlocks[0].layout = uniformLayoutStd140
+            result.uniformBlocks[0].size = 16
+            result.uniformBlocks[0].glslUniforms[0].type = uniformTypeFloat4
+            result.uniformBlocks[0].glslUniforms[0].arrayCount = 1
+            result.uniformBlocks[0].glslUniforms[0].glslName = "fsq_params"
+            result.images[0].stage = shaderStageFragment
+            result.images[0].multisampled = false
+            result.images[0].imageType = imageType2d
+            result.images[0].sampleType = imageSampleTypeFloat
+            result.images[1].stage = shaderStageFragment
+            result.images[1].multisampled = false
+            result.images[1].imageType = imageType2d
+            result.images[1].sampleType = imageSampleTypeFloat
+            result.images[2].stage = shaderStageFragment
+            result.images[2].multisampled = false
+            result.images[2].imageType = imageType2d
+            result.images[2].sampleType = imageSampleTypeFloat
+            result.samplers[0].stage = shaderStageFragment
+            result.samplers[0].samplerType = samplerTypeFiltering
+            result.imageSamplerPairs[0].stage = shaderStageFragment
+            result.imageSamplerPairs[0].imageSlot = 0
+            result.imageSamplerPairs[0].samplerSlot = 0
+            result.imageSamplerPairs[0].glslName = "tex0_smp"
+            result.imageSamplerPairs[1].stage = shaderStageFragment
+            result.imageSamplerPairs[1].imageSlot = 1
+            result.imageSamplerPairs[1].samplerSlot = 0
+            result.imageSamplerPairs[1].glslName = "tex1_smp"
+            result.imageSamplerPairs[2].stage = shaderStageFragment
+            result.imageSamplerPairs[2].imageSlot = 2
+            result.imageSamplerPairs[2].samplerSlot = 0
+            result.imageSamplerPairs[2].glslName = "tex2_smp"
         of backendGles3:
-            result.attrs[0].name = "pos"
-            result.vs.source = cast[cstring](addr(vsFsqSourceGlsl300es))
-            result.vs.entry = "main"
-            result.vs.uniformBlocks[0].size = 16
-            result.vs.uniformBlocks[0].layout = uniformLayoutStd140
-            result.vs.uniformBlocks[0].uniforms[0].name = "fsq_params"
-            result.vs.uniformBlocks[0].uniforms[0].type = uniformTypeFloat4
-            result.vs.uniformBlocks[0].uniforms[0].arrayCount = 1
-            result.fs.source = cast[cstring](addr(fsFsqSourceGlsl300es))
-            result.fs.entry = "main"
-            result.fs.images[0].used = true
-            result.fs.images[0].multisampled = false
-            result.fs.images[0].imageType = imageType2d
-            result.fs.images[0].sampleType = imageSampleTypeFloat
-            result.fs.images[1].used = true
-            result.fs.images[1].multisampled = false
-            result.fs.images[1].imageType = imageType2d
-            result.fs.images[1].sampleType = imageSampleTypeFloat
-            result.fs.images[2].used = true
-            result.fs.images[2].multisampled = false
-            result.fs.images[2].imageType = imageType2d
-            result.fs.images[2].sampleType = imageSampleTypeFloat
-            result.fs.samplers[0].used = true
-            result.fs.samplers[0].samplerType = samplerTypeFiltering
-            result.fs.imageSamplerPairs[0].used = true
-            result.fs.imageSamplerPairs[0].imageSlot = 0
-            result.fs.imageSamplerPairs[0].samplerSlot = 0
-            result.fs.imageSamplerPairs[0].glslName = "tex0_smp"
-            result.fs.imageSamplerPairs[1].used = true
-            result.fs.imageSamplerPairs[1].imageSlot = 1
-            result.fs.imageSamplerPairs[1].samplerSlot = 0
-            result.fs.imageSamplerPairs[1].glslName = "tex1_smp"
-            result.fs.imageSamplerPairs[2].used = true
-            result.fs.imageSamplerPairs[2].imageSlot = 2
-            result.fs.imageSamplerPairs[2].samplerSlot = 0
-            result.fs.imageSamplerPairs[2].glslName = "tex2_smp"
+            result.vertexFunc.source = cast[cstring](addr(vsFsqSourceGlsl300es))
+            result.vertexFunc.entry = "main"
+            result.fragmentFunc.source = cast[cstring](addr(fsFsqSourceGlsl300es))
+            result.fragmentFunc.entry = "main"
+            result.attrs[0].glslName = "pos"
+            result.uniformBlocks[0].stage = shaderStageVertex
+            result.uniformBlocks[0].layout = uniformLayoutStd140
+            result.uniformBlocks[0].size = 16
+            result.uniformBlocks[0].glslUniforms[0].type = uniformTypeFloat4
+            result.uniformBlocks[0].glslUniforms[0].arrayCount = 1
+            result.uniformBlocks[0].glslUniforms[0].glslName = "fsq_params"
+            result.images[0].stage = shaderStageFragment
+            result.images[0].multisampled = false
+            result.images[0].imageType = imageType2d
+            result.images[0].sampleType = imageSampleTypeFloat
+            result.images[1].stage = shaderStageFragment
+            result.images[1].multisampled = false
+            result.images[1].imageType = imageType2d
+            result.images[1].sampleType = imageSampleTypeFloat
+            result.images[2].stage = shaderStageFragment
+            result.images[2].multisampled = false
+            result.images[2].imageType = imageType2d
+            result.images[2].sampleType = imageSampleTypeFloat
+            result.samplers[0].stage = shaderStageFragment
+            result.samplers[0].samplerType = samplerTypeFiltering
+            result.imageSamplerPairs[0].stage = shaderStageFragment
+            result.imageSamplerPairs[0].imageSlot = 0
+            result.imageSamplerPairs[0].samplerSlot = 0
+            result.imageSamplerPairs[0].glslName = "tex0_smp"
+            result.imageSamplerPairs[1].stage = shaderStageFragment
+            result.imageSamplerPairs[1].imageSlot = 1
+            result.imageSamplerPairs[1].samplerSlot = 0
+            result.imageSamplerPairs[1].glslName = "tex1_smp"
+            result.imageSamplerPairs[2].stage = shaderStageFragment
+            result.imageSamplerPairs[2].imageSlot = 2
+            result.imageSamplerPairs[2].samplerSlot = 0
+            result.imageSamplerPairs[2].glslName = "tex2_smp"
         of backendD3d11:
-            result.attrs[0].semName = "TEXCOORD"
-            result.attrs[0].semIndex = 0
-            result.vs.source = cast[cstring](addr(vsFsqSourceHlsl5))
-            result.vs.d3d11Target = "vs_5_0"
-            result.vs.entry = "main"
-            result.vs.uniformBlocks[0].size = 16
-            result.vs.uniformBlocks[0].layout = uniformLayoutStd140
-            result.fs.source = cast[cstring](addr(fsFsqSourceHlsl5))
-            result.fs.d3d11Target = "ps_5_0"
-            result.fs.entry = "main"
-            result.fs.images[0].used = true
-            result.fs.images[0].multisampled = false
-            result.fs.images[0].imageType = imageType2d
-            result.fs.images[0].sampleType = imageSampleTypeFloat
-            result.fs.images[1].used = true
-            result.fs.images[1].multisampled = false
-            result.fs.images[1].imageType = imageType2d
-            result.fs.images[1].sampleType = imageSampleTypeFloat
-            result.fs.images[2].used = true
-            result.fs.images[2].multisampled = false
-            result.fs.images[2].imageType = imageType2d
-            result.fs.images[2].sampleType = imageSampleTypeFloat
-            result.fs.samplers[0].used = true
-            result.fs.samplers[0].samplerType = samplerTypeFiltering
-            result.fs.imageSamplerPairs[0].used = true
-            result.fs.imageSamplerPairs[0].imageSlot = 0
-            result.fs.imageSamplerPairs[0].samplerSlot = 0
-            result.fs.imageSamplerPairs[1].used = true
-            result.fs.imageSamplerPairs[1].imageSlot = 1
-            result.fs.imageSamplerPairs[1].samplerSlot = 0
-            result.fs.imageSamplerPairs[2].used = true
-            result.fs.imageSamplerPairs[2].imageSlot = 2
-            result.fs.imageSamplerPairs[2].samplerSlot = 0
+            result.vertexFunc.source = cast[cstring](addr(vsFsqSourceHlsl5))
+            result.vertexFunc.d3d11Target = "vs_5_0"
+            result.vertexFunc.entry = "main"
+            result.fragmentFunc.source = cast[cstring](addr(fsFsqSourceHlsl5))
+            result.fragmentFunc.d3d11Target = "ps_5_0"
+            result.fragmentFunc.entry = "main"
+            result.attrs[0].hlslSemName = "TEXCOORD"
+            result.attrs[0].hlslSemIndex = 0
+            result.uniformBlocks[0].stage = shaderStageVertex
+            result.uniformBlocks[0].layout = uniformLayoutStd140
+            result.uniformBlocks[0].size = 16
+            result.uniformBlocks[0].hlslRegisterBN = 0
+            result.images[0].stage = shaderStageFragment
+            result.images[0].multisampled = false
+            result.images[0].imageType = imageType2d
+            result.images[0].sampleType = imageSampleTypeFloat
+            result.images[0].hlslRegisterTN = 0
+            result.images[1].stage = shaderStageFragment
+            result.images[1].multisampled = false
+            result.images[1].imageType = imageType2d
+            result.images[1].sampleType = imageSampleTypeFloat
+            result.images[1].hlslRegisterTN = 1
+            result.images[2].stage = shaderStageFragment
+            result.images[2].multisampled = false
+            result.images[2].imageType = imageType2d
+            result.images[2].sampleType = imageSampleTypeFloat
+            result.images[2].hlslRegisterTN = 2
+            result.samplers[0].stage = shaderStageFragment
+            result.samplers[0].samplerType = samplerTypeFiltering
+            result.samplers[0].hlslRegisterSN = 0
+            result.imageSamplerPairs[0].stage = shaderStageFragment
+            result.imageSamplerPairs[0].imageSlot = 0
+            result.imageSamplerPairs[0].samplerSlot = 0
+            result.imageSamplerPairs[1].stage = shaderStageFragment
+            result.imageSamplerPairs[1].imageSlot = 1
+            result.imageSamplerPairs[1].samplerSlot = 0
+            result.imageSamplerPairs[2].stage = shaderStageFragment
+            result.imageSamplerPairs[2].imageSlot = 2
+            result.imageSamplerPairs[2].samplerSlot = 0
         of backendMetalMacos:
-            result.vs.source = cast[cstring](addr(vsFsqSourceMetalMacos))
-            result.vs.entry = "main0"
-            result.vs.uniformBlocks[0].size = 16
-            result.vs.uniformBlocks[0].layout = uniformLayoutStd140
-            result.fs.source = cast[cstring](addr(fsFsqSourceMetalMacos))
-            result.fs.entry = "main0"
-            result.fs.images[0].used = true
-            result.fs.images[0].multisampled = false
-            result.fs.images[0].imageType = imageType2d
-            result.fs.images[0].sampleType = imageSampleTypeFloat
-            result.fs.images[1].used = true
-            result.fs.images[1].multisampled = false
-            result.fs.images[1].imageType = imageType2d
-            result.fs.images[1].sampleType = imageSampleTypeFloat
-            result.fs.images[2].used = true
-            result.fs.images[2].multisampled = false
-            result.fs.images[2].imageType = imageType2d
-            result.fs.images[2].sampleType = imageSampleTypeFloat
-            result.fs.samplers[0].used = true
-            result.fs.samplers[0].samplerType = samplerTypeFiltering
-            result.fs.imageSamplerPairs[0].used = true
-            result.fs.imageSamplerPairs[0].imageSlot = 0
-            result.fs.imageSamplerPairs[0].samplerSlot = 0
-            result.fs.imageSamplerPairs[1].used = true
-            result.fs.imageSamplerPairs[1].imageSlot = 1
-            result.fs.imageSamplerPairs[1].samplerSlot = 0
-            result.fs.imageSamplerPairs[2].used = true
-            result.fs.imageSamplerPairs[2].imageSlot = 2
-            result.fs.imageSamplerPairs[2].samplerSlot = 0
+            result.vertexFunc.source = cast[cstring](addr(vsFsqSourceMetalMacos))
+            result.vertexFunc.entry = "main0"
+            result.fragmentFunc.source = cast[cstring](addr(fsFsqSourceMetalMacos))
+            result.fragmentFunc.entry = "main0"
+            result.uniformBlocks[0].stage = shaderStageVertex
+            result.uniformBlocks[0].layout = uniformLayoutStd140
+            result.uniformBlocks[0].size = 16
+            result.uniformBlocks[0].mslBufferN = 0
+            result.images[0].stage = shaderStageFragment
+            result.images[0].multisampled = false
+            result.images[0].imageType = imageType2d
+            result.images[0].sampleType = imageSampleTypeFloat
+            result.images[0].mslTextureN = 0
+            result.images[1].stage = shaderStageFragment
+            result.images[1].multisampled = false
+            result.images[1].imageType = imageType2d
+            result.images[1].sampleType = imageSampleTypeFloat
+            result.images[1].mslTextureN = 1
+            result.images[2].stage = shaderStageFragment
+            result.images[2].multisampled = false
+            result.images[2].imageType = imageType2d
+            result.images[2].sampleType = imageSampleTypeFloat
+            result.images[2].mslTextureN = 2
+            result.samplers[0].stage = shaderStageFragment
+            result.samplers[0].samplerType = samplerTypeFiltering
+            result.samplers[0].mslSamplerN = 0
+            result.imageSamplerPairs[0].stage = shaderStageFragment
+            result.imageSamplerPairs[0].imageSlot = 0
+            result.imageSamplerPairs[0].samplerSlot = 0
+            result.imageSamplerPairs[1].stage = shaderStageFragment
+            result.imageSamplerPairs[1].imageSlot = 1
+            result.imageSamplerPairs[1].samplerSlot = 0
+            result.imageSamplerPairs[2].stage = shaderStageFragment
+            result.imageSamplerPairs[2].imageSlot = 2
+            result.imageSamplerPairs[2].samplerSlot = 0
         else: discard
 proc offscreenShaderDesc*(backend: sg.Backend): sg.ShaderDesc =
     result.label = "offscreen_shader"
     case backend:
         of backendGlcore:
-            result.attrs[0].name = "pos"
-            result.attrs[1].name = "bright0"
-            result.vs.source = cast[cstring](addr(vsOffscreenSourceGlsl430))
-            result.vs.entry = "main"
-            result.vs.uniformBlocks[0].size = 64
-            result.vs.uniformBlocks[0].layout = uniformLayoutStd140
-            result.vs.uniformBlocks[0].uniforms[0].name = "offscreen_params"
-            result.vs.uniformBlocks[0].uniforms[0].type = uniformTypeFloat4
-            result.vs.uniformBlocks[0].uniforms[0].arrayCount = 4
-            result.fs.source = cast[cstring](addr(fsOffscreenSourceGlsl430))
-            result.fs.entry = "main"
+            result.vertexFunc.source = cast[cstring](addr(vsOffscreenSourceGlsl430))
+            result.vertexFunc.entry = "main"
+            result.fragmentFunc.source = cast[cstring](addr(fsOffscreenSourceGlsl430))
+            result.fragmentFunc.entry = "main"
+            result.attrs[0].glslName = "pos"
+            result.attrs[1].glslName = "bright0"
+            result.uniformBlocks[0].stage = shaderStageVertex
+            result.uniformBlocks[0].layout = uniformLayoutStd140
+            result.uniformBlocks[0].size = 64
+            result.uniformBlocks[0].glslUniforms[0].type = uniformTypeFloat4
+            result.uniformBlocks[0].glslUniforms[0].arrayCount = 4
+            result.uniformBlocks[0].glslUniforms[0].glslName = "offscreen_params"
         of backendGles3:
-            result.attrs[0].name = "pos"
-            result.attrs[1].name = "bright0"
-            result.vs.source = cast[cstring](addr(vsOffscreenSourceGlsl300es))
-            result.vs.entry = "main"
-            result.vs.uniformBlocks[0].size = 64
-            result.vs.uniformBlocks[0].layout = uniformLayoutStd140
-            result.vs.uniformBlocks[0].uniforms[0].name = "offscreen_params"
-            result.vs.uniformBlocks[0].uniforms[0].type = uniformTypeFloat4
-            result.vs.uniformBlocks[0].uniforms[0].arrayCount = 4
-            result.fs.source = cast[cstring](addr(fsOffscreenSourceGlsl300es))
-            result.fs.entry = "main"
+            result.vertexFunc.source = cast[cstring](addr(vsOffscreenSourceGlsl300es))
+            result.vertexFunc.entry = "main"
+            result.fragmentFunc.source = cast[cstring](addr(fsOffscreenSourceGlsl300es))
+            result.fragmentFunc.entry = "main"
+            result.attrs[0].glslName = "pos"
+            result.attrs[1].glslName = "bright0"
+            result.uniformBlocks[0].stage = shaderStageVertex
+            result.uniformBlocks[0].layout = uniformLayoutStd140
+            result.uniformBlocks[0].size = 64
+            result.uniformBlocks[0].glslUniforms[0].type = uniformTypeFloat4
+            result.uniformBlocks[0].glslUniforms[0].arrayCount = 4
+            result.uniformBlocks[0].glslUniforms[0].glslName = "offscreen_params"
         of backendD3d11:
-            result.attrs[0].semName = "TEXCOORD"
-            result.attrs[0].semIndex = 0
-            result.attrs[1].semName = "TEXCOORD"
-            result.attrs[1].semIndex = 1
-            result.vs.source = cast[cstring](addr(vsOffscreenSourceHlsl5))
-            result.vs.d3d11Target = "vs_5_0"
-            result.vs.entry = "main"
-            result.vs.uniformBlocks[0].size = 64
-            result.vs.uniformBlocks[0].layout = uniformLayoutStd140
-            result.fs.source = cast[cstring](addr(fsOffscreenSourceHlsl5))
-            result.fs.d3d11Target = "ps_5_0"
-            result.fs.entry = "main"
+            result.vertexFunc.source = cast[cstring](addr(vsOffscreenSourceHlsl5))
+            result.vertexFunc.d3d11Target = "vs_5_0"
+            result.vertexFunc.entry = "main"
+            result.fragmentFunc.source = cast[cstring](addr(fsOffscreenSourceHlsl5))
+            result.fragmentFunc.d3d11Target = "ps_5_0"
+            result.fragmentFunc.entry = "main"
+            result.attrs[0].hlslSemName = "TEXCOORD"
+            result.attrs[0].hlslSemIndex = 0
+            result.attrs[1].hlslSemName = "TEXCOORD"
+            result.attrs[1].hlslSemIndex = 1
+            result.uniformBlocks[0].stage = shaderStageVertex
+            result.uniformBlocks[0].layout = uniformLayoutStd140
+            result.uniformBlocks[0].size = 64
+            result.uniformBlocks[0].hlslRegisterBN = 0
         of backendMetalMacos:
-            result.vs.source = cast[cstring](addr(vsOffscreenSourceMetalMacos))
-            result.vs.entry = "main0"
-            result.vs.uniformBlocks[0].size = 64
-            result.vs.uniformBlocks[0].layout = uniformLayoutStd140
-            result.fs.source = cast[cstring](addr(fsOffscreenSourceMetalMacos))
-            result.fs.entry = "main0"
+            result.vertexFunc.source = cast[cstring](addr(vsOffscreenSourceMetalMacos))
+            result.vertexFunc.entry = "main0"
+            result.fragmentFunc.source = cast[cstring](addr(fsOffscreenSourceMetalMacos))
+            result.fragmentFunc.entry = "main0"
+            result.uniformBlocks[0].stage = shaderStageVertex
+            result.uniformBlocks[0].layout = uniformLayoutStd140
+            result.uniformBlocks[0].size = 64
+            result.uniformBlocks[0].mslBufferN = 0
         else: discard

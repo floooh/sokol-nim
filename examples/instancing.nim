@@ -134,7 +134,7 @@ proc frame() {.cdecl.} =
   sg.beginPass(Pass(action: passAction, swapchain: sglue.swapchain()))
   sg.applyPipeline(pip)
   sg.applyBindings(bindings)
-  sg.applyUniforms(shaderStageVs, shd.slotVsParams, sg.Range(addr: vsParams.addr, size: vsParams.sizeof))
+  sg.applyUniforms(shd.ubVsParams, sg.Range(addr: vsParams.addr, size: vsParams.sizeof))
   sg.draw(0, 24, curNumParticles.int32)
   sg.endPass()
   sg.commit()
