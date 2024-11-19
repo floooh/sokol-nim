@@ -146,6 +146,7 @@ type Features* = object
   mrtIndependentBlendState*:bool
   mrtIndependentWriteMask*:bool
   storageBuffer*:bool
+  msaaImageBindings*:bool
 
 type Limits* = object
   maxImageSize2d*:int32
@@ -1110,6 +1111,7 @@ type
     logitemValidateImagedescNoMsaaRtSupport,
     logitemValidateImagedescMsaaNumMipmaps,
     logitemValidateImagedescMsaa3dImage,
+    logitemValidateImagedescMsaaCubeImage,
     logitemValidateImagedescDepth3dImage,
     logitemValidateImagedescRtImmutable,
     logitemValidateImagedescRtNoData,
@@ -1263,6 +1265,7 @@ type
     logitemValidateAbndExpectedImageBinding,
     logitemValidateAbndImgExists,
     logitemValidateAbndImageTypeMismatch,
+    logitemValidateAbndExpectedMultisampledImage,
     logitemValidateAbndImageMsaa,
     logitemValidateAbndExpectedFilterableImage,
     logitemValidateAbndExpectedDepthImage,
