@@ -372,7 +372,7 @@ type Desc* = object
   win32ConsoleUtf8*:bool
   win32ConsoleCreate*:bool
   win32ConsoleAttach*:bool
-  html5CanvasName*:cstring
+  html5CanvasSelector*:cstring
   html5CanvasResize*:bool
   html5PreserveDrawingBuffer*:bool
   html5PremultipliedAlpha*:bool
