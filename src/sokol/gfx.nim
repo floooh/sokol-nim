@@ -1618,6 +1618,50 @@ proc c_queryAttachmentsDefaults(desc:ptr AttachmentsDesc):AttachmentsDesc {.cdec
 proc queryAttachmentsDefaults*(desc:AttachmentsDesc):AttachmentsDesc =
     c_queryAttachmentsDefaults(addr(desc))
 
+proc c_queryBufferSize(buf:Buffer):int {.cdecl, importc:"sg_query_buffer_size".}
+proc queryBufferSize*(buf:Buffer):int =
+    c_queryBufferSize(buf)
+
+proc c_queryBufferType(buf:Buffer):BufferType {.cdecl, importc:"sg_query_buffer_type".}
+proc queryBufferType*(buf:Buffer):BufferType =
+    c_queryBufferType(buf)
+
+proc c_queryBufferUsage(buf:Buffer):Usage {.cdecl, importc:"sg_query_buffer_usage".}
+proc queryBufferUsage*(buf:Buffer):Usage =
+    c_queryBufferUsage(buf)
+
+proc c_queryImageType(img:Image):ImageType {.cdecl, importc:"sg_query_image_type".}
+proc queryImageType*(img:Image):ImageType =
+    c_queryImageType(img)
+
+proc c_queryImageWidth(img:Image):int32 {.cdecl, importc:"sg_query_image_width".}
+proc queryImageWidth*(img:Image):int32 =
+    c_queryImageWidth(img)
+
+proc c_queryImageHeight(img:Image):int32 {.cdecl, importc:"sg_query_image_height".}
+proc queryImageHeight*(img:Image):int32 =
+    c_queryImageHeight(img)
+
+proc c_queryImageNumSlices(img:Image):int32 {.cdecl, importc:"sg_query_image_num_slices".}
+proc queryImageNumSlices*(img:Image):int32 =
+    c_queryImageNumSlices(img)
+
+proc c_queryImageNumMipmaps(img:Image):int32 {.cdecl, importc:"sg_query_image_num_mipmaps".}
+proc queryImageNumMipmaps*(img:Image):int32 =
+    c_queryImageNumMipmaps(img)
+
+proc c_queryImagePixelformat(img:Image):PixelFormat {.cdecl, importc:"sg_query_image_pixelformat".}
+proc queryImagePixelformat*(img:Image):PixelFormat =
+    c_queryImagePixelformat(img)
+
+proc c_queryImageUsage(img:Image):Usage {.cdecl, importc:"sg_query_image_usage".}
+proc queryImageUsage*(img:Image):Usage =
+    c_queryImageUsage(img)
+
+proc c_queryImageSampleCount(img:Image):int32 {.cdecl, importc:"sg_query_image_sample_count".}
+proc queryImageSampleCount*(img:Image):int32 =
+    c_queryImageSampleCount(img)
+
 proc c_allocBuffer():Buffer {.cdecl, importc:"sg_alloc_buffer".}
 proc allocBuffer*():Buffer =
     c_allocBuffer()
