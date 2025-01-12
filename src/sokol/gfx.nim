@@ -1001,6 +1001,7 @@ type
     logitemGlShaderCompilationFailed,
     logitemGlShaderLinkingFailed,
     logitemGlVertexAttributeNotFoundInShader,
+    logitemGlUniformblockNameNotFoundInShader,
     logitemGlImageSamplerNameNotFoundInShader,
     logitemGlFramebufferStatusUndefined,
     logitemGlFramebufferStatusIncompleteAttachment,
