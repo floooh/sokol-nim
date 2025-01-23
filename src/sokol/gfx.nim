@@ -998,6 +998,7 @@ type
     logitemGlTextureFormatNotSupported,
     logitemGl3dTexturesNotSupported,
     logitemGlArrayTexturesNotSupported,
+    logitemGlStoragebufferGlslBindingOutOfRange,
     logitemGlShaderCompilationFailed,
     logitemGlShaderLinkingFailed,
     logitemGlVertexAttributeNotFoundInShader,
