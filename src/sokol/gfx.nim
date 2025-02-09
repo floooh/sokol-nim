@@ -358,6 +358,8 @@ type
     blendOpAdd,
     blendOpSubtract,
     blendOpReverseSubtract,
+    blendOpMin,
+    blendOpMax,
 
 type
   ColorMask* {.size:sizeof(int32).} = enum
@@ -1188,6 +1190,7 @@ type
     logitemValidatePipelinedescNoContAttrs,
     logitemValidatePipelinedescLayoutStride4,
     logitemValidatePipelinedescAttrSemantics,
+    logitemValidatePipelinedescBlendopMinmaxRequiresBlendfactorOne,
     logitemValidateAttachmentsdescCanary,
     logitemValidateAttachmentsdescNoAttachments,
     logitemValidateAttachmentsdescNoContColorAtts,
