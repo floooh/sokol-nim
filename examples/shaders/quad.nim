@@ -398,7 +398,4 @@ proc quadShaderDesc*(backend: sg.Backend): sg.ShaderDesc =
             result.vertexFunc.entry = "main0"
             result.fragmentFunc.source = cast[cstring](addr(fsSourceMetalMacos))
             result.fragmentFunc.entry = "main0"
-            result.mtlThreadsPerThreadgroup.x = 0;
-            result.mtlThreadsPerThreadgroup.y = 0;
-            result.mtlThreadsPerThreadgroup.z = 0;
         else: discard
