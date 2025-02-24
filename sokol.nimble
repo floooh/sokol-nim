@@ -49,7 +49,8 @@ let shaders = [
 ]
 
 let compute_shaders = [
-  "vertexpull"
+  "vertexpull",
+  "instancing-compute"
 ]
 
 proc compilerSwitch(): string =
@@ -143,7 +144,7 @@ task build_all, "Build all examples in release mode":
       build(example)
 
 task shaders, "Compile all shaders (requires ../sokol-tools-bin)":
-  let binDir = "../../../sokol-tools-bin/bin/"
+  let binDir = "../sokol-tools-bin/bin/"
   let shdcPath =
     when defined(windows):
       &"{binDir}win32/sokol-shdc"
