@@ -141,7 +141,7 @@ type Features* = object
   imageClampToBorder*:bool
   mrtIndependentBlendState*:bool
   mrtIndependentWriteMask*:bool
-  storageBuffer*:bool
+  compute*:bool
   msaaImageBindings*:bool
 
 type Limits* = object
@@ -445,6 +445,7 @@ type Swapchain* = object
 
 type Pass* = object
   startCanary:uint32
+  compute*:bool
   action*:PassAction
   attachments*:Attachments
   swapchain*:Swapchain
@@ -568,6 +569,7 @@ type
     shaderStageNone,
     shaderStageVertex,
     shaderStageFragment,
+    shaderStageCompute,
 
 type ShaderFunction* = object
   source*:cstring
@@ -618,6 +620,7 @@ type ShaderStorageBuffer* = object
   stage*:ShaderStage
   readonly*:bool
   hlslRegisterTN*:uint8
+  hlslRegisterUN*:uint8
   mslBufferN*:uint8
   wgslGroup1BindingN*:uint8
   glslBindingN*:uint8
@@ -628,16 +631,23 @@ type ShaderImageSamplerPair* = object
   samplerSlot*:uint8
   glslName*:cstring
 
+type MtlShaderThreadsPerThreadgroup* = object
+  x*:int32
+  y*:int32
+  z*:int32
+
 type ShaderDesc* = object
   startCanary:uint32
   vertexFunc*:ShaderFunction
   fragmentFunc*:ShaderFunction
+  computeFunc*:ShaderFunction
   attrs*:array[16, ShaderVertexAttr]
   uniformBlocks*:array[8, ShaderUniformBlock]
   storageBuffers*:array[8, ShaderStorageBuffer]
   images*:array[16, ShaderImage]
   samplers*:array[16, ShaderSampler]
   imageSamplerPairs*:array[16, ShaderImageSamplerPair]
+  mtlThreadsPerThreadgroup*:MtlShaderThreadsPerThreadgroup
   label*:cstring
   endCanary:uint32
 
@@ -725,6 +735,7 @@ type ColorTargetState* = object
 
 type PipelineDesc* = object
   startCanary:uint32
+  compute*:bool
   shader*:Shader
   layout*:VertexLayoutState
   depth*:DepthState
@@ -791,6 +802,7 @@ type TraceHooks* = object
   applyBindings*:proc(a1:ptr Bindings, a2:pointer) {.cdecl.}
   applyUniforms*:proc(a1:int32, a2:ptr Range, a3:pointer) {.cdecl.}
   draw*:proc(a1:int32, a2:int32, a3:int32, a4:pointer) {.cdecl.}
+  dispatch*:proc(a1:int32, a2:int32, a3:int32, a4:pointer) {.cdecl.}
   endPass*:proc(a1:pointer) {.cdecl.}
   commit*:proc(a1:pointer) {.cdecl.}
   allocBuffer*:proc(a1:Buffer, a2:pointer) {.cdecl.}
@@ -869,6 +881,7 @@ type FrameStatsGl* = object
   numEnableVertexAttribArray*:uint32
   numDisableVertexAttribArray*:uint32
   numUniform*:uint32
+  numMemoryBarriers*:uint32
 
 type FrameStatsD3d11Pass* = object
   numOmSetRenderTargets*:uint32
@@ -886,14 +899,19 @@ type FrameStatsD3d11Pipeline* = object
   numVsSetConstantBuffers*:uint32
   numPsSetShader*:uint32
   numPsSetConstantBuffers*:uint32
+  numCsSetShader*:uint32
+  numCsSetConstantBuffers*:uint32
 
 type FrameStatsD3d11Bindings* = object
   numIaSetVertexBuffers*:uint32
   numIaSetIndexBuffer*:uint32
   numVsSetShaderResources*:uint32
-  numPsSetShaderResources*:uint32
   numVsSetSamplers*:uint32
+  numPsSetShaderResources*:uint32
   numPsSetSamplers*:uint32
+  numCsSetShaderResources*:uint32
+  numCsSetSamplers*:uint32
+  numCsSetUnorderedAccessViews*:uint32
 
 type FrameStatsD3d11Uniforms* = object
   numUpdateSubresource*:uint32
@@ -934,10 +952,14 @@ type FrameStatsMetalBindings* = object
   numSetFragmentBuffer*:uint32
   numSetFragmentTexture*:uint32
   numSetFragmentSamplerState*:uint32
+  numSetComputeBuffer*:uint32
+  numSetComputeTexture*:uint32
+  numSetComputeSamplerState*:uint32
 
 type FrameStatsMetalUniforms* = object
   numSetVertexBufferOffset*:uint32
   numSetFragmentBufferOffset*:uint32
+  numSetComputeBufferOffset*:uint32
 
 type FrameStatsMetal* = object
   idpool*:FrameStatsMetalIdpool
@@ -977,6 +999,7 @@ type FrameStats* = object
   numApplyBindings*:uint32
   numApplyUniforms*:uint32
   numDraw*:uint32
+  numDispatch*:uint32
   numUpdateBuffer*:uint32
   numAppendBuffer*:uint32
   numUpdateImage*:uint32
@@ -1010,6 +1033,7 @@ type
     logitemGlFramebufferStatusUnknown,
     logitemD3d11CreateBufferFailed,
     logitemD3d11CreateBufferSrvFailed,
+    logitemD3d11CreateBufferUavFailed,
     logitemD3d11CreateDepthTextureUnsupportedPixelFormat,
     logitemD3d11CreateDepthTextureFailed,
     logitemD3d11Create2dTextureUnsupportedPixelFormat,
@@ -1022,6 +1046,7 @@ type
     logitemD3d11CreateSamplerStateFailed,
     logitemD3d11UniformblockHlslRegisterBOutOfRange,
     logitemD3d11StoragebufferHlslRegisterTOutOfRange,
+    logitemD3d11StoragebufferHlslRegisterUOutOfRange,
     logitemD3d11ImageHlslRegisterTOutOfRange,
     logitemD3d11SamplerHlslRegisterSOutOfRange,
     logitemD3d11LoadD3dcompiler47DllFailed,
@@ -1049,6 +1074,8 @@ type
     logitemMetalStoragebufferMslBufferSlotOutOfRange,
     logitemMetalImageMslTextureSlotOutOfRange,
     logitemMetalSamplerMslSamplerSlotOutOfRange,
+    logitemMetalCreateCpsFailed,
+    logitemMetalCreateCpsOutput,
     logitemMetalCreateRpsFailed,
     logitemMetalCreateRpsOutput,
     logitemMetalCreateDssFailed,
@@ -1068,8 +1095,8 @@ type
     logitemWgpuSamplerWgslGroup1BindingOutOfRange,
     logitemWgpuCreatePipelineLayoutFailed,
     logitemWgpuCreateRenderPipelineFailed,
+    logitemWgpuCreateComputePipelineFailed,
     logitemWgpuAttachmentsCreateTextureViewFailed,
-    logitemDrawRequiredBindingsOrUniformsMissing,
     logitemIdenticalCommitListener,
     logitemCommitListenerArrayFull,
     logitemTraceHooksNotEnabled,
@@ -1104,12 +1131,13 @@ type
     logitemPipelinePoolExhausted,
     logitemPassPoolExhausted,
     logitemBeginpassAttachmentInvalid,
+    logitemApplyBindingsStorageBufferTrackerExhausted,
     logitemDrawWithoutBindings,
     logitemValidateBufferdescCanary,
-    logitemValidateBufferdescSize,
-    logitemValidateBufferdescData,
-    logitemValidateBufferdescDataSize,
-    logitemValidateBufferdescNoData,
+    logitemValidateBufferdescExpectNonzeroSize,
+    logitemValidateBufferdescExpectMatchingDataSize,
+    logitemValidateBufferdescExpectZeroDataSize,
+    logitemValidateBufferdescExpectNoData,
     logitemValidateBufferdescStoragebufferSupported,
     logitemValidateBufferdescStoragebufferSizeMultiple4,
     logitemValidateImagedataNodata,
@@ -1133,10 +1161,15 @@ type
     logitemValidateSamplerdescCanary,
     logitemValidateSamplerdescAnistropicRequiresLinearFiltering,
     logitemValidateShaderdescCanary,
-    logitemValidateShaderdescSource,
-    logitemValidateShaderdescBytecode,
-    logitemValidateShaderdescSourceOrBytecode,
+    logitemValidateShaderdescVertexSource,
+    logitemValidateShaderdescFragmentSource,
+    logitemValidateShaderdescComputeSource,
+    logitemValidateShaderdescVertexSourceOrBytecode,
+    logitemValidateShaderdescFragmentSourceOrBytecode,
+    logitemValidateShaderdescComputeSourceOrBytecode,
+    logitemValidateShaderdescInvalidShaderCombo,
     logitemValidateShaderdescNoBytecodeSize,
+    logitemValidateShaderdescMetalThreadsPerThreadgroup,
     logitemValidateShaderdescUniformblockNoContMembers,
     logitemValidateShaderdescUniformblockSizeIsZero,
     logitemValidateShaderdescUniformblockMetalBufferSlotOutOfRange,
@@ -1154,11 +1187,12 @@ type
     logitemValidateShaderdescStoragebufferMetalBufferSlotCollision,
     logitemValidateShaderdescStoragebufferHlslRegisterTOutOfRange,
     logitemValidateShaderdescStoragebufferHlslRegisterTCollision,
+    logitemValidateShaderdescStoragebufferHlslRegisterUOutOfRange,
+    logitemValidateShaderdescStoragebufferHlslRegisterUCollision,
     logitemValidateShaderdescStoragebufferGlslBindingOutOfRange,
     logitemValidateShaderdescStoragebufferGlslBindingCollision,
     logitemValidateShaderdescStoragebufferWgslGroup1BindingOutOfRange,
     logitemValidateShaderdescStoragebufferWgslGroup1BindingCollision,
-    logitemValidateShaderdescStoragebufferReadonly,
     logitemValidateShaderdescImageMetalTextureSlotOutOfRange,
     logitemValidateShaderdescImageMetalTextureSlotCollision,
     logitemValidateShaderdescImageHlslRegisterTOutOfRange,
@@ -1183,9 +1217,12 @@ type
     logitemValidateShaderdescAttrStringTooLong,
     logitemValidatePipelinedescCanary,
     logitemValidatePipelinedescShader,
+    logitemValidatePipelinedescComputeShaderExpected,
+    logitemValidatePipelinedescNoComputeShaderExpected,
     logitemValidatePipelinedescNoContAttrs,
     logitemValidatePipelinedescLayoutStride4,
     logitemValidatePipelinedescAttrSemantics,
+    logitemValidatePipelinedescShaderReadonlyStoragebuffers,
     logitemValidatePipelinedescBlendopMinmaxRequiresBlendfactorOne,
     logitemValidateAttachmentsdescCanary,
     logitemValidateAttachmentsdescNoAttachments,
@@ -1219,6 +1256,7 @@ type
     logitemValidateAttachmentsdescDepthImageSizes,
     logitemValidateAttachmentsdescDepthImageSampleCount,
     logitemValidateBeginpassCanary,
+    logitemValidateBeginpassExpectNoAttachments,
     logitemValidateBeginpassAttachmentsExists,
     logitemValidateBeginpassAttachmentsValid,
     logitemValidateBeginpassColorAttachmentImage,
@@ -1252,20 +1290,28 @@ type
     logitemValidateBeginpassSwapchainWgpuExpectDepthstencilview,
     logitemValidateBeginpassSwapchainWgpuExpectDepthstencilviewNotset,
     logitemValidateBeginpassSwapchainGlExpectFramebufferNotset,
+    logitemValidateAvpRenderpassExpected,
+    logitemValidateAsrRenderpassExpected,
     logitemValidateApipPipelineValidId,
     logitemValidateApipPipelineExists,
     logitemValidateApipPipelineValid,
+    logitemValidateApipPassExpected,
     logitemValidateApipShaderExists,
     logitemValidateApipShaderValid,
+    logitemValidateApipComputepassExpected,
+    logitemValidateApipRenderpassExpected,
     logitemValidateApipCurpassAttachmentsExists,
     logitemValidateApipCurpassAttachmentsValid,
     logitemValidateApipAttCount,
     logitemValidateApipColorFormat,
     logitemValidateApipDepthFormat,
     logitemValidateApipSampleCount,
+    logitemValidateAbndPassExpected,
     logitemValidateAbndPipeline,
     logitemValidateAbndPipelineExists,
     logitemValidateAbndPipelineValid,
+    logitemValidateAbndComputeExpectedNoVbs,
+    logitemValidateAbndComputeExpectedNoIb,
     logitemValidateAbndExpectedVb,
     logitemValidateAbndVbExists,
     logitemValidateAbndVbType,
@@ -1290,9 +1336,20 @@ type
     logitemValidateAbndExpectedStoragebufferBinding,
     logitemValidateAbndStoragebufferExists,
     logitemValidateAbndStoragebufferBindingBuffertype,
-    logitemValidateAubNoPipeline,
-    logitemValidateAubNoUniformblockAtSlot,
-    logitemValidateAubSize,
+    logitemValidateAuPassExpected,
+    logitemValidateAuNoPipeline,
+    logitemValidateAuNoUniformblockAtSlot,
+    logitemValidateAuSize,
+    logitemValidateDrawRenderpassExpected,
+    logitemValidateDrawBaseelement,
+    logitemValidateDrawNumelements,
+    logitemValidateDrawNuminstances,
+    logitemValidateDrawRequiredBindingsOrUniformsMissing,
+    logitemValidateDispatchComputepassExpected,
+    logitemValidateDispatchNumgroupsx,
+    logitemValidateDispatchNumgroupsy,
+    logitemValidateDispatchNumgroupsz,
+    logitemValidateDispatchRequiredBindingsOrUniformsMissing,
     logitemValidateUpdatebufUsage,
     logitemValidateUpdatebufSize,
     logitemValidateUpdatebufOnce,
@@ -1347,6 +1404,7 @@ type Desc* = object
   pipelinePoolSize*:int32
   attachmentsPoolSize*:int32
   uniformBufferSize*:int32
+  maxDispatchCallsPerPass*:int32
   maxCommitListeners*:int32
   disableValidation*:bool
   d3d11ShaderDebugging*:bool
@@ -1498,6 +1556,10 @@ proc applyUniforms*(ubSlot:int32, data:Range):void =
 proc c_draw(baseElement:int32, numElements:int32, numInstances:int32):void {.cdecl, importc:"sg_draw".}
 proc draw*(baseElement:int32, numElements:int32, numInstances:int32):void =
     c_draw(base_element, num_elements, num_instances)
+
+proc c_dispatch(numGroupsX:int32, numGroupsY:int32, numGroupsZ:int32):void {.cdecl, importc:"sg_dispatch".}
+proc dispatch*(numGroupsX:int32, numGroupsY:int32, numGroupsZ:int32):void =
+    c_dispatch(num_groups_x, num_groups_y, num_groups_z)
 
 proc c_endPass():void {.cdecl, importc:"sg_end_pass".}
 proc endPass*():void =
@@ -1896,7 +1958,8 @@ type WgpuShaderInfo* = object
   bgl*:pointer
 
 type WgpuPipelineInfo* = object
-  pip*:pointer
+  renderPipeline*:pointer
+  computePipeline*:pointer
 
 type WgpuAttachmentsInfo* = object
   colorView*:array[4, pointer]
@@ -1983,6 +2046,10 @@ proc c_mtlRenderCommandEncoder():pointer {.cdecl, importc:"sg_mtl_render_command
 proc mtlRenderCommandEncoder*():pointer =
     c_mtlRenderCommandEncoder()
 
+proc c_mtlComputeCommandEncoder():pointer {.cdecl, importc:"sg_mtl_compute_command_encoder".}
+proc mtlComputeCommandEncoder*():pointer =
+    c_mtlComputeCommandEncoder()
+
 proc c_mtlQueryBufferInfo(buf:Buffer):MtlBufferInfo {.cdecl, importc:"sg_mtl_query_buffer_info".}
 proc mtlQueryBufferInfo*(buf:Buffer):MtlBufferInfo =
     c_mtlQueryBufferInfo(buf)
@@ -2018,6 +2085,10 @@ proc wgpuCommandEncoder*():pointer =
 proc c_wgpuRenderPassEncoder():pointer {.cdecl, importc:"sg_wgpu_render_pass_encoder".}
 proc wgpuRenderPassEncoder*():pointer =
     c_wgpuRenderPassEncoder()
+
+proc c_wgpuComputePassEncoder():pointer {.cdecl, importc:"sg_wgpu_compute_pass_encoder".}
+proc wgpuComputePassEncoder*():pointer =
+    c_wgpuComputePassEncoder()
 
 proc c_wgpuQueryBufferInfo(buf:Buffer):WgpuBufferInfo {.cdecl, importc:"sg_wgpu_query_buffer_info".}
 proc wgpuQueryBufferInfo*(buf:Buffer):WgpuBufferInfo =

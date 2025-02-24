@@ -60,18 +60,6 @@ import ../math/vec2
 #        Sampler 'smp':
 #            Type: samplerTypeFiltering
 #            Bind slot: smpSmp => 0
-#        Image Sampler Pair 'tex_smp':
-#            Image: tex
-#            Sampler: smp
-#        Image Sampler Pair 'tex0_smp':
-#            Image: tex0
-#            Sampler: smp
-#        Image Sampler Pair 'tex1_smp':
-#            Image: tex1
-#            Sampler: smp
-#        Image Sampler Pair 'tex2_smp':
-#            Image: tex2
-#            Sampler: smp
 #
 const attrDbgPos* = 0
 const attrFsqPos* = 0

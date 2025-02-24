@@ -26,7 +26,7 @@ proc init() {.cdecl.} =
   ))
 
   # if storage buffers are not supported on this backend, just render a red screen
-  if not sg.queryFeatures().storageBuffer:
+  if not sg.queryFeatures().compute:
     passAction = sg.PassAction(
       colors: [
         ColorAttachmentAction(loadAction: loadActionClear, clearValue: (1, 0, 0, 1))
@@ -113,7 +113,7 @@ proc frame() {.cdecl.} =
   let vsParams = computeVsParams();
 
   sg.beginPass(Pass(action: passAction, swapchain: sglue.swapchain()))
-  if sg.queryFeatures().storageBuffer:
+  if sg.queryFeatures().compute:
     sg.applyPipeline(pip)
     sg.applyBindings(bindings)
     sg.applyUniforms(shd.ubVsParams, sg.Range(addr: vsParams.addr, size: vsParams.sizeof))
