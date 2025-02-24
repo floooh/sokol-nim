@@ -46,6 +46,9 @@ let shaders = [
   "instancing",
   "mrt",
   "blend",
+]
+
+let compute_shaders = [
   "vertexpull"
 ]
 
@@ -140,7 +143,7 @@ task build_all, "Build all examples in release mode":
       build(example)
 
 task shaders, "Compile all shaders (requires ../sokol-tools-bin)":
-  let binDir = "../sokol-tools-bin/bin/"
+  let binDir = "../../../sokol-tools-bin/bin/"
   let shdcPath =
     when defined(windows):
       &"{binDir}win32/sokol-shdc"
@@ -150,7 +153,11 @@ task shaders, "Compile all shaders (requires ../sokol-tools-bin)":
       &"{binDir}osx/sokol-shdc"
     else:
       &"{binDir}linux/sokol-shdc"
-  for shader in shaders:
-    let cmd = &"{shdcPath} -i examples/shaders/{shader}.glsl -o examples/shaders/{shader}.nim -l glsl430:metal_macos:hlsl5:glsl300es -f sokol_nim"
+  for shd in shaders:
+    let cmd = &"{shdcPath} -i examples/shaders/{shd}.glsl -o examples/shaders/{shd}.nim -l glsl430:metal_macos:hlsl5:glsl300es -f sokol_nim"
+    echo &"    {cmd}"
+    exec cmd
+  for shd in compute_shaders:
+    let cmd = &"{shdcPath} -i examples/shaders/{shd}.glsl -o examples/shaders/{shd}.nim -l glsl430:metal_macos:hlsl5 -f sokol_nim"
     echo &"    {cmd}"
     exec cmd

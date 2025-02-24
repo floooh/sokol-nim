@@ -37,9 +37,6 @@ import ../math/mat4
 #        Sampler 'smp':
 #            Type: samplerTypeFiltering
 #            Bind slot: smpSmp => 0
-#        Image Sampler Pair 'tex_smp':
-#            Image: tex
-#            Sampler: smp
 #
 const attrDefaultPosition* = 0
 const attrDefaultNormal* = 1
@@ -1037,6 +1034,9 @@ proc defaultShaderDesc*(backend: sg.Backend): sg.ShaderDesc =
             result.vertexFunc.entry = "main0"
             result.fragmentFunc.source = cast[cstring](addr(fsDefaultSourceMetalMacos))
             result.fragmentFunc.entry = "main0"
+            result.mtlThreadsPerThreadgroup.x = 0;
+            result.mtlThreadsPerThreadgroup.y = 0;
+            result.mtlThreadsPerThreadgroup.z = 0;
             result.uniformBlocks[0].stage = shaderStageVertex
             result.uniformBlocks[0].layout = uniformLayoutStd140
             result.uniformBlocks[0].size = 64
@@ -1102,6 +1102,9 @@ proc offscreenShaderDesc*(backend: sg.Backend): sg.ShaderDesc =
             result.vertexFunc.entry = "main0"
             result.fragmentFunc.source = cast[cstring](addr(fsOffscreenSourceMetalMacos))
             result.fragmentFunc.entry = "main0"
+            result.mtlThreadsPerThreadgroup.x = 0;
+            result.mtlThreadsPerThreadgroup.y = 0;
+            result.mtlThreadsPerThreadgroup.z = 0;
             result.uniformBlocks[0].stage = shaderStageVertex
             result.uniformBlocks[0].layout = uniformLayoutStd140
             result.uniformBlocks[0].size = 64

@@ -60,18 +60,6 @@ import ../math/vec2
 #        Sampler 'smp':
 #            Type: samplerTypeFiltering
 #            Bind slot: smpSmp => 0
-#        Image Sampler Pair 'tex_smp':
-#            Image: tex
-#            Sampler: smp
-#        Image Sampler Pair 'tex0_smp':
-#            Image: tex0
-#            Sampler: smp
-#        Image Sampler Pair 'tex1_smp':
-#            Image: tex1
-#            Sampler: smp
-#        Image Sampler Pair 'tex2_smp':
-#            Image: tex2
-#            Sampler: smp
 #
 const attrDbgPos* = 0
 const attrFsqPos* = 0
@@ -1508,6 +1496,9 @@ proc dbgShaderDesc*(backend: sg.Backend): sg.ShaderDesc =
             result.vertexFunc.entry = "main0"
             result.fragmentFunc.source = cast[cstring](addr(fsDbgSourceMetalMacos))
             result.fragmentFunc.entry = "main0"
+            result.mtlThreadsPerThreadgroup.x = 0;
+            result.mtlThreadsPerThreadgroup.y = 0;
+            result.mtlThreadsPerThreadgroup.z = 0;
             result.images[0].stage = shaderStageFragment
             result.images[0].multisampled = false
             result.images[0].imageType = imageType2d
@@ -1644,6 +1635,9 @@ proc fsqShaderDesc*(backend: sg.Backend): sg.ShaderDesc =
             result.vertexFunc.entry = "main0"
             result.fragmentFunc.source = cast[cstring](addr(fsFsqSourceMetalMacos))
             result.fragmentFunc.entry = "main0"
+            result.mtlThreadsPerThreadgroup.x = 0;
+            result.mtlThreadsPerThreadgroup.y = 0;
+            result.mtlThreadsPerThreadgroup.z = 0;
             result.uniformBlocks[0].stage = shaderStageVertex
             result.uniformBlocks[0].layout = uniformLayoutStd140
             result.uniformBlocks[0].size = 16
@@ -1725,6 +1719,9 @@ proc offscreenShaderDesc*(backend: sg.Backend): sg.ShaderDesc =
             result.vertexFunc.entry = "main0"
             result.fragmentFunc.source = cast[cstring](addr(fsOffscreenSourceMetalMacos))
             result.fragmentFunc.entry = "main0"
+            result.mtlThreadsPerThreadgroup.x = 0;
+            result.mtlThreadsPerThreadgroup.y = 0;
+            result.mtlThreadsPerThreadgroup.z = 0;
             result.uniformBlocks[0].stage = shaderStageVertex
             result.uniformBlocks[0].layout = uniformLayoutStd140
             result.uniformBlocks[0].size = 64
