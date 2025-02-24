@@ -50,7 +50,7 @@ let shaders = [
 
 let compute_shaders = [
   "vertexpull",
-  "instancing-compute"
+  "instancingcompute"
 ]
 
 proc compilerSwitch(): string =
@@ -100,8 +100,11 @@ task shapes, "Runs the shapes example":
 task offscreen, "Runs the offscreen example":
   run "offscreen"
 
-task instancing, "Runs the instancing smaple":
+task instancing, "Runs the instancing sample":
   run "instancing"
+
+task instancingcompute, "Runs the instancingcompute sample":
+  run "instancingcompute"
 
 task mrt, "Runs the mrt sample":
   run "mrt"
