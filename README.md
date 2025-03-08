@@ -36,6 +36,7 @@ nimble sgl
 nimble sglcontext
 nimble sglpoints
 nimble saudio
+nimble instancingcompute
 ```
 
 NOTE: on Windows, the MSVC C compiler will be used by all Nimble tasks. To build

@@ -31,7 +31,8 @@ let examples = [
   "sglcontext",
   "sglpoints",
   "saudio",
-  "vertexpull"
+  "vertexpull",
+  "instancingcompute"
 ]
 
 let shaders = [
