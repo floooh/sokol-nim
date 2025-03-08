@@ -46,7 +46,11 @@ let shaders = [
   "instancing",
   "mrt",
   "blend",
-  "vertexpull"
+]
+
+let compute_shaders = [
+  "vertexpull",
+  "instancingcompute"
 ]
 
 proc compilerSwitch(): string =
@@ -96,8 +100,11 @@ task shapes, "Runs the shapes example":
 task offscreen, "Runs the offscreen example":
   run "offscreen"
 
-task instancing, "Runs the instancing smaple":
+task instancing, "Runs the instancing sample":
   run "instancing"
+
+task instancingcompute, "Runs the instancingcompute sample":
+  run "instancingcompute"
 
 task mrt, "Runs the mrt sample":
   run "mrt"
@@ -150,7 +157,11 @@ task shaders, "Compile all shaders (requires ../sokol-tools-bin)":
       &"{binDir}osx/sokol-shdc"
     else:
       &"{binDir}linux/sokol-shdc"
-  for shader in shaders:
-    let cmd = &"{shdcPath} -i examples/shaders/{shader}.glsl -o examples/shaders/{shader}.nim -l glsl430:metal_macos:hlsl5:glsl300es -f sokol_nim"
+  for shd in shaders:
+    let cmd = &"{shdcPath} -i examples/shaders/{shd}.glsl -o examples/shaders/{shd}.nim -l glsl430:metal_macos:hlsl5:glsl300es -f sokol_nim"
+    echo &"    {cmd}"
+    exec cmd
+  for shd in compute_shaders:
+    let cmd = &"{shdcPath} -i examples/shaders/{shd}.glsl -o examples/shaders/{shd}.nim -l glsl430:metal_macos:hlsl5 -f sokol_nim"
     echo &"    {cmd}"
     exec cmd

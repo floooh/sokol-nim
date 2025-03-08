@@ -30,9 +30,6 @@ import ../math/mat4
 #        Sampler 'smp':
 #            Type: samplerTypeFiltering
 #            Bind slot: smpSmp => 0
-#        Image Sampler Pair 'tex_smp':
-#            Image: tex
-#            Sampler: smp
 #
 const attrTexcubePos* = 0
 const attrTexcubeColor0* = 1
