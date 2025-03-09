@@ -1336,6 +1336,7 @@ type
     logitemValidateAbndExpectedStoragebufferBinding,
     logitemValidateAbndStoragebufferExists,
     logitemValidateAbndStoragebufferBindingBuffertype,
+    logitemValidateAbndStoragebufferReadwriteImmutable,
     logitemValidateAuPassExpected,
     logitemValidateAuNoPipeline,
     logitemValidateAuNoUniformblockAtSlot,
