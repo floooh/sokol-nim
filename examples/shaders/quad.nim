@@ -373,14 +373,18 @@ proc quadShaderDesc*(backend: sg.Backend): sg.ShaderDesc =
             result.vertexFunc.entry = "main"
             result.fragmentFunc.source = cast[cstring](addr(fsSourceGlsl430))
             result.fragmentFunc.entry = "main"
+            result.attrs[0].base_type = shaderAttrBaseTypeFloat
             result.attrs[0].glslName = "position"
+            result.attrs[1].base_type = shaderAttrBaseTypeFloat
             result.attrs[1].glslName = "color0"
         of backendGles3:
             result.vertexFunc.source = cast[cstring](addr(vsSourceGlsl300es))
             result.vertexFunc.entry = "main"
             result.fragmentFunc.source = cast[cstring](addr(fsSourceGlsl300es))
             result.fragmentFunc.entry = "main"
+            result.attrs[0].base_type = shaderAttrBaseTypeFloat
             result.attrs[0].glslName = "position"
+            result.attrs[1].base_type = shaderAttrBaseTypeFloat
             result.attrs[1].glslName = "color0"
         of backendD3d11:
             result.vertexFunc.source = cast[cstring](addr(vsSourceHlsl5))
@@ -389,8 +393,10 @@ proc quadShaderDesc*(backend: sg.Backend): sg.ShaderDesc =
             result.fragmentFunc.source = cast[cstring](addr(fsSourceHlsl5))
             result.fragmentFunc.d3d11Target = "ps_5_0"
             result.fragmentFunc.entry = "main"
+            result.attrs[0].base_type = shaderAttrBaseTypeFloat
             result.attrs[0].hlslSemName = "TEXCOORD"
             result.attrs[0].hlslSemIndex = 0
+            result.attrs[1].base_type = shaderAttrBaseTypeFloat
             result.attrs[1].hlslSemName = "TEXCOORD"
             result.attrs[1].hlslSemIndex = 1
         of backendMetalMacos:
@@ -398,4 +404,6 @@ proc quadShaderDesc*(backend: sg.Backend): sg.ShaderDesc =
             result.vertexFunc.entry = "main0"
             result.fragmentFunc.source = cast[cstring](addr(fsSourceMetalMacos))
             result.fragmentFunc.entry = "main0"
+            result.attrs[0].base_type = shaderAttrBaseTypeFloat
+            result.attrs[1].base_type = shaderAttrBaseTypeFloat
         else: discard
