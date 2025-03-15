@@ -253,15 +253,25 @@ type
     vertexFormatFloat2,
     vertexFormatFloat3,
     vertexFormatFloat4,
+    vertexFormatInt,
+    vertexFormatInt2,
+    vertexFormatInt3,
+    vertexFormatInt4,
+    vertexFormatUint,
+    vertexFormatUint2,
+    vertexFormatUint3,
+    vertexFormatUint4,
     vertexFormatByte4,
     vertexFormatByte4n,
     vertexFormatUbyte4,
     vertexFormatUbyte4n,
     vertexFormatShort2,
     vertexFormatShort2n,
+    vertexFormatUshort2,
     vertexFormatUshort2n,
     vertexFormatShort4,
     vertexFormatShort4n,
+    vertexFormatUshort4,
     vertexFormatUshort4n,
     vertexFormatUint10N2,
     vertexFormatHalf2,
@@ -577,7 +587,15 @@ type ShaderFunction* = object
   entry*:cstring
   d3d11Target*:cstring
 
+type
+  ShaderAttrBaseType* {.size:sizeof(int32).} = enum
+    shaderattrbasetypeUndefined,
+    shaderattrbasetypeFloat,
+    shaderattrbasetypeSint,
+    shaderattrbasetypeUint,
+
 type ShaderVertexAttr* = object
+  baseType*:ShaderAttrBaseType
   glslName*:cstring
   hlslSemName*:cstring
   hlslSemIndex*:uint8
@@ -1220,6 +1238,7 @@ type
     logitemValidatePipelinedescComputeShaderExpected,
     logitemValidatePipelinedescNoComputeShaderExpected,
     logitemValidatePipelinedescNoContAttrs,
+    logitemValidatePipelinedescAttrBasetypeMismatch,
     logitemValidatePipelinedescLayoutStride4,
     logitemValidatePipelinedescAttrSemantics,
     logitemValidatePipelinedescShaderReadonlyStoragebuffers,
