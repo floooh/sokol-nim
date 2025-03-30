@@ -1326,6 +1326,7 @@ type
     logitemValidateApipDepthFormat,
     logitemValidateApipSampleCount,
     logitemValidateAbndPassExpected,
+    logitemValidateAbndEmptyBindings,
     logitemValidateAbndPipeline,
     logitemValidateAbndPipelineExists,
     logitemValidateAbndPipelineValid,
