@@ -661,6 +661,10 @@ proc c_glGetMinorVersion():int32 {.cdecl, importc:"sapp_gl_get_minor_version".}
 proc glGetMinorVersion*():int32 =
     c_glGetMinorVersion()
 
+proc c_glIsGles():bool {.cdecl, importc:"sapp_gl_is_gles".}
+proc glIsGles*():bool =
+    c_glIsGles()
+
 proc c_x11GetWindow():pointer {.cdecl, importc:"sapp_x11_get_window".}
 proc x11GetWindow*():pointer =
     c_x11GetWindow()
