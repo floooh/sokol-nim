@@ -42,7 +42,7 @@ proc createOffscreenAttachments(width: int32, height: int32) =
 
   # create offscreen rendertarget images and pass
   let colorImageDesc = sg.ImageDesc(
-    renderTarget: true,
+    usage: ImageUsage(renderAttachment: true),
     width: width,
     height: height,
     sampleCount: offscreenSampleCount
@@ -131,7 +131,7 @@ proc init() {.cdecl.} =
     22, 21, 20,  23, 22, 20
   ]
   offscreenBindings.indexBuffer = sg.makeBuffer(BufferDesc(
-    type: bufferTypeIndexBuffer,
+    usage: BufferUsage(indexBuffer: true),
     data: sg.Range(addr: cubeIndices.addr, size: cubeIndices.sizeof)
   ))
 

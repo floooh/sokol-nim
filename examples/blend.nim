@@ -42,7 +42,7 @@ proc init() {.cdecl.} =
     +1.0f, +1.0f, 0.0f,    1.0f, 1.0f, 0.0f, 0.5f
   ]
   bindings.vertexBuffers[0] = sg.makeBuffer(BufferDesc(
-      type: bufferTypeVertexBuffer,
+      usage: BufferUsage(vertexBuffer: true),
       data: sg.Range(addr: vertices.addr, size: vertices.sizeof)
     ))
 

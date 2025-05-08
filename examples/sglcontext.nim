@@ -62,7 +62,7 @@ proc init() {.cdecl.} =
 
   # create an offscreen render target texture and pass
   offscreenImage = sg.makeImage(sg.ImageDesc(
-    renderTarget: true,
+    usage: ImageUsage(renderAttachment: true),
     width: offscreenWidth,
     height: offscreenHeight,
     pixelFormat: offscreenPixelFormat,

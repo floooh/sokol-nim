@@ -57,14 +57,14 @@ proc init() {.cdecl.} =
     5, 1, 2,      5, 2, 3,    5, 3, 4,    5, 4, 1
   ]
   bindings.indexBuffer = sg.makeBuffer(BufferDesc(
-    type: bufferTypeIndexBuffer,
+    usage: BufferUsage(indexBuffer: true),
     data: sg.Range(addr: indices.addr, size: indices.sizeof)
   ))
 
   # empty, dynamic instance-data vertex buffer, goes into vertex-buffer-slot 1
   bindings.vertexBuffers[1] = sg.makeBuffer(BufferDesc(
     size: maxParticles * sizeof(Vec3),
-    usage: usageStream
+    usage: BufferUsage(streamUpdate: true),
   ))
 
   # shader and pipeline object
