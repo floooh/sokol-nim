@@ -34,7 +34,7 @@ proc init() {.cdecl.} =
   # an index buffer
   const indices = [ 0'u16, 1, 2, 0, 2, 3 ]
   bindings.indexBuffer = sg.makeBuffer(BufferDesc(
-    type: bufferTypeIndexBuffer,
+    usage: BufferUsage(indexBuffer: true),
     data: sg.Range(addr: indices.addr, size: indices.sizeof)
   ))
 

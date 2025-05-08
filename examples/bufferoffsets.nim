@@ -50,7 +50,7 @@ proc init() {.cdecl.} =
     data: sg.Range(addr: vertices.addr, size: vertices.sizeof)
   ))
   bindings.indexBuffer = sg.makeBuffer(BufferDesc(
-    type: bufferTypeIndexBuffer,
+    usage: BufferUsage(indexBuffer: true),
     data: sg.Range(addr: indices.addr, size: indices.sizeof)
   ))
 

@@ -44,7 +44,7 @@ proc init() {.cdecl.} =
 
   # a render pass with one color- and one depth-attachment image
   var imgDesc = sg.ImageDesc(
-    renderTarget: true,
+    usage: ImageUsage(renderAttachment: true),
     width: 256,
     height: 256,
     pixelFormat: pixelFormatRgba8,
