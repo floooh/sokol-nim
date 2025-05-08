@@ -27,6 +27,7 @@ const
   invalidId* = 0
   numInflightFrames* = 2
   maxColorAttachments* = 4
+  maxStorageAttachments* = 4
   maxUniformblockMembers* = 16
   maxVertexAttributes* = 16
   maxMipmaps* = 16
@@ -134,6 +135,8 @@ type PixelformatInfo* = object
   msaa*:bool
   depth*:bool
   compressed*:bool
+  read*:bool
+  write*:bool
   bytesPerPixel*:int32
 
 type Features* = object
@@ -143,6 +146,7 @@ type Features* = object
   mrtIndependentWriteMask*:bool
   compute*:bool
   msaaImageBindings*:bool
+  separateBufferTypes*:bool
 
 type Limits* = object
   maxImageSize2d*:int32
@@ -161,20 +165,6 @@ type
     resourceStateValid,
     resourceStateFailed,
     resourceStateInvalid,
-
-type
-  Usage* {.size:sizeof(int32).} = enum
-    usageDefault,
-    usageImmutable,
-    usageDynamic,
-    usageStream,
-
-type
-  BufferType* {.size:sizeof(int32).} = enum
-    bufferTypeDefault,
-    bufferTypeVertexBuffer,
-    bufferTypeIndexBuffer,
-    bufferTypeStoragebuffer,
 
 type
   IndexType* {.size:sizeof(int32).} = enum
@@ -493,11 +483,18 @@ converter toBindingsstorageBuffers*[N:static[int]](items: array[N, Buffer]): arr
   static: assert(N <= 8)
   for index,item in items.pairs: result[index]=item
 
+type BufferUsage* = object
+  vertexBuffer*:bool
+  indexBuffer*:bool
+  storageBuffer*:bool
+  immutable*:bool
+  dynamicUpdate*:bool
+  streamUpdate*:bool
+
 type BufferDesc* = object
   startCanary:uint32
   size*:int
-  `type`*:BufferType
-  usage*:Usage
+  usage*:BufferUsage
   data*:Range
   label*:cstring
   glBuffers*:array[2, uint32]
@@ -514,6 +511,13 @@ converter toBufferDescmtlBuffers*[N:static[int]](items: array[N, pointer]): arra
   static: assert(N <= 2)
   for index,item in items.pairs: result[index]=item
 
+type ImageUsage* = object
+  renderAttachment*:bool
+  storageAttachment*:bool
+  immutable*:bool
+  dynamicUpdate*:bool
+  streamUpdate*:bool
+
 type ImageData* = object
   subimage*:array[6, array[16, Range]]
 
@@ -527,12 +531,11 @@ converter toImageDatasubimage*[Y:static[int], X:static[int]](items: array[Y, arr
 type ImageDesc* = object
   startCanary:uint32
   `type`*:ImageType
-  renderTarget*:bool
+  usage*:ImageUsage
   width*:int32
   height*:int32
   numSlices*:int32
   numMipmaps*:int32
-  usage*:Usage
   pixelFormat*:PixelFormat
   sampleCount*:int32
   data*:ImageData
@@ -643,6 +646,16 @@ type ShaderStorageBuffer* = object
   wgslGroup1BindingN*:uint8
   glslBindingN*:uint8
 
+type ShaderStorageImage* = object
+  stage*:ShaderStage
+  imageType*:ImageType
+  accessFormat*:PixelFormat
+  writeonly*:bool
+  hlslRegisterUN*:uint8
+  mslTextureN*:uint8
+  wgslGroup2BindingN*:uint8
+  glslBindingN*:uint8
+
 type ShaderImageSamplerPair* = object
   stage*:ShaderStage
   imageSlot*:uint8
@@ -665,6 +678,7 @@ type ShaderDesc* = object
   images*:array[16, ShaderImage]
   samplers*:array[16, ShaderSampler]
   imageSamplerPairs*:array[16, ShaderImageSamplerPair]
+  storageImages*:array[4, ShaderStorageImage]
   mtlThreadsPerThreadgroup*:MtlShaderThreadsPerThreadgroup
   label*:cstring
   endCanary:uint32
@@ -691,6 +705,10 @@ converter toShaderDescsamplers*[N:static[int]](items: array[N, ShaderSampler]): 
 
 converter toShaderDescimageSamplerPairs*[N:static[int]](items: array[N, ShaderImageSamplerPair]): array[16, ShaderImageSamplerPair] =
   static: assert(N <= 16)
+  for index,item in items.pairs: result[index]=item
+
+converter toShaderDescstorageImages*[N:static[int]](items: array[N, ShaderStorageImage]): array[4, ShaderStorageImage] =
+  static: assert(N <= 4)
   for index,item in items.pairs: result[index]=item
 
 type VertexBufferLayoutState* = object
@@ -784,6 +802,7 @@ type AttachmentsDesc* = object
   colors*:array[4, AttachmentDesc]
   resolves*:array[4, AttachmentDesc]
   depthStencil*:AttachmentDesc
+  storages*:array[4, AttachmentDesc]
   label*:cstring
   endCanary:uint32
 
@@ -792,6 +811,10 @@ converter toAttachmentsDesccolors*[N:static[int]](items: array[N, AttachmentDesc
   for index,item in items.pairs: result[index]=item
 
 converter toAttachmentsDescresolves*[N:static[int]](items: array[N, AttachmentDesc]): array[4, AttachmentDesc] =
+  static: assert(N <= 4)
+  for index,item in items.pairs: result[index]=item
+
+converter toAttachmentsDescstorages*[N:static[int]](items: array[N, AttachmentDesc]): array[4, AttachmentDesc] =
   static: assert(N <= 4)
   for index,item in items.pairs: result[index]=item
 
@@ -1038,6 +1061,7 @@ type
     logitemGl3dTexturesNotSupported,
     logitemGlArrayTexturesNotSupported,
     logitemGlStoragebufferGlslBindingOutOfRange,
+    logitemGlStorageimageGlslBindingOutOfRange,
     logitemGlShaderCompilationFailed,
     logitemGlShaderLinkingFailed,
     logitemGlVertexAttributeNotFoundInShader,
@@ -1067,6 +1091,7 @@ type
     logitemD3d11StoragebufferHlslRegisterUOutOfRange,
     logitemD3d11ImageHlslRegisterTOutOfRange,
     logitemD3d11SamplerHlslRegisterSOutOfRange,
+    logitemD3d11StorageimageHlslRegisterUOutOfRange,
     logitemD3d11LoadD3dcompiler47DllFailed,
     logitemD3d11ShaderCompilationFailed,
     logitemD3d11ShaderCompilationOutput,
@@ -1077,6 +1102,7 @@ type
     logitemD3d11CreateBlendStateFailed,
     logitemD3d11CreateRtvFailed,
     logitemD3d11CreateDsvFailed,
+    logitemD3d11CreateUavFailed,
     logitemD3d11MapForUpdateBufferFailed,
     logitemD3d11MapForAppendBufferFailed,
     logitemD3d11MapForUpdateImageFailed,
@@ -1090,6 +1116,7 @@ type
     logitemMetalShaderEntryNotFound,
     logitemMetalUniformblockMslBufferSlotOutOfRange,
     logitemMetalStoragebufferMslBufferSlotOutOfRange,
+    logitemMetalStorageimageMslTextureSlotOutOfRange,
     logitemMetalImageMslTextureSlotOutOfRange,
     logitemMetalSamplerMslSamplerSlotOutOfRange,
     logitemMetalCreateCpsFailed,
@@ -1111,6 +1138,7 @@ type
     logitemWgpuStoragebufferWgslGroup1BindingOutOfRange,
     logitemWgpuImageWgslGroup1BindingOutOfRange,
     logitemWgpuSamplerWgslGroup1BindingOutOfRange,
+    logitemWgpuStorageimageWgslGroup2BindingOutOfRange,
     logitemWgpuCreatePipelineLayoutFailed,
     logitemWgpuCreateRenderPipelineFailed,
     logitemWgpuCreateComputePipelineFailed,
@@ -1152,27 +1180,36 @@ type
     logitemApplyBindingsStorageBufferTrackerExhausted,
     logitemDrawWithoutBindings,
     logitemValidateBufferdescCanary,
+    logitemValidateBufferdescImmutableDynamicStream,
+    logitemValidateBufferdescSeparateBufferTypes,
     logitemValidateBufferdescExpectNonzeroSize,
     logitemValidateBufferdescExpectMatchingDataSize,
     logitemValidateBufferdescExpectZeroDataSize,
+    logitemValiateExpectData,
     logitemValidateBufferdescExpectNoData,
+    logitemValidateBufferdescExpectData,
     logitemValidateBufferdescStoragebufferSupported,
     logitemValidateBufferdescStoragebufferSizeMultiple4,
     logitemValidateImagedataNodata,
     logitemValidateImagedataDataSize,
     logitemValidateImagedescCanary,
+    logitemValidateImagedescImmutableDynamicStream,
+    logitemValidateImagedescRenderVsStorageAttachment,
     logitemValidateImagedescWidth,
     logitemValidateImagedescHeight,
-    logitemValidateImagedescRtPixelformat,
     logitemValidateImagedescNonrtPixelformat,
-    logitemValidateImagedescMsaaButNoRt,
-    logitemValidateImagedescNoMsaaRtSupport,
-    logitemValidateImagedescMsaaNumMipmaps,
-    logitemValidateImagedescMsaa3dImage,
-    logitemValidateImagedescMsaaCubeImage,
+    logitemValidateImagedescMsaaButNoAttachment,
     logitemValidateImagedescDepth3dImage,
-    logitemValidateImagedescRtImmutable,
-    logitemValidateImagedescRtNoData,
+    logitemValidateImagedescAttachmentExpectImmutable,
+    logitemValidateImagedescAttachmentExpectNoData,
+    logitemValidateImagedescRenderattachmentNoMsaaSupport,
+    logitemValidateImagedescRenderattachmentMsaaNumMipmaps,
+    logitemValidateImagedescRenderattachmentMsaa3dImage,
+    logitemValidateImagedescRenderattachmentMsaaCubeImage,
+    logitemValidateImagedescRenderattachmentMsaaArrayImage,
+    logitemValidateImagedescRenderattachmentPixelformat,
+    logitemValidateImagedescStorageattachmentPixelformat,
+    logitemValidateImagedescStorageattachmentExpectNoMsaa,
     logitemValidateImagedescInjectedNoData,
     logitemValidateImagedescDynamicNoData,
     logitemValidateImagedescCompressedImmutable,
@@ -1211,6 +1248,15 @@ type
     logitemValidateShaderdescStoragebufferGlslBindingCollision,
     logitemValidateShaderdescStoragebufferWgslGroup1BindingOutOfRange,
     logitemValidateShaderdescStoragebufferWgslGroup1BindingCollision,
+    logitemValidateShaderdescStorageimageExpectComputeStage,
+    logitemValidateShaderdescStorageimageMetalTextureSlotOutOfRange,
+    logitemValidateShaderdescStorageimageMetalTextureSlotCollision,
+    logitemValidateShaderdescStorageimageHlslRegisterUOutOfRange,
+    logitemValidateShaderdescStorageimageHlslRegisterUCollision,
+    logitemValidateShaderdescStorageimageGlslBindingOutOfRange,
+    logitemValidateShaderdescStorageimageGlslBindingCollision,
+    logitemValidateShaderdescStorageimageWgslGroup2BindingOutOfRange,
+    logitemValidateShaderdescStorageimageWgslGroup2BindingCollision,
     logitemValidateShaderdescImageMetalTextureSlotOutOfRange,
     logitemValidateShaderdescImageMetalTextureSlotCollision,
     logitemValidateShaderdescImageHlslRegisterTOutOfRange,
@@ -1246,14 +1292,13 @@ type
     logitemValidateAttachmentsdescCanary,
     logitemValidateAttachmentsdescNoAttachments,
     logitemValidateAttachmentsdescNoContColorAtts,
-    logitemValidateAttachmentsdescImage,
-    logitemValidateAttachmentsdescMiplevel,
-    logitemValidateAttachmentsdescFace,
-    logitemValidateAttachmentsdescLayer,
-    logitemValidateAttachmentsdescSlice,
-    logitemValidateAttachmentsdescImageNoRt,
+    logitemValidateAttachmentsdescColorImage,
+    logitemValidateAttachmentsdescColorMiplevel,
+    logitemValidateAttachmentsdescColorFace,
+    logitemValidateAttachmentsdescColorLayer,
+    logitemValidateAttachmentsdescColorSlice,
+    logitemValidateAttachmentsdescColorImageNoRenderattachment,
     logitemValidateAttachmentsdescColorInvPixelformat,
-    logitemValidateAttachmentsdescDepthInvPixelformat,
     logitemValidateAttachmentsdescImageSizes,
     logitemValidateAttachmentsdescImageSampleCounts,
     logitemValidateAttachmentsdescResolveColorImageMsaa,
@@ -1266,21 +1311,32 @@ type
     logitemValidateAttachmentsdescResolveImageNoRt,
     logitemValidateAttachmentsdescResolveImageSizes,
     logitemValidateAttachmentsdescResolveImageFormat,
+    logitemValidateAttachmentsdescDepthInvPixelformat,
     logitemValidateAttachmentsdescDepthImage,
     logitemValidateAttachmentsdescDepthMiplevel,
     logitemValidateAttachmentsdescDepthFace,
     logitemValidateAttachmentsdescDepthLayer,
     logitemValidateAttachmentsdescDepthSlice,
-    logitemValidateAttachmentsdescDepthImageNoRt,
+    logitemValidateAttachmentsdescDepthImageNoRenderattachment,
     logitemValidateAttachmentsdescDepthImageSizes,
     logitemValidateAttachmentsdescDepthImageSampleCount,
+    logitemValidateAttachmentsdescStorageImage,
+    logitemValidateAttachmentsdescStorageMiplevel,
+    logitemValidateAttachmentsdescStorageFace,
+    logitemValidateAttachmentsdescStorageLayer,
+    logitemValidateAttachmentsdescStorageSlice,
+    logitemValidateAttachmentsdescStorageImageNoStorageattachment,
+    logitemValidateAttachmentsdescStorageInvPixelformat,
+    logitemValidateAttachmentsdescRenderVsStorageAttachments,
     logitemValidateBeginpassCanary,
-    logitemValidateBeginpassExpectNoAttachments,
     logitemValidateBeginpassAttachmentsExists,
     logitemValidateBeginpassAttachmentsValid,
+    logitemValidateBeginpassComputepassStorageAttachmentsOnly,
+    logitemValidateBeginpassRenderpassRenderAttachmentsOnly,
     logitemValidateBeginpassColorAttachmentImage,
     logitemValidateBeginpassResolveAttachmentImage,
     logitemValidateBeginpassDepthstencilAttachmentImage,
+    logitemValidateBeginpassStorageAttachmentImage,
     logitemValidateBeginpassSwapchainExpectWidth,
     logitemValidateBeginpassSwapchainExpectWidthNotset,
     logitemValidateBeginpassSwapchainExpectHeight,
@@ -1325,6 +1381,11 @@ type
     logitemValidateApipColorFormat,
     logitemValidateApipDepthFormat,
     logitemValidateApipSampleCount,
+    logitemValidateApipExpectedStorageAttachmentImage,
+    logitemValidateApipStorageAttachmentImageExists,
+    logitemValidateApipStorageAttachmentImageValid,
+    logitemValidateApipStorageAttachmentPixelformat,
+    logitemValidateApipStorageAttachmentImageType,
     logitemValidateAbndPassExpected,
     logitemValidateAbndEmptyBindings,
     logitemValidateAbndPipeline,
@@ -1357,6 +1418,10 @@ type
     logitemValidateAbndStoragebufferExists,
     logitemValidateAbndStoragebufferBindingBuffertype,
     logitemValidateAbndStoragebufferReadwriteImmutable,
+    logitemValidateAbndImageBindingVsDepthstencilAttachment,
+    logitemValidateAbndImageBindingVsColorAttachment,
+    logitemValidateAbndImageBindingVsResolveAttachment,
+    logitemValidateAbndImageBindingVsStorageAttachment,
     logitemValidateAuPassExpected,
     logitemValidateAuNoPipeline,
     logitemValidateAuNoUniformblockAtSlot,
@@ -1718,12 +1783,8 @@ proc c_queryBufferSize(buf:Buffer):int {.cdecl, importc:"sg_query_buffer_size".}
 proc queryBufferSize*(buf:Buffer):int =
     c_queryBufferSize(buf)
 
-proc c_queryBufferType(buf:Buffer):BufferType {.cdecl, importc:"sg_query_buffer_type".}
-proc queryBufferType*(buf:Buffer):BufferType =
-    c_queryBufferType(buf)
-
-proc c_queryBufferUsage(buf:Buffer):Usage {.cdecl, importc:"sg_query_buffer_usage".}
-proc queryBufferUsage*(buf:Buffer):Usage =
+proc c_queryBufferUsage(buf:Buffer):BufferUsage {.cdecl, importc:"sg_query_buffer_usage".}
+proc queryBufferUsage*(buf:Buffer):BufferUsage =
     c_queryBufferUsage(buf)
 
 proc c_queryImageType(img:Image):ImageType {.cdecl, importc:"sg_query_image_type".}
@@ -1750,8 +1811,8 @@ proc c_queryImagePixelformat(img:Image):PixelFormat {.cdecl, importc:"sg_query_i
 proc queryImagePixelformat*(img:Image):PixelFormat =
     c_queryImagePixelformat(img)
 
-proc c_queryImageUsage(img:Image):Usage {.cdecl, importc:"sg_query_image_usage".}
-proc queryImageUsage*(img:Image):Usage =
+proc c_queryImageUsage(img:Image):ImageUsage {.cdecl, importc:"sg_query_image_usage".}
+proc queryImageUsage*(img:Image):ImageUsage =
     c_queryImageUsage(img)
 
 proc c_queryImageSampleCount(img:Image):int32 {.cdecl, importc:"sg_query_image_sample_count".}
