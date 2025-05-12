@@ -74,7 +74,7 @@ proc init() {.cdecl.} =
     22, 21, 20,   23, 22, 20,
   ]
   let ibuf = sg.makeBuffer(BufferDesc(
-    type: bufferTypeIndexBuffer,
+    usage: BufferUsage(indexBuffer: true),
     data: sg.Range(addr: indices.addr, size: indices.sizeof)
   ))
 

@@ -68,7 +68,7 @@ proc init() {.cdecl.} =
     shd.SbVertex(pos: [ 1.0,  1.0, -1.0],  color: [1.0, 0.0, 0.5, 1.0]),
   ]
   bindings.storageBuffers[shd.sbufSsbo] = sg.makeBuffer(BufferDesc(
-    type: sg.bufferTypeStoragebuffer,
+    usage: BufferUsage(storageBuffer: true),
     data: sg.Range(addr: vertices.addr, size: vertices.sizeof)
   ))
 
@@ -82,7 +82,7 @@ proc init() {.cdecl.} =
     22, 21, 20,   23, 22, 20,
   ]
   bindings.indexBuffer = sg.makeBuffer(BufferDesc(
-    type: bufferTypeIndexBuffer,
+    usage: BufferUsage(indexBuffer: true),
     data: sg.Range(addr: indices.addr, size: indices.sizeof)
   ))
 

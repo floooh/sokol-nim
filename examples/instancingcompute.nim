@@ -43,7 +43,7 @@ proc init() {.cdecl} =
 
   # a zero-initialized storage buffer for the particle state
   let sbuf = sg.makeBuffer(BufferDesc(
-    type: bufferTypeStoragebuffer,
+    usage: BufferUsage(storageBuffer: true),
     size: maxParticles * Particle.sizeof,
     label: "particle-buffer",
   ))
@@ -77,7 +77,7 @@ proc init() {.cdecl} =
     5, 1, 2,      5, 2, 3,    5, 3, 4,    5, 4, 1
   ]
   displayBindings.indexBuffer = sg.makeBuffer(BufferDesc(
-    type: bufferTypeIndexBuffer,
+    usage: BufferUsage(indexBuffer: true),
     data: sg.Range(addr: indices.addr, size: indices.sizeof),
     label: "geometry-ibuf",
   ))
