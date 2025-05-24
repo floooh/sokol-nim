@@ -1185,7 +1185,6 @@ type
     logitemValidateBufferdescExpectNonzeroSize,
     logitemValidateBufferdescExpectMatchingDataSize,
     logitemValidateBufferdescExpectZeroDataSize,
-    logitemValiateExpectData,
     logitemValidateBufferdescExpectNoData,
     logitemValidateBufferdescExpectData,
     logitemValidateBufferdescStoragebufferSupported,
