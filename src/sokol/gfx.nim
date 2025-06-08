@@ -882,6 +882,7 @@ type TraceHooks* = object
 type SlotInfo* = object
   state*:ResourceState
   resId*:uint32
+  uninitCount*:uint32
 
 type BufferInfo* = object
   slot*:SlotInfo
@@ -1332,10 +1333,14 @@ type
     logitemValidateBeginpassAttachmentsValid,
     logitemValidateBeginpassComputepassStorageAttachmentsOnly,
     logitemValidateBeginpassRenderpassRenderAttachmentsOnly,
-    logitemValidateBeginpassColorAttachmentImage,
-    logitemValidateBeginpassResolveAttachmentImage,
-    logitemValidateBeginpassDepthstencilAttachmentImage,
-    logitemValidateBeginpassStorageAttachmentImage,
+    logitemValidateBeginpassColorAttachmentImageAlive,
+    logitemValidateBeginpassColorAttachmentImageValid,
+    logitemValidateBeginpassResolveAttachmentImageAlive,
+    logitemValidateBeginpassResolveAttachmentImageValid,
+    logitemValidateBeginpassDepthstencilAttachmentImageAlive,
+    logitemValidateBeginpassDepthstencilAttachmentImageValid,
+    logitemValidateBeginpassStorageAttachmentImageAlive,
+    logitemValidateBeginpassStorageAttachmentImageValid,
     logitemValidateBeginpassSwapchainExpectWidth,
     logitemValidateBeginpassSwapchainExpectWidthNotset,
     logitemValidateBeginpassSwapchainExpectHeight,
@@ -1370,39 +1375,45 @@ type
     logitemValidateApipPipelineExists,
     logitemValidateApipPipelineValid,
     logitemValidateApipPassExpected,
-    logitemValidateApipShaderExists,
-    logitemValidateApipShaderValid,
+    logitemValidateApipPipelineShaderAlive,
+    logitemValidateApipPipelineShaderValid,
     logitemValidateApipComputepassExpected,
     logitemValidateApipRenderpassExpected,
-    logitemValidateApipCurpassAttachmentsExists,
+    logitemValidateApipCurpassAttachmentsAlive,
     logitemValidateApipCurpassAttachmentsValid,
     logitemValidateApipAttCount,
+    logitemValidateApipColorAttachmentImageAlive,
+    logitemValidateApipColorAttachmentImageValid,
+    logitemValidateApipDepthstencilAttachmentImageAlive,
+    logitemValidateApipDepthstencilAttachmentImageValid,
     logitemValidateApipColorFormat,
     logitemValidateApipDepthFormat,
     logitemValidateApipSampleCount,
     logitemValidateApipExpectedStorageAttachmentImage,
-    logitemValidateApipStorageAttachmentImageExists,
+    logitemValidateApipStorageAttachmentImageAlive,
     logitemValidateApipStorageAttachmentImageValid,
     logitemValidateApipStorageAttachmentPixelformat,
     logitemValidateApipStorageAttachmentImageType,
     logitemValidateAbndPassExpected,
     logitemValidateAbndEmptyBindings,
-    logitemValidateAbndPipeline,
-    logitemValidateAbndPipelineExists,
+    logitemValidateAbndNoPipeline,
+    logitemValidateAbndPipelineAlive,
     logitemValidateAbndPipelineValid,
+    logitemValidateAbndPipelineShaderAlive,
+    logitemValidateAbndPipelineShaderValid,
     logitemValidateAbndComputeExpectedNoVbs,
     logitemValidateAbndComputeExpectedNoIb,
     logitemValidateAbndExpectedVb,
-    logitemValidateAbndVbExists,
+    logitemValidateAbndVbAlive,
     logitemValidateAbndVbType,
     logitemValidateAbndVbOverflow,
     logitemValidateAbndNoIb,
     logitemValidateAbndIb,
-    logitemValidateAbndIbExists,
+    logitemValidateAbndIbAlive,
     logitemValidateAbndIbType,
     logitemValidateAbndIbOverflow,
     logitemValidateAbndExpectedImageBinding,
-    logitemValidateAbndImgExists,
+    logitemValidateAbndImgAlive,
     logitemValidateAbndImageTypeMismatch,
     logitemValidateAbndExpectedMultisampledImage,
     logitemValidateAbndImageMsaa,
@@ -1412,9 +1423,10 @@ type
     logitemValidateAbndUnexpectedSamplerCompareNever,
     logitemValidateAbndExpectedSamplerCompareNever,
     logitemValidateAbndExpectedNonfilteringSampler,
-    logitemValidateAbndSmpExists,
+    logitemValidateAbndSmpAlive,
+    logitemValidateAbndSmpValid,
     logitemValidateAbndExpectedStoragebufferBinding,
-    logitemValidateAbndStoragebufferExists,
+    logitemValidateAbndStoragebufferAlive,
     logitemValidateAbndStoragebufferBindingBuffertype,
     logitemValidateAbndStoragebufferReadwriteImmutable,
     logitemValidateAbndImageBindingVsDepthstencilAttachment,
@@ -1423,6 +1435,10 @@ type
     logitemValidateAbndImageBindingVsStorageAttachment,
     logitemValidateAuPassExpected,
     logitemValidateAuNoPipeline,
+    logitemValidateAuPipelineAlive,
+    logitemValidateAuPipelineValid,
+    logitemValidateAuPipelineShaderAlive,
+    logitemValidateAuPipelineShaderValid,
     logitemValidateAuNoUniformblockAtSlot,
     logitemValidateAuSize,
     logitemValidateDrawRenderpassExpected,
@@ -1983,14 +1999,9 @@ type D3d11PipelineInfo* = object
 
 type D3d11AttachmentsInfo* = object
   colorRtv*:array[4, pointer]
-  resolveRtv*:array[4, pointer]
   dsv*:pointer
 
 converter toD3d11AttachmentsInfocolorRtv*[N:static[int]](items: array[N, pointer]): array[4, pointer] =
-  static: assert(N <= 4)
-  for index,item in items.pairs: result[index]=item
-
-converter toD3d11AttachmentsInforesolveRtv*[N:static[int]](items: array[N, pointer]): array[4, pointer] =
   static: assert(N <= 4)
   for index,item in items.pairs: result[index]=item
 
