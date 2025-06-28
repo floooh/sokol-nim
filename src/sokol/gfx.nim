@@ -589,6 +589,7 @@ type ShaderFunction* = object
   bytecode*:Range
   entry*:cstring
   d3d11Target*:cstring
+  d3d11Filepath*:cstring
 
 type
   ShaderAttrBaseType* {.size:sizeof(int32).} = enum
