@@ -202,6 +202,10 @@ proc c_putr(str:cstring, len:int32):void {.cdecl, importc:"sdtx_putr".}
 proc putr*(str:cstring, len:int32):void =
     c_putr(str, len)
 
+proc c_getClearedFmtBuffer():Range {.cdecl, importc:"sdtx_get_cleared_fmt_buffer".}
+proc getClearedFmtBuffer*():Range =
+    c_getClearedFmtBuffer()
+
 {.passc:"-DSOKOL_NIM_IMPL".}
 when defined(release):
   {.passc:"-DNDEBUG".}
