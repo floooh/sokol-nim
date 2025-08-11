@@ -14,15 +14,16 @@ import shaders/offscreen as shd
 
 const
   offscreenSampleCount = 1
+  offscreenWidth = 256
+  offscreenHeight = 256
 
 var
-  offscreenPassAction: PassAction
-  offscreenAttachments: Attachments
+  offscreenPass: Pass
   offscreenPip: Pipeline
   offscreenBindings: Bindings
-  defaultPassAction: PassAction
-  defaultPip: Pipeline
-  defaultBindings: Bindings
+  displayPassAction: PassAction
+  displayPip: Pipeline
+  displayBindings: Bindings
   donut, sphere: sshape.ElementRange
   rx, ry: float32
 
@@ -33,29 +34,42 @@ proc init() {.cdecl.} =
   ))
 
   # default pass action: clear to blue-ish
-  defaultPassAction = PassAction(
+  displayPassAction = PassAction(
     colors: [ ColorAttachmentAction( loadAction: loadActionClear, clearValue: (0.25, 0.45, 0.65, 1 )) ]
   )
 
   # offscreen pass action: clear to grey
-  offscreenPassAction = PassAction(
+  offscreenPass.action = PassAction(
     colors: [ ColorAttachmentAction( loadAction: loadActionClear, clearValue: (0.25, 0.25, 0.25, 1 )) ]
   )
 
-  # a render pass with one color- and one depth-attachment image
-  var imgDesc = sg.ImageDesc(
-    usage: ImageUsage(renderAttachment: true),
-    width: 256,
-    height: 256,
+  # setup the color- and depth-stencil-attachment images and views
+  let colorImg = sg.makeImage(sg.ImageDesc(
+    usage: ImageUsage(colorAttachment: true),
+    width: offscreenWidth,
+    height: offscreenHeight,
     pixelFormat: pixelFormatRgba8,
     sampleCount: offscreenSampleCount,
-  )
-  let colorImg = sg.makeImage(imgDesc)
-  imgDesc.pixelFormat = pixelFormatDepth
-  let depthImg = sg.makeImage(imgDesc)
-  offscreenAttachments = sg.makeAttachments(AttachmentsDesc(
-    colors: [ AttachmentDesc(image: colorImg) ],
-    depthStencil: AttachmentDesc(image: depthImg)
+  ))
+  let depthImg = sg.makeImage(sg.ImageDesc(
+    usage: ImageUsage(depthStencilAttachment: true),
+    width: offscreenWidth,
+    height: offscreenHeight,
+    pixelFormat: pixelFormatDepth,
+    sampleCount: offscreenSampleCount
+  ))
+
+  # the offscreen render pass needs a color- and depth-stencil-attachment
+  offscreenPass.attachments.colors[0] = sg.makeView(ViewDesc(
+    colorAttachment: ImageViewDesc(image: colorImg)
+  ))
+  offscreenPass.attachments.depthStencil = sg.makeView(ViewDesc(
+    depthStencilAttachment: ImageViewDesc(image: depthImg)
+  ))
+
+  # the display render pass needs a texture view on the color image
+  displayBindings.views[viewTex] = sg.makeView(ViewDesc(
+    texture: TextureViewDesc(image: colorImg)
   ))
 
   # a donut shape which is rendered into the offscreen render target, and
@@ -72,7 +86,11 @@ proc init() {.cdecl.} =
   sphere = sshape.elementRange(buf)
 
   let vbuf = sg.makeBuffer(sshape.vertexBufferDesc(buf))
+  offscreenBindings.vertexBuffers[0] = vbuf
+  displayBindings.vertexBuffers[0] = vbuf
   let ibuf = sg.makeBuffer(sshape.indexBufferDesc(buf))
+  offscreenBindings.indexBuffer = ibuf
+  displayBindings.indexBuffer = ibuf
 
   # pipeline object for offscreen-rendered donut, don't need vertex coords here
   offscreenPip = sg.makePipeline(PipelineDesc(
@@ -98,7 +116,7 @@ proc init() {.cdecl.} =
   ))
 
   # ...and another pipeline object for the default pass
-  defaultPip = sg.makePipeline(PipelineDesc(
+  displayPip = sg.makePipeline(PipelineDesc(
     shader: sg.makeShader(defaultShaderDesc(sg.queryBackend())),
     layout: VertexLayoutState(
       buffers: [ sshape.vertexBufferLayoutState() ],
@@ -117,26 +135,12 @@ proc init() {.cdecl.} =
   ))
 
   # a sampler object for sampling the render target as texture
-  let smp = sg.makeSampler(SamplerDesc(
+  displayBindings.samplers[smpSmp] = sg.makeSampler(SamplerDesc(
     minFilter: filterLinear,
     magFilter: filterLinear,
     wrapU: wrapRepeat,
     wrapV: wrapRepeat,
   ))
-
-  # the resource bindings for rendering a non-textured cube into offscreen render target
-  offscreenBindings = Bindings(
-    vertexBuffers: [ vbuf ],
-    indexBuffer: ibuf,
-  )
-
-  # resource bindings to render a textured cube, using the offscreen render target as texture
-  defaultBindings = Bindings(
-    vertexBuffers: [ vbuf ],
-    indexBuffer: ibuf,
-    images: [ colorImg ],
-    samplers: [ smp ]
-  )
 
 # a helper function to computer model-view-projection matrix
 proc computeMVP(rx: float32, ry: float32, aspect: float32, eyeDist: float32): mat4.Mat4 =
@@ -157,7 +161,7 @@ proc frame() {.cdecl.} =
   let offscreenVsParams = shd.VsParams(
     mvp: computeMVP(rx, ry, 1.0, 2.5)
   )
-  sg.beginPass(Pass(action: offscreenPassAction, attachments: offscreenAttachments))
+  sg.beginPass(offscreenPass)
   sg.applyPipeline(offscreenPip)
   sg.applyBindings(offscreenBindings)
   sg.applyUniforms(shd.ubVsParams, sg.Range(addr: offscreenVsParams.addr, size: offscreenVsParams.sizeof))
@@ -169,9 +173,9 @@ proc frame() {.cdecl.} =
   let defaultVsParams = shd.VsParams(
     mvp: computeMVP(-rx * 0.25, ry * 0.25, sapp.widthf()/sapp.heightf(), 2.0)
   )
-  sg.beginPass(Pass(action: defaultPassAction, swapchain: sglue.swapchain()))
-  sg.applyPipeline(defaultPip)
-  sg.applyBindings(defaultBindings)
+  sg.beginPass(Pass(action: displayPassAction, swapchain: sglue.swapchain()))
+  sg.applyPipeline(displayPip)
+  sg.applyBindings(displayBindings)
   sg.applyUniforms(shd.ubVsParams, sg.Range(addr: defaultVsParams.addr, size: offscreenVsParams.sizeof))
   sg.draw(sphere.baseElement, sphere.numElements, 1)
   sg.endPass()

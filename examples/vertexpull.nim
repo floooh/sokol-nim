@@ -39,7 +39,7 @@ proc init() {.cdecl.} =
       ]
     )
 
-  # a storage buffer with cube vertex data using the code-generated SSBO struct
+  # a buffer with cube vertex data using the code-generated SSBO struct
   # (looks a bit awkward in Nim, but that way the data is properly padded and aligned)
   const vertices = [
     shd.SbVertex(pos: [-1.0, -1.0, -1.0],  color: [1.0, 0.0, 0.0, 1.0]),
@@ -67,9 +67,14 @@ proc init() {.cdecl.} =
     shd.SbVertex(pos: [ 1.0,  1.0,  1.0],  color: [1.0, 0.0, 0.5, 1.0]),
     shd.SbVertex(pos: [ 1.0,  1.0, -1.0],  color: [1.0, 0.0, 0.5, 1.0]),
   ]
-  bindings.storageBuffers[shd.sbufSsbo] = sg.makeBuffer(BufferDesc(
+  let sbuf = sg.makeBuffer(BufferDesc(
     usage: BufferUsage(storageBuffer: true),
     data: sg.Range(addr: vertices.addr, size: vertices.sizeof)
+  ))
+
+  # a storage-buffer view on the buffer
+  bindings.views[shd.viewSsbo] = sg.makeView(ViewDesc(
+    storageBuffer: BufferViewDesc(buffer: sbuf)
   ))
 
   # a regular index buffer
