@@ -32,23 +32,26 @@ proc init() {.cdecl} =
 
   # if compute shaders not supported, clear to red and early-out
   if not sg.queryFeatures().compute:
-    display_pass_action = PassAction(
+    displayPassAction = PassAction(
       colors: [ ColorAttachmentAction( loadAction: loadActionClear, clearValue: (1, 0, 0, 1)) ]
     )
 
   # regular clear color
-  display_pass_action = PassAction(
+  displayPassAction = PassAction(
     colors: [ ColorAttachmentAction( loadAction: loadActionClear, clearValue: (0, 0.1, 0.2, 1)) ]
   )
 
-  # a zero-initialized storage buffer for the particle state
+  # a buffer and storage-buffer-view for the particle state
   let sbuf = sg.makeBuffer(BufferDesc(
     usage: BufferUsage(storageBuffer: true),
     size: maxParticles * Particle.sizeof,
     label: "particle-buffer",
   ))
-  computeBindings.storageBuffers[sbufCsSsbo] = sbuf
-  displayBindings.storageBuffers[sbufVsSsbo] = sbuf
+  let sbufView: View = sg.makeView(ViewDesc(
+    storageBuffer: BufferViewDesc(buffer: sbuf)
+  ))
+  computeBindings.views[viewCsSsbo] = sbufView
+  displayBindings.views[viewVsSsbo] = sbufView
 
   # a compute shader and pipeline object for updating the particle state
   computePipeline = sg.makePipeline(PipelineDesc(

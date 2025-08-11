@@ -16,7 +16,7 @@ type Shader* = object
 type Pipeline* = object
   id*:uint32
 
-type Attachments* = object
+type View* = object
   id*:uint32
 
 type Range* = object
@@ -27,17 +27,15 @@ const
   invalidId* = 0
   numInflightFrames* = 2
   maxColorAttachments* = 4
-  maxStorageAttachments* = 4
   maxUniformblockMembers* = 16
   maxVertexAttributes* = 16
   maxMipmaps* = 16
   maxTexturearrayLayers* = 128
-  maxUniformblockBindslots* = 8
   maxVertexbufferBindslots* = 8
-  maxImageBindslots* = 16
+  maxUniformblockBindslots* = 8
+  maxViewBindslots* = 28
   maxSamplerBindslots* = 16
-  maxStoragebufferBindslots* = 8
-  maxImageSamplerPairs* = 16
+  maxTextureSamplerPairs* = 16
 
 type Color* = object
   r*:float32
@@ -145,8 +143,9 @@ type Features* = object
   mrtIndependentBlendState*:bool
   mrtIndependentWriteMask*:bool
   compute*:bool
-  msaaImageBindings*:bool
+  msaaTextureBindings*:bool
   separateBufferTypes*:bool
+  glTextureViews*:bool
 
 type Limits* = object
   maxImageSize2d*:int32
@@ -443,6 +442,19 @@ type Swapchain* = object
   wgpu*:WgpuSwapchain
   gl*:GlSwapchain
 
+type Attachments* = object
+  colors*:array[4, View]
+  resolves*:array[4, View]
+  depthStencil*:View
+
+converter toAttachmentscolors*[N:static[int]](items: array[N, View]): array[4, View] =
+  static: assert(N <= 4)
+  for index,item in items.pairs: result[index]=item
+
+converter toAttachmentsresolves*[N:static[int]](items: array[N, View]): array[4, View] =
+  static: assert(N <= 4)
+  for index,item in items.pairs: result[index]=item
+
 type Pass* = object
   startCanary:uint32
   compute*:bool
@@ -458,9 +470,8 @@ type Bindings* = object
   vertexBufferOffsets*:array[8, int32]
   indexBuffer*:Buffer
   indexBufferOffset*:int32
-  images*:array[16, Image]
+  views*:array[28, View]
   samplers*:array[16, Sampler]
-  storageBuffers*:array[8, Buffer]
   endCanary:uint32
 
 converter toBindingsvertexBuffers*[N:static[int]](items: array[N, Buffer]): array[8, Buffer] =
@@ -471,16 +482,12 @@ converter toBindingsvertexBufferOffsets*[N:static[int]](items: array[N, int32]):
   static: assert(N <= 8)
   for index,item in items.pairs: result[index]=item
 
-converter toBindingsimages*[N:static[int]](items: array[N, Image]): array[16, Image] =
-  static: assert(N <= 16)
+converter toBindingsviews*[N:static[int]](items: array[N, View]): array[28, View] =
+  static: assert(N <= 28)
   for index,item in items.pairs: result[index]=item
 
 converter toBindingssamplers*[N:static[int]](items: array[N, Sampler]): array[16, Sampler] =
   static: assert(N <= 16)
-  for index,item in items.pairs: result[index]=item
-
-converter toBindingsstorageBuffers*[N:static[int]](items: array[N, Buffer]): array[8, Buffer] =
-  static: assert(N <= 8)
   for index,item in items.pairs: result[index]=item
 
 type BufferUsage* = object
@@ -512,11 +519,23 @@ converter toBufferDescmtlBuffers*[N:static[int]](items: array[N, pointer]): arra
   for index,item in items.pairs: result[index]=item
 
 type ImageUsage* = object
-  renderAttachment*:bool
-  storageAttachment*:bool
+  storageImage*:bool
+  colorAttachment*:bool
+  resolveAttachment*:bool
+  depthStencilAttachment*:bool
   immutable*:bool
   dynamicUpdate*:bool
   streamUpdate*:bool
+
+type
+  ViewType* {.size:sizeof(int32).} = enum
+    viewtypeInvalid,
+    viewtypeStoragebuffer,
+    viewtypeStorageimage,
+    viewtypeTexture,
+    viewtypeColorattachment,
+    viewtypeResolveattachment,
+    viewtypeDepthstencilattachment,
 
 type ImageData* = object
   subimage*:array[6, array[16, Range]]
@@ -544,9 +563,7 @@ type ImageDesc* = object
   glTextureTarget*:uint32
   mtlTextures*:array[2, pointer]
   d3d11Texture*:pointer
-  d3d11ShaderResourceView*:pointer
   wgpuTexture*:pointer
-  wgpuTextureView*:pointer
   endCanary:uint32
 
 converter toImageDescglTextures*[N:static[int]](items: array[N, uint32]): array[2, uint32] =
@@ -622,7 +639,7 @@ converter toShaderUniformBlockglslUniforms*[N:static[int]](items: array[N, GlslS
   static: assert(N <= 16)
   for index,item in items.pairs: result[index]=item
 
-type ShaderImage* = object
+type ShaderTextureView* = object
   stage*:ShaderStage
   imageType*:ImageType
   sampleType*:ImageSampleType
@@ -631,14 +648,7 @@ type ShaderImage* = object
   mslTextureN*:uint8
   wgslGroup1BindingN*:uint8
 
-type ShaderSampler* = object
-  stage*:ShaderStage
-  samplerType*:SamplerType
-  hlslRegisterSN*:uint8
-  mslSamplerN*:uint8
-  wgslGroup1BindingN*:uint8
-
-type ShaderStorageBuffer* = object
+type ShaderStorageBufferView* = object
   stage*:ShaderStage
   readonly*:bool
   hlslRegisterTN*:uint8
@@ -647,19 +657,31 @@ type ShaderStorageBuffer* = object
   wgslGroup1BindingN*:uint8
   glslBindingN*:uint8
 
-type ShaderStorageImage* = object
+type ShaderStorageImageView* = object
   stage*:ShaderStage
   imageType*:ImageType
   accessFormat*:PixelFormat
   writeonly*:bool
   hlslRegisterUN*:uint8
   mslTextureN*:uint8
-  wgslGroup2BindingN*:uint8
+  wgslGroup1BindingN*:uint8
   glslBindingN*:uint8
 
-type ShaderImageSamplerPair* = object
+type ShaderView* = object
+  texture*:ShaderTextureView
+  storageBuffer*:ShaderStorageBufferView
+  storageImage*:ShaderStorageImageView
+
+type ShaderSampler* = object
   stage*:ShaderStage
-  imageSlot*:uint8
+  samplerType*:SamplerType
+  hlslRegisterSN*:uint8
+  mslSamplerN*:uint8
+  wgslGroup1BindingN*:uint8
+
+type ShaderTextureSamplerPair* = object
+  stage*:ShaderStage
+  viewSlot*:uint8
   samplerSlot*:uint8
   glslName*:cstring
 
@@ -675,11 +697,9 @@ type ShaderDesc* = object
   computeFunc*:ShaderFunction
   attrs*:array[16, ShaderVertexAttr]
   uniformBlocks*:array[8, ShaderUniformBlock]
-  storageBuffers*:array[8, ShaderStorageBuffer]
-  images*:array[16, ShaderImage]
+  views*:array[28, ShaderView]
   samplers*:array[16, ShaderSampler]
-  imageSamplerPairs*:array[16, ShaderImageSamplerPair]
-  storageImages*:array[4, ShaderStorageImage]
+  textureSamplerPairs*:array[16, ShaderTextureSamplerPair]
   mtlThreadsPerThreadgroup*:MtlShaderThreadsPerThreadgroup
   label*:cstring
   endCanary:uint32
@@ -692,24 +712,16 @@ converter toShaderDescuniformBlocks*[N:static[int]](items: array[N, ShaderUnifor
   static: assert(N <= 8)
   for index,item in items.pairs: result[index]=item
 
-converter toShaderDescstorageBuffers*[N:static[int]](items: array[N, ShaderStorageBuffer]): array[8, ShaderStorageBuffer] =
-  static: assert(N <= 8)
-  for index,item in items.pairs: result[index]=item
-
-converter toShaderDescimages*[N:static[int]](items: array[N, ShaderImage]): array[16, ShaderImage] =
-  static: assert(N <= 16)
+converter toShaderDescviews*[N:static[int]](items: array[N, ShaderView]): array[28, ShaderView] =
+  static: assert(N <= 28)
   for index,item in items.pairs: result[index]=item
 
 converter toShaderDescsamplers*[N:static[int]](items: array[N, ShaderSampler]): array[16, ShaderSampler] =
   static: assert(N <= 16)
   for index,item in items.pairs: result[index]=item
 
-converter toShaderDescimageSamplerPairs*[N:static[int]](items: array[N, ShaderImageSamplerPair]): array[16, ShaderImageSamplerPair] =
+converter toShaderDesctextureSamplerPairs*[N:static[int]](items: array[N, ShaderTextureSamplerPair]): array[16, ShaderTextureSamplerPair] =
   static: assert(N <= 16)
-  for index,item in items.pairs: result[index]=item
-
-converter toShaderDescstorageImages*[N:static[int]](items: array[N, ShaderStorageImage]): array[4, ShaderStorageImage] =
-  static: assert(N <= 4)
   for index,item in items.pairs: result[index]=item
 
 type VertexBufferLayoutState* = object
@@ -793,31 +805,34 @@ converter toPipelineDesccolors*[N:static[int]](items: array[N, ColorTargetState]
   static: assert(N <= 4)
   for index,item in items.pairs: result[index]=item
 
-type AttachmentDesc* = object
+type BufferViewDesc* = object
+  buffer*:Buffer
+  offset*:int32
+
+type ImageViewDesc* = object
   image*:Image
   mipLevel*:int32
   slice*:int32
 
-type AttachmentsDesc* = object
+type TextureViewRange* = object
+  base*:int32
+  count*:int32
+
+type TextureViewDesc* = object
+  image*:Image
+  mipLevels*:TextureViewRange
+  slices*:TextureViewRange
+
+type ViewDesc* = object
   startCanary:uint32
-  colors*:array[4, AttachmentDesc]
-  resolves*:array[4, AttachmentDesc]
-  depthStencil*:AttachmentDesc
-  storages*:array[4, AttachmentDesc]
+  texture*:TextureViewDesc
+  storageBuffer*:BufferViewDesc
+  storageImage*:ImageViewDesc
+  colorAttachment*:ImageViewDesc
+  resolveAttachment*:ImageViewDesc
+  depthStencilAttachment*:ImageViewDesc
   label*:cstring
   endCanary:uint32
-
-converter toAttachmentsDesccolors*[N:static[int]](items: array[N, AttachmentDesc]): array[4, AttachmentDesc] =
-  static: assert(N <= 4)
-  for index,item in items.pairs: result[index]=item
-
-converter toAttachmentsDescresolves*[N:static[int]](items: array[N, AttachmentDesc]): array[4, AttachmentDesc] =
-  static: assert(N <= 4)
-  for index,item in items.pairs: result[index]=item
-
-converter toAttachmentsDescstorages*[N:static[int]](items: array[N, AttachmentDesc]): array[4, AttachmentDesc] =
-  static: assert(N <= 4)
-  for index,item in items.pairs: result[index]=item
 
 type TraceHooks* = object
   userData*:pointer
@@ -827,13 +842,13 @@ type TraceHooks* = object
   makeSampler*:proc(a1:ptr SamplerDesc, a2:Sampler, a3:pointer) {.cdecl.}
   makeShader*:proc(a1:ptr ShaderDesc, a2:Shader, a3:pointer) {.cdecl.}
   makePipeline*:proc(a1:ptr PipelineDesc, a2:Pipeline, a3:pointer) {.cdecl.}
-  makeAttachments*:proc(a1:ptr AttachmentsDesc, a2:Attachments, a3:pointer) {.cdecl.}
+  makeView*:proc(a1:ptr ViewDesc, a2:View, a3:pointer) {.cdecl.}
   destroyBuffer*:proc(a1:Buffer, a2:pointer) {.cdecl.}
   destroyImage*:proc(a1:Image, a2:pointer) {.cdecl.}
   destroySampler*:proc(a1:Sampler, a2:pointer) {.cdecl.}
   destroyShader*:proc(a1:Shader, a2:pointer) {.cdecl.}
   destroyPipeline*:proc(a1:Pipeline, a2:pointer) {.cdecl.}
-  destroyAttachments*:proc(a1:Attachments, a2:pointer) {.cdecl.}
+  destroyView*:proc(a1:View, a2:pointer) {.cdecl.}
   updateBuffer*:proc(a1:Buffer, a2:ptr Range, a3:pointer) {.cdecl.}
   updateImage*:proc(a1:Image, a2:ptr ImageData, a3:pointer) {.cdecl.}
   appendBuffer*:proc(a1:Buffer, a2:ptr Range, a3:int32, a4:pointer) {.cdecl.}
@@ -852,31 +867,31 @@ type TraceHooks* = object
   allocSampler*:proc(a1:Sampler, a2:pointer) {.cdecl.}
   allocShader*:proc(a1:Shader, a2:pointer) {.cdecl.}
   allocPipeline*:proc(a1:Pipeline, a2:pointer) {.cdecl.}
-  allocAttachments*:proc(a1:Attachments, a2:pointer) {.cdecl.}
+  allocView*:proc(a1:View, a2:pointer) {.cdecl.}
   deallocBuffer*:proc(a1:Buffer, a2:pointer) {.cdecl.}
   deallocImage*:proc(a1:Image, a2:pointer) {.cdecl.}
   deallocSampler*:proc(a1:Sampler, a2:pointer) {.cdecl.}
   deallocShader*:proc(a1:Shader, a2:pointer) {.cdecl.}
   deallocPipeline*:proc(a1:Pipeline, a2:pointer) {.cdecl.}
-  deallocAttachments*:proc(a1:Attachments, a2:pointer) {.cdecl.}
+  deallocView*:proc(a1:View, a2:pointer) {.cdecl.}
   initBuffer*:proc(a1:Buffer, a2:ptr BufferDesc, a3:pointer) {.cdecl.}
   initImage*:proc(a1:Image, a2:ptr ImageDesc, a3:pointer) {.cdecl.}
   initSampler*:proc(a1:Sampler, a2:ptr SamplerDesc, a3:pointer) {.cdecl.}
   initShader*:proc(a1:Shader, a2:ptr ShaderDesc, a3:pointer) {.cdecl.}
   initPipeline*:proc(a1:Pipeline, a2:ptr PipelineDesc, a3:pointer) {.cdecl.}
-  initAttachments*:proc(a1:Attachments, a2:ptr AttachmentsDesc, a3:pointer) {.cdecl.}
+  initView*:proc(a1:View, a2:ptr ViewDesc, a3:pointer) {.cdecl.}
   uninitBuffer*:proc(a1:Buffer, a2:pointer) {.cdecl.}
   uninitImage*:proc(a1:Image, a2:pointer) {.cdecl.}
   uninitSampler*:proc(a1:Sampler, a2:pointer) {.cdecl.}
   uninitShader*:proc(a1:Shader, a2:pointer) {.cdecl.}
   uninitPipeline*:proc(a1:Pipeline, a2:pointer) {.cdecl.}
-  uninitAttachments*:proc(a1:Attachments, a2:pointer) {.cdecl.}
+  uninitView*:proc(a1:View, a2:pointer) {.cdecl.}
   failBuffer*:proc(a1:Buffer, a2:pointer) {.cdecl.}
   failImage*:proc(a1:Image, a2:pointer) {.cdecl.}
   failSampler*:proc(a1:Sampler, a2:pointer) {.cdecl.}
   failShader*:proc(a1:Shader, a2:pointer) {.cdecl.}
   failPipeline*:proc(a1:Pipeline, a2:pointer) {.cdecl.}
-  failAttachments*:proc(a1:Attachments, a2:pointer) {.cdecl.}
+  failView*:proc(a1:View, a2:pointer) {.cdecl.}
   pushDebugGroup*:proc(a1:cstring, a2:pointer) {.cdecl.}
   popDebugGroup*:proc(a1:pointer) {.cdecl.}
 
@@ -909,7 +924,7 @@ type ShaderInfo* = object
 type PipelineInfo* = object
   slot*:SlotInfo
 
-type AttachmentsInfo* = object
+type ViewInfo* = object
   slot*:SlotInfo
 
 type FrameStatsGl* = object
@@ -917,6 +932,7 @@ type FrameStatsGl* = object
   numActiveTexture*:uint32
   numBindTexture*:uint32
   numBindSampler*:uint32
+  numBindImageTexture*:uint32
   numUseProgram*:uint32
   numRenderState*:uint32
   numVertexAttribPointer*:uint32
@@ -990,14 +1006,26 @@ type FrameStatsMetalPipeline* = object
 
 type FrameStatsMetalBindings* = object
   numSetVertexBuffer*:uint32
+  numSetVertexBufferOffset*:uint32
+  numSkipRedundantVertexBuffer*:uint32
   numSetVertexTexture*:uint32
+  numSkipRedundantVertexTexture*:uint32
   numSetVertexSamplerState*:uint32
+  numSkipRedundantVertexSamplerState*:uint32
   numSetFragmentBuffer*:uint32
+  numSetFragmentBufferOffset*:uint32
+  numSkipRedundantFragmentBuffer*:uint32
   numSetFragmentTexture*:uint32
+  numSkipRedundantFragmentTexture*:uint32
   numSetFragmentSamplerState*:uint32
+  numSkipRedundantFragmentSamplerState*:uint32
   numSetComputeBuffer*:uint32
+  numSetComputeBufferOffset*:uint32
+  numSkipRedundantComputeBuffer*:uint32
   numSetComputeTexture*:uint32
+  numSkipRedundantComputeTexture*:uint32
   numSetComputeSamplerState*:uint32
+  numSkipRedundantComputeSamplerState*:uint32
 
 type FrameStatsMetalUniforms* = object
   numSetVertexBufferOffset*:uint32
@@ -1092,8 +1120,8 @@ type
     logitemD3d11StoragebufferHlslRegisterTOutOfRange,
     logitemD3d11StoragebufferHlslRegisterUOutOfRange,
     logitemD3d11ImageHlslRegisterTOutOfRange,
-    logitemD3d11SamplerHlslRegisterSOutOfRange,
     logitemD3d11StorageimageHlslRegisterUOutOfRange,
+    logitemD3d11SamplerHlslRegisterSOutOfRange,
     logitemD3d11LoadD3dcompiler47DllFailed,
     logitemD3d11ShaderCompilationFailed,
     logitemD3d11ShaderCompilationOutput,
@@ -1137,14 +1165,13 @@ type
     logitemWgpuCreateShaderModuleFailed,
     logitemWgpuShaderCreateBindgroupLayoutFailed,
     logitemWgpuUniformblockWgslGroup0BindingOutOfRange,
+    logitemWgpuTextureWgslGroup1BindingOutOfRange,
     logitemWgpuStoragebufferWgslGroup1BindingOutOfRange,
-    logitemWgpuImageWgslGroup1BindingOutOfRange,
+    logitemWgpuStorageimageWgslGroup1BindingOutOfRange,
     logitemWgpuSamplerWgslGroup1BindingOutOfRange,
-    logitemWgpuStorageimageWgslGroup2BindingOutOfRange,
     logitemWgpuCreatePipelineLayoutFailed,
     logitemWgpuCreateRenderPipelineFailed,
     logitemWgpuCreateComputePipelineFailed,
-    logitemWgpuAttachmentsCreateTextureViewFailed,
     logitemIdenticalCommitListener,
     logitemCommitListenerArrayFull,
     logitemTraceHooksNotEnabled,
@@ -1153,33 +1180,32 @@ type
     logitemDeallocSamplerInvalidState,
     logitemDeallocShaderInvalidState,
     logitemDeallocPipelineInvalidState,
-    logitemDeallocAttachmentsInvalidState,
+    logitemDeallocViewInvalidState,
     logitemInitBufferInvalidState,
     logitemInitImageInvalidState,
     logitemInitSamplerInvalidState,
     logitemInitShaderInvalidState,
     logitemInitPipelineInvalidState,
-    logitemInitAttachmentsInvalidState,
+    logitemInitViewInvalidState,
     logitemUninitBufferInvalidState,
     logitemUninitImageInvalidState,
     logitemUninitSamplerInvalidState,
     logitemUninitShaderInvalidState,
     logitemUninitPipelineInvalidState,
-    logitemUninitAttachmentsInvalidState,
+    logitemUninitViewInvalidState,
     logitemFailBufferInvalidState,
     logitemFailImageInvalidState,
     logitemFailSamplerInvalidState,
     logitemFailShaderInvalidState,
     logitemFailPipelineInvalidState,
-    logitemFailAttachmentsInvalidState,
+    logitemFailViewInvalidState,
     logitemBufferPoolExhausted,
     logitemImagePoolExhausted,
     logitemSamplerPoolExhausted,
     logitemShaderPoolExhausted,
     logitemPipelinePoolExhausted,
-    logitemPassPoolExhausted,
-    logitemBeginpassAttachmentInvalid,
-    logitemApplyBindingsStorageBufferTrackerExhausted,
+    logitemViewPoolExhausted,
+    logitemBeginpassAttachmentsAlive,
     logitemDrawWithoutBindings,
     logitemValidateBufferdescCanary,
     logitemValidateBufferdescImmutableDynamicStream,
@@ -1195,7 +1221,6 @@ type
     logitemValidateImagedataDataSize,
     logitemValidateImagedescCanary,
     logitemValidateImagedescImmutableDynamicStream,
-    logitemValidateImagedescRenderVsStorageAttachment,
     logitemValidateImagedescWidth,
     logitemValidateImagedescHeight,
     logitemValidateImagedescNonrtPixelformat,
@@ -1203,14 +1228,15 @@ type
     logitemValidateImagedescDepth3dImage,
     logitemValidateImagedescAttachmentExpectImmutable,
     logitemValidateImagedescAttachmentExpectNoData,
-    logitemValidateImagedescRenderattachmentNoMsaaSupport,
-    logitemValidateImagedescRenderattachmentMsaaNumMipmaps,
-    logitemValidateImagedescRenderattachmentMsaa3dImage,
-    logitemValidateImagedescRenderattachmentMsaaCubeImage,
-    logitemValidateImagedescRenderattachmentMsaaArrayImage,
-    logitemValidateImagedescRenderattachmentPixelformat,
-    logitemValidateImagedescStorageattachmentPixelformat,
-    logitemValidateImagedescStorageattachmentExpectNoMsaa,
+    logitemValidateImagedescAttachmentPixelformat,
+    logitemValidateImagedescAttachmentResolveExpectNoMsaa,
+    logitemValidateImagedescAttachmentNoMsaaSupport,
+    logitemValidateImagedescAttachmentMsaaNumMipmaps,
+    logitemValidateImagedescAttachmentMsaa3dImage,
+    logitemValidateImagedescAttachmentMsaaCubeImage,
+    logitemValidateImagedescAttachmentMsaaArrayImage,
+    logitemValidateImagedescStorageimagePixelformat,
+    logitemValidateImagedescStorageimageExpectNoMsaa,
     logitemValidateImagedescInjectedNoData,
     logitemValidateImagedescDynamicNoData,
     logitemValidateImagedescCompressedImmutable,
@@ -1225,7 +1251,8 @@ type
     logitemValidateShaderdescComputeSourceOrBytecode,
     logitemValidateShaderdescInvalidShaderCombo,
     logitemValidateShaderdescNoBytecodeSize,
-    logitemValidateShaderdescMetalThreadsPerThreadgroup,
+    logitemValidateShaderdescMetalThreadsPerThreadgroupInitialized,
+    logitemValidateShaderdescMetalThreadsPerThreadgroupMultiple32,
     logitemValidateShaderdescUniformblockNoContMembers,
     logitemValidateShaderdescUniformblockSizeIsZero,
     logitemValidateShaderdescUniformblockMetalBufferSlotOutOfRange,
@@ -1239,46 +1266,47 @@ type
     logitemValidateShaderdescUniformblockSizeMismatch,
     logitemValidateShaderdescUniformblockArrayCount,
     logitemValidateShaderdescUniformblockStd140ArrayType,
-    logitemValidateShaderdescStoragebufferMetalBufferSlotOutOfRange,
-    logitemValidateShaderdescStoragebufferMetalBufferSlotCollision,
-    logitemValidateShaderdescStoragebufferHlslRegisterTOutOfRange,
-    logitemValidateShaderdescStoragebufferHlslRegisterTCollision,
-    logitemValidateShaderdescStoragebufferHlslRegisterUOutOfRange,
-    logitemValidateShaderdescStoragebufferHlslRegisterUCollision,
-    logitemValidateShaderdescStoragebufferGlslBindingOutOfRange,
-    logitemValidateShaderdescStoragebufferGlslBindingCollision,
-    logitemValidateShaderdescStoragebufferWgslGroup1BindingOutOfRange,
-    logitemValidateShaderdescStoragebufferWgslGroup1BindingCollision,
-    logitemValidateShaderdescStorageimageExpectComputeStage,
-    logitemValidateShaderdescStorageimageMetalTextureSlotOutOfRange,
-    logitemValidateShaderdescStorageimageMetalTextureSlotCollision,
-    logitemValidateShaderdescStorageimageHlslRegisterUOutOfRange,
-    logitemValidateShaderdescStorageimageHlslRegisterUCollision,
-    logitemValidateShaderdescStorageimageGlslBindingOutOfRange,
-    logitemValidateShaderdescStorageimageGlslBindingCollision,
-    logitemValidateShaderdescStorageimageWgslGroup2BindingOutOfRange,
-    logitemValidateShaderdescStorageimageWgslGroup2BindingCollision,
-    logitemValidateShaderdescImageMetalTextureSlotOutOfRange,
-    logitemValidateShaderdescImageMetalTextureSlotCollision,
-    logitemValidateShaderdescImageHlslRegisterTOutOfRange,
-    logitemValidateShaderdescImageHlslRegisterTCollision,
-    logitemValidateShaderdescImageWgslGroup1BindingOutOfRange,
-    logitemValidateShaderdescImageWgslGroup1BindingCollision,
+    logitemValidateShaderdescViewStoragebufferMetalBufferSlotOutOfRange,
+    logitemValidateShaderdescViewStoragebufferMetalBufferSlotCollision,
+    logitemValidateShaderdescViewStoragebufferHlslRegisterTOutOfRange,
+    logitemValidateShaderdescViewStoragebufferHlslRegisterTCollision,
+    logitemValidateShaderdescViewStoragebufferHlslRegisterUOutOfRange,
+    logitemValidateShaderdescViewStoragebufferHlslRegisterUCollision,
+    logitemValidateShaderdescViewStoragebufferGlslBindingOutOfRange,
+    logitemValidateShaderdescViewStoragebufferGlslBindingCollision,
+    logitemValidateShaderdescViewStoragebufferWgslGroup1BindingOutOfRange,
+    logitemValidateShaderdescViewStoragebufferWgslGroup1BindingCollision,
+    logitemValidateShaderdescViewStorageimageExpectComputeStage,
+    logitemValidateShaderdescViewStorageimageMetalTextureSlotOutOfRange,
+    logitemValidateShaderdescViewStorageimageMetalTextureSlotCollision,
+    logitemValidateShaderdescViewStorageimageHlslRegisterUOutOfRange,
+    logitemValidateShaderdescViewStorageimageHlslRegisterUCollision,
+    logitemValidateShaderdescViewStorageimageGlslBindingOutOfRange,
+    logitemValidateShaderdescViewStorageimageGlslBindingCollision,
+    logitemValidateShaderdescViewStorageimageWgslGroup1BindingOutOfRange,
+    logitemValidateShaderdescViewStorageimageWgslGroup1BindingCollision,
+    logitemValidateShaderdescViewTextureMetalTextureSlotOutOfRange,
+    logitemValidateShaderdescViewTextureMetalTextureSlotCollision,
+    logitemValidateShaderdescViewTextureHlslRegisterTOutOfRange,
+    logitemValidateShaderdescViewTextureHlslRegisterTCollision,
+    logitemValidateShaderdescViewTextureWgslGroup1BindingOutOfRange,
+    logitemValidateShaderdescViewTextureWgslGroup1BindingCollision,
     logitemValidateShaderdescSamplerMetalSamplerSlotOutOfRange,
     logitemValidateShaderdescSamplerMetalSamplerSlotCollision,
     logitemValidateShaderdescSamplerHlslRegisterSOutOfRange,
     logitemValidateShaderdescSamplerHlslRegisterSCollision,
     logitemValidateShaderdescSamplerWgslGroup1BindingOutOfRange,
     logitemValidateShaderdescSamplerWgslGroup1BindingCollision,
-    logitemValidateShaderdescImageSamplerPairImageSlotOutOfRange,
-    logitemValidateShaderdescImageSamplerPairSamplerSlotOutOfRange,
-    logitemValidateShaderdescImageSamplerPairImageStageMismatch,
-    logitemValidateShaderdescImageSamplerPairSamplerStageMismatch,
-    logitemValidateShaderdescImageSamplerPairGlslName,
+    logitemValidateShaderdescTextureSamplerPairViewSlotOutOfRange,
+    logitemValidateShaderdescTextureSamplerPairSamplerSlotOutOfRange,
+    logitemValidateShaderdescTextureSamplerPairTextureStageMismatch,
+    logitemValidateShaderdescTextureSamplerPairExpectTextureView,
+    logitemValidateShaderdescTextureSamplerPairSamplerStageMismatch,
+    logitemValidateShaderdescTextureSamplerPairGlslName,
     logitemValidateShaderdescNonfilteringSamplerRequired,
     logitemValidateShaderdescComparisonSamplerRequired,
-    logitemValidateShaderdescImageNotReferencedByImageSamplerPairs,
-    logitemValidateShaderdescSamplerNotReferencedByImageSamplerPairs,
+    logitemValidateShaderdescTexviewNotReferencedByTextureSamplerPairs,
+    logitemValidateShaderdescSamplerNotReferencedByTextureSamplerPairs,
     logitemValidateShaderdescAttrStringTooLong,
     logitemValidatePipelinedescCanary,
     logitemValidatePipelinedescShader,
@@ -1290,58 +1318,35 @@ type
     logitemValidatePipelinedescAttrSemantics,
     logitemValidatePipelinedescShaderReadonlyStoragebuffers,
     logitemValidatePipelinedescBlendopMinmaxRequiresBlendfactorOne,
-    logitemValidateAttachmentsdescCanary,
-    logitemValidateAttachmentsdescNoAttachments,
-    logitemValidateAttachmentsdescNoContColorAtts,
-    logitemValidateAttachmentsdescColorImage,
-    logitemValidateAttachmentsdescColorMiplevel,
-    logitemValidateAttachmentsdescColorFace,
-    logitemValidateAttachmentsdescColorLayer,
-    logitemValidateAttachmentsdescColorSlice,
-    logitemValidateAttachmentsdescColorImageNoRenderattachment,
-    logitemValidateAttachmentsdescColorInvPixelformat,
-    logitemValidateAttachmentsdescImageSizes,
-    logitemValidateAttachmentsdescImageSampleCounts,
-    logitemValidateAttachmentsdescResolveColorImageMsaa,
-    logitemValidateAttachmentsdescResolveImage,
-    logitemValidateAttachmentsdescResolveSampleCount,
-    logitemValidateAttachmentsdescResolveMiplevel,
-    logitemValidateAttachmentsdescResolveFace,
-    logitemValidateAttachmentsdescResolveLayer,
-    logitemValidateAttachmentsdescResolveSlice,
-    logitemValidateAttachmentsdescResolveImageNoRt,
-    logitemValidateAttachmentsdescResolveImageSizes,
-    logitemValidateAttachmentsdescResolveImageFormat,
-    logitemValidateAttachmentsdescDepthInvPixelformat,
-    logitemValidateAttachmentsdescDepthImage,
-    logitemValidateAttachmentsdescDepthMiplevel,
-    logitemValidateAttachmentsdescDepthFace,
-    logitemValidateAttachmentsdescDepthLayer,
-    logitemValidateAttachmentsdescDepthSlice,
-    logitemValidateAttachmentsdescDepthImageNoRenderattachment,
-    logitemValidateAttachmentsdescDepthImageSizes,
-    logitemValidateAttachmentsdescDepthImageSampleCount,
-    logitemValidateAttachmentsdescStorageImage,
-    logitemValidateAttachmentsdescStorageMiplevel,
-    logitemValidateAttachmentsdescStorageFace,
-    logitemValidateAttachmentsdescStorageLayer,
-    logitemValidateAttachmentsdescStorageSlice,
-    logitemValidateAttachmentsdescStorageImageNoStorageattachment,
-    logitemValidateAttachmentsdescStorageInvPixelformat,
-    logitemValidateAttachmentsdescRenderVsStorageAttachments,
+    logitemValidateViewdescCanary,
+    logitemValidateViewdescUniqueViewtype,
+    logitemValidateViewdescAnyViewtype,
+    logitemValidateViewdescResourceAlive,
+    logitemValidateViewdescResourceFailed,
+    logitemValidateViewdescStoragebufferOffsetVsBufferSize,
+    logitemValidateViewdescStoragebufferOffsetMultiple256,
+    logitemValidateViewdescStoragebufferUsage,
+    logitemValidateViewdescStorageimageUsage,
+    logitemValidateViewdescColorattachmentUsage,
+    logitemValidateViewdescResolveattachmentUsage,
+    logitemValidateViewdescDepthstencilattachmentUsage,
+    logitemValidateViewdescImageMiplevel,
+    logitemValidateViewdescImage2dSlice,
+    logitemValidateViewdescImageCubemapSlice,
+    logitemValidateViewdescImageArraySlice,
+    logitemValidateViewdescImage3dSlice,
+    logitemValidateViewdescTextureExpectNoMsaa,
+    logitemValidateViewdescTextureMiplevels,
+    logitemValidateViewdescTexture2dSlices,
+    logitemValidateViewdescTextureCubemapSlices,
+    logitemValidateViewdescTextureArraySlices,
+    logitemValidateViewdescTexture3dSlices,
+    logitemValidateViewdescStorageimagePixelformat,
+    logitemValidateViewdescColorattachmentPixelformat,
+    logitemValidateViewdescDepthstencilattachmentPixelformat,
+    logitemValidateViewdescResolveattachmentSamplecount,
     logitemValidateBeginpassCanary,
-    logitemValidateBeginpassAttachmentsExists,
-    logitemValidateBeginpassAttachmentsValid,
-    logitemValidateBeginpassComputepassStorageAttachmentsOnly,
-    logitemValidateBeginpassRenderpassRenderAttachmentsOnly,
-    logitemValidateBeginpassColorAttachmentImageAlive,
-    logitemValidateBeginpassColorAttachmentImageValid,
-    logitemValidateBeginpassResolveAttachmentImageAlive,
-    logitemValidateBeginpassResolveAttachmentImageValid,
-    logitemValidateBeginpassDepthstencilAttachmentImageAlive,
-    logitemValidateBeginpassDepthstencilAttachmentImageValid,
-    logitemValidateBeginpassStorageAttachmentImageAlive,
-    logitemValidateBeginpassStorageAttachmentImageValid,
+    logitemValidateBeginpassComputepassExpectNoAttachments,
     logitemValidateBeginpassSwapchainExpectWidth,
     logitemValidateBeginpassSwapchainExpectWidthNotset,
     logitemValidateBeginpassSwapchainExpectHeight,
@@ -1370,6 +1375,30 @@ type
     logitemValidateBeginpassSwapchainWgpuExpectDepthstencilview,
     logitemValidateBeginpassSwapchainWgpuExpectDepthstencilviewNotset,
     logitemValidateBeginpassSwapchainGlExpectFramebufferNotset,
+    logitemValidateBeginpassColorattachmentviewsContinuous,
+    logitemValidateBeginpassColorattachmentviewAlive,
+    logitemValidateBeginpassColorattachmentviewValid,
+    logitemValidateBeginpassColorattachmentviewType,
+    logitemValidateBeginpassColorattachmentviewImageAlive,
+    logitemValidateBeginpassColorattachmentviewImageValid,
+    logitemValidateBeginpassColorattachmentviewSizes,
+    logitemValidateBeginpassColorattachmentviewSamplecounts,
+    logitemValidateBeginpassResolveattachmentviewNoColorattachmentview,
+    logitemValidateBeginpassResolveattachmentviewAlive,
+    logitemValidateBeginpassResolveattachmentviewValid,
+    logitemValidateBeginpassResolveattachmentviewType,
+    logitemValidateBeginpassResolveattachmentviewImageAlive,
+    logitemValidateBeginpassResolveattachmentviewImageValid,
+    logitemValidateBeginpassResolveattachmentviewSizes,
+    logitemValidateBeginpassDepthstencilattachmentviewsContinuous,
+    logitemValidateBeginpassDepthstencilattachmentviewAlive,
+    logitemValidateBeginpassDepthstencilattachmentviewValid,
+    logitemValidateBeginpassDepthstencilattachmentviewType,
+    logitemValidateBeginpassDepthstencilattachmentviewImageAlive,
+    logitemValidateBeginpassDepthstencilattachmentviewImageValid,
+    logitemValidateBeginpassDepthstencilattachmentviewSizes,
+    logitemValidateBeginpassDepthstencilattachmentviewSamplecount,
+    logitemValidateBeginpassAttachmentsExpected,
     logitemValidateAvpRenderpassExpected,
     logitemValidateAsrRenderpassExpected,
     logitemValidateApipPipelineValidId,
@@ -1380,21 +1409,19 @@ type
     logitemValidateApipPipelineShaderValid,
     logitemValidateApipComputepassExpected,
     logitemValidateApipRenderpassExpected,
-    logitemValidateApipCurpassAttachmentsAlive,
-    logitemValidateApipCurpassAttachmentsValid,
-    logitemValidateApipAttCount,
-    logitemValidateApipColorAttachmentImageAlive,
-    logitemValidateApipColorAttachmentImageValid,
-    logitemValidateApipDepthstencilAttachmentImageAlive,
-    logitemValidateApipDepthstencilAttachmentImageValid,
-    logitemValidateApipColorFormat,
-    logitemValidateApipDepthFormat,
-    logitemValidateApipSampleCount,
-    logitemValidateApipExpectedStorageAttachmentImage,
-    logitemValidateApipStorageAttachmentImageAlive,
-    logitemValidateApipStorageAttachmentImageValid,
-    logitemValidateApipStorageAttachmentPixelformat,
-    logitemValidateApipStorageAttachmentImageType,
+    logitemValidateApipSwapchainColorCount,
+    logitemValidateApipSwapchainColorFormat,
+    logitemValidateApipSwapchainDepthFormat,
+    logitemValidateApipSwapchainSampleCount,
+    logitemValidateApipAttachmentsAlive,
+    logitemValidateApipColorattachmentsCount,
+    logitemValidateApipColorattachmentsViewValid,
+    logitemValidateApipColorattachmentsImageValid,
+    logitemValidateApipColorattachmentsFormat,
+    logitemValidateApipDepthstencilattachmentViewValid,
+    logitemValidateApipDepthstencilattachmentImageValid,
+    logitemValidateApipDepthstencilattachmentFormat,
+    logitemValidateApipAttachmentSampleCount,
     logitemValidateAbndPassExpected,
     logitemValidateAbndEmptyBindings,
     logitemValidateAbndNoPipeline,
@@ -1402,38 +1429,41 @@ type
     logitemValidateAbndPipelineValid,
     logitemValidateAbndPipelineShaderAlive,
     logitemValidateAbndPipelineShaderValid,
-    logitemValidateAbndComputeExpectedNoVbs,
-    logitemValidateAbndComputeExpectedNoIb,
-    logitemValidateAbndExpectedVb,
-    logitemValidateAbndVbAlive,
-    logitemValidateAbndVbType,
-    logitemValidateAbndVbOverflow,
-    logitemValidateAbndNoIb,
-    logitemValidateAbndIb,
-    logitemValidateAbndIbAlive,
-    logitemValidateAbndIbType,
-    logitemValidateAbndIbOverflow,
-    logitemValidateAbndExpectedImageBinding,
-    logitemValidateAbndImgAlive,
-    logitemValidateAbndImageTypeMismatch,
-    logitemValidateAbndExpectedMultisampledImage,
-    logitemValidateAbndImageMsaa,
-    logitemValidateAbndExpectedFilterableImage,
-    logitemValidateAbndExpectedDepthImage,
+    logitemValidateAbndComputeExpectedNoVbufs,
+    logitemValidateAbndComputeExpectedNoIbuf,
+    logitemValidateAbndExpectedVbuf,
+    logitemValidateAbndVbufAlive,
+    logitemValidateAbndVbufUsage,
+    logitemValidateAbndVbufOverflow,
+    logitemValidateAbndExpectedNoIbuf,
+    logitemValidateAbndExpectedIbuf,
+    logitemValidateAbndIbufAlive,
+    logitemValidateAbndIbufUsage,
+    logitemValidateAbndIbufOverflow,
+    logitemValidateAbndExpectedViewBinding,
+    logitemValidateAbndViewAlive,
+    logitemValidateAbndExpectTexview,
+    logitemValidateAbndExpectSbview,
+    logitemValidateAbndExpectSimgview,
+    logitemValidateAbndTexviewImagetypeMismatch,
+    logitemValidateAbndTexviewExpectedMultisampledImage,
+    logitemValidateAbndTexviewExpectedNonMultisampledImage,
+    logitemValidateAbndTexviewExpectedFilterableImage,
+    logitemValidateAbndTexviewExpectedDepthImage,
+    logitemValidateAbndSbviewReadwriteImmutable,
+    logitemValidateAbndSimgviewComputePassExpected,
+    logitemValidateAbndSimgviewImagetypeMismatch,
+    logitemValidateAbndSimgviewAccessformat,
     logitemValidateAbndExpectedSamplerBinding,
     logitemValidateAbndUnexpectedSamplerCompareNever,
     logitemValidateAbndExpectedSamplerCompareNever,
     logitemValidateAbndExpectedNonfilteringSampler,
-    logitemValidateAbndSmpAlive,
-    logitemValidateAbndSmpValid,
-    logitemValidateAbndExpectedStoragebufferBinding,
-    logitemValidateAbndStoragebufferAlive,
-    logitemValidateAbndStoragebufferBindingBuffertype,
-    logitemValidateAbndStoragebufferReadwriteImmutable,
-    logitemValidateAbndImageBindingVsDepthstencilAttachment,
-    logitemValidateAbndImageBindingVsColorAttachment,
-    logitemValidateAbndImageBindingVsResolveAttachment,
-    logitemValidateAbndImageBindingVsStorageAttachment,
+    logitemValidateAbndSamplerAlive,
+    logitemValidateAbndSamplerValid,
+    logitemValidateAbndTextureBindingVsDepthstencilAttachment,
+    logitemValidateAbndTextureBindingVsColorAttachment,
+    logitemValidateAbndTextureBindingVsResolveAttachment,
+    logitemValidateAbndTextureBindingVsStorageAttachment,
     logitemValidateAuPassExpected,
     logitemValidateAuNoPipeline,
     logitemValidateAuPipelineAlive,
@@ -1504,9 +1534,8 @@ type Desc* = object
   samplerPoolSize*:int32
   shaderPoolSize*:int32
   pipelinePoolSize*:int32
-  attachmentsPoolSize*:int32
+  viewPoolSize*:int32
   uniformBufferSize*:int32
-  maxDispatchCallsPerPass*:int32
   maxCommitListeners*:int32
   disableValidation*:bool
   d3d11ShaderDebugging*:bool
@@ -1575,9 +1604,9 @@ proc c_makePipeline(desc:ptr PipelineDesc):Pipeline {.cdecl, importc:"sg_make_pi
 proc makePipeline*(desc:PipelineDesc):Pipeline =
     c_makePipeline(addr(desc))
 
-proc c_makeAttachments(desc:ptr AttachmentsDesc):Attachments {.cdecl, importc:"sg_make_attachments".}
-proc makeAttachments*(desc:AttachmentsDesc):Attachments =
-    c_makeAttachments(addr(desc))
+proc c_makeView(desc:ptr ViewDesc):View {.cdecl, importc:"sg_make_view".}
+proc makeView*(desc:ViewDesc):View =
+    c_makeView(addr(desc))
 
 proc c_destroyBuffer(buf:Buffer):void {.cdecl, importc:"sg_destroy_buffer".}
 proc destroyBuffer*(buf:Buffer):void =
@@ -1599,9 +1628,9 @@ proc c_destroyPipeline(pip:Pipeline):void {.cdecl, importc:"sg_destroy_pipeline"
 proc destroyPipeline*(pip:Pipeline):void =
     c_destroyPipeline(pip)
 
-proc c_destroyAttachments(atts:Attachments):void {.cdecl, importc:"sg_destroy_attachments".}
-proc destroyAttachments*(atts:Attachments):void =
-    c_destroyAttachments(atts)
+proc c_destroyView(view:View):void {.cdecl, importc:"sg_destroy_view".}
+proc destroyView*(view:View):void =
+    c_destroyView(view)
 
 proc c_updateBuffer(buf:Buffer, data:ptr Range):void {.cdecl, importc:"sg_update_buffer".}
 proc updateBuffer*(buf:Buffer, data:Range):void =
@@ -1719,9 +1748,9 @@ proc c_queryPipelineState(pip:Pipeline):ResourceState {.cdecl, importc:"sg_query
 proc queryPipelineState*(pip:Pipeline):ResourceState =
     c_queryPipelineState(pip)
 
-proc c_queryAttachmentsState(atts:Attachments):ResourceState {.cdecl, importc:"sg_query_attachments_state".}
-proc queryAttachmentsState*(atts:Attachments):ResourceState =
-    c_queryAttachmentsState(atts)
+proc c_queryViewState(view:View):ResourceState {.cdecl, importc:"sg_query_view_state".}
+proc queryViewState*(view:View):ResourceState =
+    c_queryViewState(view)
 
 proc c_queryBufferInfo(buf:Buffer):BufferInfo {.cdecl, importc:"sg_query_buffer_info".}
 proc queryBufferInfo*(buf:Buffer):BufferInfo =
@@ -1743,9 +1772,9 @@ proc c_queryPipelineInfo(pip:Pipeline):PipelineInfo {.cdecl, importc:"sg_query_p
 proc queryPipelineInfo*(pip:Pipeline):PipelineInfo =
     c_queryPipelineInfo(pip)
 
-proc c_queryAttachmentsInfo(atts:Attachments):AttachmentsInfo {.cdecl, importc:"sg_query_attachments_info".}
-proc queryAttachmentsInfo*(atts:Attachments):AttachmentsInfo =
-    c_queryAttachmentsInfo(atts)
+proc c_queryViewInfo(view:View):ViewInfo {.cdecl, importc:"sg_query_view_info".}
+proc queryViewInfo*(view:View):ViewInfo =
+    c_queryViewInfo(view)
 
 proc c_queryBufferDesc(buf:Buffer):BufferDesc {.cdecl, importc:"sg_query_buffer_desc".}
 proc queryBufferDesc*(buf:Buffer):BufferDesc =
@@ -1767,9 +1796,9 @@ proc c_queryPipelineDesc(pip:Pipeline):PipelineDesc {.cdecl, importc:"sg_query_p
 proc queryPipelineDesc*(pip:Pipeline):PipelineDesc =
     c_queryPipelineDesc(pip)
 
-proc c_queryAttachmentsDesc(atts:Attachments):AttachmentsDesc {.cdecl, importc:"sg_query_attachments_desc".}
-proc queryAttachmentsDesc*(atts:Attachments):AttachmentsDesc =
-    c_queryAttachmentsDesc(atts)
+proc c_queryViewDesc(view:View):ViewDesc {.cdecl, importc:"sg_query_view_desc".}
+proc queryViewDesc*(view:View):ViewDesc =
+    c_queryViewDesc(view)
 
 proc c_queryBufferDefaults(desc:ptr BufferDesc):BufferDesc {.cdecl, importc:"sg_query_buffer_defaults".}
 proc queryBufferDefaults*(desc:BufferDesc):BufferDesc =
@@ -1791,9 +1820,9 @@ proc c_queryPipelineDefaults(desc:ptr PipelineDesc):PipelineDesc {.cdecl, import
 proc queryPipelineDefaults*(desc:PipelineDesc):PipelineDesc =
     c_queryPipelineDefaults(addr(desc))
 
-proc c_queryAttachmentsDefaults(desc:ptr AttachmentsDesc):AttachmentsDesc {.cdecl, importc:"sg_query_attachments_defaults".}
-proc queryAttachmentsDefaults*(desc:AttachmentsDesc):AttachmentsDesc =
-    c_queryAttachmentsDefaults(addr(desc))
+proc c_queryViewDefaults(desc:ptr ViewDesc):ViewDesc {.cdecl, importc:"sg_query_view_defaults".}
+proc queryViewDefaults*(desc:ViewDesc):ViewDesc =
+    c_queryViewDefaults(addr(desc))
 
 proc c_queryBufferSize(buf:Buffer):int {.cdecl, importc:"sg_query_buffer_size".}
 proc queryBufferSize*(buf:Buffer):int =
@@ -1835,6 +1864,18 @@ proc c_queryImageSampleCount(img:Image):int32 {.cdecl, importc:"sg_query_image_s
 proc queryImageSampleCount*(img:Image):int32 =
     c_queryImageSampleCount(img)
 
+proc c_queryViewType(view:View):ViewType {.cdecl, importc:"sg_query_view_type".}
+proc queryViewType*(view:View):ViewType =
+    c_queryViewType(view)
+
+proc c_queryViewImage(view:View):Image {.cdecl, importc:"sg_query_view_image".}
+proc queryViewImage*(view:View):Image =
+    c_queryViewImage(view)
+
+proc c_queryViewBuffer(view:View):Buffer {.cdecl, importc:"sg_query_view_buffer".}
+proc queryViewBuffer*(view:View):Buffer =
+    c_queryViewBuffer(view)
+
 proc c_allocBuffer():Buffer {.cdecl, importc:"sg_alloc_buffer".}
 proc allocBuffer*():Buffer =
     c_allocBuffer()
@@ -1855,9 +1896,9 @@ proc c_allocPipeline():Pipeline {.cdecl, importc:"sg_alloc_pipeline".}
 proc allocPipeline*():Pipeline =
     c_allocPipeline()
 
-proc c_allocAttachments():Attachments {.cdecl, importc:"sg_alloc_attachments".}
-proc allocAttachments*():Attachments =
-    c_allocAttachments()
+proc c_allocView():View {.cdecl, importc:"sg_alloc_view".}
+proc allocView*():View =
+    c_allocView()
 
 proc c_deallocBuffer(buf:Buffer):void {.cdecl, importc:"sg_dealloc_buffer".}
 proc deallocBuffer*(buf:Buffer):void =
@@ -1879,9 +1920,9 @@ proc c_deallocPipeline(pip:Pipeline):void {.cdecl, importc:"sg_dealloc_pipeline"
 proc deallocPipeline*(pip:Pipeline):void =
     c_deallocPipeline(pip)
 
-proc c_deallocAttachments(attachments:Attachments):void {.cdecl, importc:"sg_dealloc_attachments".}
-proc deallocAttachments*(attachments:Attachments):void =
-    c_deallocAttachments(attachments)
+proc c_deallocView(view:View):void {.cdecl, importc:"sg_dealloc_view".}
+proc deallocView*(view:View):void =
+    c_deallocView(view)
 
 proc c_initBuffer(buf:Buffer, desc:ptr BufferDesc):void {.cdecl, importc:"sg_init_buffer".}
 proc initBuffer*(buf:Buffer, desc:BufferDesc):void =
@@ -1903,9 +1944,9 @@ proc c_initPipeline(pip:Pipeline, desc:ptr PipelineDesc):void {.cdecl, importc:"
 proc initPipeline*(pip:Pipeline, desc:PipelineDesc):void =
     c_initPipeline(pip, addr(desc))
 
-proc c_initAttachments(attachments:Attachments, desc:ptr AttachmentsDesc):void {.cdecl, importc:"sg_init_attachments".}
-proc initAttachments*(attachments:Attachments, desc:AttachmentsDesc):void =
-    c_initAttachments(attachments, addr(desc))
+proc c_initView(view:View, desc:ptr ViewDesc):void {.cdecl, importc:"sg_init_view".}
+proc initView*(view:View, desc:ViewDesc):void =
+    c_initView(view, addr(desc))
 
 proc c_uninitBuffer(buf:Buffer):void {.cdecl, importc:"sg_uninit_buffer".}
 proc uninitBuffer*(buf:Buffer):void =
@@ -1927,9 +1968,9 @@ proc c_uninitPipeline(pip:Pipeline):void {.cdecl, importc:"sg_uninit_pipeline".}
 proc uninitPipeline*(pip:Pipeline):void =
     c_uninitPipeline(pip)
 
-proc c_uninitAttachments(atts:Attachments):void {.cdecl, importc:"sg_uninit_attachments".}
-proc uninitAttachments*(atts:Attachments):void =
-    c_uninitAttachments(atts)
+proc c_uninitView(view:View):void {.cdecl, importc:"sg_uninit_view".}
+proc uninitView*(view:View):void =
+    c_uninitView(view)
 
 proc c_failBuffer(buf:Buffer):void {.cdecl, importc:"sg_fail_buffer".}
 proc failBuffer*(buf:Buffer):void =
@@ -1951,9 +1992,9 @@ proc c_failPipeline(pip:Pipeline):void {.cdecl, importc:"sg_fail_pipeline".}
 proc failPipeline*(pip:Pipeline):void =
     c_failPipeline(pip)
 
-proc c_failAttachments(atts:Attachments):void {.cdecl, importc:"sg_fail_attachments".}
-proc failAttachments*(atts:Attachments):void =
-    c_failAttachments(atts)
+proc c_failView(view:View):void {.cdecl, importc:"sg_fail_view".}
+proc failView*(view:View):void =
+    c_failView(view)
 
 proc c_enableFrameStats():void {.cdecl, importc:"sg_enable_frame_stats".}
 proc enableFrameStats*():void =
@@ -1978,7 +2019,6 @@ type D3d11ImageInfo* = object
   tex2d*:pointer
   tex3d*:pointer
   res*:pointer
-  srv*:pointer
 
 type D3d11SamplerInfo* = object
   smp*:pointer
@@ -1998,13 +2038,11 @@ type D3d11PipelineInfo* = object
   dss*:pointer
   bs*:pointer
 
-type D3d11AttachmentsInfo* = object
-  colorRtv*:array[4, pointer]
+type D3d11ViewInfo* = object
+  srv*:pointer
+  uav*:pointer
+  rtv*:pointer
   dsv*:pointer
-
-converter toD3d11AttachmentsInfocolorRtv*[N:static[int]](items: array[N, pointer]): array[4, pointer] =
-  static: assert(N <= 4)
-  for index,item in items.pairs: result[index]=item
 
 type MtlBufferInfo* = object
   buf*:array[2, pointer]
@@ -2040,7 +2078,6 @@ type WgpuBufferInfo* = object
 
 type WgpuImageInfo* = object
   tex*:pointer
-  view*:pointer
 
 type WgpuSamplerInfo* = object
   smp*:pointer
@@ -2054,18 +2091,8 @@ type WgpuPipelineInfo* = object
   renderPipeline*:pointer
   computePipeline*:pointer
 
-type WgpuAttachmentsInfo* = object
-  colorView*:array[4, pointer]
-  resolveView*:array[4, pointer]
-  dsView*:pointer
-
-converter toWgpuAttachmentsInfocolorView*[N:static[int]](items: array[N, pointer]): array[4, pointer] =
-  static: assert(N <= 4)
-  for index,item in items.pairs: result[index]=item
-
-converter toWgpuAttachmentsInforesolveView*[N:static[int]](items: array[N, pointer]): array[4, pointer] =
-  static: assert(N <= 4)
-  for index,item in items.pairs: result[index]=item
+type WgpuViewInfo* = object
+  view*:pointer
 
 type GlBufferInfo* = object
   buf*:array[2, uint32]
@@ -2078,7 +2105,6 @@ converter toGlBufferInfobuf*[N:static[int]](items: array[N, uint32]): array[2, u
 type GlImageInfo* = object
   tex*:array[2, uint32]
   texTarget*:uint32
-  msaaRenderBuffer*:uint32
   activeSlot*:int32
 
 converter toGlImageInfotex*[N:static[int]](items: array[N, uint32]): array[2, uint32] =
@@ -2091,12 +2117,13 @@ type GlSamplerInfo* = object
 type GlShaderInfo* = object
   prog*:uint32
 
-type GlAttachmentsInfo* = object
-  framebuffer*:uint32
-  msaaResolveFramebuffer*:array[4, uint32]
+type GlViewInfo* = object
+  texView*:array[2, uint32]
+  msaaRenderBuffer*:uint32
+  msaaResolveFrameBuffer*:uint32
 
-converter toGlAttachmentsInfomsaaResolveFramebuffer*[N:static[int]](items: array[N, uint32]): array[4, uint32] =
-  static: assert(N <= 4)
+converter toGlViewInfotexView*[N:static[int]](items: array[N, uint32]): array[2, uint32] =
+  static: assert(N <= 2)
   for index,item in items.pairs: result[index]=item
 
 proc c_d3d11Device():pointer {.cdecl, importc:"sg_d3d11_device".}
@@ -2127,9 +2154,9 @@ proc c_d3d11QueryPipelineInfo(pip:Pipeline):D3d11PipelineInfo {.cdecl, importc:"
 proc d3d11QueryPipelineInfo*(pip:Pipeline):D3d11PipelineInfo =
     c_d3d11QueryPipelineInfo(pip)
 
-proc c_d3d11QueryAttachmentsInfo(atts:Attachments):D3d11AttachmentsInfo {.cdecl, importc:"sg_d3d11_query_attachments_info".}
-proc d3d11QueryAttachmentsInfo*(atts:Attachments):D3d11AttachmentsInfo =
-    c_d3d11QueryAttachmentsInfo(atts)
+proc c_d3d11QueryViewInfo(view:View):D3d11ViewInfo {.cdecl, importc:"sg_d3d11_query_view_info".}
+proc d3d11QueryViewInfo*(view:View):D3d11ViewInfo =
+    c_d3d11QueryViewInfo(view)
 
 proc c_mtlDevice():pointer {.cdecl, importc:"sg_mtl_device".}
 proc mtlDevice*():pointer =
@@ -2203,9 +2230,9 @@ proc c_wgpuQueryPipelineInfo(pip:Pipeline):WgpuPipelineInfo {.cdecl, importc:"sg
 proc wgpuQueryPipelineInfo*(pip:Pipeline):WgpuPipelineInfo =
     c_wgpuQueryPipelineInfo(pip)
 
-proc c_wgpuQueryAttachmentsInfo(atts:Attachments):WgpuAttachmentsInfo {.cdecl, importc:"sg_wgpu_query_attachments_info".}
-proc wgpuQueryAttachmentsInfo*(atts:Attachments):WgpuAttachmentsInfo =
-    c_wgpuQueryAttachmentsInfo(atts)
+proc c_wgpuQueryViewInfo(view:View):WgpuViewInfo {.cdecl, importc:"sg_wgpu_query_view_info".}
+proc wgpuQueryViewInfo*(view:View):WgpuViewInfo =
+    c_wgpuQueryViewInfo(view)
 
 proc c_glQueryBufferInfo(buf:Buffer):GlBufferInfo {.cdecl, importc:"sg_gl_query_buffer_info".}
 proc glQueryBufferInfo*(buf:Buffer):GlBufferInfo =
@@ -2223,9 +2250,9 @@ proc c_glQueryShaderInfo(shd:Shader):GlShaderInfo {.cdecl, importc:"sg_gl_query_
 proc glQueryShaderInfo*(shd:Shader):GlShaderInfo =
     c_glQueryShaderInfo(shd)
 
-proc c_glQueryAttachmentsInfo(atts:Attachments):GlAttachmentsInfo {.cdecl, importc:"sg_gl_query_attachments_info".}
-proc glQueryAttachmentsInfo*(atts:Attachments):GlAttachmentsInfo =
-    c_glQueryAttachmentsInfo(atts)
+proc c_glQueryViewInfo(view:View):GlViewInfo {.cdecl, importc:"sg_gl_query_view_info".}
+proc glQueryViewInfo*(view:View):GlViewInfo =
+    c_glQueryViewInfo(view)
 
 when defined emscripten:
   const gl*    = true

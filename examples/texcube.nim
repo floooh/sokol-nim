@@ -84,18 +84,22 @@ proc init() {.cdecl.} =
     data: sg.Range(addr: indices.addr, size: indices.sizeof)
   ))
 
-  # create a checker board texture
+  # create a checker board image and texture view
   let pixels = [
     0xFFFFFFFF'u32, 0xFF000000'u32, 0xFFFFFFFF'u32, 0xFF000000'u32,
     0xFF000000'u32, 0xFFFFFFFF'u32, 0xFF000000'u32, 0xFFFFFFFF'u32,
     0xFFFFFFFF'u32, 0xFF000000'u32, 0xFFFFFFFF'u32, 0xFF000000'u32,
     0xFF000000'u32, 0xFFFFFFFF'u32, 0xFF000000'u32, 0xFFFFFFFF'u32,
   ]
-  bindings.images[shd.imgTex] = sg.makeImage(sg.ImageDesc(
-    width: 4,
-    height: 4,
-    data: ImageData(
-      subimage: [ [ sg.Range(addr: pixels.addr, size: pixels.sizeof) ] ]
+  bindings.views[shd.viewTex] = sg.makeView(ViewDesc(
+    texture: TextureViewDesc(
+      image: sg.makeImage(sg.ImageDesc(
+        width: 4,
+        height: 4,
+        data: ImageData(
+          subimage: [ [ sg.Range(addr: pixels.addr, size: pixels.sizeof) ] ]
+        )
+      ))
     )
   ))
 

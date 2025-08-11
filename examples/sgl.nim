@@ -15,7 +15,7 @@ const
   )
 
 var
-  img: sg.Image
+  texView: sg.View
   smp: sg.Sampler
   pip3d: sgl.Pipeline
 
@@ -28,18 +28,22 @@ proc init() {.cdecl.} =
     logger: sgl.Logger(fn: slog.fn),
   ))
 
-  # a checkerboard texture
+  # a checkerboard image and texture view
   const imgWidth = 8
   const imgHeight = 8
   var pixels: array[imgHeight, array[imgWidth, uint32]]
   for y in 0..<imgHeight:
     for x in 0..<imgWidth:
       pixels[y][x] = if 0 != ((y xor x) and 1): 0xFFFFFFFF'u32 else: 0xFF000000'u32
-  img = sg.makeImage(sg.ImageDesc(
-    width: imgWidth,
-    height: imgHeight,
-    data: sg.ImageData(
-      subimage: [ [ sg.Range(addr: pixels.addr, size: pixels.sizeof) ] ]
+  texView = sg.makeView(ViewDesc(
+    texture: TextureViewDesc(
+      image: sg.makeImage(sg.ImageDesc(
+        width: imgWidth,
+        height: imgHeight,
+        data: sg.ImageData(
+          subimage: [ [ sg.Range(addr: pixels.addr, size: pixels.sizeof) ] ]
+        )
+      ))
     )
   ))
 
@@ -168,7 +172,7 @@ proc drawTexCube(t: float32) =
     sgl.loadPipeline(pip3d)
 
     sgl.enableTexture()
-    sgl.texture(img, smp)
+    sgl.texture(texView, smp)
 
     sgl.matrixModeProjection()
     sgl.perspective(sgl.asRadians(45), 1, 0.1, 100)

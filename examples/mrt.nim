@@ -18,55 +18,72 @@ type Vertex = object
 
 const
   offscreenSampleCount = 1
+  numMrts: int = 3
 
 var
-  offscreenPassAction: PassAction
-  offscreenAttachmentsDesc: AttachmentsDesc
-  offscreenAttachments: Attachments
+  colorImages: array[numMrts, Image]
+  resolveImages: array[numMrts, Image]
+  depthImage: Image
+  offscreenPass: Pass
   offscreenPip: Pipeline
   offscreenBindings: Bindings
-  fsqPip: Pipeline
-  fsqBindings: Bindings
+  displayPip: Pipeline
+  displayBindings: Bindings
   dbgPip: Pipeline
   dbgBindings: Bindings
   defaultPassAction: PassAction
   rx, ry: float32
 
 # called initially and when window size changes
-proc createOffscreenAttachments(width: int32, height: int32) =
-  # destroy previous resource (can be called for invalid id)
-  sg.destroyAttachments(offscreenAttachments)
-  for i in 0..<3:
-    sg.destroyImage(offscreenAttachmentsDesc.colors[i].image)
-  sg.destroyImage(offscreenAttachmentsDesc.depthStencil.image)
+proc recreateOffscreenAttachments(width: int32, height: int32) =
+  # destroy and re-create color-, resolve- and depth-stencil attachment images,
+  # and associated views
+  for i in 0..<numMrts:
+    # color attachment images and views
+    sg.destroyImage(colorImages[i])
+    colorImages[i] = sg.makeImage(sg.ImageDesc(
+      usage: ImageUsage(colorAttachment: true),
+      width: width,
+      height: height,
+      sampleCount: offscreenSampleCount
+    ))
+    sg.destroyView(offscreenPass.attachments.colors[i])
+    offscreenPass.attachments.colors[i] = sg.makeView(ViewDesc(
+      colorAttachment: ImageViewDesc(image: colorImages[i])
+    ))
 
-  # create offscreen rendertarget images and pass
-  let colorImageDesc = sg.ImageDesc(
-    usage: ImageUsage(renderAttachment: true),
+    # resolve attachment images and views
+    sg.destroyImage(resolveImages[i])
+    resolveImages[i] = sg.makeImage(sg.ImageDesc(
+      usage: ImageUsage(resolveAttachment: true),
+      width: width,
+      height: height,
+      sampleCount: 1,
+    ))
+    sg.destroyView(offscreenPass.attachments.resolves[i])
+    offscreenPass.attachments.resolves[i] = sg.makeView(ViewDesc(
+      resolveAttachment: ImageViewDesc(image: resolveImages[i])
+    ))
+
+    # the resolve images are also samples as texture, so need a texture view
+    sg.destroyView(displayBindings.views[i])
+    displayBindings.views[i] = sg.makeView(ViewDesc(
+      texture: TextureViewDesc(image: resolveImages[i])
+    ))
+
+  # depth-stencil attachment image and view
+  sg.destroyImage(depthImage)
+  depthImage = sg.makeImage(sg.ImageDesc(
+    usage: ImageUsage(depthStencilAttachment:true),
     width: width,
     height: height,
-    sampleCount: offscreenSampleCount
-  )
-  var depthImageDesc = colorImageDesc
-  depthImageDesc.pixelFormat = pixelFormatDepth
-  offscreenAttachmentsDesc = sg.AttachmentsDesc(
-    colors: [
-      AttachmentDesc(image: sg.makeImage(colorImageDesc)),
-      AttachmentDesc(image: sg.makeImage(colorImageDesc)),
-      AttachmentDesc(image: sg.makeImage(colorImageDesc))
-    ],
-    depthStencil: AttachmentDesc(image: sg.makeImage(depthImageDesc))
-  )
-  offscreenAttachments = sg.makeAttachments(offscreenAttachmentsDesc)
-
-  # also need to update the fullscreen-quad texture bindings
-  for i in 0..<3:
-    fsqBindings.images[i] = offscreenAttachmentsDesc.colors[i].image
-
-# listen for window-resize events and recreate offscreen rendertargets
-proc event(ev: ptr Event) {.cdecl.} =
-  if ev.type == eventTypeResized:
-    createOffscreenAttachments(ev.framebufferWidth, ev.framebufferHeight)
+    sampleCount: offscreenSampleCount,
+    pixelFormat: pixelFormatDepth,
+  ))
+  sg.destroyView(offscreenPass.attachments.depthStencil)
+  offscreenPass.attachments.depthStencil = sg.makeView(ViewDesc(
+    depthStencilAttachment: ImageViewDesc(image: depthImage)
+  ))
 
 proc init() {.cdecl.} =
   sg.setup(sg.Desc(
@@ -74,20 +91,20 @@ proc init() {.cdecl.} =
     logger: sg.Logger(fn: slog.fn),
   ))
 
-  # pass action for the default pass, since we overwrite the entire framebuffer, no clearing needs to happen
+  # setup the offscreen render pass resources, will also be called when window resizes
+  recreateOffscreenAttachments(sapp.width(), sapp.height())
+
+  # pass action for the display render pass, since we overwrite the entire framebuffer, no clearing needs to happen
   defaultPassAction.colors[0].loadAction = loadActionDontCare
   defaultPassAction.depth.loadAction = loadActionDontCare
   defaultPassAction.stencil.loadAction = loadActionDontCare
 
-  # pass action for offscreen pass
-  offscreenPassAction.colors = [
+  # pass action for offscreen pass (clear to some background color)
+  offscreenPass.action.colors = [
     ColorAttachmentAction(loadAction: loadActionClear, clearValue: (0.25, 0, 0, 1)),
     ColorAttachmentAction(loadAction: loadActionClear, clearValue: (0, 0.25, 0, 1)),
     ColorAttachmentAction(loadAction: loadActionClear, clearValue: (0, 0, 0.25, 1))
   ]
-
-  # a render pass with 3 color attachment images, and a depth attachment image
-  createOffscreenAttachments(sapp.width(), sapp.height())
 
   # a cube vertex buffer
   const cubeVertices = [
@@ -161,6 +178,8 @@ proc init() {.cdecl.} =
   let quadVbuf = sg.makeBuffer(BufferDesc(
     data: sg.Range(addr: quadVertices.addr, size: quadVertices.sizeof)
   ))
+  displayBindings.vertexBuffers[0] = quadVbuf
+  dbgBindings.vertexBuffers[0] = quadVbuf
 
   # create a sampler for sampling the render targets as textures
   let smp = sg.makeSampler(SamplerDesc(
@@ -168,10 +187,12 @@ proc init() {.cdecl.} =
     magFilter: filterLinear,
     wrapU: wrapClampToEdge,
     wrapV: wrapClampToEdge,
-  ));
+  ))
+  displayBindings.samplers[smpSmp] = smp
+  dbgBindings.samplers[smpSmp] = smp
 
-  # shader, pipeline and bindings to compose 3 offscreen render targets into default framebuffer
-  fsqPip = sg.makePipeline(PipelineDesc(
+  # shader and pipeline to compose 3 offscreen render targets into default framebuffer
+  displayPip = sg.makePipeline(PipelineDesc(
     shader: sg.makeShader(fsqShaderDesc(sg.queryBackend())),
     layout: VertexLayoutState(
       attrs: [
@@ -181,19 +202,7 @@ proc init() {.cdecl.} =
     primitiveType: primitiveTypeTriangleStrip,
   ))
 
-  fsqBindings = Bindings(
-    vertexBuffers: [ quadVbuf ],
-    images: [
-      offscreenAttachmentsDesc.colors[0].image,
-      offscreenAttachmentsDesc.colors[1].image,
-      offscreenAttachmentsDesc.colors[2].image
-    ],
-    samplers: [
-      smp,
-    ]
-  )
-
-  # shader, pipeline and bindings to render debug-visualization quads
+  # shader and pipeline to render debug-visualization quads
   dbgPip = sg.makePipeline(PipelineDesc(
     shader: sg.makeShader(dbgShaderDesc(sg.queryBackend())),
     layout: VertexLayoutState(
@@ -203,8 +212,6 @@ proc init() {.cdecl.} =
     ),
     primitiveType: primitiveTypeTriangleStrip,
   ))
-  dbgBindings.vertexBuffers[0] = quadVbuf
-  dbgBindings.samplers[0] = smp
 
 proc frame() {.cdecl.} =
   let t = sapp.frameDuration().float32 * 60
@@ -224,7 +231,7 @@ proc frame() {.cdecl.} =
   let fsqParams = FsqParams(offset: vec2(math.sin(rx*0.01)*0.1, math.sin(ry*0.01)*0.1))
 
   # render cube into MRT offscreen render targets
-  sg.beginPass(Pass(action: offscreenPassAction, attachments: offscreenAttachments))
+  sg.beginPass(offscreenPass)
   sg.applyPipeline(offscreenPip)
   sg.applyBindings(offscreenBindings)
   sg.applyUniforms(shd.ubOffscreenParams, sg.Range(addr: offscreenParams.addr, size: offscreenParams.sizeof))
@@ -233,18 +240,23 @@ proc frame() {.cdecl.} =
 
   # render fullscreen quad with the 'composed image', plus 3 small debug-view quads
   sg.beginPass(Pass(action: defaultPassAction, swapchain: sglue.swapchain()))
-  sg.applyPipeline(fsqPip)
-  sg.applyBindings(fsqBindings)
+  sg.applyPipeline(displayPip)
+  sg.applyBindings(displayBindings)
   sg.applyUniforms(shd.ubFsqParams, sg.Range(addr: fsqParams.addr, size: fsqParams.sizeof))
   sg.draw(0, 4, 1)
   sg.applyPipeline(dbgPip)
   for i in 0..<3:
     sg.applyViewport(i.int32*100, 0, 100, 100, false)
-    dbgBindings.images[0] = offscreenAttachmentsDesc.colors[i].image
+    dbgBindings.views[viewTex] = displayBindings.views[i]
     sg.applyBindings(dbgBindings)
     sg.draw(0, 4, 1)
   sg.endPass()
   sg.commit()
+
+# listen for window-resize events and recreate offscreen rendertargets
+proc event(ev: ptr Event) {.cdecl.} =
+  if ev.type == eventTypeResized:
+    recreateOffscreenAttachments(ev.framebufferWidth, ev.framebufferHeight)
 
 proc cleanup() {.cdecl.} =
   sg.shutdown()

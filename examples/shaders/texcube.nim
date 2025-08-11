@@ -22,11 +22,11 @@ import ../math/mat4
 #        Uniform block 'vs_params':
 #            Nim struct: VsParams
 #            Bind slot: ubVsParams => 0
-#        Image 'tex':
+#        Texture 'tex':
 #            Image type: imageType2d
 #            Sample type: imageSampleTypeFloat
 #            Multisampled: false
-#            Bind slot: imgTex => 0
+#            Bind slot: viewTex => 0
 #        Sampler 'smp':
 #            Type: samplerTypeFiltering
 #            Bind slot: smpSmp => 0
@@ -35,7 +35,7 @@ const attrTexcubePos* = 0
 const attrTexcubeColor0* = 1
 const attrTexcubeTexcoord0* = 2
 const ubVsParams* = 0
-const imgTex* = 0
+const viewTex* = 0
 const smpSmp* = 0
 type VsParams* {.packed.} = object
     mvp* {.align(16).}: Mat4
@@ -87,7 +87,7 @@ const vsSourceGlsl430: array[374, uint8] = [
 #
 #    #version 430
 #
-#    layout(binding = 16) uniform sampler2D tex_smp;
+#    layout(binding = 0) uniform sampler2D tex_smp;
 #
 #    layout(location = 0) out vec4 frag_color;
 #    layout(location = 1) in vec2 uv;
@@ -99,23 +99,22 @@ const vsSourceGlsl430: array[374, uint8] = [
 #    }
 #
 #
-const fsSourceGlsl430: array[240, uint8] = [
+const fsSourceGlsl430: array[239, uint8] = [
     0x23'u8,0x76,0x65,0x72,0x73,0x69,0x6f,0x6e,0x20,0x34,0x33,0x30,0x0a,0x0a,0x6c,0x61,
-    0x79,0x6f,0x75,0x74,0x28,0x62,0x69,0x6e,0x64,0x69,0x6e,0x67,0x20,0x3d,0x20,0x31,
-    0x36,0x29,0x20,0x75,0x6e,0x69,0x66,0x6f,0x72,0x6d,0x20,0x73,0x61,0x6d,0x70,0x6c,
-    0x65,0x72,0x32,0x44,0x20,0x74,0x65,0x78,0x5f,0x73,0x6d,0x70,0x3b,0x0a,0x0a,0x6c,
-    0x61,0x79,0x6f,0x75,0x74,0x28,0x6c,0x6f,0x63,0x61,0x74,0x69,0x6f,0x6e,0x20,0x3d,
-    0x20,0x30,0x29,0x20,0x6f,0x75,0x74,0x20,0x76,0x65,0x63,0x34,0x20,0x66,0x72,0x61,
-    0x67,0x5f,0x63,0x6f,0x6c,0x6f,0x72,0x3b,0x0a,0x6c,0x61,0x79,0x6f,0x75,0x74,0x28,
-    0x6c,0x6f,0x63,0x61,0x74,0x69,0x6f,0x6e,0x20,0x3d,0x20,0x31,0x29,0x20,0x69,0x6e,
-    0x20,0x76,0x65,0x63,0x32,0x20,0x75,0x76,0x3b,0x0a,0x6c,0x61,0x79,0x6f,0x75,0x74,
-    0x28,0x6c,0x6f,0x63,0x61,0x74,0x69,0x6f,0x6e,0x20,0x3d,0x20,0x30,0x29,0x20,0x69,
-    0x6e,0x20,0x76,0x65,0x63,0x34,0x20,0x63,0x6f,0x6c,0x6f,0x72,0x3b,0x0a,0x0a,0x76,
-    0x6f,0x69,0x64,0x20,0x6d,0x61,0x69,0x6e,0x28,0x29,0x0a,0x7b,0x0a,0x20,0x20,0x20,
-    0x20,0x66,0x72,0x61,0x67,0x5f,0x63,0x6f,0x6c,0x6f,0x72,0x20,0x3d,0x20,0x74,0x65,
-    0x78,0x74,0x75,0x72,0x65,0x28,0x74,0x65,0x78,0x5f,0x73,0x6d,0x70,0x2c,0x20,0x75,
-    0x76,0x29,0x20,0x2a,0x20,0x63,0x6f,0x6c,0x6f,0x72,0x3b,0x0a,0x7d,0x0a,0x0a,0x00,
-
+    0x79,0x6f,0x75,0x74,0x28,0x62,0x69,0x6e,0x64,0x69,0x6e,0x67,0x20,0x3d,0x20,0x30,
+    0x29,0x20,0x75,0x6e,0x69,0x66,0x6f,0x72,0x6d,0x20,0x73,0x61,0x6d,0x70,0x6c,0x65,
+    0x72,0x32,0x44,0x20,0x74,0x65,0x78,0x5f,0x73,0x6d,0x70,0x3b,0x0a,0x0a,0x6c,0x61,
+    0x79,0x6f,0x75,0x74,0x28,0x6c,0x6f,0x63,0x61,0x74,0x69,0x6f,0x6e,0x20,0x3d,0x20,
+    0x30,0x29,0x20,0x6f,0x75,0x74,0x20,0x76,0x65,0x63,0x34,0x20,0x66,0x72,0x61,0x67,
+    0x5f,0x63,0x6f,0x6c,0x6f,0x72,0x3b,0x0a,0x6c,0x61,0x79,0x6f,0x75,0x74,0x28,0x6c,
+    0x6f,0x63,0x61,0x74,0x69,0x6f,0x6e,0x20,0x3d,0x20,0x31,0x29,0x20,0x69,0x6e,0x20,
+    0x76,0x65,0x63,0x32,0x20,0x75,0x76,0x3b,0x0a,0x6c,0x61,0x79,0x6f,0x75,0x74,0x28,
+    0x6c,0x6f,0x63,0x61,0x74,0x69,0x6f,0x6e,0x20,0x3d,0x20,0x30,0x29,0x20,0x69,0x6e,
+    0x20,0x76,0x65,0x63,0x34,0x20,0x63,0x6f,0x6c,0x6f,0x72,0x3b,0x0a,0x0a,0x76,0x6f,
+    0x69,0x64,0x20,0x6d,0x61,0x69,0x6e,0x28,0x29,0x0a,0x7b,0x0a,0x20,0x20,0x20,0x20,
+    0x66,0x72,0x61,0x67,0x5f,0x63,0x6f,0x6c,0x6f,0x72,0x20,0x3d,0x20,0x74,0x65,0x78,
+    0x74,0x75,0x72,0x65,0x28,0x74,0x65,0x78,0x5f,0x73,0x6d,0x70,0x2c,0x20,0x75,0x76,
+    0x29,0x20,0x2a,0x20,0x63,0x6f,0x6c,0x6f,0x72,0x3b,0x0a,0x7d,0x0a,0x0a,0x00,
 ]
 #
 #    #version 300 es
@@ -525,16 +524,16 @@ proc texcubeShaderDesc*(backend: sg.Backend): sg.ShaderDesc =
             result.uniformBlocks[0].glslUniforms[0].type = uniformTypeFloat4
             result.uniformBlocks[0].glslUniforms[0].arrayCount = 4
             result.uniformBlocks[0].glslUniforms[0].glslName = "vs_params"
-            result.images[0].stage = shaderStageFragment
-            result.images[0].multisampled = false
-            result.images[0].imageType = imageType2d
-            result.images[0].sampleType = imageSampleTypeFloat
+            result.views[0].texture.stage = shaderStageFragment
+            result.views[0].texture.multisampled = false
+            result.views[0].texture.imageType = imageType2d
+            result.views[0].texture.sampleType = imageSampleTypeFloat
             result.samplers[0].stage = shaderStageFragment
             result.samplers[0].samplerType = samplerTypeFiltering
-            result.imageSamplerPairs[0].stage = shaderStageFragment
-            result.imageSamplerPairs[0].imageSlot = 0
-            result.imageSamplerPairs[0].samplerSlot = 0
-            result.imageSamplerPairs[0].glslName = "tex_smp"
+            result.textureSamplerPairs[0].stage = shaderStageFragment
+            result.textureSamplerPairs[0].viewSlot = 0
+            result.textureSamplerPairs[0].samplerSlot = 0
+            result.textureSamplerPairs[0].glslName = "tex_smp"
         of backendGles3:
             result.vertexFunc.source = cast[cstring](addr(vsSourceGlsl300es))
             result.vertexFunc.entry = "main"
@@ -552,16 +551,16 @@ proc texcubeShaderDesc*(backend: sg.Backend): sg.ShaderDesc =
             result.uniformBlocks[0].glslUniforms[0].type = uniformTypeFloat4
             result.uniformBlocks[0].glslUniforms[0].arrayCount = 4
             result.uniformBlocks[0].glslUniforms[0].glslName = "vs_params"
-            result.images[0].stage = shaderStageFragment
-            result.images[0].multisampled = false
-            result.images[0].imageType = imageType2d
-            result.images[0].sampleType = imageSampleTypeFloat
+            result.views[0].texture.stage = shaderStageFragment
+            result.views[0].texture.multisampled = false
+            result.views[0].texture.imageType = imageType2d
+            result.views[0].texture.sampleType = imageSampleTypeFloat
             result.samplers[0].stage = shaderStageFragment
             result.samplers[0].samplerType = samplerTypeFiltering
-            result.imageSamplerPairs[0].stage = shaderStageFragment
-            result.imageSamplerPairs[0].imageSlot = 0
-            result.imageSamplerPairs[0].samplerSlot = 0
-            result.imageSamplerPairs[0].glslName = "tex_smp"
+            result.textureSamplerPairs[0].stage = shaderStageFragment
+            result.textureSamplerPairs[0].viewSlot = 0
+            result.textureSamplerPairs[0].samplerSlot = 0
+            result.textureSamplerPairs[0].glslName = "tex_smp"
         of backendD3d11:
             result.vertexFunc.source = cast[cstring](addr(vsSourceHlsl5))
             result.vertexFunc.d3d11Target = "vs_5_0"
@@ -582,17 +581,17 @@ proc texcubeShaderDesc*(backend: sg.Backend): sg.ShaderDesc =
             result.uniformBlocks[0].layout = uniformLayoutStd140
             result.uniformBlocks[0].size = 64
             result.uniformBlocks[0].hlslRegisterBN = 0
-            result.images[0].stage = shaderStageFragment
-            result.images[0].multisampled = false
-            result.images[0].imageType = imageType2d
-            result.images[0].sampleType = imageSampleTypeFloat
-            result.images[0].hlslRegisterTN = 0
+            result.views[0].texture.stage = shaderStageFragment
+            result.views[0].texture.multisampled = false
+            result.views[0].texture.imageType = imageType2d
+            result.views[0].texture.sampleType = imageSampleTypeFloat
+            result.views[0].texture.hlslRegisterTN = 0
             result.samplers[0].stage = shaderStageFragment
             result.samplers[0].samplerType = samplerTypeFiltering
             result.samplers[0].hlslRegisterSN = 0
-            result.imageSamplerPairs[0].stage = shaderStageFragment
-            result.imageSamplerPairs[0].imageSlot = 0
-            result.imageSamplerPairs[0].samplerSlot = 0
+            result.textureSamplerPairs[0].stage = shaderStageFragment
+            result.textureSamplerPairs[0].viewSlot = 0
+            result.textureSamplerPairs[0].samplerSlot = 0
         of backendMetalMacos:
             result.vertexFunc.source = cast[cstring](addr(vsSourceMetalMacos))
             result.vertexFunc.entry = "main0"
@@ -605,15 +604,15 @@ proc texcubeShaderDesc*(backend: sg.Backend): sg.ShaderDesc =
             result.uniformBlocks[0].layout = uniformLayoutStd140
             result.uniformBlocks[0].size = 64
             result.uniformBlocks[0].mslBufferN = 0
-            result.images[0].stage = shaderStageFragment
-            result.images[0].multisampled = false
-            result.images[0].imageType = imageType2d
-            result.images[0].sampleType = imageSampleTypeFloat
-            result.images[0].mslTextureN = 0
+            result.views[0].texture.stage = shaderStageFragment
+            result.views[0].texture.multisampled = false
+            result.views[0].texture.imageType = imageType2d
+            result.views[0].texture.sampleType = imageSampleTypeFloat
+            result.views[0].texture.mslTextureN = 0
             result.samplers[0].stage = shaderStageFragment
             result.samplers[0].samplerType = samplerTypeFiltering
             result.samplers[0].mslSamplerN = 0
-            result.imageSamplerPairs[0].stage = shaderStageFragment
-            result.imageSamplerPairs[0].imageSlot = 0
-            result.imageSamplerPairs[0].samplerSlot = 0
+            result.textureSamplerPairs[0].stage = shaderStageFragment
+            result.textureSamplerPairs[0].viewSlot = 0
+            result.textureSamplerPairs[0].samplerSlot = 0
         else: discard
