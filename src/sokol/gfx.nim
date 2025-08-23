@@ -1463,7 +1463,7 @@ type
     logitemValidateAbndTextureBindingVsDepthstencilAttachment,
     logitemValidateAbndTextureBindingVsColorAttachment,
     logitemValidateAbndTextureBindingVsResolveAttachment,
-    logitemValidateAbndTextureBindingVsStorageAttachment,
+    logitemValidateAbndTextureVsStorageimageBinding,
     logitemValidateAuPassExpected,
     logitemValidateAuNoPipeline,
     logitemValidateAuPipelineAlive,
