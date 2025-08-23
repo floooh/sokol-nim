@@ -16,17 +16,14 @@ const
   offscreenSampleCount = 1
   offscreenWidth = 32
   offscreenHeight = 32
-  offscreenPassAction = PassAction(
-    colors: [ ColorAttachmentAction(loadAction: loadActionClear, clearValue: (0, 0, 0, 1)) ]
-  )
   displayPassAction = PassAction(
     colors: [ ColorAttachmentAction(loadAction: loadActionClear, clearValue: (0.5, 0.7, 1.0, 1.0)) ]
   )
 
 var
-  offscreenAttachments: Attachments
-  offscreenImage: Image
+  offscreenPass: Pass
   offscreenContext: sgl.Context
+  displayTexView: View
   displaySampler: Sampler
   displayPipeline: sgl.Pipeline
 
@@ -60,17 +57,21 @@ proc init() {.cdecl.} =
     sampleCount: offscreenSampleCount
   ))
 
-  # create an offscreen render target texture and pass
-  offscreenImage = sg.makeImage(sg.ImageDesc(
-    usage: ImageUsage(renderAttachment: true),
+  # create a color-attachment image for the offscreen pass and associated views
+  let img = sg.makeImage(sg.ImageDesc(
+    usage: ImageUsage(colorAttachment: true),
     width: offscreenWidth,
     height: offscreenHeight,
     pixelFormat: offscreenPixelFormat,
     sampleCount: offscreenSampleCount,
   ))
-  offscreenAttachments = sg.makeAttachments(AttachmentsDesc(
-    colors: [ AttachmentDesc(image: offscreenImage) ]
-  ))
+  offscreenPass.attachments.colors[0] = sg.makeView(ViewDesc(colorAttachment: ImageViewDesc(image: img)))
+  displayTexView = sg.makeView(ViewDesc(texture: TextureViewDesc(image: img)))
+
+  # the offscreen render pass clear color
+  offscreenPass.action = PassAction(
+    colors: [ ColorAttachmentAction(loadAction: loadActionClear, clearValue: (0, 0, 0, 1)) ]
+  )
 
   # create a sampler to sample the offscreen render target as texture
   displaySampler = sg.makeSampler(SamplerDesc(
@@ -132,7 +133,7 @@ proc frame() {.cdecl.} =
   sgl.setContext(sgl.defaultContext())
   sgl.defaults()
   sgl.enableTexture()
-  sgl.texture(offscreenImage, displaySampler)
+  sgl.texture(displayTexView, displaySampler)
   sgl.loadPipeline(displayPipeline)
   sgl.matrixModeProjection()
   sgl.perspective(sgl.asRadians(45), sapp.widthf() / sapp.heightf(), 0.1, 100)
@@ -142,7 +143,7 @@ proc frame() {.cdecl.} =
   drawCube()
 
   # do the actual offscreen and display rendering in sokol/gfx passes
-  sg.beginPass(Pass(action: offscreenPassAction, attachments: offscreenAttachments))
+  sg.beginPass(offscreenPass)
   sgl.contextDraw(offscreenContext)
   sg.endPass()
   sg.beginPass(Pass(action: displayPassAction, swapchain: sglue.swapchain()))

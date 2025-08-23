@@ -36,17 +36,17 @@ let examples = [
 ]
 
 let shaders = [
-  "triangle",
-  "quad",
+  "blend",
   "bufferoffsets",
   "cube",
-  "noninterleaved",
-  "texcube",
-  "shapes",
-  "offscreen",
   "instancing",
   "mrt",
-  "blend",
+  "noninterleaved",
+  "offscreen",
+  "quad",
+  "shapes",
+  "texcube",
+  "triangle",
 ]
 
 let compute_shaders = [
