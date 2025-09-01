@@ -220,6 +220,8 @@ type Range* = object
 type ImageDesc* = object
   width*:int32
   height*:int32
+  cursorHotspotX*:int32
+  cursorHotspotY*:int32
   pixels*:Range
 
 type IconDesc* = object
@@ -263,6 +265,7 @@ type
     logitemWin32RegisterRawInputDevicesFailedMouseLock,
     logitemWin32RegisterRawInputDevicesFailedMouseUnlock,
     logitemWin32GetRawInputDataFailed,
+    logitemWin32DestroyiconForCursorFailed,
     logitemLinuxGlxLoadLibglFailed,
     logitemLinuxGlxLoadEntryPointsFailed,
     logitemLinuxGlxExtensionNotFound,
@@ -421,6 +424,22 @@ type
     mousecursorResizeNesw = 8,
     mousecursorResizeAll = 9,
     mousecursorNotAllowed = 10,
+    mousecursorCustom0 = 11,
+    mousecursorCustom1 = 12,
+    mousecursorCustom2 = 13,
+    mousecursorCustom3 = 14,
+    mousecursorCustom4 = 15,
+    mousecursorCustom5 = 16,
+    mousecursorCustom6 = 17,
+    mousecursorCustom7 = 18,
+    mousecursorCustom8 = 19,
+    mousecursorCustom9 = 20,
+    mousecursorCustom10 = 21,
+    mousecursorCustom11 = 22,
+    mousecursorCustom12 = 23,
+    mousecursorCustom13 = 24,
+    mousecursorCustom14 = 25,
+    mousecursorCustom15 = 26,
 
 proc c_isvalid():bool {.cdecl, importc:"sapp_isvalid".}
 proc isvalid*():bool =
@@ -501,6 +520,14 @@ proc setMouseCursor*(cursor:MouseCursor):void =
 proc c_getMouseCursor():MouseCursor {.cdecl, importc:"sapp_get_mouse_cursor".}
 proc getMouseCursor*():MouseCursor =
     c_getMouseCursor()
+
+proc c_bindMouseCursorImage(cursor:MouseCursor, desc:ptr ImageDesc):MouseCursor {.cdecl, importc:"sapp_bind_mouse_cursor_image".}
+proc bindMouseCursorImage*(cursor:MouseCursor, desc:ImageDesc):MouseCursor =
+    c_bindMouseCursorImage(cursor, addr(desc))
+
+proc c_unbindMouseCursorImage(cursor:MouseCursor):void {.cdecl, importc:"sapp_unbind_mouse_cursor_image".}
+proc unbindMouseCursorImage*(cursor:MouseCursor):void =
+    c_unbindMouseCursorImage(cursor)
 
 proc c_userdata():pointer {.cdecl, importc:"sapp_userdata".}
 proc userdata*():pointer =
