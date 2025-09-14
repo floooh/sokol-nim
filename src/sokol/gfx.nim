@@ -30,7 +30,6 @@ const
   maxUniformblockMembers* = 16
   maxVertexAttributes* = 16
   maxMipmaps* = 16
-  maxTexturearrayLayers* = 128
   maxVertexbufferBindslots* = 8
   maxUniformblockBindslots* = 8
   maxViewBindslots* = 28
@@ -195,15 +194,6 @@ type
     samplerTypeFiltering,
     samplerTypeNonfiltering,
     samplerTypeComparison,
-
-type
-  CubeFace* {.size:sizeof(int32).} = enum
-    cubeFacePosX,
-    cubeFaceNegX,
-    cubeFacePosY,
-    cubeFaceNegY,
-    cubeFacePosZ,
-    cubeFaceNegZ,
 
 type
   PrimitiveType* {.size:sizeof(int32).} = enum
@@ -538,14 +528,11 @@ type
     viewtypeDepthstencilattachment,
 
 type ImageData* = object
-  subimage*:array[6, array[16, Range]]
+  mipLevels*:array[16, Range]
 
-converter toImageDatasubimage*[Y:static[int], X:static[int]](items: array[Y, array[X, Range]]): array[6, array[16, Range]] =
-  static: assert(X <= 16)
-  static: assert(Y <= 6)
-  for indexY,itemY in items.pairs:
-    for indexX, itemX in itemY.pairs:
-      result[indexY][indexX] = itemX
+converter toImageDatamipLevels*[N:static[int]](items: array[N, Range]): array[16, Range] =
+  static: assert(N <= 16)
+  for index,item in items.pairs: result[index]=item
 
 type ImageDesc* = object
   startCanary:uint32
@@ -1221,6 +1208,11 @@ type
     logitemValidateImagedataDataSize,
     logitemValidateImagedescCanary,
     logitemValidateImagedescImmutableDynamicStream,
+    logitemValidateImagedescImagetype2dNumslices,
+    logitemValidateImagedescImagetypeCubeNumslices,
+    logitemValidateImagedescImagetypeArrayNumslices,
+    logitemValidateImagedescImagetype3dNumslices,
+    logitemValidateImagedescNumslices,
     logitemValidateImagedescWidth,
     logitemValidateImagedescHeight,
     logitemValidateImagedescNonrtPixelformat,

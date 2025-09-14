@@ -97,7 +97,7 @@ proc init() {.cdecl.} =
         width: 4,
         height: 4,
         data: ImageData(
-          subimage: [ [ sg.Range(addr: pixels.addr, size: pixels.sizeof) ] ]
+          mipLevels: [ sg.Range(addr: pixels.addr, size: pixels.sizeof) ]
         )
       ))
     )
