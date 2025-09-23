@@ -1048,6 +1048,14 @@ type FrameStatsWgpu* = object
   uniforms*:FrameStatsWgpuUniforms
   bindings*:FrameStatsWgpuBindings
 
+type ResourceStats* = object
+  totalAlive*:uint32
+  totalFree*:uint32
+  allocated*:uint32
+  deallocated*:uint32
+  inited*:uint32
+  uninited*:uint32
+
 type FrameStats* = object
   frameIndex*:uint32
   numPasses*:uint32
@@ -1065,6 +1073,12 @@ type FrameStats* = object
   sizeUpdateBuffer*:uint32
   sizeAppendBuffer*:uint32
   sizeUpdateImage*:uint32
+  buffers*:ResourceStats
+  images*:ResourceStats
+  samplers*:ResourceStats
+  views*:ResourceStats
+  shaders*:ResourceStats
+  pipelines*:ResourceStats
   gl*:FrameStatsGl
   d3d11*:FrameStatsD3d11
   metal*:FrameStatsMetal
