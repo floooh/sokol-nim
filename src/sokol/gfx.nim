@@ -26,15 +26,19 @@ type Range* = object
 const
   invalidId* = 0
   numInflightFrames* = 2
-  maxColorAttachments* = 4
+  maxColorAttachments* = 8
   maxUniformblockMembers* = 16
   maxVertexAttributes* = 16
   maxMipmaps* = 16
   maxVertexbufferBindslots* = 8
   maxUniformblockBindslots* = 8
-  maxViewBindslots* = 28
-  maxSamplerBindslots* = 16
-  maxTextureSamplerPairs* = 16
+  maxViewBindslots* = 32
+  maxSamplerBindslots* = 12
+  maxTextureSamplerPairs* = 32
+  maxPortableColorAttachments* = 4
+  maxPortableTextureBindingsPerStage* = 16
+  maxPortableStoragebufferBindingsPerStage* = 8
+  maxPortableStorageimageBindingsPerStage* = 4
 
 type Color* = object
   r*:float32
@@ -153,8 +157,13 @@ type Limits* = object
   maxImageSizeArray*:int32
   maxImageArrayLayers*:int32
   maxVertexAttrs*:int32
+  maxColorAttachments*:int32
+  maxTextureBindingsPerStage*:int32
+  maxStorageBufferBindingsPerStage*:int32
+  maxStorageImageBindingsPerStage*:int32
   glMaxVertexUniformComponents*:int32
   glMaxCombinedTextureImageUnits*:int32
+  d3d11MaxUnorderedAccessViews*:int32
 
 type
   ResourceState* {.size:sizeof(int32).} = enum
@@ -395,12 +404,12 @@ type StencilAttachmentAction* = object
   clearValue*:uint8
 
 type PassAction* = object
-  colors*:array[4, ColorAttachmentAction]
+  colors*:array[8, ColorAttachmentAction]
   depth*:DepthAttachmentAction
   stencil*:StencilAttachmentAction
 
-converter toPassActioncolors*[N:static[int]](items: array[N, ColorAttachmentAction]): array[4, ColorAttachmentAction] =
-  static: assert(N <= 4)
+converter toPassActioncolors*[N:static[int]](items: array[N, ColorAttachmentAction]): array[8, ColorAttachmentAction] =
+  static: assert(N <= 8)
   for index,item in items.pairs: result[index]=item
 
 type MetalSwapchain* = object
@@ -433,16 +442,16 @@ type Swapchain* = object
   gl*:GlSwapchain
 
 type Attachments* = object
-  colors*:array[4, View]
-  resolves*:array[4, View]
+  colors*:array[8, View]
+  resolves*:array[8, View]
   depthStencil*:View
 
-converter toAttachmentscolors*[N:static[int]](items: array[N, View]): array[4, View] =
-  static: assert(N <= 4)
+converter toAttachmentscolors*[N:static[int]](items: array[N, View]): array[8, View] =
+  static: assert(N <= 8)
   for index,item in items.pairs: result[index]=item
 
-converter toAttachmentsresolves*[N:static[int]](items: array[N, View]): array[4, View] =
-  static: assert(N <= 4)
+converter toAttachmentsresolves*[N:static[int]](items: array[N, View]): array[8, View] =
+  static: assert(N <= 8)
   for index,item in items.pairs: result[index]=item
 
 type Pass* = object
@@ -460,8 +469,8 @@ type Bindings* = object
   vertexBufferOffsets*:array[8, int32]
   indexBuffer*:Buffer
   indexBufferOffset*:int32
-  views*:array[28, View]
-  samplers*:array[16, Sampler]
+  views*:array[32, View]
+  samplers*:array[12, Sampler]
   endCanary:uint32
 
 converter toBindingsvertexBuffers*[N:static[int]](items: array[N, Buffer]): array[8, Buffer] =
@@ -472,12 +481,12 @@ converter toBindingsvertexBufferOffsets*[N:static[int]](items: array[N, int32]):
   static: assert(N <= 8)
   for index,item in items.pairs: result[index]=item
 
-converter toBindingsviews*[N:static[int]](items: array[N, View]): array[28, View] =
-  static: assert(N <= 28)
+converter toBindingsviews*[N:static[int]](items: array[N, View]): array[32, View] =
+  static: assert(N <= 32)
   for index,item in items.pairs: result[index]=item
 
-converter toBindingssamplers*[N:static[int]](items: array[N, Sampler]): array[16, Sampler] =
-  static: assert(N <= 16)
+converter toBindingssamplers*[N:static[int]](items: array[N, Sampler]): array[12, Sampler] =
+  static: assert(N <= 12)
   for index,item in items.pairs: result[index]=item
 
 type BufferUsage* = object
@@ -684,9 +693,9 @@ type ShaderDesc* = object
   computeFunc*:ShaderFunction
   attrs*:array[16, ShaderVertexAttr]
   uniformBlocks*:array[8, ShaderUniformBlock]
-  views*:array[28, ShaderView]
-  samplers*:array[16, ShaderSampler]
-  textureSamplerPairs*:array[16, ShaderTextureSamplerPair]
+  views*:array[32, ShaderView]
+  samplers*:array[12, ShaderSampler]
+  textureSamplerPairs*:array[32, ShaderTextureSamplerPair]
   mtlThreadsPerThreadgroup*:MtlShaderThreadsPerThreadgroup
   label*:cstring
   endCanary:uint32
@@ -699,16 +708,16 @@ converter toShaderDescuniformBlocks*[N:static[int]](items: array[N, ShaderUnifor
   static: assert(N <= 8)
   for index,item in items.pairs: result[index]=item
 
-converter toShaderDescviews*[N:static[int]](items: array[N, ShaderView]): array[28, ShaderView] =
-  static: assert(N <= 28)
+converter toShaderDescviews*[N:static[int]](items: array[N, ShaderView]): array[32, ShaderView] =
+  static: assert(N <= 32)
   for index,item in items.pairs: result[index]=item
 
-converter toShaderDescsamplers*[N:static[int]](items: array[N, ShaderSampler]): array[16, ShaderSampler] =
-  static: assert(N <= 16)
+converter toShaderDescsamplers*[N:static[int]](items: array[N, ShaderSampler]): array[12, ShaderSampler] =
+  static: assert(N <= 12)
   for index,item in items.pairs: result[index]=item
 
-converter toShaderDesctextureSamplerPairs*[N:static[int]](items: array[N, ShaderTextureSamplerPair]): array[16, ShaderTextureSamplerPair] =
-  static: assert(N <= 16)
+converter toShaderDesctextureSamplerPairs*[N:static[int]](items: array[N, ShaderTextureSamplerPair]): array[32, ShaderTextureSamplerPair] =
+  static: assert(N <= 32)
   for index,item in items.pairs: result[index]=item
 
 type VertexBufferLayoutState* = object
@@ -777,7 +786,7 @@ type PipelineDesc* = object
   depth*:DepthState
   stencil*:StencilState
   colorCount*:int32
-  colors*:array[4, ColorTargetState]
+  colors*:array[8, ColorTargetState]
   primitiveType*:PrimitiveType
   indexType*:IndexType
   cullMode*:CullMode
@@ -788,8 +797,8 @@ type PipelineDesc* = object
   label*:cstring
   endCanary:uint32
 
-converter toPipelineDesccolors*[N:static[int]](items: array[N, ColorTargetState]): array[4, ColorTargetState] =
-  static: assert(N <= 4)
+converter toPipelineDesccolors*[N:static[int]](items: array[N, ColorTargetState]): array[8, ColorTargetState] =
+  static: assert(N <= 8)
   for index,item in items.pairs: result[index]=item
 
 type BufferViewDesc* = object
@@ -1104,6 +1113,7 @@ type
     logitemGlFramebufferStatusUnsupported,
     logitemGlFramebufferStatusIncompleteMultisample,
     logitemGlFramebufferStatusUnknown,
+    logitemD3d11FeatureLevel0Detected,
     logitemD3d11CreateBufferFailed,
     logitemD3d11CreateBufferSrvFailed,
     logitemD3d11CreateBufferUavFailed,
@@ -1206,8 +1216,22 @@ type
     logitemShaderPoolExhausted,
     logitemPipelinePoolExhausted,
     logitemViewPoolExhausted,
+    logitemBeginpassTooManyColorAttachments,
+    logitemBeginpassTooManyResolveAttachments,
     logitemBeginpassAttachmentsAlive,
     logitemDrawWithoutBindings,
+    logitemShaderdescTooManyVertexstageTextures,
+    logitemShaderdescTooManyFragmentstageTextures,
+    logitemShaderdescTooManyComputestageTextures,
+    logitemShaderdescTooManyVertexstageStoragebuffers,
+    logitemShaderdescTooManyFragmentstageStoragebuffers,
+    logitemShaderdescTooManyComputestageStoragebuffers,
+    logitemShaderdescTooManyVertexstageStorageimages,
+    logitemShaderdescTooManyFragmentstageStorageimages,
+    logitemShaderdescTooManyComputestageStorageimages,
+    logitemShaderdescTooManyVertexstageTexturesamplerpairs,
+    logitemShaderdescTooManyFragmentstageTexturesamplerpairs,
+    logitemShaderdescTooManyComputestageTexturesamplerpairs,
     logitemValidateBufferdescCanary,
     logitemValidateBufferdescImmutableDynamicStream,
     logitemValidateBufferdescSeparateBufferTypes,
@@ -1261,47 +1285,29 @@ type
     logitemValidateShaderdescMetalThreadsPerThreadgroupMultiple32,
     logitemValidateShaderdescUniformblockNoContMembers,
     logitemValidateShaderdescUniformblockSizeIsZero,
-    logitemValidateShaderdescUniformblockMetalBufferSlotOutOfRange,
     logitemValidateShaderdescUniformblockMetalBufferSlotCollision,
-    logitemValidateShaderdescUniformblockHlslRegisterBOutOfRange,
     logitemValidateShaderdescUniformblockHlslRegisterBCollision,
-    logitemValidateShaderdescUniformblockWgslGroup0BindingOutOfRange,
     logitemValidateShaderdescUniformblockWgslGroup0BindingCollision,
     logitemValidateShaderdescUniformblockNoMembers,
     logitemValidateShaderdescUniformblockUniformGlslName,
     logitemValidateShaderdescUniformblockSizeMismatch,
     logitemValidateShaderdescUniformblockArrayCount,
     logitemValidateShaderdescUniformblockStd140ArrayType,
-    logitemValidateShaderdescViewStoragebufferMetalBufferSlotOutOfRange,
     logitemValidateShaderdescViewStoragebufferMetalBufferSlotCollision,
-    logitemValidateShaderdescViewStoragebufferHlslRegisterTOutOfRange,
     logitemValidateShaderdescViewStoragebufferHlslRegisterTCollision,
-    logitemValidateShaderdescViewStoragebufferHlslRegisterUOutOfRange,
     logitemValidateShaderdescViewStoragebufferHlslRegisterUCollision,
-    logitemValidateShaderdescViewStoragebufferGlslBindingOutOfRange,
     logitemValidateShaderdescViewStoragebufferGlslBindingCollision,
-    logitemValidateShaderdescViewStoragebufferWgslGroup1BindingOutOfRange,
     logitemValidateShaderdescViewStoragebufferWgslGroup1BindingCollision,
     logitemValidateShaderdescViewStorageimageExpectComputeStage,
-    logitemValidateShaderdescViewStorageimageMetalTextureSlotOutOfRange,
     logitemValidateShaderdescViewStorageimageMetalTextureSlotCollision,
-    logitemValidateShaderdescViewStorageimageHlslRegisterUOutOfRange,
     logitemValidateShaderdescViewStorageimageHlslRegisterUCollision,
-    logitemValidateShaderdescViewStorageimageGlslBindingOutOfRange,
     logitemValidateShaderdescViewStorageimageGlslBindingCollision,
-    logitemValidateShaderdescViewStorageimageWgslGroup1BindingOutOfRange,
     logitemValidateShaderdescViewStorageimageWgslGroup1BindingCollision,
-    logitemValidateShaderdescViewTextureMetalTextureSlotOutOfRange,
     logitemValidateShaderdescViewTextureMetalTextureSlotCollision,
-    logitemValidateShaderdescViewTextureHlslRegisterTOutOfRange,
     logitemValidateShaderdescViewTextureHlslRegisterTCollision,
-    logitemValidateShaderdescViewTextureWgslGroup1BindingOutOfRange,
     logitemValidateShaderdescViewTextureWgslGroup1BindingCollision,
-    logitemValidateShaderdescSamplerMetalSamplerSlotOutOfRange,
     logitemValidateShaderdescSamplerMetalSamplerSlotCollision,
-    logitemValidateShaderdescSamplerHlslRegisterSOutOfRange,
     logitemValidateShaderdescSamplerHlslRegisterSCollision,
-    logitemValidateShaderdescSamplerWgslGroup1BindingOutOfRange,
     logitemValidateShaderdescSamplerWgslGroup1BindingCollision,
     logitemValidateShaderdescTextureSamplerPairViewSlotOutOfRange,
     logitemValidateShaderdescTextureSamplerPairSamplerSlotOutOfRange,
@@ -1544,6 +1550,7 @@ type Desc* = object
   uniformBufferSize*:int32
   maxCommitListeners*:int32
   disableValidation*:bool
+  enforcePortableLimits*:bool
   d3d11ShaderDebugging*:bool
   mtlForceManagedStorageMode*:bool
   mtlUseCommandBufferWithRetainedReferences*:bool
