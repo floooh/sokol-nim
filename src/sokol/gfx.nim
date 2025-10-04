@@ -148,6 +148,8 @@ type Features* = object
   compute*:bool
   msaaTextureBindings*:bool
   separateBufferTypes*:bool
+  drawBaseVertex*:bool
+  drawBaseInstance*:bool
   glTextureViews*:bool
 
 type Limits* = object
@@ -855,6 +857,7 @@ type TraceHooks* = object
   applyBindings*:proc(a1:ptr Bindings, a2:pointer) {.cdecl.}
   applyUniforms*:proc(a1:int32, a2:ptr Range, a3:pointer) {.cdecl.}
   draw*:proc(a1:int32, a2:int32, a3:int32, a4:pointer) {.cdecl.}
+  drawEx*:proc(a1:int32, a2:int32, a3:int32, a4:int32, a5:int32, a6:pointer) {.cdecl.}
   dispatch*:proc(a1:int32, a2:int32, a3:int32, a4:pointer) {.cdecl.}
   endPass*:proc(a1:pointer) {.cdecl.}
   commit*:proc(a1:pointer) {.cdecl.}
@@ -1074,6 +1077,7 @@ type FrameStats* = object
   numApplyBindings*:uint32
   numApplyUniforms*:uint32
   numDraw*:uint32
+  numDrawEx*:uint32
   numDispatch*:uint32
   numUpdateBuffer*:uint32
   numAppendBuffer*:uint32
@@ -1485,9 +1489,18 @@ type
     logitemValidateAuNoUniformblockAtSlot,
     logitemValidateAuSize,
     logitemValidateDrawRenderpassExpected,
-    logitemValidateDrawBaseelement,
-    logitemValidateDrawNumelements,
-    logitemValidateDrawNuminstances,
+    logitemValidateDrawBaseelementGeZero,
+    logitemValidateDrawNumelementsGeZero,
+    logitemValidateDrawNuminstancesGeZero,
+    logitemValidateDrawExRenderpassExpected,
+    logitemValidateDrawExBaseelementGeZero,
+    logitemValidateDrawExNumelementsGeZero,
+    logitemValidateDrawExNuminstancesGeZero,
+    logitemValidateDrawExBaseinstanceGeZero,
+    logitemValidateDrawExBasevertexVsIndexed,
+    logitemValidateDrawExBaseinstanceVsInstanced,
+    logitemValidateDrawExBasevertexNotSupported,
+    logitemValidateDrawExBaseinstanceNotSupported,
     logitemValidateDrawRequiredBindingsOrUniformsMissing,
     logitemValidateDispatchComputepassExpected,
     logitemValidateDispatchNumgroupsx,
@@ -1700,6 +1713,10 @@ proc applyUniforms*(ubSlot:int32, data:Range):void =
 proc c_draw(baseElement:int32, numElements:int32, numInstances:int32):void {.cdecl, importc:"sg_draw".}
 proc draw*(baseElement:int32, numElements:int32, numInstances:int32):void =
     c_draw(base_element, num_elements, num_instances)
+
+proc c_drawEx(baseElement:int32, numElements:int32, numInstances:int32, baseVertex:int32, baseInstance:int32):void {.cdecl, importc:"sg_draw_ex".}
+proc drawEx*(baseElement:int32, numElements:int32, numInstances:int32, baseVertex:int32, baseInstance:int32):void =
+    c_drawEx(base_element, num_elements, num_instances, base_vertex, base_instance)
 
 proc c_dispatch(numGroupsX:int32, numGroupsY:int32, numGroupsZ:int32):void {.cdecl, importc:"sg_dispatch".}
 proc dispatch*(numGroupsX:int32, numGroupsY:int32, numGroupsZ:int32):void =
