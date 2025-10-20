@@ -30,6 +30,8 @@ type
     logitemCoreaudioAllocateBufferFailed,
     logitemCoreaudioStartFailed,
     logitemBackendBufferSizeIsntMultipleOfPacketSize,
+    logitemVitaSceaudioOpenFailed,
+    logitemVitaPthreadCreateFailed,
 
 type Logger* = object
   fn*:proc(a1:cstring, a2:uint32, a3:uint32, a4:cstring, a5:uint32, a6:cstring, a7:pointer) {.cdecl.}
