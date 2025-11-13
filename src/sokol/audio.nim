@@ -32,6 +32,7 @@ type
     logitemBackendBufferSizeIsntMultipleOfPacketSize,
     logitemVitaSceaudioOpenFailed,
     logitemVitaPthreadCreateFailed,
+    logitemN3dsNdspOpenFailed,
 
 type Logger* = object
   fn*:proc(a1:cstring, a2:uint32, a3:uint32, a4:cstring, a5:uint32, a6:cstring, a7:pointer) {.cdecl.}
@@ -42,6 +43,17 @@ type Allocator* = object
   freeFn*:proc(a1:pointer, a2:pointer) {.cdecl.}
   userData*:pointer
 
+type
+  N3dsNdspinterptype* {.size:sizeof(int32).} = enum
+    n3dsDspInterpPolyphase = 0,
+    n3dsDspInterpLinear = 1,
+    n3dsDspInterpNone = 2,
+
+type N3dsDesc* = object
+  queueCount*:int32
+  interpolationType*:N3dsNdspinterptype
+  channelId*:int32
+
 type Desc* = object
   sampleRate*:int32
   numChannels*:int32
@@ -51,6 +63,7 @@ type Desc* = object
   streamCb*:proc(a1:ptr float32, a2:int32, a3:int32) {.cdecl.}
   streamUserdataCb*:proc(a1:ptr float32, a2:int32, a3:int32, a4:pointer) {.cdecl.}
   userData*:pointer
+  n3ds*:N3dsDesc
   allocator*:Allocator
   logger*:Logger
 
