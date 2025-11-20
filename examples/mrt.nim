@@ -17,7 +17,7 @@ type Vertex = object
   x, y, z, b: float32
 
 const
-  offscreenSampleCount = 1
+  offscreenSampleCount = 4
   numMrts: int = 3
 
 var
