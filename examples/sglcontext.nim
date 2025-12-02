@@ -12,7 +12,7 @@ import sokol/glue as sglue
 import std/math
 
 const
-  offscreenPixelFormat = pixelFormatRGBA8
+  offscreenPixelFormat: sg.PixelFormat = pixelFormatRGBA8
   offscreenSampleCount = 1
   offscreenWidth = 32
   offscreenHeight = 32
