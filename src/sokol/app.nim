@@ -340,13 +340,137 @@ type
     logitemWgpuRequestAdapterStatusError,
     logitemWgpuRequestAdapterStatusUnknown,
     logitemWgpuCreateInstanceFailed,
+    logitemVulkanAllocDeviceMemoryNoSuitableMemoryType,
+    logitemVulkanAllocateMemoryFailed,
+    logitemVulkanCreateInstanceFailed,
+    logitemVulkanEnumeratePhysicalDevicesFailed,
+    logitemVulkanNoPhysicalDevicesFound,
+    logitemVulkanNoSuitablePhysicalDeviceFound,
+    logitemVulkanCreateDeviceFailedExtensionNotPresent,
+    logitemVulkanCreateDeviceFailedFeatureNotPresent,
+    logitemVulkanCreateDeviceFailedInitializationFailed,
+    logitemVulkanCreateDeviceFailedOther,
+    logitemVulkanCreateSurfaceFailed,
+    logitemVulkanCreateSwapchainFailed,
+    logitemVulkanSwapchainCreateImageViewFailed,
+    logitemVulkanSwapchainCreateImageFailed,
+    logitemVulkanSwapchainAllocImageDeviceMemoryFailed,
+    logitemVulkanSwapchainBindImageMemoryFailed,
+    logitemVulkanAcquireNextImageFailed,
+    logitemVulkanQueuePresentFailed,
     logitemImageDataSizeMismatch,
     logitemDroppedFilePathTooLong,
     logitemClipboardStringTooBig,
 
+type
+  PixelFormat* {.size:sizeof(int32).} = enum
+    pixelFormatDefault,
+    pixelFormatNone,
+    pixelFormatRgba8,
+    pixelFormatSrgb8a8,
+    pixelFormatBgra8,
+    pixelFormatSbgra8,
+    pixelFormatDepth,
+    pixelFormatDepthStencil,
+
+type EnvironmentDefaults* = object
+  colorFormat*:PixelFormat
+  depthFormat*:PixelFormat
+  sampleCount*:int32
+
+type MetalEnvironment* = object
+  device*:pointer
+
+type D3d11Environment* = object
+  device*:pointer
+  deviceContext*:pointer
+
+type WgpuEnvironment* = object
+  device*:pointer
+
+type VulkanEnvironment* = object
+  physicalDevice*:pointer
+  device*:pointer
+  queue*:pointer
+  queueFamilyIndex*:uint32
+
+type Environment* = object
+  defaults*:EnvironmentDefaults
+  metal*:MetalEnvironment
+  d3d11*:D3d11Environment
+  wgpu*:WgpuEnvironment
+  vulkan*:VulkanEnvironment
+
+type MetalSwapchain* = object
+  currentDrawable*:pointer
+  depthStencilTexture*:pointer
+  msaaColorTexture*:pointer
+
+type D3d11Swapchain* = object
+  renderView*:pointer
+  resolveView*:pointer
+  depthStencilView*:pointer
+
+type WgpuSwapchain* = object
+  renderView*:pointer
+  resolveView*:pointer
+  depthStencilView*:pointer
+
+type VulkanSwapchain* = object
+  renderImage*:pointer
+  renderView*:pointer
+  resolveImage*:pointer
+  resolveView*:pointer
+  depthStencilImage*:pointer
+  depthStencilView*:pointer
+  renderFinishedSemaphore*:pointer
+  presentCompleteSemaphore*:pointer
+
+type GlSwapchain* = object
+  framebuffer*:uint32
+
+type Swapchain* = object
+  width*:int32
+  height*:int32
+  sampleCount*:int32
+  colorFormat*:PixelFormat
+  depthFormat*:PixelFormat
+  metal*:MetalSwapchain
+  d3d11*:D3d11Swapchain
+  wgpu*:WgpuSwapchain
+  vulkan*:VulkanSwapchain
+  gl*:GlSwapchain
+
 type Logger* = object
   fn*:proc(a1:cstring, a2:uint32, a3:uint32, a4:cstring, a5:uint32, a6:cstring, a7:pointer) {.cdecl.}
   userData*:pointer
+
+type GlDesc* = object
+  majorVersion*:int32
+  minorVersion*:int32
+
+type Win32Desc* = object
+  consoleUtf8*:bool
+  consoleCreate*:bool
+  consoleAttach*:bool
+
+type Html5Desc* = object
+  canvasSelector*:cstring
+  canvasResize*:bool
+  preserveDrawingBuffer*:bool
+  premultipliedAlpha*:bool
+  askLeaveSite*:bool
+  updateDocumentTitle*:bool
+  bubbleMouseEvents*:bool
+  bubbleTouchEvents*:bool
+  bubbleWheelEvents*:bool
+  bubbleKeyEvents*:bool
+  bubbleCharEvents*:bool
+  useEmscSetMainLoop*:bool
+  emscSetMainLoopSimulateInfiniteLoop*:bool
+
+type IosDesc* = object
+  keyboardResizesCanvas*:bool
 
 type Desc* = object
   initCb*:proc() {.cdecl.}
@@ -374,25 +498,10 @@ type Desc* = object
   icon*:IconDesc
   allocator*:Allocator
   logger*:Logger
-  glMajorVersion*:int32
-  glMinorVersion*:int32
-  win32ConsoleUtf8*:bool
-  win32ConsoleCreate*:bool
-  win32ConsoleAttach*:bool
-  html5CanvasSelector*:cstring
-  html5CanvasResize*:bool
-  html5PreserveDrawingBuffer*:bool
-  html5PremultipliedAlpha*:bool
-  html5AskLeaveSite*:bool
-  html5UpdateDocumentTitle*:bool
-  html5BubbleMouseEvents*:bool
-  html5BubbleTouchEvents*:bool
-  html5BubbleWheelEvents*:bool
-  html5BubbleKeyEvents*:bool
-  html5BubbleCharEvents*:bool
-  html5UseEmscSetMainLoop*:bool
-  html5EmscSetMainLoopSimulateInfiniteLoop*:bool
-  iosKeyboardResizesCanvas*:bool
+  gl*:GlDesc
+  win32*:Win32Desc
+  html5*:Html5Desc
+  ios*:IosDesc
 
 type
   Html5FetchError* {.size:sizeof(int32).} = enum
@@ -464,12 +573,12 @@ proc c_heightf():float32 {.cdecl, importc:"sapp_heightf".}
 proc heightf*():float32 =
     c_heightf()
 
-proc c_colorFormat():int32 {.cdecl, importc:"sapp_color_format".}
-proc colorFormat*():int32 =
+proc c_colorFormat():PixelFormat {.cdecl, importc:"sapp_color_format".}
+proc colorFormat*():PixelFormat =
     c_colorFormat()
 
-proc c_depthFormat():int32 {.cdecl, importc:"sapp_depth_format".}
-proc depthFormat*():int32 =
+proc c_depthFormat():PixelFormat {.cdecl, importc:"sapp_depth_format".}
+proc depthFormat*():PixelFormat =
     c_depthFormat()
 
 proc c_sampleCount():int32 {.cdecl, importc:"sapp_sample_count".}
@@ -592,6 +701,14 @@ proc c_run(desc:ptr Desc):void {.cdecl, importc:"sapp_run".}
 proc run*(desc:Desc):void =
     c_run(addr(desc))
 
+proc c_getEnvironment():Environment {.cdecl, importc:"sapp_get_environment".}
+proc getEnvironment*():Environment =
+    c_getEnvironment()
+
+proc c_getSwapchain():Swapchain {.cdecl, importc:"sapp_get_swapchain".}
+proc getSwapchain*():Swapchain =
+    c_getSwapchain()
+
 proc c_eglGetDisplay():pointer {.cdecl, importc:"sapp_egl_get_display".}
 proc eglGetDisplay*():pointer =
     c_eglGetDisplay()
@@ -612,22 +729,6 @@ proc c_html5FetchDroppedFile(request:ptr Html5FetchRequest):void {.cdecl, import
 proc html5FetchDroppedFile*(request:Html5FetchRequest):void =
     c_html5FetchDroppedFile(addr(request))
 
-proc c_metalGetDevice():pointer {.cdecl, importc:"sapp_metal_get_device".}
-proc metalGetDevice*():pointer =
-    c_metalGetDevice()
-
-proc c_metalGetCurrentDrawable():pointer {.cdecl, importc:"sapp_metal_get_current_drawable".}
-proc metalGetCurrentDrawable*():pointer =
-    c_metalGetCurrentDrawable()
-
-proc c_metalGetDepthStencilTexture():pointer {.cdecl, importc:"sapp_metal_get_depth_stencil_texture".}
-proc metalGetDepthStencilTexture*():pointer =
-    c_metalGetDepthStencilTexture()
-
-proc c_metalGetMsaaColorTexture():pointer {.cdecl, importc:"sapp_metal_get_msaa_color_texture".}
-proc metalGetMsaaColorTexture*():pointer =
-    c_metalGetMsaaColorTexture()
-
 proc c_macosGetWindow():pointer {.cdecl, importc:"sapp_macos_get_window".}
 proc macosGetWindow*():pointer =
     c_macosGetWindow()
@@ -636,53 +737,13 @@ proc c_iosGetWindow():pointer {.cdecl, importc:"sapp_ios_get_window".}
 proc iosGetWindow*():pointer =
     c_iosGetWindow()
 
-proc c_d3d11GetDevice():pointer {.cdecl, importc:"sapp_d3d11_get_device".}
-proc d3d11GetDevice*():pointer =
-    c_d3d11GetDevice()
-
-proc c_d3d11GetDeviceContext():pointer {.cdecl, importc:"sapp_d3d11_get_device_context".}
-proc d3d11GetDeviceContext*():pointer =
-    c_d3d11GetDeviceContext()
-
 proc c_d3d11GetSwapChain():pointer {.cdecl, importc:"sapp_d3d11_get_swap_chain".}
 proc d3d11GetSwapChain*():pointer =
     c_d3d11GetSwapChain()
 
-proc c_d3d11GetRenderView():pointer {.cdecl, importc:"sapp_d3d11_get_render_view".}
-proc d3d11GetRenderView*():pointer =
-    c_d3d11GetRenderView()
-
-proc c_d3d11GetResolveView():pointer {.cdecl, importc:"sapp_d3d11_get_resolve_view".}
-proc d3d11GetResolveView*():pointer =
-    c_d3d11GetResolveView()
-
-proc c_d3d11GetDepthStencilView():pointer {.cdecl, importc:"sapp_d3d11_get_depth_stencil_view".}
-proc d3d11GetDepthStencilView*():pointer =
-    c_d3d11GetDepthStencilView()
-
 proc c_win32GetHwnd():pointer {.cdecl, importc:"sapp_win32_get_hwnd".}
 proc win32GetHwnd*():pointer =
     c_win32GetHwnd()
-
-proc c_wgpuGetDevice():pointer {.cdecl, importc:"sapp_wgpu_get_device".}
-proc wgpuGetDevice*():pointer =
-    c_wgpuGetDevice()
-
-proc c_wgpuGetRenderView():pointer {.cdecl, importc:"sapp_wgpu_get_render_view".}
-proc wgpuGetRenderView*():pointer =
-    c_wgpuGetRenderView()
-
-proc c_wgpuGetResolveView():pointer {.cdecl, importc:"sapp_wgpu_get_resolve_view".}
-proc wgpuGetResolveView*():pointer =
-    c_wgpuGetResolveView()
-
-proc c_wgpuGetDepthStencilView():pointer {.cdecl, importc:"sapp_wgpu_get_depth_stencil_view".}
-proc wgpuGetDepthStencilView*():pointer =
-    c_wgpuGetDepthStencilView()
-
-proc c_glGetFramebuffer():uint32 {.cdecl, importc:"sapp_gl_get_framebuffer".}
-proc glGetFramebuffer*():uint32 =
-    c_glGetFramebuffer()
 
 proc c_glGetMajorVersion():int32 {.cdecl, importc:"sapp_gl_get_major_version".}
 proc glGetMajorVersion*():int32 =

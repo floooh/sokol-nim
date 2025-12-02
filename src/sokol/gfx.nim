@@ -55,6 +55,7 @@ type
     backendMetalMacos,
     backendMetalSimulator,
     backendWgpu,
+    backendVulkan,
     backendDummy,
 
 type
@@ -166,6 +167,7 @@ type Limits* = object
   glMaxVertexUniformComponents*:int32
   glMaxCombinedTextureImageUnits*:int32
   d3d11MaxUnorderedAccessViews*:int32
+  vkMinUniformBufferOffsetAlignment*:int32
 
 type
   ResourceState* {.size:sizeof(int32).} = enum
@@ -429,6 +431,16 @@ type WgpuSwapchain* = object
   resolveView*:pointer
   depthStencilView*:pointer
 
+type VulkanSwapchain* = object
+  renderImage*:pointer
+  renderView*:pointer
+  resolveImage*:pointer
+  resolveView*:pointer
+  depthStencilImage*:pointer
+  depthStencilView*:pointer
+  renderFinishedSemaphore*:pointer
+  presentCompleteSemaphore*:pointer
+
 type GlSwapchain* = object
   framebuffer*:uint32
 
@@ -441,6 +453,7 @@ type Swapchain* = object
   metal*:MetalSwapchain
   d3d11*:D3d11Swapchain
   wgpu*:WgpuSwapchain
+  vulkan*:VulkanSwapchain
   gl*:GlSwapchain
 
 type Attachments* = object
@@ -630,6 +643,7 @@ type ShaderUniformBlock* = object
   hlslRegisterBN*:uint8
   mslBufferN*:uint8
   wgslGroup0BindingN*:uint8
+  spirvSet0BindingN*:uint8
   layout*:UniformLayout
   glslUniforms*:array[16, GlslShaderUniform]
 
@@ -645,6 +659,7 @@ type ShaderTextureView* = object
   hlslRegisterTN*:uint8
   mslTextureN*:uint8
   wgslGroup1BindingN*:uint8
+  spirvSet1BindingN*:uint8
 
 type ShaderStorageBufferView* = object
   stage*:ShaderStage
@@ -653,6 +668,7 @@ type ShaderStorageBufferView* = object
   hlslRegisterUN*:uint8
   mslBufferN*:uint8
   wgslGroup1BindingN*:uint8
+  spirvSet1BindingN*:uint8
   glslBindingN*:uint8
 
 type ShaderStorageImageView* = object
@@ -663,6 +679,7 @@ type ShaderStorageImageView* = object
   hlslRegisterUN*:uint8
   mslTextureN*:uint8
   wgslGroup1BindingN*:uint8
+  spirvSet1BindingN*:uint8
   glslBindingN*:uint8
 
 type ShaderView* = object
@@ -676,6 +693,7 @@ type ShaderSampler* = object
   hlslRegisterSN*:uint8
   mslSamplerN*:uint8
   wgslGroup1BindingN*:uint8
+  spirvSet1BindingN*:uint8
 
 type ShaderTextureSamplerPair* = object
   stage*:ShaderStage
@@ -1060,6 +1078,18 @@ type FrameStatsWgpu* = object
   uniforms*:FrameStatsWgpuUniforms
   bindings*:FrameStatsWgpuBindings
 
+type FrameStatsVk* = object
+  numCmdPipelineBarrier*:uint32
+  numAllocateMemory*:uint32
+  numFreeMemory*:uint32
+  sizeAllocateMemory*:uint32
+  numDeleteQueueAdded*:uint32
+  numDeleteQueueCollected*:uint32
+  numCmdCopyBuffer*:uint32
+  numCmdCopyBufferToImage*:uint32
+  numCmdSetDescriptorBufferOffsets*:uint32
+  sizeDescriptorBufferWrites*:uint32
+
 type ResourceStats* = object
   totalAlive*:uint32
   totalFree*:uint32
@@ -1096,6 +1126,7 @@ type FrameStats* = object
   d3d11*:FrameStatsD3d11
   metal*:FrameStatsMetal
   wgpu*:FrameStatsWgpu
+  vk*:FrameStatsVk
 
 type
   LogItem* {.size:sizeof(int32).} = enum
@@ -1187,6 +1218,41 @@ type
     logitemWgpuCreatePipelineLayoutFailed,
     logitemWgpuCreateRenderPipelineFailed,
     logitemWgpuCreateComputePipelineFailed,
+    logitemVulkanRequiredExtensionFunctionMissing,
+    logitemVulkanAllocDeviceMemoryNoSuitableMemoryType,
+    logitemVulkanAllocateMemoryFailed,
+    logitemVulkanAllocBufferDeviceMemoryFailed,
+    logitemVulkanAllocImageDeviceMemoryFailed,
+    logitemVulkanDeleteQueueExhausted,
+    logitemVulkanStagingCreateBufferFailed,
+    logitemVulkanStagingAllocateMemoryFailed,
+    logitemVulkanStagingBindBufferMemoryFailed,
+    logitemVulkanStagingStreamBufferOverflow,
+    logitemVulkanCreateSharedBufferFailed,
+    logitemVulkanAllocateSharedBufferMemoryFailed,
+    logitemVulkanBindSharedBufferMemoryFailed,
+    logitemVulkanMapSharedBufferMemoryFailed,
+    logitemVulkanCreateBufferFailed,
+    logitemVulkanBindBufferMemoryFailed,
+    logitemVulkanCreateImageFailed,
+    logitemVulkanBindImageMemoryFailed,
+    logitemVulkanCreateShaderModuleFailed,
+    logitemVulkanUniformblockSpirvSet0BindingOutOfRange,
+    logitemVulkanTextureSpirvSet1BindingOutOfRange,
+    logitemVulkanStoragebufferSpirvSet1BindingOutOfRange,
+    logitemVulkanStorageimageSpirvSet1BindingOutOfRange,
+    logitemVulkanSamplerSpirvSet1BindingOutOfRange,
+    logitemVulkanCreateDescriptorSetLayoutFailed,
+    logitemVulkanCreatePipelineLayoutFailed,
+    logitemVulkanCreateGraphicsPipelineFailed,
+    logitemVulkanCreateComputePipelineFailed,
+    logitemVulkanCreateImageViewFailed,
+    logitemVulkanViewMaxDescriptorSize,
+    logitemVulkanCreateSamplerFailed,
+    logitemVulkanSamplerMaxDescriptorSize,
+    logitemVulkanWaitForFenceFailed,
+    logitemVulkanUniformBufferOverflow,
+    logitemVulkanDescriptorBufferOverflow,
     logitemIdenticalCommitListener,
     logitemCommitListenerArrayFull,
     logitemTraceHooksNotEnabled,
@@ -1292,6 +1358,7 @@ type
     logitemValidateShaderdescUniformblockMetalBufferSlotCollision,
     logitemValidateShaderdescUniformblockHlslRegisterBCollision,
     logitemValidateShaderdescUniformblockWgslGroup0BindingCollision,
+    logitemValidateShaderdescUniformblockSpirvSet0BindingCollision,
     logitemValidateShaderdescUniformblockNoMembers,
     logitemValidateShaderdescUniformblockUniformGlslName,
     logitemValidateShaderdescUniformblockSizeMismatch,
@@ -1302,17 +1369,21 @@ type
     logitemValidateShaderdescViewStoragebufferHlslRegisterUCollision,
     logitemValidateShaderdescViewStoragebufferGlslBindingCollision,
     logitemValidateShaderdescViewStoragebufferWgslGroup1BindingCollision,
+    logitemValidateShaderdescViewStoragebufferSpirvSet1BindingCollision,
     logitemValidateShaderdescViewStorageimageExpectComputeStage,
     logitemValidateShaderdescViewStorageimageMetalTextureSlotCollision,
     logitemValidateShaderdescViewStorageimageHlslRegisterUCollision,
     logitemValidateShaderdescViewStorageimageGlslBindingCollision,
     logitemValidateShaderdescViewStorageimageWgslGroup1BindingCollision,
+    logitemValidateShaderdescViewStorageimageSpirvSet1BindingCollision,
     logitemValidateShaderdescViewTextureMetalTextureSlotCollision,
     logitemValidateShaderdescViewTextureHlslRegisterTCollision,
     logitemValidateShaderdescViewTextureWgslGroup1BindingCollision,
+    logitemValidateShaderdescViewTextureSpirvSet1BindingCollision,
     logitemValidateShaderdescSamplerMetalSamplerSlotCollision,
     logitemValidateShaderdescSamplerHlslRegisterSCollision,
     logitemValidateShaderdescSamplerWgslGroup1BindingCollision,
+    logitemValidateShaderdescSamplerSpirvSet1BindingCollision,
     logitemValidateShaderdescTextureSamplerPairViewSlotOutOfRange,
     logitemValidateShaderdescTextureSamplerPairSamplerSlotOutOfRange,
     logitemValidateShaderdescTextureSamplerPairTextureStageMismatch,
@@ -1534,11 +1605,18 @@ type D3d11Environment* = object
 type WgpuEnvironment* = object
   device*:pointer
 
+type VulkanEnvironment* = object
+  physicalDevice*:pointer
+  device*:pointer
+  queue*:pointer
+  queueFamilyIndex*:uint32
+
 type Environment* = object
   defaults*:EnvironmentDefaults
   metal*:MetalEnvironment
   d3d11*:D3d11Environment
   wgpu*:WgpuEnvironment
+  vulkan*:VulkanEnvironment
 
 type CommitListener* = object
   fn*:proc(a1:pointer) {.cdecl.}
@@ -1553,6 +1631,22 @@ type Logger* = object
   fn*:proc(a1:cstring, a2:uint32, a3:uint32, a4:cstring, a5:uint32, a6:cstring, a7:pointer) {.cdecl.}
   userData*:pointer
 
+type D3d11Desc* = object
+  shaderDebugging*:bool
+
+type MetalDesc* = object
+  forceManagedStorageMode*:bool
+  useCommandBufferWithRetainedReferences*:bool
+
+type WgpuDesc* = object
+  disableBindgroupsCache*:bool
+  bindgroupsCacheSize*:int32
+
+type VulkanDesc* = object
+  copyStagingBufferSize*:int32
+  streamStagingBufferSize*:int32
+  descriptorBufferSize*:int32
+
 type Desc* = object
   startCanary:uint32
   bufferPoolSize*:int32
@@ -1565,11 +1659,10 @@ type Desc* = object
   maxCommitListeners*:int32
   disableValidation*:bool
   enforcePortableLimits*:bool
-  d3d11ShaderDebugging*:bool
-  mtlForceManagedStorageMode*:bool
-  mtlUseCommandBufferWithRetainedReferences*:bool
-  wgpuDisableBindgroupsCache*:bool
-  wgpuBindgroupsCacheSize*:int32
+  d3d11*:D3d11Desc
+  metal*:MetalDesc
+  wgpu*:WgpuDesc
+  vulkan*:VulkanDesc
   allocator*:Allocator
   logger*:Logger
   environment*:Environment
