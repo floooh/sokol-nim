@@ -1090,13 +1090,27 @@ type FrameStatsVk* = object
   numCmdSetDescriptorBufferOffsets*:uint32
   sizeDescriptorBufferWrites*:uint32
 
-type ResourceStats* = object
-  totalAlive*:uint32
-  totalFree*:uint32
+type FrameResourceStats* = object
   allocated*:uint32
   deallocated*:uint32
   inited*:uint32
   uninited*:uint32
+
+type TotalResourceStats* = object
+  alive*:uint32
+  free*:uint32
+  allocated*:uint32
+  deallocated*:uint32
+  inited*:uint32
+  uninited*:uint32
+
+type TotalStats* = object
+  buffers*:TotalResourceStats
+  images*:TotalResourceStats
+  samplers*:TotalResourceStats
+  views*:TotalResourceStats
+  shaders*:TotalResourceStats
+  pipelines*:TotalResourceStats
 
 type FrameStats* = object
   frameIndex*:uint32
@@ -1116,17 +1130,22 @@ type FrameStats* = object
   sizeUpdateBuffer*:uint32
   sizeAppendBuffer*:uint32
   sizeUpdateImage*:uint32
-  buffers*:ResourceStats
-  images*:ResourceStats
-  samplers*:ResourceStats
-  views*:ResourceStats
-  shaders*:ResourceStats
-  pipelines*:ResourceStats
+  buffers*:FrameResourceStats
+  images*:FrameResourceStats
+  samplers*:FrameResourceStats
+  views*:FrameResourceStats
+  shaders*:FrameResourceStats
+  pipelines*:FrameResourceStats
   gl*:FrameStatsGl
   d3d11*:FrameStatsD3d11
   metal*:FrameStatsMetal
   wgpu*:FrameStatsWgpu
   vk*:FrameStatsVk
+
+type Stats* = object
+  prevFrame*:FrameStats
+  curFrame*:FrameStats
+  total*:TotalStats
 
 type
   LogItem* {.size:sizeof(int32).} = enum
@@ -2120,21 +2139,21 @@ proc c_failView(view:View):void {.cdecl, importc:"sg_fail_view".}
 proc failView*(view:View):void =
     c_failView(view)
 
-proc c_enableFrameStats():void {.cdecl, importc:"sg_enable_frame_stats".}
-proc enableFrameStats*():void =
-    c_enableFrameStats()
+proc c_enableStats():void {.cdecl, importc:"sg_enable_stats".}
+proc enableStats*():void =
+    c_enableStats()
 
-proc c_disableFrameStats():void {.cdecl, importc:"sg_disable_frame_stats".}
-proc disableFrameStats*():void =
-    c_disableFrameStats()
+proc c_disableStats():void {.cdecl, importc:"sg_disable_stats".}
+proc disableStats*():void =
+    c_disableStats()
 
-proc c_frameStatsEnabled():bool {.cdecl, importc:"sg_frame_stats_enabled".}
-proc frameStatsEnabled*():bool =
-    c_frameStatsEnabled()
+proc c_statsEnabled():bool {.cdecl, importc:"sg_stats_enabled".}
+proc statsEnabled*():bool =
+    c_statsEnabled()
 
-proc c_queryFrameStats():FrameStats {.cdecl, importc:"sg_query_frame_stats".}
-proc queryFrameStats*():FrameStats =
-    c_queryFrameStats()
+proc c_queryStats():Stats {.cdecl, importc:"sg_query_stats".}
+proc queryStats*():Stats =
+    c_queryStats()
 
 type D3d11BufferInfo* = object
   buf*:pointer
