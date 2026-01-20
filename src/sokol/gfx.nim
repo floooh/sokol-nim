@@ -2313,6 +2313,10 @@ proc c_mtlComputeCommandEncoder():pointer {.cdecl, importc:"sg_mtl_compute_comma
 proc mtlComputeCommandEncoder*():pointer =
     c_mtlComputeCommandEncoder()
 
+proc c_mtlCommandQueue():pointer {.cdecl, importc:"sg_mtl_command_queue".}
+proc mtlCommandQueue*():pointer =
+    c_mtlCommandQueue()
+
 proc c_mtlQueryBufferInfo(buf:Buffer):MtlBufferInfo {.cdecl, importc:"sg_mtl_query_buffer_info".}
 proc mtlQueryBufferInfo*(buf:Buffer):MtlBufferInfo =
     c_mtlQueryBufferInfo(buf)
