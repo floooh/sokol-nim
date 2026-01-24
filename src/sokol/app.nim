@@ -340,6 +340,7 @@ type
     logitemWgpuRequestAdapterStatusError,
     logitemWgpuRequestAdapterStatusUnknown,
     logitemWgpuCreateInstanceFailed,
+    logitemVulkanRequiredInstanceExtensionFunctionMissing,
     logitemVulkanAllocDeviceMemoryNoSuitableMemoryType,
     logitemVulkanAllocateMemoryFailed,
     logitemVulkanCreateInstanceFailed,
@@ -389,6 +390,7 @@ type WgpuEnvironment* = object
   device*:pointer
 
 type VulkanEnvironment* = object
+  instance*:pointer
   physicalDevice*:pointer
   device*:pointer
   queue*:pointer

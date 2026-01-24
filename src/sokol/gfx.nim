@@ -1625,6 +1625,7 @@ type WgpuEnvironment* = object
   device*:pointer
 
 type VulkanEnvironment* = object
+  instance*:pointer
   physicalDevice*:pointer
   device*:pointer
   queue*:pointer
