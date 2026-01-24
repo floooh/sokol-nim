@@ -1262,6 +1262,7 @@ type
     logitemVulkanStorageimageSpirvSet1BindingOutOfRange,
     logitemVulkanSamplerSpirvSet1BindingOutOfRange,
     logitemVulkanCreateDescriptorSetLayoutFailed,
+    logitemVulkanShaderUniformDescriptorSetSizeVsCacheSize,
     logitemVulkanCreatePipelineLayoutFailed,
     logitemVulkanCreateGraphicsPipelineFailed,
     logitemVulkanCreateComputePipelineFailed,
