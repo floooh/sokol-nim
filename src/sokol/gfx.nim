@@ -151,6 +151,7 @@ type Features* = object
   separateBufferTypes*:bool
   drawBaseVertex*:bool
   drawBaseInstance*:bool
+  dualSourceBlending*:bool
   glTextureViews*:bool
 
 type Limits* = object
@@ -349,6 +350,10 @@ type
     blendFactorOneMinusBlendColor,
     blendFactorBlendAlpha,
     blendFactorOneMinusBlendAlpha,
+    blendFactorSrc1Color,
+    blendFactorOneMinusSrc1Color,
+    blendFactorSrc1Alpha,
+    blendFactorOneMinusSrc1Alpha,
 
 type
   BlendOp* {.size:sizeof(int32).} = enum
@@ -1425,6 +1430,7 @@ type
     logitemValidatePipelinedescAttrSemantics,
     logitemValidatePipelinedescShaderReadonlyStoragebuffers,
     logitemValidatePipelinedescBlendopMinmaxRequiresBlendfactorOne,
+    logitemValidatePipelinedescDualSourceBlendingNotSupported,
     logitemValidateViewdescCanary,
     logitemValidateViewdescUniqueViewtype,
     logitemValidateViewdescAnyViewtype,
