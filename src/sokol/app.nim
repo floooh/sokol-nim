@@ -242,6 +242,8 @@ type
     logitemOk,
     logitemMallocFailed,
     logitemMacosInvalidNsopenglProfile,
+    logitemMacosMetalCreateSwapchainDepthTextureFailed,
+    logitemMacosMetalCreateSwapchainMsaaTextureFailed,
     logitemWin32LoadOpengl32DllFailed,
     logitemWin32CreateHelperWindowFailed,
     logitemWin32HelperWindowGetdcFailed,
