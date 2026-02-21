@@ -794,7 +794,7 @@ elif defined macosx:
     {.passl:"-framework OpenGL".}
   else:
     {.passc:"-DSOKOL_METAL".}
-    {.passl:"-framework Metal -framework MetalKit".}
+    {.passl:"-framework Metal".}
 elif defined linux:
   {.passc:"-DSOKOL_GLCORE".}
   {.passl:"-lX11 -lXi -lXcursor -lGL -lm -ldl -lpthread".}
