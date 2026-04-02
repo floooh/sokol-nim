@@ -677,6 +677,10 @@ proc c_frameDuration():float64 {.cdecl, importc:"sapp_frame_duration".}
 proc frameDuration*():float64 =
     c_frameDuration()
 
+proc c_frameDurationUnfiltered():float64 {.cdecl, importc:"sapp_frame_duration_unfiltered".}
+proc frameDurationUnfiltered*():float64 =
+    c_frameDurationUnfiltered()
+
 proc c_setClipboardString(str:cstring):void {.cdecl, importc:"sapp_set_clipboard_string".}
 proc setClipboardString*(str:cstring):void =
     c_setClipboardString(str)
