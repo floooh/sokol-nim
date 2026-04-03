@@ -152,6 +152,7 @@ type Features* = object
   drawBaseVertex*:bool
   drawBaseInstance*:bool
   dualSourceBlending*:bool
+  vertexformatInt10N2*:bool
   glTextureViews*:bool
 
 type Limits* = object
@@ -266,6 +267,7 @@ type
     vertexFormatShort4n,
     vertexFormatUshort4,
     vertexFormatUshort4n,
+    vertexFormatInt10N2,
     vertexFormatUint10N2,
     vertexFormatHalf2,
     vertexFormatHalf4,
@@ -1426,6 +1428,7 @@ type
     logitemValidatePipelinedescNoComputeShaderExpected,
     logitemValidatePipelinedescNoContAttrs,
     logitemValidatePipelinedescAttrBasetypeMismatch,
+    logitemValidatePipelinedescAttrVertexformatInt10N2NotSupported,
     logitemValidatePipelinedescLayoutStride4,
     logitemValidatePipelinedescAttrSemantics,
     logitemValidatePipelinedescShaderReadonlyStoragebuffers,
