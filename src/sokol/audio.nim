@@ -54,6 +54,9 @@ type N3dsDesc* = object
   interpolationType*:N3dsNdspinterptype
   channelId*:int32
 
+type Win32Desc* = object
+  skipCoinitialize*:bool
+
 type Desc* = object
   sampleRate*:int32
   numChannels*:int32
@@ -63,6 +66,7 @@ type Desc* = object
   streamCb*:proc(a1:ptr float32, a2:int32, a3:int32) {.cdecl.}
   streamUserdataCb*:proc(a1:ptr float32, a2:int32, a3:int32, a4:pointer) {.cdecl.}
   userData*:pointer
+  win32*:Win32Desc
   n3ds*:N3dsDesc
   allocator*:Allocator
   logger*:Logger
