@@ -1343,6 +1343,7 @@ type
     logitemValidateImagedataDataSize,
     logitemValidateImagedescCanary,
     logitemValidateImagedescImmutableDynamicStream,
+    logitemValidateImagedescAttachmentColorDepthStencil,
     logitemValidateImagedescImagetype2dNumslices,
     logitemValidateImagedescImagetypeCubeNumslices,
     logitemValidateImagedescImagetypeArrayNumslices,
