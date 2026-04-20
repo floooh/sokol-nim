@@ -407,7 +407,7 @@ proc c_end():void {.cdecl, importc:"sgl_end".}
 proc `end`*():void =
     c_end()
 
-{.passc:"-DSOKOL_NIM_IMPL".}
+{.passc:"-DIMPL".}
 when defined(release):
   {.passc:"-DNDEBUG".}
 {.compile:"c/sokol_gl.c".}

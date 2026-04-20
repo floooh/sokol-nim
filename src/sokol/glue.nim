@@ -10,7 +10,7 @@ proc c_swapchain():gfx.Swapchain {.cdecl, importc:"sglue_swapchain".}
 proc swapchain*():gfx.Swapchain =
     c_swapchain()
 
-{.passc:"-DSOKOL_NIM_IMPL".}
+{.passc:"-DIMPL".}
 when defined(release):
   {.passc:"-DNDEBUG".}
 {.compile:"c/sokol_glue.c".}

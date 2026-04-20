@@ -206,7 +206,7 @@ proc c_getClearedFmtBuffer():Range {.cdecl, importc:"sdtx_get_cleared_fmt_buffer
 proc getClearedFmtBuffer*():Range =
     c_getClearedFmtBuffer()
 
-{.passc:"-DSOKOL_NIM_IMPL".}
+{.passc:"-DIMPL".}
 when defined(release):
   {.passc:"-DNDEBUG".}
 {.compile:"c/sokol_debugtext.c".}
