@@ -805,7 +805,7 @@ elif defined linux:
 else:
   error("unsupported platform")
 
-{.passc:"-DSOKOL_NIM_IMPL".}
+{.passc:"-DIMPL".}
 when defined(release):
   {.passc:"-DNDEBUG".}
 {.compile:"c/sokol_app.c".}

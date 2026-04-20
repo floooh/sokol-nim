@@ -1,13 +1,10 @@
-#pragma once
-#include <stdio.h>
-#include <stdlib.h>
-
-#ifndef NDEBUG
-    #define SOKOL_ASSERT(x) ((x)?(1):(sokol_assert_failed(__FILE__,__LINE__,#x),0))
+#if !defined(__ANDROID__)
+    #define SOKOL_NO_ENTRY
 #endif
-
-static inline void
-sokol_assert_failed(const char* file, int line, const char* expr) {
-    printf("%s:%i: SOKOL_ASSERT(%s) failed\n", file, line, expr);
-    exit(1);
-}
+#if defined(_WIN32)
+    #define SOKOL_WIN32_FORCE_MAIN
+#endif
+// FIXME: macOS Zig HACK without this, some C stdlib headers throw errors
+#if defined(__APPLE__)
+#include <TargetConditionals.h>
+#endif

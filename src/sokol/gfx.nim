@@ -2494,7 +2494,7 @@ converter toColor*[R:SomeNumber,G:SomeNumber,B:SomeNumber,A:SomeNumber](rgba: tu
 converter toColor*[R:SomeNumber,G:SomeNumber,B:SomeNumber](rgba: tuple [r:R,g:G,b:B]):Color =
   Color(r:rgba.r.float32, g:rgba.g.float32, b:rgba.b.float32, a:1.float32)
 
-{.passc:"-DSOKOL_NIM_IMPL".}
+{.passc:"-DIMPL".}
 when defined(release):
   {.passc:"-DNDEBUG".}
 {.compile:"c/sokol_gfx.c".}
