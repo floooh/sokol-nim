@@ -32,7 +32,8 @@ let examples = [
   "sglpoints",
   "saudio",
   "vertexpull",
-  "instancingcompute"
+  "instancingcompute",
+  "bouncing_ball"
 ]
 
 let shaders = [
@@ -136,6 +137,9 @@ task saudio, "Runs the saudio example":
 
 task vertexpull, "Runs the vertexpull example":
   run "vertexpull"
+
+task bouncing_ball, "Runs the bouncing ball example":
+  run "bouncing_ball"
 
 task build_debug, "Build all examples in debug mode":
   # hmm, is there a better way?
