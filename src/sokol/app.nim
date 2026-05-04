@@ -326,6 +326,8 @@ type
     logitemAndroidNativeActivityOncreate,
     logitemAndroidCreateThreadPipeFailed,
     logitemAndroidNativeActivityCreateSuccess,
+    logitemAndroidChoreographerEnabled,
+    logitemAndroidChoreographerUnavailable,
     logitemWgpuDeviceLost,
     logitemWgpuDeviceLog,
     logitemWgpuDeviceUncapturedError,
