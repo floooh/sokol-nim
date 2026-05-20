@@ -37,6 +37,7 @@ proc drawCheckerboardSphere(x, y, radius, rotZ, rotX: float32) =
   sgl.translate(x, y, 0)
   sgl.rotate(sgl.asRadians(rotZ), 0, 0, 1)   # Horizontal rotation
   sgl.rotate(sgl.asRadians(rotX), 1, 0, 0)   # Y-axis spin (top/bottom)
+  sgl.beginQuads()
   for lat in 0..<bands:
     let t1 = PI * (lat.float32 / bands.float32) - PI/2f
     let t2 = PI * ((lat + 1).float32 / bands.float32) - PI/2f
@@ -46,12 +47,11 @@ proc drawCheckerboardSphere(x, y, radius, rotZ, rotX: float32) =
       let isRed = ((lat + lon) mod 2) == 0
       let (r, g, b) = if isRed: (0.9f, 0.1f, 0.1f) else: (1f, 1f, 1f)
       sgl.c3f(r, g, b)
-      sgl.beginQuads()
       sgl.v3f(radius * cos(t1) * cos(p1), radius * sin(t1), radius * cos(t1) * sin(p1))
       sgl.v3f(radius * cos(t1) * cos(p2), radius * sin(t1), radius * cos(t1) * sin(p2))
       sgl.v3f(radius * cos(t2) * cos(p2), radius * sin(t2), radius * cos(t2) * sin(p2))
       sgl.v3f(radius * cos(t2) * cos(p1), radius * sin(t2), radius * cos(t2) * sin(p1))
-      sgl.end()
+  sgl.end()
   sgl.popMatrix()
 
 proc frame() {.cdecl.} =
