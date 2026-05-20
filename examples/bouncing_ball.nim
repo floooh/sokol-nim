@@ -57,25 +57,25 @@ proc drawCheckerboardSphere(x, y, radius, rotZ, rotX: float32) =
 proc frame() {.cdecl.} =
   let dt = sapp.frameDuration()
   const gravity = 800f
-  
+
   # Apply gravity
   ballVy += gravity * dt
-  
+
   # Update position
   ballX += ballVx * dt
   ballY += ballVy * dt
-  
+
   # Bounce off FLOOR (bottom) - fixed bounce height
   let floorY = winH - ballRadius
   if ballY > floorY:
     ballY = floorY
     ballVy = -600f  # Fixed upward velocity = constant bounce height
-  
+
   # Bounce off ROOF (top)
   if ballY < ballRadius:
     ballY = ballRadius
     ballVy = 600f   # Fixed downward velocity
-  
+
   # Bounce off walls - handle penetration
   if ballX < ballRadius:
     ballX = ballRadius
@@ -83,28 +83,29 @@ proc frame() {.cdecl.} =
   elif ballX > winW - ballRadius:
     ballX = winW - ballRadius
     ballVx = -abs(ballVx)
-  
+
   # Update rotation based on movement
   rotZ += ballVx * dt * 0.3f    # Rotate with horizontal movement
   rotX += ballVy * dt * 0.2f    # Y-axis spin with vertical movement
-  
+
   winW = sapp.widthf()
   winH = sapp.heightf()
-  
-  sg.beginPass(Pass(action: passAction, swapchain: sglue.swapchain()))
+
   sgl.defaults()
   sgl.matrixModeProjection()
   sgl.ortho(0, winW, winH, 0, -100, 100)
   sgl.matrixModeModelview()
-  
+
   # Draw floor line (Amiga style)
   sgl.beginLines()
   sgl.c3f(0.3f, 0.3f, 0.5f)
   sgl.v2f(0, winH - 2f)
   sgl.v2f(winW, winH - 2f)
   sgl.end()
-  
+
   drawCheckerboardSphere(ballX, ballY, ballRadius, rotZ, rotX)
+
+  sg.beginPass(Pass(action: passAction, swapchain: sglue.swapchain()))
   sgl.draw()
   sg.endPass()
   sg.commit()
