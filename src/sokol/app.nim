@@ -436,6 +436,7 @@ type GlSwapchain* = object
   framebuffer*:uint32
 
 type Swapchain* = object
+  invalid*:bool
   width*:int32
   height*:int32
   sampleCount*:int32
