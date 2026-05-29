@@ -780,6 +780,10 @@ proc c_androidGetNativeActivity():pointer {.cdecl, importc:"sapp_android_get_nat
 proc androidGetNativeActivity*():pointer =
     c_androidGetNativeActivity()
 
+proc c_androidGetNativeWindow():pointer {.cdecl, importc:"sapp_android_get_native_window".}
+proc androidGetNativeWindow*():pointer =
+    c_androidGetNativeWindow()
+
 when defined emscripten:
   {.passl:"-lGL -ldl".}
   {.passc:"-DSOKOL_GLES3".}
