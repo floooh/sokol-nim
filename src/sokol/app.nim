@@ -241,6 +241,7 @@ type
   LogItem* {.size:sizeof(int32).} = enum
     logitemOk,
     logitemMallocFailed,
+    logitemSwapchainDepthformatInvalid,
     logitemMacosInvalidNsopenglProfile,
     logitemMetalCreateSwapchainDepthTextureFailed,
     logitemMetalCreateSwapchainMsaaTextureFailed,
@@ -374,7 +375,8 @@ type
     pixelFormatRgba8,
     pixelFormatSrgb8a8,
     pixelFormatBgra8,
-    pixelFormatSbgra8,
+    pixelFormatSbgr8a8,
+    pixelFormatRgba16f,
     pixelFormatDepth,
     pixelFormatDepthStencil,
 
@@ -448,6 +450,12 @@ type Swapchain* = object
   vulkan*:VulkanSwapchain
   gl*:GlSwapchain
 
+type
+  CompositeMode* {.size:sizeof(int32).} = enum
+    compositemodeDefault,
+    compositemodeOpaque,
+    compositemodePremultiplied,
+
 type Logger* = object
   fn*:proc(a1:cstring, a2:uint32, a3:uint32, a4:cstring, a5:uint32, a6:cstring, a7:pointer) {.cdecl.}
   userData*:pointer
@@ -465,7 +473,6 @@ type Html5Desc* = object
   canvasSelector*:cstring
   canvasResize*:bool
   preserveDrawingBuffer*:bool
-  premultipliedAlpha*:bool
   askLeaveSite*:bool
   updateDocumentTitle*:bool
   bubbleMouseEvents*:bool
@@ -479,6 +486,9 @@ type Html5Desc* = object
 type IosDesc* = object
   keyboardResizesCanvas*:bool
 
+type MetalDesc* = object
+  disableDisplaySync*:bool
+
 type Desc* = object
   initCb*:proc() {.cdecl.}
   frameCb*:proc() {.cdecl.}
@@ -491,11 +501,15 @@ type Desc* = object
   eventUserdataCb*:proc(a1:ptr Event, a2:pointer) {.cdecl.}
   width*:int32
   height*:int32
+  depthFormat*:PixelFormat
+  compositeMode*:CompositeMode
   sampleCount*:int32
   swapInterval*:int32
+  srgb*:bool
+  hdr*:bool
+  disableVsync*:bool
   highDpi*:bool
   fullscreen*:bool
-  alpha*:bool
   windowTitle*:cstring
   enableClipboard*:bool
   clipboardSize*:int32
@@ -506,6 +520,7 @@ type Desc* = object
   allocator*:Allocator
   logger*:Logger
   gl*:GlDesc
+  metal*:MetalDesc
   win32*:Win32Desc
   html5*:Html5Desc
   ios*:IosDesc
@@ -559,6 +574,14 @@ type
     mousecursorCustom13 = 24,
     mousecursorCustom14 = 25,
     mousecursorCustom15 = 26,
+
+proc c_getEnvironment():Environment {.cdecl, importc:"sapp_get_environment".}
+proc getEnvironment*():Environment =
+    c_getEnvironment()
+
+proc c_acquireSwapchain():Swapchain {.cdecl, importc:"sapp_acquire_swapchain".}
+proc acquireSwapchain*():Swapchain =
+    c_acquireSwapchain()
 
 proc c_isvalid():bool {.cdecl, importc:"sapp_isvalid".}
 proc isvalid*():bool =
@@ -711,14 +734,6 @@ proc getDroppedFilePath*(index:int32):cstring =
 proc c_run(desc:ptr Desc):void {.cdecl, importc:"sapp_run".}
 proc run*(desc:Desc):void =
     c_run(addr(desc))
-
-proc c_getEnvironment():Environment {.cdecl, importc:"sapp_get_environment".}
-proc getEnvironment*():Environment =
-    c_getEnvironment()
-
-proc c_getSwapchain():Swapchain {.cdecl, importc:"sapp_get_swapchain".}
-proc getSwapchain*():Swapchain =
-    c_getSwapchain()
 
 proc c_eglGetDisplay():pointer {.cdecl, importc:"sapp_egl_get_display".}
 proc eglGetDisplay*():pointer =
