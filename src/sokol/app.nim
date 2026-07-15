@@ -489,6 +489,9 @@ type IosDesc* = object
 type MetalDesc* = object
   disableDisplaySync*:bool
 
+type AndroidDesc* = object
+  nativeEventCb*:proc(a1:pointer):bool {.cdecl.}
+
 type Desc* = object
   initCb*:proc() {.cdecl.}
   frameCb*:proc() {.cdecl.}
@@ -524,6 +527,7 @@ type Desc* = object
   win32*:Win32Desc
   html5*:Html5Desc
   ios*:IosDesc
+  android*:AndroidDesc
 
 type
   Html5FetchError* {.size:sizeof(int32).} = enum
