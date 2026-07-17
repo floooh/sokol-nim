@@ -46,16 +46,39 @@ proc init() {.cdecl.} =
     logger: sdtx.Logger(fn: slog.fn),
   ))
 
+  # generate shape geometries
+  var vertices: array[sshape.maxVertexSize * 6 * 1024, uint8]
+  var indices: array[16 * 1024, uint16]
+  var shp = sshape.State(
+    vertices: BufferItem(buffer: sshape.Range(addr: vertices.addr, size: vertices.sizeof)),
+    indices: BufferItem(buffer: sshape.Range(addr: indices.addr, size: indices.sizeof))
+  )
+  sshape.buildBox(shp.addr, Box(width: 1f, height: 1f, depth: 1f, tiles: 10, randomColors: true))
+  shapes[0].draw = sshape.elementRange(shp)
+  sshape.buildPlane(shp.addr, Plane(width: 1f, depth: 1f, tiles: 10, randomColors: true))
+  shapes[1].draw = sshape.elementRange(shp)
+  sshape.buildSphere(shp.addr, Sphere(radius: 0.75f, slices: 36, stacks: 20, randomColors: true))
+  shapes[2].draw = sshape.elementRange(shp)
+  sshape.buildCylinder(shp.addr, Cylinder(radius: 0.5f, height: 1.5f, slices: 36, stacks: 10, randomColors: true))
+  shapes[3].draw = sshape.elementRange(shp)
+  sshape.buildTorus(shp.addr, Torus(radius: 0.5f, ringRadius: 0.3f, rings: 36, sides: 18, randomColors: true))
+  shapes[4].draw = sshape.elementRange(shp)
+  assert(shp.valid, "shape geometry buffer overflow")
+
+  # one vertex/index buffer pair for all shapes
+  vbuf = sg.makeBuffer(sshape.vertexBufferDesc(shp))
+  ibuf = sg.makeBuffer(sshape.indexBufferDesc(shp))
+
   # shader and pipeline object for rendering the shapes
   pip = sg.makePipeline(PipelineDesc(
     shader: sg.makeShader(shapesShaderDesc(sg.queryBackend())),
     layout: VertexLayoutState(
-      buffers: [ sshape.vertexBufferLayoutState() ],
+      buffers: [ sshape.vertexBufferLayoutState(shp) ],
       attrs: [
-        sshape.positionVertexAttrState(),
-        sshape.normalVertexAttrState(),
-        sshape.texcoordVertexAttrState(),
-        sshape.colorVertexAttrState()
+        sshape.positionVertexAttrState(shp),
+        sshape.normalVertexAttrState(shp),
+        sshape.texcoordVertexAttrState(shp),
+        sshape.colorVertexAttrState(shp)
       ],
     ),
     indexType: indexTypeUint16,
@@ -65,29 +88,6 @@ proc init() {.cdecl.} =
       writeEnabled: true
     )
   ))
-
-  # generate shape geometries
-  var vertices: array[6 * 1024, sshape.Vertex]
-  var indices: array[16 * 1024, uint16]
-  var buf = sshape.Buffer(
-    vertices: BufferItem(buffer: sshape.Range(addr: vertices.addr, size: vertices.sizeof)),
-    indices: BufferItem(buffer: sshape.Range(addr: indices.addr, size: indices.sizeof))
-  )
-  buf = sshape.buildBox(buf, Box(width: 1f, height: 1f, depth: 1f, tiles: 10, randomColors: true))
-  shapes[0].draw = sshape.elementRange(buf)
-  buf = sshape.buildPlane(buf, Plane(width: 1f, depth: 1f, tiles: 10, randomColors: true))
-  shapes[1].draw = sshape.elementRange(buf)
-  buf = sshape.buildSphere(buf, Sphere(radius: 0.75f, slices: 36, stacks: 20, randomColors: true))
-  shapes[2].draw = sshape.elementRange(buf)
-  buf = sshape.buildCylinder(buf, Cylinder(radius: 0.5f, height: 1.5f, slices: 36, stacks: 10, randomColors: true))
-  shapes[3].draw = sshape.elementRange(buf)
-  buf = sshape.buildTorus(buf, Torus(radius: 0.5f, ringRadius: 0.3f, rings: 36, sides: 18, randomColors: true))
-  shapes[4].draw = sshape.elementRange(buf)
-  assert(buf.valid, "shape geometry buffer overflow")
-
-  # one vertex/index buffer pair for all shapes
-  vbuf = sg.makeBuffer(sshape.vertexBufferDesc(buf))
-  ibuf = sg.makeBuffer(sshape.indexBufferDesc(buf))
 
 proc frame() {.cdecl.} =
   # help text
