@@ -6,6 +6,10 @@ type Range* = object
   `addr`*:pointer
   size*:int
 
+const
+  minVertexSize* = 12
+  maxVertexSize* = 24
+
 type Mat4* = object
   m*:array[4, array[4, float32]]
 
@@ -16,14 +20,10 @@ converter toMat4m*[Y:static[int], X:static[int]](items: array[Y, array[X, float3
     for indexX, itemX in itemY.pairs:
       result[indexY][indexX] = itemX
 
-type Vertex* = object
-  x*:float32
-  y*:float32
-  z*:float32
-  normal*:uint32
-  u*:uint16
-  v*:uint16
-  color*:uint32
+type OptionalComponents* = object
+  normals*:bool
+  texcoords*:bool
+  colors*:bool
 
 type ElementRange* = object
   baseElement*:int32
@@ -42,8 +42,9 @@ type BufferItem* = object
   dataSize*:int
   shapeOffset*:int
 
-type Buffer* = object
+type State* = object
   valid*:bool
+  disable*:OptionalComponents
   vertices*:BufferItem
   indices*:BufferItem
 
@@ -95,77 +96,81 @@ type Torus* = object
   merge*:bool
   transform*:Mat4
 
-proc c_buildPlane(buf:ptr Buffer, params:ptr Plane):Buffer {.cdecl, importc:"sshape_build_plane".}
-proc buildPlane*(buf:Buffer, params:Plane):Buffer =
-    c_buildPlane(addr(buf), addr(params))
+proc c_buildPlane(state:ptr State, params:ptr Plane):void {.cdecl, importc:"sshape_build_plane".}
+proc buildPlane*(state:ptr State, params:Plane):void =
+    c_buildPlane(state, addr(params))
 
-proc c_buildBox(buf:ptr Buffer, params:ptr Box):Buffer {.cdecl, importc:"sshape_build_box".}
-proc buildBox*(buf:Buffer, params:Box):Buffer =
-    c_buildBox(addr(buf), addr(params))
+proc c_buildBox(state:ptr State, params:ptr Box):void {.cdecl, importc:"sshape_build_box".}
+proc buildBox*(state:ptr State, params:Box):void =
+    c_buildBox(state, addr(params))
 
-proc c_buildSphere(buf:ptr Buffer, params:ptr Sphere):Buffer {.cdecl, importc:"sshape_build_sphere".}
-proc buildSphere*(buf:Buffer, params:Sphere):Buffer =
-    c_buildSphere(addr(buf), addr(params))
+proc c_buildSphere(state:ptr State, params:ptr Sphere):void {.cdecl, importc:"sshape_build_sphere".}
+proc buildSphere*(state:ptr State, params:Sphere):void =
+    c_buildSphere(state, addr(params))
 
-proc c_buildCylinder(buf:ptr Buffer, params:ptr Cylinder):Buffer {.cdecl, importc:"sshape_build_cylinder".}
-proc buildCylinder*(buf:Buffer, params:Cylinder):Buffer =
-    c_buildCylinder(addr(buf), addr(params))
+proc c_buildCylinder(state:ptr State, params:ptr Cylinder):void {.cdecl, importc:"sshape_build_cylinder".}
+proc buildCylinder*(state:ptr State, params:Cylinder):void =
+    c_buildCylinder(state, addr(params))
 
-proc c_buildTorus(buf:ptr Buffer, params:ptr Torus):Buffer {.cdecl, importc:"sshape_build_torus".}
-proc buildTorus*(buf:Buffer, params:Torus):Buffer =
-    c_buildTorus(addr(buf), addr(params))
+proc c_buildTorus(state:ptr State, params:ptr Torus):void {.cdecl, importc:"sshape_build_torus".}
+proc buildTorus*(state:ptr State, params:Torus):void =
+    c_buildTorus(state, addr(params))
 
-proc c_planeSizes(tiles:uint32):Sizes {.cdecl, importc:"sshape_plane_sizes".}
-proc planeSizes*(tiles:uint32):Sizes =
-    c_planeSizes(tiles)
+proc c_vertexSize(components:ptr OptionalComponents):int {.cdecl, importc:"sshape_vertex_size".}
+proc vertexSize*(components:OptionalComponents):int =
+    c_vertexSize(addr(components))
 
-proc c_boxSizes(tiles:uint32):Sizes {.cdecl, importc:"sshape_box_sizes".}
-proc boxSizes*(tiles:uint32):Sizes =
-    c_boxSizes(tiles)
+proc c_planeSizes(tiles:uint32, vertexSize:int):Sizes {.cdecl, importc:"sshape_plane_sizes".}
+proc planeSizes*(tiles:uint32, vertexSize:int):Sizes =
+    c_planeSizes(tiles, vertex_size)
 
-proc c_sphereSizes(slices:uint32, stacks:uint32):Sizes {.cdecl, importc:"sshape_sphere_sizes".}
-proc sphereSizes*(slices:uint32, stacks:uint32):Sizes =
-    c_sphereSizes(slices, stacks)
+proc c_boxSizes(tiles:uint32, vetrexSize:int):Sizes {.cdecl, importc:"sshape_box_sizes".}
+proc boxSizes*(tiles:uint32, vetrexSize:int):Sizes =
+    c_boxSizes(tiles, vetrex_size)
 
-proc c_cylinderSizes(slices:uint32, stacks:uint32):Sizes {.cdecl, importc:"sshape_cylinder_sizes".}
-proc cylinderSizes*(slices:uint32, stacks:uint32):Sizes =
-    c_cylinderSizes(slices, stacks)
+proc c_sphereSizes(slices:uint32, stacks:uint32, vertexSize:int):Sizes {.cdecl, importc:"sshape_sphere_sizes".}
+proc sphereSizes*(slices:uint32, stacks:uint32, vertexSize:int):Sizes =
+    c_sphereSizes(slices, stacks, vertex_size)
 
-proc c_torusSizes(sides:uint32, rings:uint32):Sizes {.cdecl, importc:"sshape_torus_sizes".}
-proc torusSizes*(sides:uint32, rings:uint32):Sizes =
-    c_torusSizes(sides, rings)
+proc c_cylinderSizes(slices:uint32, stacks:uint32, vertexSize:int):Sizes {.cdecl, importc:"sshape_cylinder_sizes".}
+proc cylinderSizes*(slices:uint32, stacks:uint32, vertexSize:int):Sizes =
+    c_cylinderSizes(slices, stacks, vertex_size)
 
-proc c_elementRange(buf:ptr Buffer):ElementRange {.cdecl, importc:"sshape_element_range".}
-proc elementRange*(buf:Buffer):ElementRange =
-    c_elementRange(addr(buf))
+proc c_torusSizes(sides:uint32, rings:uint32, vertexSize:int):Sizes {.cdecl, importc:"sshape_torus_sizes".}
+proc torusSizes*(sides:uint32, rings:uint32, vertexSize:int):Sizes =
+    c_torusSizes(sides, rings, vertex_size)
 
-proc c_vertexBufferDesc(buf:ptr Buffer):gfx.BufferDesc {.cdecl, importc:"sshape_vertex_buffer_desc".}
-proc vertexBufferDesc*(buf:Buffer):gfx.BufferDesc =
-    c_vertexBufferDesc(addr(buf))
+proc c_elementRange(state:ptr State):ElementRange {.cdecl, importc:"sshape_element_range".}
+proc elementRange*(state:State):ElementRange =
+    c_elementRange(addr(state))
 
-proc c_indexBufferDesc(buf:ptr Buffer):gfx.BufferDesc {.cdecl, importc:"sshape_index_buffer_desc".}
-proc indexBufferDesc*(buf:Buffer):gfx.BufferDesc =
-    c_indexBufferDesc(addr(buf))
+proc c_vertexBufferDesc(state:ptr State):gfx.BufferDesc {.cdecl, importc:"sshape_vertex_buffer_desc".}
+proc vertexBufferDesc*(state:State):gfx.BufferDesc =
+    c_vertexBufferDesc(addr(state))
 
-proc c_vertexBufferLayoutState():gfx.VertexBufferLayoutState {.cdecl, importc:"sshape_vertex_buffer_layout_state".}
-proc vertexBufferLayoutState*():gfx.VertexBufferLayoutState =
-    c_vertexBufferLayoutState()
+proc c_indexBufferDesc(state:ptr State):gfx.BufferDesc {.cdecl, importc:"sshape_index_buffer_desc".}
+proc indexBufferDesc*(state:State):gfx.BufferDesc =
+    c_indexBufferDesc(addr(state))
 
-proc c_positionVertexAttrState():gfx.VertexAttrState {.cdecl, importc:"sshape_position_vertex_attr_state".}
-proc positionVertexAttrState*():gfx.VertexAttrState =
-    c_positionVertexAttrState()
+proc c_vertexBufferLayoutState(state:ptr State):gfx.VertexBufferLayoutState {.cdecl, importc:"sshape_vertex_buffer_layout_state".}
+proc vertexBufferLayoutState*(state:State):gfx.VertexBufferLayoutState =
+    c_vertexBufferLayoutState(addr(state))
 
-proc c_normalVertexAttrState():gfx.VertexAttrState {.cdecl, importc:"sshape_normal_vertex_attr_state".}
-proc normalVertexAttrState*():gfx.VertexAttrState =
-    c_normalVertexAttrState()
+proc c_positionVertexAttrState(state:ptr State):gfx.VertexAttrState {.cdecl, importc:"sshape_position_vertex_attr_state".}
+proc positionVertexAttrState*(state:State):gfx.VertexAttrState =
+    c_positionVertexAttrState(addr(state))
 
-proc c_texcoordVertexAttrState():gfx.VertexAttrState {.cdecl, importc:"sshape_texcoord_vertex_attr_state".}
-proc texcoordVertexAttrState*():gfx.VertexAttrState =
-    c_texcoordVertexAttrState()
+proc c_normalVertexAttrState(state:ptr State):gfx.VertexAttrState {.cdecl, importc:"sshape_normal_vertex_attr_state".}
+proc normalVertexAttrState*(state:State):gfx.VertexAttrState =
+    c_normalVertexAttrState(addr(state))
 
-proc c_colorVertexAttrState():gfx.VertexAttrState {.cdecl, importc:"sshape_color_vertex_attr_state".}
-proc colorVertexAttrState*():gfx.VertexAttrState =
-    c_colorVertexAttrState()
+proc c_texcoordVertexAttrState(state:ptr State):gfx.VertexAttrState {.cdecl, importc:"sshape_texcoord_vertex_attr_state".}
+proc texcoordVertexAttrState*(state:State):gfx.VertexAttrState =
+    c_texcoordVertexAttrState(addr(state))
+
+proc c_colorVertexAttrState(state:ptr State):gfx.VertexAttrState {.cdecl, importc:"sshape_color_vertex_attr_state".}
+proc colorVertexAttrState*(state:State):gfx.VertexAttrState =
+    c_colorVertexAttrState(addr(state))
 
 proc c_color4f(r:float32, g:float32, b:float32, a:float32):uint32 {.cdecl, importc:"sshape_color_4f".}
 proc color4f*(r:float32, g:float32, b:float32, a:float32):uint32 =

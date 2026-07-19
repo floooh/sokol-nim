@@ -74,21 +74,21 @@ proc init() {.cdecl.} =
 
   # a donut shape which is rendered into the offscreen render target, and
   # a sphere shape which is rendered into the default framebuffer
-  var vertices: array[4000, sshape.Vertex]
+  var vertices: array[4000 * sshape.maxVertexSize, uint8]
   var indices: array[24000, uint16]
-  var buf = sshape.Buffer(
+  var shp = sshape.State(
     vertices: BufferItem(buffer: sshape.Range(addr: vertices.addr, size: vertices.sizeof)),
     indices: BufferItem(buffer: sshape.Range(addr: indices.addr, size: indices.sizeof))
   )
-  buf = sshape.buildTorus(buf, Torus(radius:0.5, ringRadius:0.3, sides:20, rings:36))
-  donut = sshape.elementRange(buf)
-  buf = sshape.buildSphere(buf, Sphere(radius:0.5, slices: 72, stacks: 40))
-  sphere = sshape.elementRange(buf)
+  sshape.buildTorus(shp.addr, Torus(radius:0.5, ringRadius:0.3, sides:20, rings:36))
+  donut = sshape.elementRange(shp)
+  sshape.buildSphere(shp.addr, Sphere(radius:0.5, slices: 72, stacks: 40))
+  sphere = sshape.elementRange(shp)
 
-  let vbuf = sg.makeBuffer(sshape.vertexBufferDesc(buf))
+  let vbuf = sg.makeBuffer(sshape.vertexBufferDesc(shp))
   offscreenBindings.vertexBuffers[0] = vbuf
   displayBindings.vertexBuffers[0] = vbuf
-  let ibuf = sg.makeBuffer(sshape.indexBufferDesc(buf))
+  let ibuf = sg.makeBuffer(sshape.indexBufferDesc(shp))
   offscreenBindings.indexBuffer = ibuf
   displayBindings.indexBuffer = ibuf
 
@@ -96,10 +96,10 @@ proc init() {.cdecl.} =
   offscreenPip = sg.makePipeline(PipelineDesc(
     shader: sg.makeShader(offscreenShaderDesc(sg.queryBackend())),
     layout: VertexLayoutState(
-      buffers: [ sshape.vertexBufferLayoutState() ],
+      buffers: [ sshape.vertexBufferLayoutState(shp) ],
       attrs: [
-        sshape.positionVertexAttrState(),
-        sshape.normalVertexAttrState()
+        sshape.positionVertexAttrState(shp),
+        sshape.normalVertexAttrState(shp)
       ]
     ),
     indexType: indexTypeUint16,
@@ -119,11 +119,11 @@ proc init() {.cdecl.} =
   displayPip = sg.makePipeline(PipelineDesc(
     shader: sg.makeShader(defaultShaderDesc(sg.queryBackend())),
     layout: VertexLayoutState(
-      buffers: [ sshape.vertexBufferLayoutState() ],
+      buffers: [ sshape.vertexBufferLayoutState(shp) ],
       attrs: [
-        sshape.positionVertexAttrState(),
-        sshape.normalVertexAttrState(),
-        sshape.texcoordVertexAttrState()
+        sshape.positionVertexAttrState(shp),
+        sshape.normalVertexAttrState(shp),
+        sshape.texcoordVertexAttrState(shp)
       ]
     ),
     indexType: indexTypeUint16,
