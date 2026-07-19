@@ -37,7 +37,7 @@ type Sizes* = object
   vertices*:SizesItem
   indices*:SizesItem
 
-type BufferItem* = object
+type BufferState* = object
   buffer*:Range
   dataSize*:int
   shapeOffset*:int
@@ -45,8 +45,8 @@ type BufferItem* = object
 type State* = object
   valid*:bool
   disable*:OptionalComponents
-  vertices*:BufferItem
-  indices*:BufferItem
+  vertices*:BufferState
+  indices*:BufferState
 
 type Plane* = object
   width*:float32
@@ -124,9 +124,9 @@ proc c_planeSizes(tiles:uint32, vertexSize:int):Sizes {.cdecl, importc:"sshape_p
 proc planeSizes*(tiles:uint32, vertexSize:int):Sizes =
     c_planeSizes(tiles, vertex_size)
 
-proc c_boxSizes(tiles:uint32, vetrexSize:int):Sizes {.cdecl, importc:"sshape_box_sizes".}
-proc boxSizes*(tiles:uint32, vetrexSize:int):Sizes =
-    c_boxSizes(tiles, vetrex_size)
+proc c_boxSizes(tiles:uint32, vertexSize:int):Sizes {.cdecl, importc:"sshape_box_sizes".}
+proc boxSizes*(tiles:uint32, vertexSize:int):Sizes =
+    c_boxSizes(tiles, vertex_size)
 
 proc c_sphereSizes(slices:uint32, stacks:uint32, vertexSize:int):Sizes {.cdecl, importc:"sshape_sphere_sizes".}
 proc sphereSizes*(slices:uint32, stacks:uint32, vertexSize:int):Sizes =

@@ -77,8 +77,8 @@ proc init() {.cdecl.} =
   var vertices: array[4000 * sshape.maxVertexSize, uint8]
   var indices: array[24000, uint16]
   var shp = sshape.State(
-    vertices: BufferItem(buffer: sshape.Range(addr: vertices.addr, size: vertices.sizeof)),
-    indices: BufferItem(buffer: sshape.Range(addr: indices.addr, size: indices.sizeof))
+    vertices: BufferState(buffer: sshape.Range(addr: vertices.addr, size: vertices.sizeof)),
+    indices: BufferState(buffer: sshape.Range(addr: indices.addr, size: indices.sizeof))
   )
   sshape.buildTorus(shp.addr, Torus(radius:0.5, ringRadius:0.3, sides:20, rings:36))
   donut = sshape.elementRange(shp)

@@ -50,8 +50,8 @@ proc init() {.cdecl.} =
   var vertices: array[sshape.maxVertexSize * 6 * 1024, uint8]
   var indices: array[16 * 1024, uint16]
   var shp = sshape.State(
-    vertices: BufferItem(buffer: sshape.Range(addr: vertices.addr, size: vertices.sizeof)),
-    indices: BufferItem(buffer: sshape.Range(addr: indices.addr, size: indices.sizeof))
+    vertices: BufferState(buffer: sshape.Range(addr: vertices.addr, size: vertices.sizeof)),
+    indices: BufferState(buffer: sshape.Range(addr: indices.addr, size: indices.sizeof))
   )
   sshape.buildBox(shp.addr, Box(width: 1f, height: 1f, depth: 1f, tiles: 10, randomColors: true))
   shapes[0].draw = sshape.elementRange(shp)
