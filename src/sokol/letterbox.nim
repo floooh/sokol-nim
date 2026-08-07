@@ -1,5 +1,15 @@
 ## machine generated, do not edit
+when defined(nimony):
+  {.feature: "lenientconverters".}
 
+when not defined(nimony):
+  import std/macros
+  macro requires(condition: untyped, body: untyped): untyped =
+    result = body
+    let assertStmt = quote do:
+      static:
+        doAssert `condition`, "Precondition failed: " + astToStr(`condition`)
+    result.body.insert(0, assertStmt)
 
 type Border* = object
   left*:int32
@@ -30,7 +40,7 @@ proc c_letterbox(width:int32, height:int32, desc:ptr LetterboxDesc):Viewport {.c
 proc letterbox*(width:int32, height:int32, desc:LetterboxDesc):Viewport =
     c_letterbox(width, height, addr(desc))
 
-{.passc:"-DIMPL".}
+{.passC:"-DIMPL".}
 when defined(release):
-  {.passc:"-DNDEBUG".}
+  {.passC:"-DNDEBUG".}
 {.compile:"c/sokol_letterbox.c".}

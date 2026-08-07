@@ -1,5 +1,15 @@
 ## machine generated, do not edit
+when defined(nimony):
+  {.feature: "lenientconverters".}
 
+when not defined(nimony):
+  import std/macros
+  macro requires(condition: untyped, body: untyped): untyped =
+    result = body
+    let assertStmt = quote do:
+      static:
+        doAssert `condition`, "Precondition failed: " + astToStr(`condition`)
+    result.body.insert(0, assertStmt)
 import gfx
 
 type
@@ -117,11 +127,11 @@ proc contextDraw*(ctx:Context):void =
 
 proc c_drawLayer(layerId:int32):void {.cdecl, importc:"sgl_draw_layer".}
 proc drawLayer*(layerId:int32):void =
-    c_drawLayer(layer_id)
+    c_drawLayer(layerId)
 
 proc c_contextDrawLayer(ctx:Context, layerId:int32):void {.cdecl, importc:"sgl_context_draw_layer".}
 proc contextDrawLayer*(ctx:Context, layerId:int32):void =
-    c_contextDrawLayer(ctx, layer_id)
+    c_contextDrawLayer(ctx, layerId)
 
 proc c_makePipeline(desc:ptr gfx.PipelineDesc):Pipeline {.cdecl, importc:"sgl_make_pipeline".}
 proc makePipeline*(desc:gfx.PipelineDesc):Pipeline =
@@ -141,19 +151,19 @@ proc defaults*():void =
 
 proc c_viewport(x:int32, y:int32, w:int32, h:int32, originTopLeft:bool):void {.cdecl, importc:"sgl_viewport".}
 proc viewport*(x:int32, y:int32, w:int32, h:int32, originTopLeft:bool):void =
-    c_viewport(x, y, w, h, origin_top_left)
+    c_viewport(x, y, w, h, originTopLeft)
 
 proc c_viewportf(x:float32, y:float32, w:float32, h:float32, originTopLeft:bool):void {.cdecl, importc:"sgl_viewportf".}
 proc viewportf*(x:float32, y:float32, w:float32, h:float32, originTopLeft:bool):void =
-    c_viewportf(x, y, w, h, origin_top_left)
+    c_viewportf(x, y, w, h, originTopLeft)
 
 proc c_scissorRect(x:int32, y:int32, w:int32, h:int32, originTopLeft:bool):void {.cdecl, importc:"sgl_scissor_rect".}
 proc scissorRect*(x:int32, y:int32, w:int32, h:int32, originTopLeft:bool):void =
-    c_scissorRect(x, y, w, h, origin_top_left)
+    c_scissorRect(x, y, w, h, originTopLeft)
 
 proc c_scissorRectf(x:float32, y:float32, w:float32, h:float32, originTopLeft:bool):void {.cdecl, importc:"sgl_scissor_rectf".}
 proc scissorRectf*(x:float32, y:float32, w:float32, h:float32, originTopLeft:bool):void =
-    c_scissorRectf(x, y, w, h, origin_top_left)
+    c_scissorRectf(x, y, w, h, originTopLeft)
 
 proc c_enableTexture():void {.cdecl, importc:"sgl_enable_texture".}
 proc enableTexture*():void =
@@ -165,11 +175,11 @@ proc disableTexture*():void =
 
 proc c_texture(texView:gfx.View, smp:gfx.Sampler):void {.cdecl, importc:"sgl_texture".}
 proc texture*(texView:gfx.View, smp:gfx.Sampler):void =
-    c_texture(tex_view, smp)
+    c_texture(texView, smp)
 
 proc c_layer(layerId:int32):void {.cdecl, importc:"sgl_layer".}
 proc layer*(layerId:int32):void =
-    c_layer(layer_id)
+    c_layer(layerId)
 
 proc c_loadDefaultPipeline():void {.cdecl, importc:"sgl_load_default_pipeline".}
 proc loadDefaultPipeline*():void =
@@ -221,7 +231,7 @@ proc multTransposeMatrix*(m:ptr float32):void =
 
 proc c_rotate(angleRad:float32, x:float32, y:float32, z:float32):void {.cdecl, importc:"sgl_rotate".}
 proc rotate*(angleRad:float32, x:float32, y:float32, z:float32):void =
-    c_rotate(angle_rad, x, y, z)
+    c_rotate(angleRad, x, y, z)
 
 proc c_scale(x:float32, y:float32, z:float32):void {.cdecl, importc:"sgl_scale".}
 proc scale*(x:float32, y:float32, z:float32):void =
@@ -241,11 +251,11 @@ proc ortho*(l:float32, r:float32, b:float32, t:float32, n:float32, f:float32):vo
 
 proc c_perspective(fovY:float32, aspect:float32, zNear:float32, zFar:float32):void {.cdecl, importc:"sgl_perspective".}
 proc perspective*(fovY:float32, aspect:float32, zNear:float32, zFar:float32):void =
-    c_perspective(fov_y, aspect, z_near, z_far)
+    c_perspective(fovY, aspect, zNear, zFar)
 
 proc c_lookat(eyeX:float32, eyeY:float32, eyeZ:float32, centerX:float32, centerY:float32, centerZ:float32, upX:float32, upY:float32, upZ:float32):void {.cdecl, importc:"sgl_lookat".}
 proc lookat*(eyeX:float32, eyeY:float32, eyeZ:float32, centerX:float32, centerY:float32, centerZ:float32, upX:float32, upY:float32, upZ:float32):void =
-    c_lookat(eye_x, eye_y, eye_z, center_x, center_y, center_z, up_x, up_y, up_z)
+    c_lookat(eyeX, eyeY, eyeZ, centerX, centerY, centerZ, upX, upY, upZ)
 
 proc c_pushMatrix():void {.cdecl, importc:"sgl_push_matrix".}
 proc pushMatrix*():void =
@@ -407,7 +417,7 @@ proc c_end():void {.cdecl, importc:"sgl_end".}
 proc `end`*():void =
     c_end()
 
-{.passc:"-DIMPL".}
+{.passC:"-DIMPL".}
 when defined(release):
-  {.passc:"-DNDEBUG".}
+  {.passC:"-DNDEBUG".}
 {.compile:"c/sokol_gl.c".}

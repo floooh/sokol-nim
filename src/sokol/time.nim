@@ -1,5 +1,15 @@
 ## machine generated, do not edit
+when defined(nimony):
+  {.feature: "lenientconverters".}
 
+when not defined(nimony):
+  import std/macros
+  macro requires(condition: untyped, body: untyped): untyped =
+    result = body
+    let assertStmt = quote do:
+      static:
+        doAssert `condition`, "Precondition failed: " + astToStr(`condition`)
+    result.body.insert(0, assertStmt)
 
 proc c_setup():void {.cdecl, importc:"stm_setup".}
 proc setup*():void =
@@ -11,19 +21,19 @@ proc now*():uint64 =
 
 proc c_diff(newTicks:uint64, oldTicks:uint64):uint64 {.cdecl, importc:"stm_diff".}
 proc diff*(newTicks:uint64, oldTicks:uint64):uint64 =
-    c_diff(new_ticks, old_ticks)
+    c_diff(newTicks, oldTicks)
 
 proc c_since(startTicks:uint64):uint64 {.cdecl, importc:"stm_since".}
 proc since*(startTicks:uint64):uint64 =
-    c_since(start_ticks)
+    c_since(startTicks)
 
 proc c_laptime(lastTime:ptr uint64):uint64 {.cdecl, importc:"stm_laptime".}
 proc laptime*(lastTime:ptr uint64):uint64 =
-    c_laptime(last_time)
+    c_laptime(lastTime)
 
 proc c_roundToCommonRefreshRate(frameTicks:uint64):uint64 {.cdecl, importc:"stm_round_to_common_refresh_rate".}
 proc roundToCommonRefreshRate*(frameTicks:uint64):uint64 =
-    c_roundToCommonRefreshRate(frame_ticks)
+    c_roundToCommonRefreshRate(frameTicks)
 
 proc c_sec(ticks:uint64):float64 {.cdecl, importc:"stm_sec".}
 proc sec*(ticks:uint64):float64 =
@@ -41,7 +51,7 @@ proc c_ns(ticks:uint64):float64 {.cdecl, importc:"stm_ns".}
 proc ns*(ticks:uint64):float64 =
     c_ns(ticks)
 
-{.passc:"-DIMPL".}
+{.passC:"-DIMPL".}
 when defined(release):
-  {.passc:"-DNDEBUG".}
+  {.passC:"-DNDEBUG".}
 {.compile:"c/sokol_time.c".}

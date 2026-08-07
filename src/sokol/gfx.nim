@@ -1,5 +1,15 @@
 ## machine generated, do not edit
+when defined(nimony):
+  {.feature: "lenientconverters".}
 
+when not defined(nimony):
+  import std/macros
+  macro requires(condition: untyped, body: untyped): untyped =
+    result = body
+    let assertStmt = quote do:
+      static:
+        doAssert `condition`, "Precondition failed: " + astToStr(`condition`)
+    result.body.insert(0, assertStmt)
 
 type Buffer* = object
   id*:uint32
@@ -420,8 +430,7 @@ type PassAction* = object
   depth*:DepthAttachmentAction
   stencil*:StencilAttachmentAction
 
-converter toPassActioncolors*[N:static[int]](items: array[N, ColorAttachmentAction]): array[8, ColorAttachmentAction] =
-  static: assert(N <= 8)
+converter toPassActioncolors*[N:static[int]](items: array[N, ColorAttachmentAction]): array[8, ColorAttachmentAction] {.requires: N<=8.} =
   for index,item in items.pairs: result[index]=item
 
 type MetalSwapchain* = object
@@ -470,12 +479,10 @@ type Attachments* = object
   resolves*:array[8, View]
   depthStencil*:View
 
-converter toAttachmentscolors*[N:static[int]](items: array[N, View]): array[8, View] =
-  static: assert(N <= 8)
+converter toAttachmentscolors*[N:static[int]](items: array[N, View]): array[8, View] {.requires: N<=8.} =
   for index,item in items.pairs: result[index]=item
 
-converter toAttachmentsresolves*[N:static[int]](items: array[N, View]): array[8, View] =
-  static: assert(N <= 8)
+converter toAttachmentsresolves*[N:static[int]](items: array[N, View]): array[8, View] {.requires: N<=8.} =
   for index,item in items.pairs: result[index]=item
 
 type Pass* = object
@@ -497,20 +504,16 @@ type Bindings* = object
   samplers*:array[12, Sampler]
   endCanary:uint32
 
-converter toBindingsvertexBuffers*[N:static[int]](items: array[N, Buffer]): array[8, Buffer] =
-  static: assert(N <= 8)
+converter toBindingsvertexBuffers*[N:static[int]](items: array[N, Buffer]): array[8, Buffer] {.requires: N<=8.} =
   for index,item in items.pairs: result[index]=item
 
-converter toBindingsvertexBufferOffsets*[N:static[int]](items: array[N, int32]): array[8, int32] =
-  static: assert(N <= 8)
+converter toBindingsvertexBufferOffsets*[N:static[int]](items: array[N, int32]): array[8, int32] {.requires: N<=8.} =
   for index,item in items.pairs: result[index]=item
 
-converter toBindingsviews*[N:static[int]](items: array[N, View]): array[32, View] =
-  static: assert(N <= 32)
+converter toBindingsviews*[N:static[int]](items: array[N, View]): array[32, View] {.requires: N<=32.} =
   for index,item in items.pairs: result[index]=item
 
-converter toBindingssamplers*[N:static[int]](items: array[N, Sampler]): array[12, Sampler] =
-  static: assert(N <= 12)
+converter toBindingssamplers*[N:static[int]](items: array[N, Sampler]): array[12, Sampler] {.requires: N<=12.} =
   for index,item in items.pairs: result[index]=item
 
 type BufferUsage* = object
@@ -533,12 +536,10 @@ type BufferDesc* = object
   wgpuBuffer*:pointer
   endCanary:uint32
 
-converter toBufferDescglBuffers*[N:static[int]](items: array[N, uint32]): array[2, uint32] =
-  static: assert(N <= 2)
+converter toBufferDescglBuffers*[N:static[int]](items: array[N, uint32]): array[2, uint32] {.requires: N<=2.} =
   for index,item in items.pairs: result[index]=item
 
-converter toBufferDescmtlBuffers*[N:static[int]](items: array[N, pointer]): array[2, pointer] =
-  static: assert(N <= 2)
+converter toBufferDescmtlBuffers*[N:static[int]](items: array[N, pointer]): array[2, pointer] {.requires: N<=2.} =
   for index,item in items.pairs: result[index]=item
 
 type ImageUsage* = object
@@ -563,8 +564,7 @@ type
 type ImageData* = object
   mipLevels*:array[16, Range]
 
-converter toImageDatamipLevels*[N:static[int]](items: array[N, Range]): array[16, Range] =
-  static: assert(N <= 16)
+converter toImageDatamipLevels*[N:static[int]](items: array[N, Range]): array[16, Range] {.requires: N<=16.} =
   for index,item in items.pairs: result[index]=item
 
 type ImageDesc* = object
@@ -586,12 +586,10 @@ type ImageDesc* = object
   wgpuTexture*:pointer
   endCanary:uint32
 
-converter toImageDescglTextures*[N:static[int]](items: array[N, uint32]): array[2, uint32] =
-  static: assert(N <= 2)
+converter toImageDescglTextures*[N:static[int]](items: array[N, uint32]): array[2, uint32] {.requires: N<=2.} =
   for index,item in items.pairs: result[index]=item
 
-converter toImageDescmtlTextures*[N:static[int]](items: array[N, pointer]): array[2, pointer] =
-  static: assert(N <= 2)
+converter toImageDescmtlTextures*[N:static[int]](items: array[N, pointer]): array[2, pointer] {.requires: N<=2.} =
   for index,item in items.pairs: result[index]=item
 
 type SamplerDesc* = object
@@ -630,10 +628,10 @@ type ShaderFunction* = object
 
 type
   ShaderAttrBaseType* {.size:sizeof(int32).} = enum
-    shaderattrbasetypeUndefined,
-    shaderattrbasetypeFloat,
-    shaderattrbasetypeSint,
-    shaderattrbasetypeUint,
+    shaderAttrBaseTypeUndefined,
+    shaderAttrBaseTypeFloat,
+    shaderAttrBaseTypeSint,
+    shaderAttrBaseTypeUint,
 
 type ShaderVertexAttr* = object
   baseType*:ShaderAttrBaseType
@@ -656,8 +654,7 @@ type ShaderUniformBlock* = object
   layout*:UniformLayout
   glslUniforms*:array[16, GlslShaderUniform]
 
-converter toShaderUniformBlockglslUniforms*[N:static[int]](items: array[N, GlslShaderUniform]): array[16, GlslShaderUniform] =
-  static: assert(N <= 16)
+converter toShaderUniformBlockglslUniforms*[N:static[int]](items: array[N, GlslShaderUniform]): array[16, GlslShaderUniform] {.requires: N<=16.} =
   for index,item in items.pairs: result[index]=item
 
 type ShaderTextureView* = object
@@ -729,24 +726,19 @@ type ShaderDesc* = object
   label*:cstring
   endCanary:uint32
 
-converter toShaderDescattrs*[N:static[int]](items: array[N, ShaderVertexAttr]): array[16, ShaderVertexAttr] =
-  static: assert(N <= 16)
+converter toShaderDescattrs*[N:static[int]](items: array[N, ShaderVertexAttr]): array[16, ShaderVertexAttr] {.requires: N<=16.} =
   for index,item in items.pairs: result[index]=item
 
-converter toShaderDescuniformBlocks*[N:static[int]](items: array[N, ShaderUniformBlock]): array[8, ShaderUniformBlock] =
-  static: assert(N <= 8)
+converter toShaderDescuniformBlocks*[N:static[int]](items: array[N, ShaderUniformBlock]): array[8, ShaderUniformBlock] {.requires: N<=8.} =
   for index,item in items.pairs: result[index]=item
 
-converter toShaderDescviews*[N:static[int]](items: array[N, ShaderView]): array[32, ShaderView] =
-  static: assert(N <= 32)
+converter toShaderDescviews*[N:static[int]](items: array[N, ShaderView]): array[32, ShaderView] {.requires: N<=32.} =
   for index,item in items.pairs: result[index]=item
 
-converter toShaderDescsamplers*[N:static[int]](items: array[N, ShaderSampler]): array[12, ShaderSampler] =
-  static: assert(N <= 12)
+converter toShaderDescsamplers*[N:static[int]](items: array[N, ShaderSampler]): array[12, ShaderSampler] {.requires: N<=12.} =
   for index,item in items.pairs: result[index]=item
 
-converter toShaderDesctextureSamplerPairs*[N:static[int]](items: array[N, ShaderTextureSamplerPair]): array[32, ShaderTextureSamplerPair] =
-  static: assert(N <= 32)
+converter toShaderDesctextureSamplerPairs*[N:static[int]](items: array[N, ShaderTextureSamplerPair]): array[32, ShaderTextureSamplerPair] {.requires: N<=32.} =
   for index,item in items.pairs: result[index]=item
 
 type VertexBufferLayoutState* = object
@@ -763,12 +755,10 @@ type VertexLayoutState* = object
   buffers*:array[8, VertexBufferLayoutState]
   attrs*:array[16, VertexAttrState]
 
-converter toVertexLayoutStatebuffers*[N:static[int]](items: array[N, VertexBufferLayoutState]): array[8, VertexBufferLayoutState] =
-  static: assert(N <= 8)
+converter toVertexLayoutStatebuffers*[N:static[int]](items: array[N, VertexBufferLayoutState]): array[8, VertexBufferLayoutState] {.requires: N<=8.} =
   for index,item in items.pairs: result[index]=item
 
-converter toVertexLayoutStateattrs*[N:static[int]](items: array[N, VertexAttrState]): array[16, VertexAttrState] =
-  static: assert(N <= 16)
+converter toVertexLayoutStateattrs*[N:static[int]](items: array[N, VertexAttrState]): array[16, VertexAttrState] {.requires: N<=16.} =
   for index,item in items.pairs: result[index]=item
 
 type StencilFaceState* = object
@@ -826,8 +816,7 @@ type PipelineDesc* = object
   label*:cstring
   endCanary:uint32
 
-converter toPipelineDesccolors*[N:static[int]](items: array[N, ColorTargetState]): array[8, ColorTargetState] =
-  static: assert(N <= 8)
+converter toPipelineDesccolors*[N:static[int]](items: array[N, ColorTargetState]): array[8, ColorTargetState] {.requires: N<=8.} =
   for index,item in items.pairs: result[index]=item
 
 type BufferViewDesc* = object
@@ -1737,7 +1726,7 @@ proc resetStateCache*():void =
 
 proc c_installTraceHooks(traceHooks:ptr TraceHooks):TraceHooks {.cdecl, importc:"sg_install_trace_hooks".}
 proc installTraceHooks*(traceHooks:TraceHooks):TraceHooks =
-    c_installTraceHooks(addr(trace_hooks))
+    c_installTraceHooks(addr(traceHooks))
 
 proc c_pushDebugGroup(name:cstring):void {.cdecl, importc:"sg_push_debug_group".}
 proc pushDebugGroup*(name:cstring):void =
@@ -1829,19 +1818,19 @@ proc beginPass*(pass:Pass):void =
 
 proc c_applyViewport(x:int32, y:int32, width:int32, height:int32, originTopLeft:bool):void {.cdecl, importc:"sg_apply_viewport".}
 proc applyViewport*(x:int32, y:int32, width:int32, height:int32, originTopLeft:bool):void =
-    c_applyViewport(x, y, width, height, origin_top_left)
+    c_applyViewport(x, y, width, height, originTopLeft)
 
 proc c_applyViewportf(x:float32, y:float32, width:float32, height:float32, originTopLeft:bool):void {.cdecl, importc:"sg_apply_viewportf".}
 proc applyViewportf*(x:float32, y:float32, width:float32, height:float32, originTopLeft:bool):void =
-    c_applyViewportf(x, y, width, height, origin_top_left)
+    c_applyViewportf(x, y, width, height, originTopLeft)
 
 proc c_applyScissorRect(x:int32, y:int32, width:int32, height:int32, originTopLeft:bool):void {.cdecl, importc:"sg_apply_scissor_rect".}
 proc applyScissorRect*(x:int32, y:int32, width:int32, height:int32, originTopLeft:bool):void =
-    c_applyScissorRect(x, y, width, height, origin_top_left)
+    c_applyScissorRect(x, y, width, height, originTopLeft)
 
 proc c_applyScissorRectf(x:float32, y:float32, width:float32, height:float32, originTopLeft:bool):void {.cdecl, importc:"sg_apply_scissor_rectf".}
 proc applyScissorRectf*(x:float32, y:float32, width:float32, height:float32, originTopLeft:bool):void =
-    c_applyScissorRectf(x, y, width, height, origin_top_left)
+    c_applyScissorRectf(x, y, width, height, originTopLeft)
 
 proc c_applyPipeline(pip:Pipeline):void {.cdecl, importc:"sg_apply_pipeline".}
 proc applyPipeline*(pip:Pipeline):void =
@@ -1853,19 +1842,19 @@ proc applyBindings*(bindings:Bindings):void =
 
 proc c_applyUniforms(ubSlot:int32, data:ptr Range):void {.cdecl, importc:"sg_apply_uniforms".}
 proc applyUniforms*(ubSlot:int32, data:Range):void =
-    c_applyUniforms(ub_slot, addr(data))
+    c_applyUniforms(ubSlot, addr(data))
 
 proc c_draw(baseElement:int32, numElements:int32, numInstances:int32):void {.cdecl, importc:"sg_draw".}
 proc draw*(baseElement:int32, numElements:int32, numInstances:int32):void =
-    c_draw(base_element, num_elements, num_instances)
+    c_draw(baseElement, numElements, numInstances)
 
 proc c_drawEx(baseElement:int32, numElements:int32, numInstances:int32, baseVertex:int32, baseInstance:int32):void {.cdecl, importc:"sg_draw_ex".}
 proc drawEx*(baseElement:int32, numElements:int32, numInstances:int32, baseVertex:int32, baseInstance:int32):void =
-    c_drawEx(base_element, num_elements, num_instances, base_vertex, base_instance)
+    c_drawEx(baseElement, numElements, numInstances, baseVertex, baseInstance)
 
 proc c_dispatch(numGroupsX:int32, numGroupsY:int32, numGroupsZ:int32):void {.cdecl, importc:"sg_dispatch".}
 proc dispatch*(numGroupsX:int32, numGroupsY:int32, numGroupsZ:int32):void =
-    c_dispatch(num_groups_x, num_groups_y, num_groups_z)
+    c_dispatch(numGroupsX, numGroupsY, numGroupsZ)
 
 proc c_endPass():void {.cdecl, importc:"sg_end_pass".}
 proc endPass*():void =
@@ -1897,11 +1886,11 @@ proc queryPixelformat*(fmt:PixelFormat):PixelformatInfo =
 
 proc c_queryRowPitch(fmt:PixelFormat, width:int32, rowAlignBytes:int32):int32 {.cdecl, importc:"sg_query_row_pitch".}
 proc queryRowPitch*(fmt:PixelFormat, width:int32, rowAlignBytes:int32):int32 =
-    c_queryRowPitch(fmt, width, row_align_bytes)
+    c_queryRowPitch(fmt, width, rowAlignBytes)
 
 proc c_querySurfacePitch(fmt:PixelFormat, width:int32, height:int32, rowAlignBytes:int32):int32 {.cdecl, importc:"sg_query_surface_pitch".}
 proc querySurfacePitch*(fmt:PixelFormat, width:int32, height:int32, rowAlignBytes:int32):int32 =
-    c_querySurfacePitch(fmt, width, height, row_align_bytes)
+    c_querySurfacePitch(fmt, width, height, rowAlignBytes)
 
 proc c_queryBufferState(buf:Buffer):ResourceState {.cdecl, importc:"sg_query_buffer_state".}
 proc queryBufferState*(buf:Buffer):ResourceState =
@@ -2203,8 +2192,7 @@ type D3d11ShaderInfo* = object
   vs*:pointer
   fs*:pointer
 
-converter toD3d11ShaderInfocbufs*[N:static[int]](items: array[N, pointer]): array[8, pointer] =
-  static: assert(N <= 8)
+converter toD3d11ShaderInfocbufs*[N:static[int]](items: array[N, pointer]): array[8, pointer] {.requires: N<=8.} =
   for index,item in items.pairs: result[index]=item
 
 type D3d11PipelineInfo* = object
@@ -2223,16 +2211,14 @@ type MtlBufferInfo* = object
   buf*:array[2, pointer]
   activeSlot*:int32
 
-converter toMtlBufferInfobuf*[N:static[int]](items: array[N, pointer]): array[2, pointer] =
-  static: assert(N <= 2)
+converter toMtlBufferInfobuf*[N:static[int]](items: array[N, pointer]): array[2, pointer] {.requires: N<=2.} =
   for index,item in items.pairs: result[index]=item
 
 type MtlImageInfo* = object
   tex*:array[2, pointer]
   activeSlot*:int32
 
-converter toMtlImageInfotex*[N:static[int]](items: array[N, pointer]): array[2, pointer] =
-  static: assert(N <= 2)
+converter toMtlImageInfotex*[N:static[int]](items: array[N, pointer]): array[2, pointer] {.requires: N<=2.} =
   for index,item in items.pairs: result[index]=item
 
 type MtlSamplerInfo* = object
@@ -2273,8 +2259,7 @@ type GlBufferInfo* = object
   buf*:array[2, uint32]
   activeSlot*:int32
 
-converter toGlBufferInfobuf*[N:static[int]](items: array[N, uint32]): array[2, uint32] =
-  static: assert(N <= 2)
+converter toGlBufferInfobuf*[N:static[int]](items: array[N, uint32]): array[2, uint32] {.requires: N<=2.} =
   for index,item in items.pairs: result[index]=item
 
 type GlImageInfo* = object
@@ -2282,8 +2267,7 @@ type GlImageInfo* = object
   texTarget*:uint32
   activeSlot*:int32
 
-converter toGlImageInfotex*[N:static[int]](items: array[N, uint32]): array[2, uint32] =
-  static: assert(N <= 2)
+converter toGlImageInfotex*[N:static[int]](items: array[N, uint32]): array[2, uint32] {.requires: N<=2.} =
   for index,item in items.pairs: result[index]=item
 
 type GlSamplerInfo* = object
@@ -2297,8 +2281,7 @@ type GlViewInfo* = object
   msaaRenderBuffer*:uint32
   msaaResolveFrameBuffer*:uint32
 
-converter toGlViewInfotexView*[N:static[int]](items: array[N, uint32]): array[2, uint32] =
-  static: assert(N <= 2)
+converter toGlViewInfotexView*[N:static[int]](items: array[N, uint32]): array[2, uint32] {.requires: N<=2.} =
   for index,item in items.pairs: result[index]=item
 
 proc c_d3d11Device():pointer {.cdecl, importc:"sg_d3d11_device".}
@@ -2462,30 +2445,30 @@ else:
   error("unsupported platform")
 
 when defined emscripten:
-  {.passl:"-lGL -ldl".}
-  {.passc:"-DSOKOL_GLES3".}
+  {.passL:"-lGL -ldl".}
+  {.passC:"-DSOKOL_GLES3".}
   {.passL: "-s MIN_WEBGL_VERSION=2 -s MAX_WEBGL_VERSION=2".}
 elif defined windows:
   when not defined vcc:
-    {.passl:"-lkernel32 -luser32 -lshell32 -lgdi32".}
+    {.passL:"-lkernel32 -luser32 -lshell32 -lgdi32".}
   when defined gl:
-    {.passc:"-DSOKOL_GLCORE".}
+    {.passC:"-DSOKOL_GLCORE".}
   else:
-    {.passc:"-DSOKOL_D3D11".}
+    {.passC:"-DSOKOL_D3D11".}
     when not defined vcc:
-      {.passl:"-ld3d11 -ldxgi".}
+      {.passL:"-ld3d11 -ldxgi".}
 elif defined macosx:
-  {.passc:"-x objective-c".}
-  {.passl:"-framework Cocoa -framework QuartzCore".}
+  {.passC:"-x objective-c".}
+  {.passL:"-framework Cocoa -framework QuartzCore".}
   when defined gl:
-    {.passc:"-DSOKOL_GLCORE".}
-    {.passl:"-framework OpenGL".}
+    {.passC:"-DSOKOL_GLCORE".}
+    {.passL:"-framework OpenGL".}
   else:
-    {.passc:"-DSOKOL_METAL".}
-    {.passl:"-framework Metal".}
+    {.passC:"-DSOKOL_METAL".}
+    {.passL:"-framework Metal".}
 elif defined linux:
-  {.passc:"-DSOKOL_GLCORE".}
-  {.passl:"-lX11 -lXi -lXcursor -lGL -lm -ldl -lpthread".}
+  {.passC:"-DSOKOL_GLCORE".}
+  {.passL:"-lX11 -lXi -lXcursor -lGL -lm -ldl -lpthread".}
 else:
   error("unsupported platform")
 
@@ -2497,7 +2480,7 @@ converter toColor*[R:SomeNumber,G:SomeNumber,B:SomeNumber,A:SomeNumber](rgba: tu
 converter toColor*[R:SomeNumber,G:SomeNumber,B:SomeNumber](rgba: tuple [r:R,g:G,b:B]):Color =
   Color(r:rgba.r.float32, g:rgba.g.float32, b:rgba.b.float32, a:1.float32)
 
-{.passc:"-DIMPL".}
+{.passC:"-DIMPL".}
 when defined(release):
-  {.passc:"-DNDEBUG".}
+  {.passC:"-DNDEBUG".}
 {.compile:"c/sokol_gfx.c".}

@@ -1,5 +1,15 @@
 ## machine generated, do not edit
+when defined(nimony):
+  {.feature: "lenientconverters".}
 
+when not defined(nimony):
+  import std/macros
+  macro requires(condition: untyped, body: untyped): untyped =
+    result = body
+    let assertStmt = quote do:
+      static:
+        doAssert `condition`, "Precondition failed: " + astToStr(`condition`)
+    result.body.insert(0, assertStmt)
 import gfx
 
 type Range* = object
@@ -13,9 +23,7 @@ const
 type Mat4* = object
   m*:array[4, array[4, float32]]
 
-converter toMat4m*[Y:static[int], X:static[int]](items: array[Y, array[X, float32]]): array[4, array[4, float32]] =
-  static: assert(X <= 4)
-  static: assert(Y <= 4)
+converter toMat4m*[Y:static[int], X:static[int]](items: array[Y, array[X, float32]]): array[4, array[4, float32]] {.requires: X<=4 and Y<=4.}=
   for indexY,itemY in items.pairs:
     for indexX, itemX in itemY.pairs:
       result[indexY][indexX] = itemX
@@ -122,23 +130,23 @@ proc vertexSize*(components:OptionalComponents):int =
 
 proc c_planeSizes(tiles:uint32, vertexSize:int):Sizes {.cdecl, importc:"sshape_plane_sizes".}
 proc planeSizes*(tiles:uint32, vertexSize:int):Sizes =
-    c_planeSizes(tiles, vertex_size)
+    c_planeSizes(tiles, vertexSize)
 
 proc c_boxSizes(tiles:uint32, vertexSize:int):Sizes {.cdecl, importc:"sshape_box_sizes".}
 proc boxSizes*(tiles:uint32, vertexSize:int):Sizes =
-    c_boxSizes(tiles, vertex_size)
+    c_boxSizes(tiles, vertexSize)
 
 proc c_sphereSizes(slices:uint32, stacks:uint32, vertexSize:int):Sizes {.cdecl, importc:"sshape_sphere_sizes".}
 proc sphereSizes*(slices:uint32, stacks:uint32, vertexSize:int):Sizes =
-    c_sphereSizes(slices, stacks, vertex_size)
+    c_sphereSizes(slices, stacks, vertexSize)
 
 proc c_cylinderSizes(slices:uint32, stacks:uint32, vertexSize:int):Sizes {.cdecl, importc:"sshape_cylinder_sizes".}
 proc cylinderSizes*(slices:uint32, stacks:uint32, vertexSize:int):Sizes =
-    c_cylinderSizes(slices, stacks, vertex_size)
+    c_cylinderSizes(slices, stacks, vertexSize)
 
 proc c_torusSizes(sides:uint32, rings:uint32, vertexSize:int):Sizes {.cdecl, importc:"sshape_torus_sizes".}
 proc torusSizes*(sides:uint32, rings:uint32, vertexSize:int):Sizes =
-    c_torusSizes(sides, rings, vertex_size)
+    c_torusSizes(sides, rings, vertexSize)
 
 proc c_elementRange(state:ptr State):ElementRange {.cdecl, importc:"sshape_element_range".}
 proc elementRange*(state:State):ElementRange =
@@ -196,7 +204,7 @@ proc c_mat4Transpose(m:ptr float32):Mat4 {.cdecl, importc:"sshape_mat4_transpose
 proc mat4Transpose*(m:ptr float32):Mat4 =
     c_mat4Transpose(m)
 
-{.passc:"-DIMPL".}
+{.passC:"-DIMPL".}
 when defined(release):
-  {.passc:"-DNDEBUG".}
+  {.passC:"-DNDEBUG".}
 {.compile:"c/sokol_shape.c".}

@@ -1,5 +1,15 @@
 ## machine generated, do not edit
+when defined(nimony):
+  {.feature: "lenientconverters".}
 
+when not defined(nimony):
+  import std/macros
+  macro requires(condition: untyped, body: untyped): untyped =
+    result = body
+    let assertStmt = quote do:
+      static:
+        doAssert `condition`, "Precondition failed: " + astToStr(`condition`)
+    result.body.insert(0, assertStmt)
 import gfx
 
 const
@@ -59,16 +69,13 @@ type RenderDesc* = object
   samplers*:array[12, gfx.Sampler]
   uniforms*:array[8, gfx.Range]
 
-converter toRenderDescviews*[N:static[int]](items: array[N, gfx.View]): array[32, gfx.View] =
-  static: assert(N <= 32)
+converter toRenderDescviews*[N:static[int]](items: array[N, gfx.View]): array[32, gfx.View] {.requires: N<=32.} =
   for index,item in items.pairs: result[index]=item
 
-converter toRenderDescsamplers*[N:static[int]](items: array[N, gfx.Sampler]): array[12, gfx.Sampler] =
-  static: assert(N <= 12)
+converter toRenderDescsamplers*[N:static[int]](items: array[N, gfx.Sampler]): array[12, gfx.Sampler] {.requires: N<=12.} =
   for index,item in items.pairs: result[index]=item
 
-converter toRenderDescuniforms*[N:static[int]](items: array[N, gfx.Range]): array[8, gfx.Range] =
-  static: assert(N <= 8)
+converter toRenderDescuniforms*[N:static[int]](items: array[N, gfx.Range]): array[8, gfx.Range] {.requires: N<=8.} =
   for index,item in items.pairs: result[index]=item
 
 type TextureInfo* = object
@@ -143,7 +150,7 @@ proc c_queryFramebufferDesc(fb:Framebuffer):FramebufferDesc {.cdecl, importc:"sf
 proc queryFramebufferDesc*(fb:Framebuffer):FramebufferDesc =
     c_queryFramebufferDesc(fb)
 
-{.passc:"-DIMPL".}
+{.passC:"-DIMPL".}
 when defined(release):
-  {.passc:"-DNDEBUG".}
+  {.passC:"-DNDEBUG".}
 {.compile:"c/sokol_framebuffer.c".}

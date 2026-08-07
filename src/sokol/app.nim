@@ -1,5 +1,15 @@
 ## machine generated, do not edit
+when defined(nimony):
+  {.feature: "lenientconverters".}
 
+when not defined(nimony):
+  import std/macros
+  macro requires(condition: untyped, body: untyped): untyped =
+    result = body
+    let assertStmt = quote do:
+      static:
+        doAssert `condition`, "Precondition failed: " + astToStr(`condition`)
+    result.body.insert(0, assertStmt)
 
 const
   maxTouchpoints* = 8
@@ -209,8 +219,7 @@ type Event* = object
   framebufferWidth*:int32
   framebufferHeight*:int32
 
-converter toEventtouches*[N:static[int]](items: array[N, Touchpoint]): array[8, Touchpoint] =
-  static: assert(N <= 8)
+converter toEventtouches*[N:static[int]](items: array[N, Touchpoint]): array[8, Touchpoint] {.requires: N<=8.} =
   for index,item in items.pairs: result[index]=item
 
 type Range* = object
@@ -228,8 +237,7 @@ type IconDesc* = object
   sokolDefault*:bool
   images*:array[8, ImageDesc]
 
-converter toIconDescimages*[N:static[int]](items: array[N, ImageDesc]): array[8, ImageDesc] =
-  static: assert(N <= 8)
+converter toIconDescimages*[N:static[int]](items: array[N, ImageDesc]): array[8, ImageDesc] {.requires: N<=8.} =
   for index,item in items.pairs: result[index]=item
 
 type Allocator* = object
@@ -725,7 +733,7 @@ proc setWindowTitle*(str:cstring):void =
 
 proc c_setIcon(iconDesc:ptr IconDesc):void {.cdecl, importc:"sapp_set_icon".}
 proc setIcon*(iconDesc:IconDesc):void =
-    c_setIcon(addr(icon_desc))
+    c_setIcon(addr(iconDesc))
 
 proc c_getNumDroppedFiles():int32 {.cdecl, importc:"sapp_get_num_dropped_files".}
 proc getNumDroppedFiles*():int32 =
@@ -804,34 +812,34 @@ proc androidGetNativeWindow*():pointer =
     c_androidGetNativeWindow()
 
 when defined emscripten:
-  {.passl:"-lGL -ldl".}
-  {.passc:"-DSOKOL_GLES3".}
+  {.passL:"-lGL -ldl".}
+  {.passC:"-DSOKOL_GLES3".}
   {.passL: "-s MIN_WEBGL_VERSION=2 -s MAX_WEBGL_VERSION=2".}
 elif defined windows:
   when not defined vcc:
-    {.passl:"-lkernel32 -luser32 -lshell32 -lgdi32".}
+    {.passL:"-lkernel32 -luser32 -lshell32 -lgdi32".}
   when defined gl:
-    {.passc:"-DSOKOL_GLCORE".}
+    {.passC:"-DSOKOL_GLCORE".}
   else:
-    {.passc:"-DSOKOL_D3D11".}
+    {.passC:"-DSOKOL_D3D11".}
     when not defined vcc:
-      {.passl:"-ld3d11 -ldxgi".}
+      {.passL:"-ld3d11 -ldxgi".}
 elif defined macosx:
-  {.passc:"-x objective-c".}
-  {.passl:"-framework Cocoa -framework QuartzCore".}
+  {.passC:"-x objective-c".}
+  {.passL:"-framework Cocoa -framework QuartzCore".}
   when defined gl:
-    {.passc:"-DSOKOL_GLCORE".}
-    {.passl:"-framework OpenGL".}
+    {.passC:"-DSOKOL_GLCORE".}
+    {.passL:"-framework OpenGL".}
   else:
-    {.passc:"-DSOKOL_METAL".}
-    {.passl:"-framework Metal".}
+    {.passC:"-DSOKOL_METAL".}
+    {.passL:"-framework Metal".}
 elif defined linux:
-  {.passc:"-DSOKOL_GLCORE".}
-  {.passl:"-lX11 -lXi -lXcursor -lGL -lm -ldl -lpthread".}
+  {.passC:"-DSOKOL_GLCORE".}
+  {.passL:"-lX11 -lXi -lXcursor -lGL -lm -ldl -lpthread".}
 else:
   error("unsupported platform")
 
-{.passc:"-DIMPL".}
+{.passC:"-DIMPL".}
 when defined(release):
-  {.passc:"-DNDEBUG".}
+  {.passC:"-DNDEBUG".}
 {.compile:"c/sokol_app.c".}

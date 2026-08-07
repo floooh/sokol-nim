@@ -1,5 +1,15 @@
 ## machine generated, do not edit
+when defined(nimony):
+  {.feature: "lenientconverters".}
 
+when not defined(nimony):
+  import std/macros
+  macro requires(condition: untyped, body: untyped): untyped =
+    result = body
+    let assertStmt = quote do:
+      static:
+        doAssert `condition`, "Precondition failed: " + astToStr(`condition`)
+    result.body.insert(0, assertStmt)
 import gfx
 
 type
@@ -50,8 +60,7 @@ type Desc* = object
   allocator*:Allocator
   logger*:Logger
 
-converter toDescfonts*[N:static[int]](items: array[N, FontDesc]): array[8, FontDesc] =
-  static: assert(N <= 8)
+converter toDescfonts*[N:static[int]](items: array[N, FontDesc]): array[8, FontDesc] {.requires: N<=8.} =
   for index,item in items.pairs: result[index]=item
 
 proc c_setup(desc:ptr Desc):void {.cdecl, importc:"sdtx_setup".}
@@ -116,19 +125,19 @@ proc contextDraw*(ctx:Context):void =
 
 proc c_drawLayer(layerId:int32):void {.cdecl, importc:"sdtx_draw_layer".}
 proc drawLayer*(layerId:int32):void =
-    c_drawLayer(layer_id)
+    c_drawLayer(layerId)
 
 proc c_contextDrawLayer(ctx:Context, layerId:int32):void {.cdecl, importc:"sdtx_context_draw_layer".}
 proc contextDrawLayer*(ctx:Context, layerId:int32):void =
-    c_contextDrawLayer(ctx, layer_id)
+    c_contextDrawLayer(ctx, layerId)
 
 proc c_layer(layerId:int32):void {.cdecl, importc:"sdtx_layer".}
 proc layer*(layerId:int32):void =
-    c_layer(layer_id)
+    c_layer(layerId)
 
 proc c_font(fontIndex:int32):void {.cdecl, importc:"sdtx_font".}
 proc font*(fontIndex:int32):void =
-    c_font(font_index)
+    c_font(fontIndex)
 
 proc c_canvas(w:float32, h:float32):void {.cdecl, importc:"sdtx_canvas".}
 proc canvas*(w:float32, h:float32):void =
@@ -206,7 +215,7 @@ proc c_getClearedFmtBuffer():Range {.cdecl, importc:"sdtx_get_cleared_fmt_buffer
 proc getClearedFmtBuffer*():Range =
     c_getClearedFmtBuffer()
 
-{.passc:"-DIMPL".}
+{.passC:"-DIMPL".}
 when defined(release):
-  {.passc:"-DNDEBUG".}
+  {.passC:"-DNDEBUG".}
 {.compile:"c/sokol_debugtext.c".}

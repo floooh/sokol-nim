@@ -1,5 +1,15 @@
 ## machine generated, do not edit
+when defined(nimony):
+  {.feature: "lenientconverters".}
 
+when not defined(nimony):
+  import std/macros
+  macro requires(condition: untyped, body: untyped): untyped =
+    result = body
+    let assertStmt = quote do:
+      static:
+        doAssert `condition`, "Precondition failed: " + astToStr(`condition`)
+    result.body.insert(0, assertStmt)
 
 type
   LogItem* {.size:sizeof(int32).} = enum
@@ -113,20 +123,20 @@ proc expect*():int32 =
 
 proc c_push(frames:ptr float32, numFrames:int32):int32 {.cdecl, importc:"saudio_push".}
 proc push*(frames:ptr float32, numFrames:int32):int32 =
-    c_push(frames, num_frames)
+    c_push(frames, numFrames)
 
 when defined windows:
   when not defined vcc:
-    {.passl:"-lkernel32 -lole32".}
+    {.passL:"-lkernel32 -lole32".}
 elif defined macosx:
-  {.passl:"-framework AudioToolbox".}
+  {.passL:"-framework AudioToolbox".}
 elif defined linux:
   when not defined emscripten:
-    {.passl:"-lasound -lm -lpthread".}
+    {.passL:"-lasound -lm -lpthread".}
 else:
   error("unsupported platform")
 
-{.passc:"-DIMPL".}
+{.passC:"-DIMPL".}
 when defined(release):
-  {.passc:"-DNDEBUG".}
+  {.passC:"-DNDEBUG".}
 {.compile:"c/sokol_audio.c".}
