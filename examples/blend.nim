@@ -11,7 +11,7 @@ import math/vec3
 import math/mat4
 import shaders/blend as shd
 
-const numBlendFactors = 15
+const numBlendFactors = 15i32
 
 var
   bgPip: Pipeline
@@ -20,15 +20,17 @@ var
   r = 0f
   tick = 0f
 
-const passAction = PassAction(
-  colors: [ColorAttachmentAction(loadAction: loadActionDontCare)],
-  depth: DepthAttachmentAction(loadAction: loadActionDontCare),
-  stencil: StencilAttachmentAction(loadAction: loadActionDontCare),
-)
+let passAction = block:
+  var temp = PassAction(
+   depth: DepthAttachmentAction(loadAction: loadActionDontCare),
+   stencil: StencilAttachmentAction(loadAction: loadActionDontCare),
+  )
+  temp.colors[0] = ColorAttachmentAction(loadAction: loadActionDontCare)
+  temp
 
 proc init() {.cdecl.} =
   sg.setup(sg.Desc(
-      pipelinePoolSize: numBlendFactors * numBlendFactors + 1,
+      pipelinePoolSize: int32(numBlendFactors * numBlendFactors + 1),
       environment: sglue.environment(),
       logger: sg.Logger(fn: slog.fn),
     ))
@@ -48,28 +50,29 @@ proc init() {.cdecl.} =
 
   # pipeline object for rendering the background
   bgPip = sg.makePipeline(PipelineDesc(
-    layout: VertexLayoutState(
-      buffers: [ VertexBufferLayoutState(stride: 28) ],
-      attrs: [ VertexAttrState(offset: 0, format: vertexFormatFloat2 )]
-    ),
+    layout: block:
+      var l = VertexLayoutState()
+      l.buffers[0] = VertexBufferLayoutState(stride: 28)
+      l.attrs[0] = VertexAttrState(offset: 0, format: vertexFormatFloat2)
+      l,
     shader: sg.makeShader(shd.bgShaderDesc(sg.queryBackend())),
     primitiveType: primitiveTypeTriangleStrip,
   ))
 
   # lot of pipeline objects for rendering the blended quads
   var pipDesc = PipelineDesc(
-    layout: VertexLayoutState(
-      attrs: [
-        VertexAttrState(format: vertexFormatFloat3),
-        VertexAttrState(format: vertexFormatFloat4)
-      ]
-    ),
+    layout: block:
+      var l = VertexLayoutState()
+      l.attrs[0] = VertexAttrState(format: vertexFormatFloat3)
+      l.attrs[1] = VertexAttrState(format: vertexFormatFloat4)
+      l,
     shader: sg.makeShader(shd.quadShaderDesc(sg.queryBackend())),
     primitiveType: primitiveTypeTriangleStrip,
     blendColor: (1.0, 0.0, 0.0, 1.0),
-    colors: [
-      ColorTargetState(blend: BlendState(enabled: true, srcFactorAlpha: blendFactorOne, dstFactorAlpha: blendFactorZero))
-    ]
+    colors: block:
+      var c: array[8, ColorTargetState] = default(array[8, ColorTargetState])
+      c[0] = ColorTargetState(blend: BlendState(enabled: true, srcFactorAlpha: blendFactorOne, dstFactorAlpha: blendFactorZero))
+      c
   )
   for src in 0..<numBlendFactors:
     for dst in 0..<numBlendFactors:
@@ -84,34 +87,34 @@ proc frame() {.cdecl.} =
 
   # draw background
   let bgFsParams = BgFsParams(tick: tick)
-  tick += 1.0 * time
+  tick += float32(1.0 * time)
   sg.applyPipeline(bgPip)
   sg.applyBindings(bindings)
-  sg.applyUniforms(shd.ubBgFsParams, sg.Range(addr: bgFsParams.addr, size: bgFsParams.sizeof))
+  sg.applyUniforms(int32(shd.ubBgFsParams), sg.Range(addr: bgFsParams.addr, size: bgFsParams.sizeof.int))
   sg.draw(0, 4, 1)
 
   # draw the blended quads
   let proj = persp(90f, sapp.widthf() / sapp.heightf(), 0.01f, 100f)
   let view = lookat(vec3(0f, 0f, 25f), vec3.zero(), vec3.up())
-  let viewProj = proj * view
+  let viewProj: Mat4 = proj * view
 
-  r += 0.6 * time
+  r += float32(0.6 * time)
   var r0 = r
   for src in 0..<numBlendFactors:
     for dst in 0..<numBlendFactors:
       # compute model-view-proj matrix
       let t = vec3(
-        (dst.float32 - trunc(numBlendFactors/2)) * 3.0,
-        (src.float32 - trunc(numBlendFactors/2)) * 2.2,
+        (dst.float32 - trunc(numBlendFactors.float32/2f)) * 3.0f32,
+        (src.float32 - trunc(numBlendFactors.float32/2f)) * 2.2f32,
         0f
       )
-      let model = translate(t) * rotate(r0, vec3.up())
+      let model: Mat4 = translate(t) * rotate(r0, vec3.up())
       let quadVsParams = QuadVsParams(mvp: viewProj * model)
       sg.applyPipeline(pip[src][dst])
       sg.applyBindings(bindings)
-      sg.applyUniforms(shd.ubQuadVsParams, sg.Range(addr: quadVsParams.addr, size: quadVsParams.sizeof))
+      sg.applyUniforms(int32(shd.ubQuadVsParams), sg.Range(addr: quadVsParams.addr, size: quadVsParams.sizeof.int))
       sg.draw(0, 4, 1)
-      r0 += 0.6
+      r0 += 0.6.float32()
   sg.endPass()
   sg.commit()
 
@@ -126,6 +129,6 @@ sapp.run(sapp.Desc(
   width: 800,
   height: 600,
   sampleCount: 4,
-  icon: IconDesc(sokol_default: true),
+  icon: IconDesc(sokolDefault: true),
   logger: sapp.Logger(fn: slog.fn),
 ))
