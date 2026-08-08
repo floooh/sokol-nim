@@ -1,4 +1,4 @@
-import math
+import std/math
 import vec3 as vec3
 
 type Mat4* = object
@@ -36,7 +36,7 @@ proc `*`*(m0: Mat4, m1: Mat4): Mat4 =
 
 proc persp*(fov: float32, aspect: float32, near: float32, far: float32): Mat4 =
     result = identity()
-    let t = math.tan(fov * (math.PI / 360f))
+    let t = math.tan(fov * (math.PI / 360f)).float32()
     result.m[0][0] = 1f / t
     result.m[1][1] = aspect / t
     result.m[2][3] = -1f
@@ -64,7 +64,7 @@ proc lookat*(eye: Vec3, center: Vec3, up: Vec3): Mat4 =
     result.m[3][3] = 1.0
 
 proc radians(deg: float32): float32 =
-  result = deg * (math.PI / 180f)
+  result = deg * (math.PI / 180f).float32()
 
 proc rotate*(angle: float32, axis_unorm: Vec3): Mat4 =
   let axis = norm(axis_unorm)
