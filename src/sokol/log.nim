@@ -11,7 +11,7 @@ when not defined(nimony):
         doAssert `condition`, "Precondition failed: " + astToStr(`condition`)
     result.body.insert(0, assertStmt)
 
-proc fn*(tag:cstring, logLevel:uint32, logItem:uint32, message:cstring, lineNr:uint32, filename:cstring, userData:pointer):void {.cdecl, importc:"slog_func".}
+proc fn*(tag:nil cstring, logLevel:uint32, logItem:uint32, message:nil cstring, lineNr:uint32, filename:nil cstring, userData:nil pointer):void {.cdecl, importc:"slog_func".}
 
 {.passC:"-DIMPL".}
 when defined(release):

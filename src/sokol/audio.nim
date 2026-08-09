@@ -45,13 +45,13 @@ type
     logitemN3dsNdspOpenFailed,
 
 type Logger* = object
-  fn*:proc(a1:cstring, a2:uint32, a3:uint32, a4:cstring, a5:uint32, a6:cstring, a7:pointer) {.cdecl.}
-  userData*:pointer
+  fn*:proc(a1:nil cstring, a2:uint32, a3:uint32, a4:nil cstring, a5:uint32, a6:nil cstring, a7:nil pointer) {.cdecl.}
+  userData*:nil pointer
 
 type Allocator* = object
-  allocFn*:proc(a1:int, a2:pointer):pointer {.cdecl.}
-  freeFn*:proc(a1:pointer, a2:pointer) {.cdecl.}
-  userData*:pointer
+  allocFn*:proc(a1:int, a2:nil pointer):nil pointer {.cdecl.}
+  freeFn*:proc(a1:nil pointer, a2:nil pointer) {.cdecl.}
+  userData*:nil pointer
 
 type
   N3dsNdspinterptype* {.size:sizeof(int32).} = enum
@@ -74,8 +74,8 @@ type Desc* = object
   packetFrames*:int32
   numPackets*:int32
   streamCb*:proc(a1:ptr float32, a2:int32, a3:int32) {.cdecl.}
-  streamUserdataCb*:proc(a1:ptr float32, a2:int32, a3:int32, a4:pointer) {.cdecl.}
-  userData*:pointer
+  streamUserdataCb*:proc(a1:ptr float32, a2:int32, a3:int32, a4:nil pointer) {.cdecl.}
+  userData*:nil pointer
   win32*:Win32Desc
   n3ds*:N3dsDesc
   allocator*:Allocator
@@ -93,8 +93,8 @@ proc c_isvalid():bool {.cdecl, importc:"saudio_isvalid".}
 proc isvalid*():bool =
     c_isvalid()
 
-proc c_userdata():pointer {.cdecl, importc:"saudio_userdata".}
-proc userdata*():pointer =
+proc c_userdata():nil pointer {.cdecl, importc:"saudio_userdata".}
+proc userdata*():nil pointer =
     c_userdata()
 
 proc c_queryDesc():Desc {.cdecl, importc:"saudio_query_desc".}

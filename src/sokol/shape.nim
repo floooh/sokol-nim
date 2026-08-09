@@ -13,7 +13,7 @@ when not defined(nimony):
 import gfx
 
 type Range* = object
-  `addr`*:pointer
+  `addr`*:nil pointer
   size*:int
 
 const

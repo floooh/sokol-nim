@@ -23,8 +23,8 @@ type
     logitemCannotDestroyDefaultContext,
 
 type Logger* = object
-  fn*:proc(a1:cstring, a2:uint32, a3:uint32, a4:cstring, a5:uint32, a6:cstring, a7:pointer) {.cdecl.}
-  userData*:pointer
+  fn*:proc(a1:nil cstring, a2:uint32, a3:uint32, a4:nil cstring, a5:uint32, a6:nil cstring, a7:nil pointer) {.cdecl.}
+  userData*:nil pointer
 
 type Pipeline* = object
   id*:uint32
@@ -49,9 +49,9 @@ type ContextDesc* = object
   sampleCount*:int32
 
 type Allocator* = object
-  allocFn*:proc(a1:int, a2:pointer):pointer {.cdecl.}
-  freeFn*:proc(a1:pointer, a2:pointer) {.cdecl.}
-  userData*:pointer
+  allocFn*:proc(a1:int, a2:nil pointer):nil pointer {.cdecl.}
+  freeFn*:proc(a1:nil pointer, a2:nil pointer) {.cdecl.}
+  userData*:nil pointer
 
 type Desc* = object
   maxVertices*:int32

@@ -30,7 +30,7 @@ type View* = object
   id*:uint32
 
 type Range* = object
-  `addr`*:pointer
+  `addr`*:nil pointer
   size*:int
 
 const
@@ -434,29 +434,29 @@ converter toPassActioncolors*[N:static[int]](items: array[N, ColorAttachmentActi
   for index,item in items.pairs: result[index]=item
 
 type MetalSwapchain* = object
-  currentDrawable*:pointer
-  depthStencilTexture*:pointer
-  msaaColorTexture*:pointer
+  currentDrawable*:nil pointer
+  depthStencilTexture*:nil pointer
+  msaaColorTexture*:nil pointer
 
 type D3d11Swapchain* = object
-  renderView*:pointer
-  resolveView*:pointer
-  depthStencilView*:pointer
+  renderView*:nil pointer
+  resolveView*:nil pointer
+  depthStencilView*:nil pointer
 
 type WgpuSwapchain* = object
-  renderView*:pointer
-  resolveView*:pointer
-  depthStencilView*:pointer
+  renderView*:nil pointer
+  resolveView*:nil pointer
+  depthStencilView*:nil pointer
 
 type VulkanSwapchain* = object
-  renderImage*:pointer
-  renderView*:pointer
-  resolveImage*:pointer
-  resolveView*:pointer
-  depthStencilImage*:pointer
-  depthStencilView*:pointer
-  renderFinishedSemaphore*:pointer
-  presentCompleteSemaphore*:pointer
+  renderImage*:nil pointer
+  renderView*:nil pointer
+  resolveImage*:nil pointer
+  resolveView*:nil pointer
+  depthStencilImage*:nil pointer
+  depthStencilView*:nil pointer
+  renderFinishedSemaphore*:nil pointer
+  presentCompleteSemaphore*:nil pointer
 
 type GlSwapchain* = object
   framebuffer*:uint32
@@ -491,7 +491,7 @@ type Pass* = object
   action*:PassAction
   attachments*:Attachments
   swapchain*:Swapchain
-  label*:cstring
+  label*:nil cstring
   endCanary:uint32
 
 type Bindings* = object
@@ -529,17 +529,17 @@ type BufferDesc* = object
   size*:int
   usage*:BufferUsage
   data*:Range
-  label*:cstring
+  label*:nil cstring
   glBuffers*:array[2, uint32]
-  mtlBuffers*:array[2, pointer]
-  d3d11Buffer*:pointer
-  wgpuBuffer*:pointer
+  mtlBuffers*:array[2, nil pointer]
+  d3d11Buffer*:nil pointer
+  wgpuBuffer*:nil pointer
   endCanary:uint32
 
 converter toBufferDescglBuffers*[N:static[int]](items: array[N, uint32]): array[2, uint32] {.requires: N<=2.} =
   for index,item in items.pairs: result[index]=item
 
-converter toBufferDescmtlBuffers*[N:static[int]](items: array[N, pointer]): array[2, pointer] {.requires: N<=2.} =
+converter toBufferDescmtlBuffers*[N:static[int]](items: array[N, nil pointer]): array[2, nil pointer] {.requires: N<=2.} =
   for index,item in items.pairs: result[index]=item
 
 type ImageUsage* = object
@@ -578,18 +578,18 @@ type ImageDesc* = object
   pixelFormat*:PixelFormat
   sampleCount*:int32
   data*:ImageData
-  label*:cstring
+  label*:nil cstring
   glTextures*:array[2, uint32]
   glTextureTarget*:uint32
-  mtlTextures*:array[2, pointer]
-  d3d11Texture*:pointer
-  wgpuTexture*:pointer
+  mtlTextures*:array[2, nil pointer]
+  d3d11Texture*:nil pointer
+  wgpuTexture*:nil pointer
   endCanary:uint32
 
 converter toImageDescglTextures*[N:static[int]](items: array[N, uint32]): array[2, uint32] {.requires: N<=2.} =
   for index,item in items.pairs: result[index]=item
 
-converter toImageDescmtlTextures*[N:static[int]](items: array[N, pointer]): array[2, pointer] {.requires: N<=2.} =
+converter toImageDescmtlTextures*[N:static[int]](items: array[N, nil pointer]): array[2, nil pointer] {.requires: N<=2.} =
   for index,item in items.pairs: result[index]=item
 
 type SamplerDesc* = object
@@ -605,11 +605,11 @@ type SamplerDesc* = object
   borderColor*:BorderColor
   compare*:CompareFunc
   maxAnisotropy*:uint32
-  label*:cstring
+  label*:nil cstring
   glSampler*:uint32
-  mtlSampler*:pointer
-  d3d11Sampler*:pointer
-  wgpuSampler*:pointer
+  mtlSampler*:nil pointer
+  d3d11Sampler*:nil pointer
+  wgpuSampler*:nil pointer
   endCanary:uint32
 
 type
@@ -620,11 +620,11 @@ type
     shaderStageCompute,
 
 type ShaderFunction* = object
-  source*:cstring
+  source*:nil cstring
   bytecode*:Range
-  entry*:cstring
-  d3d11Target*:cstring
-  d3d11Filepath*:cstring
+  entry*:nil cstring
+  d3d11Target*:nil cstring
+  d3d11Filepath*:nil cstring
 
 type
   ShaderAttrBaseType* {.size:sizeof(int32).} = enum
@@ -635,14 +635,14 @@ type
 
 type ShaderVertexAttr* = object
   baseType*:ShaderAttrBaseType
-  glslName*:cstring
-  hlslSemName*:cstring
+  glslName*:nil cstring
+  hlslSemName*:nil cstring
   hlslSemIndex*:uint8
 
 type GlslShaderUniform* = object
   `type`*:UniformType
   arrayCount*:uint16
-  glslName*:cstring
+  glslName*:nil cstring
 
 type ShaderUniformBlock* = object
   stage*:ShaderStage
@@ -705,7 +705,7 @@ type ShaderTextureSamplerPair* = object
   stage*:ShaderStage
   viewSlot*:uint8
   samplerSlot*:uint8
-  glslName*:cstring
+  glslName*:nil cstring
 
 type MtlShaderThreadsPerThreadgroup* = object
   x*:int32
@@ -723,7 +723,7 @@ type ShaderDesc* = object
   samplers*:array[12, ShaderSampler]
   textureSamplerPairs*:array[32, ShaderTextureSamplerPair]
   mtlThreadsPerThreadgroup*:MtlShaderThreadsPerThreadgroup
-  label*:cstring
+  label*:nil cstring
   endCanary:uint32
 
 converter toShaderDescattrs*[N:static[int]](items: array[N, ShaderVertexAttr]): array[16, ShaderVertexAttr] {.requires: N<=16.} =
@@ -813,7 +813,7 @@ type PipelineDesc* = object
   sampleCount*:int32
   blendColor*:Color
   alphaToCoverageEnabled*:bool
-  label*:cstring
+  label*:nil cstring
   endCanary:uint32
 
 converter toPipelineDesccolors*[N:static[int]](items: array[N, ColorTargetState]): array[8, ColorTargetState] {.requires: N<=8.} =
@@ -845,70 +845,70 @@ type ViewDesc* = object
   colorAttachment*:ImageViewDesc
   resolveAttachment*:ImageViewDesc
   depthStencilAttachment*:ImageViewDesc
-  label*:cstring
+  label*:nil cstring
   endCanary:uint32
 
 type TraceHooks* = object
-  userData*:pointer
-  resetStateCache*:proc(a1:pointer) {.cdecl.}
-  makeBuffer*:proc(a1:ptr BufferDesc, a2:Buffer, a3:pointer) {.cdecl.}
-  makeImage*:proc(a1:ptr ImageDesc, a2:Image, a3:pointer) {.cdecl.}
-  makeSampler*:proc(a1:ptr SamplerDesc, a2:Sampler, a3:pointer) {.cdecl.}
-  makeShader*:proc(a1:ptr ShaderDesc, a2:Shader, a3:pointer) {.cdecl.}
-  makePipeline*:proc(a1:ptr PipelineDesc, a2:Pipeline, a3:pointer) {.cdecl.}
-  makeView*:proc(a1:ptr ViewDesc, a2:View, a3:pointer) {.cdecl.}
-  destroyBuffer*:proc(a1:Buffer, a2:pointer) {.cdecl.}
-  destroyImage*:proc(a1:Image, a2:pointer) {.cdecl.}
-  destroySampler*:proc(a1:Sampler, a2:pointer) {.cdecl.}
-  destroyShader*:proc(a1:Shader, a2:pointer) {.cdecl.}
-  destroyPipeline*:proc(a1:Pipeline, a2:pointer) {.cdecl.}
-  destroyView*:proc(a1:View, a2:pointer) {.cdecl.}
-  updateBuffer*:proc(a1:Buffer, a2:ptr Range, a3:pointer) {.cdecl.}
-  updateImage*:proc(a1:Image, a2:ptr ImageData, a3:pointer) {.cdecl.}
-  appendBuffer*:proc(a1:Buffer, a2:ptr Range, a3:int32, a4:pointer) {.cdecl.}
-  beginPass*:proc(a1:ptr Pass, a2:pointer) {.cdecl.}
-  applyViewport*:proc(a1:int32, a2:int32, a3:int32, a4:int32, a5:bool, a6:pointer) {.cdecl.}
-  applyScissorRect*:proc(a1:int32, a2:int32, a3:int32, a4:int32, a5:bool, a6:pointer) {.cdecl.}
-  applyPipeline*:proc(a1:Pipeline, a2:pointer) {.cdecl.}
-  applyBindings*:proc(a1:ptr Bindings, a2:pointer) {.cdecl.}
-  applyUniforms*:proc(a1:int32, a2:ptr Range, a3:pointer) {.cdecl.}
-  draw*:proc(a1:int32, a2:int32, a3:int32, a4:pointer) {.cdecl.}
-  drawEx*:proc(a1:int32, a2:int32, a3:int32, a4:int32, a5:int32, a6:pointer) {.cdecl.}
-  dispatch*:proc(a1:int32, a2:int32, a3:int32, a4:pointer) {.cdecl.}
-  endPass*:proc(a1:pointer) {.cdecl.}
-  commit*:proc(a1:pointer) {.cdecl.}
-  allocBuffer*:proc(a1:Buffer, a2:pointer) {.cdecl.}
-  allocImage*:proc(a1:Image, a2:pointer) {.cdecl.}
-  allocSampler*:proc(a1:Sampler, a2:pointer) {.cdecl.}
-  allocShader*:proc(a1:Shader, a2:pointer) {.cdecl.}
-  allocPipeline*:proc(a1:Pipeline, a2:pointer) {.cdecl.}
-  allocView*:proc(a1:View, a2:pointer) {.cdecl.}
-  deallocBuffer*:proc(a1:Buffer, a2:pointer) {.cdecl.}
-  deallocImage*:proc(a1:Image, a2:pointer) {.cdecl.}
-  deallocSampler*:proc(a1:Sampler, a2:pointer) {.cdecl.}
-  deallocShader*:proc(a1:Shader, a2:pointer) {.cdecl.}
-  deallocPipeline*:proc(a1:Pipeline, a2:pointer) {.cdecl.}
-  deallocView*:proc(a1:View, a2:pointer) {.cdecl.}
-  initBuffer*:proc(a1:Buffer, a2:ptr BufferDesc, a3:pointer) {.cdecl.}
-  initImage*:proc(a1:Image, a2:ptr ImageDesc, a3:pointer) {.cdecl.}
-  initSampler*:proc(a1:Sampler, a2:ptr SamplerDesc, a3:pointer) {.cdecl.}
-  initShader*:proc(a1:Shader, a2:ptr ShaderDesc, a3:pointer) {.cdecl.}
-  initPipeline*:proc(a1:Pipeline, a2:ptr PipelineDesc, a3:pointer) {.cdecl.}
-  initView*:proc(a1:View, a2:ptr ViewDesc, a3:pointer) {.cdecl.}
-  uninitBuffer*:proc(a1:Buffer, a2:pointer) {.cdecl.}
-  uninitImage*:proc(a1:Image, a2:pointer) {.cdecl.}
-  uninitSampler*:proc(a1:Sampler, a2:pointer) {.cdecl.}
-  uninitShader*:proc(a1:Shader, a2:pointer) {.cdecl.}
-  uninitPipeline*:proc(a1:Pipeline, a2:pointer) {.cdecl.}
-  uninitView*:proc(a1:View, a2:pointer) {.cdecl.}
-  failBuffer*:proc(a1:Buffer, a2:pointer) {.cdecl.}
-  failImage*:proc(a1:Image, a2:pointer) {.cdecl.}
-  failSampler*:proc(a1:Sampler, a2:pointer) {.cdecl.}
-  failShader*:proc(a1:Shader, a2:pointer) {.cdecl.}
-  failPipeline*:proc(a1:Pipeline, a2:pointer) {.cdecl.}
-  failView*:proc(a1:View, a2:pointer) {.cdecl.}
-  pushDebugGroup*:proc(a1:cstring, a2:pointer) {.cdecl.}
-  popDebugGroup*:proc(a1:pointer) {.cdecl.}
+  userData*:nil pointer
+  resetStateCache*:proc(a1:nil pointer) {.cdecl.}
+  makeBuffer*:proc(a1:ptr BufferDesc, a2:Buffer, a3:nil pointer) {.cdecl.}
+  makeImage*:proc(a1:ptr ImageDesc, a2:Image, a3:nil pointer) {.cdecl.}
+  makeSampler*:proc(a1:ptr SamplerDesc, a2:Sampler, a3:nil pointer) {.cdecl.}
+  makeShader*:proc(a1:ptr ShaderDesc, a2:Shader, a3:nil pointer) {.cdecl.}
+  makePipeline*:proc(a1:ptr PipelineDesc, a2:Pipeline, a3:nil pointer) {.cdecl.}
+  makeView*:proc(a1:ptr ViewDesc, a2:View, a3:nil pointer) {.cdecl.}
+  destroyBuffer*:proc(a1:Buffer, a2:nil pointer) {.cdecl.}
+  destroyImage*:proc(a1:Image, a2:nil pointer) {.cdecl.}
+  destroySampler*:proc(a1:Sampler, a2:nil pointer) {.cdecl.}
+  destroyShader*:proc(a1:Shader, a2:nil pointer) {.cdecl.}
+  destroyPipeline*:proc(a1:Pipeline, a2:nil pointer) {.cdecl.}
+  destroyView*:proc(a1:View, a2:nil pointer) {.cdecl.}
+  updateBuffer*:proc(a1:Buffer, a2:ptr Range, a3:nil pointer) {.cdecl.}
+  updateImage*:proc(a1:Image, a2:ptr ImageData, a3:nil pointer) {.cdecl.}
+  appendBuffer*:proc(a1:Buffer, a2:ptr Range, a3:int32, a4:nil pointer) {.cdecl.}
+  beginPass*:proc(a1:ptr Pass, a2:nil pointer) {.cdecl.}
+  applyViewport*:proc(a1:int32, a2:int32, a3:int32, a4:int32, a5:bool, a6:nil pointer) {.cdecl.}
+  applyScissorRect*:proc(a1:int32, a2:int32, a3:int32, a4:int32, a5:bool, a6:nil pointer) {.cdecl.}
+  applyPipeline*:proc(a1:Pipeline, a2:nil pointer) {.cdecl.}
+  applyBindings*:proc(a1:ptr Bindings, a2:nil pointer) {.cdecl.}
+  applyUniforms*:proc(a1:int32, a2:ptr Range, a3:nil pointer) {.cdecl.}
+  draw*:proc(a1:int32, a2:int32, a3:int32, a4:nil pointer) {.cdecl.}
+  drawEx*:proc(a1:int32, a2:int32, a3:int32, a4:int32, a5:int32, a6:nil pointer) {.cdecl.}
+  dispatch*:proc(a1:int32, a2:int32, a3:int32, a4:nil pointer) {.cdecl.}
+  endPass*:proc(a1:nil pointer) {.cdecl.}
+  commit*:proc(a1:nil pointer) {.cdecl.}
+  allocBuffer*:proc(a1:Buffer, a2:nil pointer) {.cdecl.}
+  allocImage*:proc(a1:Image, a2:nil pointer) {.cdecl.}
+  allocSampler*:proc(a1:Sampler, a2:nil pointer) {.cdecl.}
+  allocShader*:proc(a1:Shader, a2:nil pointer) {.cdecl.}
+  allocPipeline*:proc(a1:Pipeline, a2:nil pointer) {.cdecl.}
+  allocView*:proc(a1:View, a2:nil pointer) {.cdecl.}
+  deallocBuffer*:proc(a1:Buffer, a2:nil pointer) {.cdecl.}
+  deallocImage*:proc(a1:Image, a2:nil pointer) {.cdecl.}
+  deallocSampler*:proc(a1:Sampler, a2:nil pointer) {.cdecl.}
+  deallocShader*:proc(a1:Shader, a2:nil pointer) {.cdecl.}
+  deallocPipeline*:proc(a1:Pipeline, a2:nil pointer) {.cdecl.}
+  deallocView*:proc(a1:View, a2:nil pointer) {.cdecl.}
+  initBuffer*:proc(a1:Buffer, a2:ptr BufferDesc, a3:nil pointer) {.cdecl.}
+  initImage*:proc(a1:Image, a2:ptr ImageDesc, a3:nil pointer) {.cdecl.}
+  initSampler*:proc(a1:Sampler, a2:ptr SamplerDesc, a3:nil pointer) {.cdecl.}
+  initShader*:proc(a1:Shader, a2:ptr ShaderDesc, a3:nil pointer) {.cdecl.}
+  initPipeline*:proc(a1:Pipeline, a2:ptr PipelineDesc, a3:nil pointer) {.cdecl.}
+  initView*:proc(a1:View, a2:ptr ViewDesc, a3:nil pointer) {.cdecl.}
+  uninitBuffer*:proc(a1:Buffer, a2:nil pointer) {.cdecl.}
+  uninitImage*:proc(a1:Image, a2:nil pointer) {.cdecl.}
+  uninitSampler*:proc(a1:Sampler, a2:nil pointer) {.cdecl.}
+  uninitShader*:proc(a1:Shader, a2:nil pointer) {.cdecl.}
+  uninitPipeline*:proc(a1:Pipeline, a2:nil pointer) {.cdecl.}
+  uninitView*:proc(a1:View, a2:nil pointer) {.cdecl.}
+  failBuffer*:proc(a1:Buffer, a2:nil pointer) {.cdecl.}
+  failImage*:proc(a1:Image, a2:nil pointer) {.cdecl.}
+  failSampler*:proc(a1:Sampler, a2:nil pointer) {.cdecl.}
+  failShader*:proc(a1:Shader, a2:nil pointer) {.cdecl.}
+  failPipeline*:proc(a1:Pipeline, a2:nil pointer) {.cdecl.}
+  failView*:proc(a1:View, a2:nil pointer) {.cdecl.}
+  pushDebugGroup*:proc(a1:nil cstring, a2:nil pointer) {.cdecl.}
+  popDebugGroup*:proc(a1:nil pointer) {.cdecl.}
 
 type SlotInfo* = object
   state*:ResourceState
@@ -1635,20 +1635,20 @@ type EnvironmentDefaults* = object
   sampleCount*:int32
 
 type MetalEnvironment* = object
-  device*:pointer
+  device*:nil pointer
 
 type D3d11Environment* = object
-  device*:pointer
-  deviceContext*:pointer
+  device*:nil pointer
+  deviceContext*:nil pointer
 
 type WgpuEnvironment* = object
-  device*:pointer
+  device*:nil pointer
 
 type VulkanEnvironment* = object
-  instance*:pointer
-  physicalDevice*:pointer
-  device*:pointer
-  queue*:pointer
+  instance*:nil pointer
+  physicalDevice*:nil pointer
+  device*:nil pointer
+  queue*:nil pointer
   queueFamilyIndex*:uint32
 
 type Environment* = object
@@ -1659,17 +1659,17 @@ type Environment* = object
   vulkan*:VulkanEnvironment
 
 type CommitListener* = object
-  fn*:proc(a1:pointer) {.cdecl.}
-  userData*:pointer
+  fn*:proc(a1:nil pointer) {.cdecl.}
+  userData*:nil pointer
 
 type Allocator* = object
-  allocFn*:proc(a1:int, a2:pointer):pointer {.cdecl.}
-  freeFn*:proc(a1:pointer, a2:pointer) {.cdecl.}
-  userData*:pointer
+  allocFn*:proc(a1:int, a2:nil pointer):nil pointer {.cdecl.}
+  freeFn*:proc(a1:nil pointer, a2:nil pointer) {.cdecl.}
+  userData*:nil pointer
 
 type Logger* = object
-  fn*:proc(a1:cstring, a2:uint32, a3:uint32, a4:cstring, a5:uint32, a6:cstring, a7:pointer) {.cdecl.}
-  userData*:pointer
+  fn*:proc(a1:nil cstring, a2:uint32, a3:uint32, a4:nil cstring, a5:uint32, a6:nil cstring, a7:nil pointer) {.cdecl.}
+  userData*:nil pointer
 
 type D3d11Desc* = object
   shaderDebugging*:bool
@@ -1728,8 +1728,8 @@ proc c_installTraceHooks(traceHooks:ptr TraceHooks):TraceHooks {.cdecl, importc:
 proc installTraceHooks*(traceHooks:TraceHooks):TraceHooks =
     c_installTraceHooks(addr(traceHooks))
 
-proc c_pushDebugGroup(name:cstring):void {.cdecl, importc:"sg_push_debug_group".}
-proc pushDebugGroup*(name:cstring):void =
+proc c_pushDebugGroup(name:nil cstring):void {.cdecl, importc:"sg_push_debug_group".}
+proc pushDebugGroup*(name:nil cstring):void =
     c_pushDebugGroup(name)
 
 proc c_popDebugGroup():void {.cdecl, importc:"sg_pop_debug_group".}
@@ -2177,83 +2177,83 @@ proc queryStats*():Stats =
     c_queryStats()
 
 type D3d11BufferInfo* = object
-  buf*:pointer
+  buf*:nil pointer
 
 type D3d11ImageInfo* = object
-  tex2d*:pointer
-  tex3d*:pointer
-  res*:pointer
+  tex2d*:nil pointer
+  tex3d*:nil pointer
+  res*:nil pointer
 
 type D3d11SamplerInfo* = object
-  smp*:pointer
+  smp*:nil pointer
 
 type D3d11ShaderInfo* = object
-  cbufs*:array[8, pointer]
-  vs*:pointer
-  fs*:pointer
+  cbufs*:array[8, nil pointer]
+  vs*:nil pointer
+  fs*:nil pointer
 
-converter toD3d11ShaderInfocbufs*[N:static[int]](items: array[N, pointer]): array[8, pointer] {.requires: N<=8.} =
+converter toD3d11ShaderInfocbufs*[N:static[int]](items: array[N, nil pointer]): array[8, nil pointer] {.requires: N<=8.} =
   for index,item in items.pairs: result[index]=item
 
 type D3d11PipelineInfo* = object
-  il*:pointer
-  rs*:pointer
-  dss*:pointer
-  bs*:pointer
+  il*:nil pointer
+  rs*:nil pointer
+  dss*:nil pointer
+  bs*:nil pointer
 
 type D3d11ViewInfo* = object
-  srv*:pointer
-  uav*:pointer
-  rtv*:pointer
-  dsv*:pointer
+  srv*:nil pointer
+  uav*:nil pointer
+  rtv*:nil pointer
+  dsv*:nil pointer
 
 type MtlBufferInfo* = object
-  buf*:array[2, pointer]
+  buf*:array[2, nil pointer]
   activeSlot*:int32
 
-converter toMtlBufferInfobuf*[N:static[int]](items: array[N, pointer]): array[2, pointer] {.requires: N<=2.} =
+converter toMtlBufferInfobuf*[N:static[int]](items: array[N, nil pointer]): array[2, nil pointer] {.requires: N<=2.} =
   for index,item in items.pairs: result[index]=item
 
 type MtlImageInfo* = object
-  tex*:array[2, pointer]
+  tex*:array[2, nil pointer]
   activeSlot*:int32
 
-converter toMtlImageInfotex*[N:static[int]](items: array[N, pointer]): array[2, pointer] {.requires: N<=2.} =
+converter toMtlImageInfotex*[N:static[int]](items: array[N, nil pointer]): array[2, nil pointer] {.requires: N<=2.} =
   for index,item in items.pairs: result[index]=item
 
 type MtlSamplerInfo* = object
-  smp*:pointer
+  smp*:nil pointer
 
 type MtlShaderInfo* = object
-  vertexLib*:pointer
-  fragmentLib*:pointer
-  vertexFunc*:pointer
-  fragmentFunc*:pointer
+  vertexLib*:nil pointer
+  fragmentLib*:nil pointer
+  vertexFunc*:nil pointer
+  fragmentFunc*:nil pointer
 
 type MtlPipelineInfo* = object
-  rps*:pointer
-  dss*:pointer
+  rps*:nil pointer
+  dss*:nil pointer
 
 type WgpuBufferInfo* = object
-  buf*:pointer
+  buf*:nil pointer
 
 type WgpuImageInfo* = object
-  tex*:pointer
+  tex*:nil pointer
 
 type WgpuSamplerInfo* = object
-  smp*:pointer
+  smp*:nil pointer
 
 type WgpuShaderInfo* = object
-  vsMod*:pointer
-  fsMod*:pointer
-  bgl*:pointer
+  vsMod*:nil pointer
+  fsMod*:nil pointer
+  bgl*:nil pointer
 
 type WgpuPipelineInfo* = object
-  renderPipeline*:pointer
-  computePipeline*:pointer
+  renderPipeline*:nil pointer
+  computePipeline*:nil pointer
 
 type WgpuViewInfo* = object
-  view*:pointer
+  view*:nil pointer
 
 type GlBufferInfo* = object
   buf*:array[2, uint32]
@@ -2284,12 +2284,12 @@ type GlViewInfo* = object
 converter toGlViewInfotexView*[N:static[int]](items: array[N, uint32]): array[2, uint32] {.requires: N<=2.} =
   for index,item in items.pairs: result[index]=item
 
-proc c_d3d11Device():pointer {.cdecl, importc:"sg_d3d11_device".}
-proc d3d11Device*():pointer =
+proc c_d3d11Device():nil pointer {.cdecl, importc:"sg_d3d11_device".}
+proc d3d11Device*():nil pointer =
     c_d3d11Device()
 
-proc c_d3d11DeviceContext():pointer {.cdecl, importc:"sg_d3d11_device_context".}
-proc d3d11DeviceContext*():pointer =
+proc c_d3d11DeviceContext():nil pointer {.cdecl, importc:"sg_d3d11_device_context".}
+proc d3d11DeviceContext*():nil pointer =
     c_d3d11DeviceContext()
 
 proc c_d3d11QueryBufferInfo(buf:Buffer):D3d11BufferInfo {.cdecl, importc:"sg_d3d11_query_buffer_info".}
@@ -2316,20 +2316,20 @@ proc c_d3d11QueryViewInfo(view:View):D3d11ViewInfo {.cdecl, importc:"sg_d3d11_qu
 proc d3d11QueryViewInfo*(view:View):D3d11ViewInfo =
     c_d3d11QueryViewInfo(view)
 
-proc c_mtlDevice():pointer {.cdecl, importc:"sg_mtl_device".}
-proc mtlDevice*():pointer =
+proc c_mtlDevice():nil pointer {.cdecl, importc:"sg_mtl_device".}
+proc mtlDevice*():nil pointer =
     c_mtlDevice()
 
-proc c_mtlRenderCommandEncoder():pointer {.cdecl, importc:"sg_mtl_render_command_encoder".}
-proc mtlRenderCommandEncoder*():pointer =
+proc c_mtlRenderCommandEncoder():nil pointer {.cdecl, importc:"sg_mtl_render_command_encoder".}
+proc mtlRenderCommandEncoder*():nil pointer =
     c_mtlRenderCommandEncoder()
 
-proc c_mtlComputeCommandEncoder():pointer {.cdecl, importc:"sg_mtl_compute_command_encoder".}
-proc mtlComputeCommandEncoder*():pointer =
+proc c_mtlComputeCommandEncoder():nil pointer {.cdecl, importc:"sg_mtl_compute_command_encoder".}
+proc mtlComputeCommandEncoder*():nil pointer =
     c_mtlComputeCommandEncoder()
 
-proc c_mtlCommandQueue():pointer {.cdecl, importc:"sg_mtl_command_queue".}
-proc mtlCommandQueue*():pointer =
+proc c_mtlCommandQueue():nil pointer {.cdecl, importc:"sg_mtl_command_queue".}
+proc mtlCommandQueue*():nil pointer =
     c_mtlCommandQueue()
 
 proc c_mtlQueryBufferInfo(buf:Buffer):MtlBufferInfo {.cdecl, importc:"sg_mtl_query_buffer_info".}
@@ -2352,24 +2352,24 @@ proc c_mtlQueryPipelineInfo(pip:Pipeline):MtlPipelineInfo {.cdecl, importc:"sg_m
 proc mtlQueryPipelineInfo*(pip:Pipeline):MtlPipelineInfo =
     c_mtlQueryPipelineInfo(pip)
 
-proc c_wgpuDevice():pointer {.cdecl, importc:"sg_wgpu_device".}
-proc wgpuDevice*():pointer =
+proc c_wgpuDevice():nil pointer {.cdecl, importc:"sg_wgpu_device".}
+proc wgpuDevice*():nil pointer =
     c_wgpuDevice()
 
-proc c_wgpuQueue():pointer {.cdecl, importc:"sg_wgpu_queue".}
-proc wgpuQueue*():pointer =
+proc c_wgpuQueue():nil pointer {.cdecl, importc:"sg_wgpu_queue".}
+proc wgpuQueue*():nil pointer =
     c_wgpuQueue()
 
-proc c_wgpuCommandEncoder():pointer {.cdecl, importc:"sg_wgpu_command_encoder".}
-proc wgpuCommandEncoder*():pointer =
+proc c_wgpuCommandEncoder():nil pointer {.cdecl, importc:"sg_wgpu_command_encoder".}
+proc wgpuCommandEncoder*():nil pointer =
     c_wgpuCommandEncoder()
 
-proc c_wgpuRenderPassEncoder():pointer {.cdecl, importc:"sg_wgpu_render_pass_encoder".}
-proc wgpuRenderPassEncoder*():pointer =
+proc c_wgpuRenderPassEncoder():nil pointer {.cdecl, importc:"sg_wgpu_render_pass_encoder".}
+proc wgpuRenderPassEncoder*():nil pointer =
     c_wgpuRenderPassEncoder()
 
-proc c_wgpuComputePassEncoder():pointer {.cdecl, importc:"sg_wgpu_compute_pass_encoder".}
-proc wgpuComputePassEncoder*():pointer =
+proc c_wgpuComputePassEncoder():nil pointer {.cdecl, importc:"sg_wgpu_compute_pass_encoder".}
+proc wgpuComputePassEncoder*():nil pointer =
     c_wgpuComputePassEncoder()
 
 proc c_wgpuQueryBufferInfo(buf:Buffer):WgpuBufferInfo {.cdecl, importc:"sg_wgpu_query_buffer_info".}

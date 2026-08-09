@@ -223,7 +223,7 @@ converter toEventtouches*[N:static[int]](items: array[N, Touchpoint]): array[8, 
   for index,item in items.pairs: result[index]=item
 
 type Range* = object
-  `addr`*:pointer
+  `addr`*:nil pointer
   size*:int
 
 type ImageDesc* = object
@@ -241,9 +241,9 @@ converter toIconDescimages*[N:static[int]](items: array[N, ImageDesc]): array[8,
   for index,item in items.pairs: result[index]=item
 
 type Allocator* = object
-  allocFn*:proc(a1:int, a2:pointer):pointer {.cdecl.}
-  freeFn*:proc(a1:pointer, a2:pointer) {.cdecl.}
-  userData*:pointer
+  allocFn*:proc(a1:int, a2:nil pointer):nil pointer {.cdecl.}
+  freeFn*:proc(a1:nil pointer, a2:nil pointer) {.cdecl.}
+  userData*:nil pointer
 
 type
   LogItem* {.size:sizeof(int32).} = enum
@@ -394,20 +394,20 @@ type EnvironmentDefaults* = object
   sampleCount*:int32
 
 type MetalEnvironment* = object
-  device*:pointer
+  device*:nil pointer
 
 type D3d11Environment* = object
-  device*:pointer
-  deviceContext*:pointer
+  device*:nil pointer
+  deviceContext*:nil pointer
 
 type WgpuEnvironment* = object
-  device*:pointer
+  device*:nil pointer
 
 type VulkanEnvironment* = object
-  instance*:pointer
-  physicalDevice*:pointer
-  device*:pointer
-  queue*:pointer
+  instance*:nil pointer
+  physicalDevice*:nil pointer
+  device*:nil pointer
+  queue*:nil pointer
   queueFamilyIndex*:uint32
 
 type Environment* = object
@@ -418,29 +418,29 @@ type Environment* = object
   vulkan*:VulkanEnvironment
 
 type MetalSwapchain* = object
-  currentDrawable*:pointer
-  depthStencilTexture*:pointer
-  msaaColorTexture*:pointer
+  currentDrawable*:nil pointer
+  depthStencilTexture*:nil pointer
+  msaaColorTexture*:nil pointer
 
 type D3d11Swapchain* = object
-  renderView*:pointer
-  resolveView*:pointer
-  depthStencilView*:pointer
+  renderView*:nil pointer
+  resolveView*:nil pointer
+  depthStencilView*:nil pointer
 
 type WgpuSwapchain* = object
-  renderView*:pointer
-  resolveView*:pointer
-  depthStencilView*:pointer
+  renderView*:nil pointer
+  resolveView*:nil pointer
+  depthStencilView*:nil pointer
 
 type VulkanSwapchain* = object
-  renderImage*:pointer
-  renderView*:pointer
-  resolveImage*:pointer
-  resolveView*:pointer
-  depthStencilImage*:pointer
-  depthStencilView*:pointer
-  renderFinishedSemaphore*:pointer
-  presentCompleteSemaphore*:pointer
+  renderImage*:nil pointer
+  renderView*:nil pointer
+  resolveImage*:nil pointer
+  resolveView*:nil pointer
+  depthStencilImage*:nil pointer
+  depthStencilView*:nil pointer
+  renderFinishedSemaphore*:nil pointer
+  presentCompleteSemaphore*:nil pointer
 
 type GlSwapchain* = object
   framebuffer*:uint32
@@ -465,8 +465,8 @@ type
     compositemodePremultiplied,
 
 type Logger* = object
-  fn*:proc(a1:cstring, a2:uint32, a3:uint32, a4:cstring, a5:uint32, a6:cstring, a7:pointer) {.cdecl.}
-  userData*:pointer
+  fn*:proc(a1:nil cstring, a2:uint32, a3:uint32, a4:nil cstring, a5:uint32, a6:nil cstring, a7:nil pointer) {.cdecl.}
+  userData*:nil pointer
 
 type GlDesc* = object
   majorVersion*:int32
@@ -478,7 +478,7 @@ type Win32Desc* = object
   consoleAttach*:bool
 
 type Html5Desc* = object
-  canvasSelector*:cstring
+  canvasSelector*:nil cstring
   canvasResize*:bool
   preserveDrawingBuffer*:bool
   askLeaveSite*:bool
@@ -498,18 +498,18 @@ type MetalDesc* = object
   disableDisplaySync*:bool
 
 type AndroidDesc* = object
-  nativeEventCb*:proc(a1:pointer):bool {.cdecl.}
+  nativeEventCb*:proc(a1:nil pointer):bool {.cdecl.}
 
 type Desc* = object
   initCb*:proc() {.cdecl.}
   frameCb*:proc() {.cdecl.}
   cleanupCb*:proc() {.cdecl.}
   eventCb*:proc(a1:ptr Event) {.cdecl.}
-  userData*:pointer
-  initUserdataCb*:proc(a1:pointer) {.cdecl.}
-  frameUserdataCb*:proc(a1:pointer) {.cdecl.}
-  cleanupUserdataCb*:proc(a1:pointer) {.cdecl.}
-  eventUserdataCb*:proc(a1:ptr Event, a2:pointer) {.cdecl.}
+  userData*:nil pointer
+  initUserdataCb*:proc(a1:nil pointer) {.cdecl.}
+  frameUserdataCb*:proc(a1:nil pointer) {.cdecl.}
+  cleanupUserdataCb*:proc(a1:nil pointer) {.cdecl.}
+  eventUserdataCb*:proc(a1:ptr Event, a2:nil pointer) {.cdecl.}
   width*:int32
   height*:int32
   depthFormat*:PixelFormat
@@ -521,7 +521,7 @@ type Desc* = object
   disableVsync*:bool
   highDpi*:bool
   fullscreen*:bool
-  windowTitle*:cstring
+  windowTitle*:nil cstring
   enableClipboard*:bool
   clipboardSize*:int32
   enableDragndrop*:bool
@@ -549,13 +549,13 @@ type Html5FetchResponse* = object
   fileIndex*:int32
   data*:Range
   buffer*:Range
-  userData*:pointer
+  userData*:nil pointer
 
 type Html5FetchRequest* = object
   droppedFileIndex*:int32
   callback*:proc(a1:ptr Html5FetchResponse) {.cdecl.}
   buffer*:Range
-  userData*:pointer
+  userData*:nil pointer
 
 type
   MouseCursor* {.size:sizeof(int32).} = enum
@@ -683,8 +683,8 @@ proc c_unbindMouseCursorImage(cursor:MouseCursor):void {.cdecl, importc:"sapp_un
 proc unbindMouseCursorImage*(cursor:MouseCursor):void =
     c_unbindMouseCursorImage(cursor)
 
-proc c_userdata():pointer {.cdecl, importc:"sapp_userdata".}
-proc userdata*():pointer =
+proc c_userdata():nil pointer {.cdecl, importc:"sapp_userdata".}
+proc userdata*():nil pointer =
     c_userdata()
 
 proc c_queryDesc():Desc {.cdecl, importc:"sapp_query_desc".}
@@ -719,16 +719,16 @@ proc c_frameDurationUnfiltered():float64 {.cdecl, importc:"sapp_frame_duration_u
 proc frameDurationUnfiltered*():float64 =
     c_frameDurationUnfiltered()
 
-proc c_setClipboardString(str:cstring):void {.cdecl, importc:"sapp_set_clipboard_string".}
-proc setClipboardString*(str:cstring):void =
+proc c_setClipboardString(str:nil cstring):void {.cdecl, importc:"sapp_set_clipboard_string".}
+proc setClipboardString*(str:nil cstring):void =
     c_setClipboardString(str)
 
-proc c_getClipboardString():cstring {.cdecl, importc:"sapp_get_clipboard_string".}
-proc getClipboardString*():cstring =
+proc c_getClipboardString():nil cstring {.cdecl, importc:"sapp_get_clipboard_string".}
+proc getClipboardString*():nil cstring =
     c_getClipboardString()
 
-proc c_setWindowTitle(str:cstring):void {.cdecl, importc:"sapp_set_window_title".}
-proc setWindowTitle*(str:cstring):void =
+proc c_setWindowTitle(str:nil cstring):void {.cdecl, importc:"sapp_set_window_title".}
+proc setWindowTitle*(str:nil cstring):void =
     c_setWindowTitle(str)
 
 proc c_setIcon(iconDesc:ptr IconDesc):void {.cdecl, importc:"sapp_set_icon".}
@@ -739,20 +739,20 @@ proc c_getNumDroppedFiles():int32 {.cdecl, importc:"sapp_get_num_dropped_files".
 proc getNumDroppedFiles*():int32 =
     c_getNumDroppedFiles()
 
-proc c_getDroppedFilePath(index:int32):cstring {.cdecl, importc:"sapp_get_dropped_file_path".}
-proc getDroppedFilePath*(index:int32):cstring =
+proc c_getDroppedFilePath(index:int32):nil cstring {.cdecl, importc:"sapp_get_dropped_file_path".}
+proc getDroppedFilePath*(index:int32):nil cstring =
     c_getDroppedFilePath(index)
 
 proc c_run(desc:ptr Desc):void {.cdecl, importc:"sapp_run".}
 proc run*(desc:Desc):void =
     c_run(addr(desc))
 
-proc c_eglGetDisplay():pointer {.cdecl, importc:"sapp_egl_get_display".}
-proc eglGetDisplay*():pointer =
+proc c_eglGetDisplay():nil pointer {.cdecl, importc:"sapp_egl_get_display".}
+proc eglGetDisplay*():nil pointer =
     c_eglGetDisplay()
 
-proc c_eglGetContext():pointer {.cdecl, importc:"sapp_egl_get_context".}
-proc eglGetContext*():pointer =
+proc c_eglGetContext():nil pointer {.cdecl, importc:"sapp_egl_get_context".}
+proc eglGetContext*():nil pointer =
     c_eglGetContext()
 
 proc c_html5AskLeaveSite(ask:bool):void {.cdecl, importc:"sapp_html5_ask_leave_site".}
@@ -767,20 +767,20 @@ proc c_html5FetchDroppedFile(request:ptr Html5FetchRequest):void {.cdecl, import
 proc html5FetchDroppedFile*(request:Html5FetchRequest):void =
     c_html5FetchDroppedFile(addr(request))
 
-proc c_macosGetWindow():pointer {.cdecl, importc:"sapp_macos_get_window".}
-proc macosGetWindow*():pointer =
+proc c_macosGetWindow():nil pointer {.cdecl, importc:"sapp_macos_get_window".}
+proc macosGetWindow*():nil pointer =
     c_macosGetWindow()
 
-proc c_iosGetWindow():pointer {.cdecl, importc:"sapp_ios_get_window".}
-proc iosGetWindow*():pointer =
+proc c_iosGetWindow():nil pointer {.cdecl, importc:"sapp_ios_get_window".}
+proc iosGetWindow*():nil pointer =
     c_iosGetWindow()
 
-proc c_d3d11GetSwapChain():pointer {.cdecl, importc:"sapp_d3d11_get_swap_chain".}
-proc d3d11GetSwapChain*():pointer =
+proc c_d3d11GetSwapChain():nil pointer {.cdecl, importc:"sapp_d3d11_get_swap_chain".}
+proc d3d11GetSwapChain*():nil pointer =
     c_d3d11GetSwapChain()
 
-proc c_win32GetHwnd():pointer {.cdecl, importc:"sapp_win32_get_hwnd".}
-proc win32GetHwnd*():pointer =
+proc c_win32GetHwnd():nil pointer {.cdecl, importc:"sapp_win32_get_hwnd".}
+proc win32GetHwnd*():nil pointer =
     c_win32GetHwnd()
 
 proc c_glGetMajorVersion():int32 {.cdecl, importc:"sapp_gl_get_major_version".}
@@ -795,20 +795,20 @@ proc c_glIsGles():bool {.cdecl, importc:"sapp_gl_is_gles".}
 proc glIsGles*():bool =
     c_glIsGles()
 
-proc c_x11GetWindow():pointer {.cdecl, importc:"sapp_x11_get_window".}
-proc x11GetWindow*():pointer =
+proc c_x11GetWindow():nil pointer {.cdecl, importc:"sapp_x11_get_window".}
+proc x11GetWindow*():nil pointer =
     c_x11GetWindow()
 
-proc c_x11GetDisplay():pointer {.cdecl, importc:"sapp_x11_get_display".}
-proc x11GetDisplay*():pointer =
+proc c_x11GetDisplay():nil pointer {.cdecl, importc:"sapp_x11_get_display".}
+proc x11GetDisplay*():nil pointer =
     c_x11GetDisplay()
 
-proc c_androidGetNativeActivity():pointer {.cdecl, importc:"sapp_android_get_native_activity".}
-proc androidGetNativeActivity*():pointer =
+proc c_androidGetNativeActivity():nil pointer {.cdecl, importc:"sapp_android_get_native_activity".}
+proc androidGetNativeActivity*():nil pointer =
     c_androidGetNativeActivity()
 
-proc c_androidGetNativeWindow():pointer {.cdecl, importc:"sapp_android_get_native_window".}
-proc androidGetNativeWindow*():pointer =
+proc c_androidGetNativeWindow():nil pointer {.cdecl, importc:"sapp_android_get_native_window".}
+proc androidGetNativeWindow*():nil pointer =
     c_androidGetNativeWindow()
 
 when defined emscripten:

@@ -22,14 +22,14 @@ type
     logitemCannotDestroyDefaultContext,
 
 type Logger* = object
-  fn*:proc(a1:cstring, a2:uint32, a3:uint32, a4:cstring, a5:uint32, a6:cstring, a7:pointer) {.cdecl.}
-  userData*:pointer
+  fn*:proc(a1:nil cstring, a2:uint32, a3:uint32, a4:nil cstring, a5:uint32, a6:nil cstring, a7:nil pointer) {.cdecl.}
+  userData*:nil pointer
 
 type Context* = object
   id*:uint32
 
 type Range* = object
-  `addr`*:pointer
+  `addr`*:nil pointer
   size*:int
 
 type FontDesc* = object
@@ -48,9 +48,9 @@ type ContextDesc* = object
   sampleCount*:int32
 
 type Allocator* = object
-  allocFn*:proc(a1:int, a2:pointer):pointer {.cdecl.}
-  freeFn*:proc(a1:pointer, a2:pointer) {.cdecl.}
-  userData*:pointer
+  allocFn*:proc(a1:int, a2:nil pointer):nil pointer {.cdecl.}
+  freeFn*:proc(a1:nil pointer, a2:nil pointer) {.cdecl.}
+  userData*:nil pointer
 
 type Desc* = object
   contextPoolSize*:int32
@@ -203,12 +203,12 @@ proc c_putc(c:char):void {.cdecl, importc:"sdtx_putc".}
 proc putc*(c:char):void =
     c_putc(c)
 
-proc c_puts(str:cstring):void {.cdecl, importc:"sdtx_puts".}
-proc puts*(str:cstring):void =
+proc c_puts(str:nil cstring):void {.cdecl, importc:"sdtx_puts".}
+proc puts*(str:nil cstring):void =
     c_puts(str)
 
-proc c_putr(str:cstring, len:int32):void {.cdecl, importc:"sdtx_putr".}
-proc putr*(str:cstring, len:int32):void =
+proc c_putr(str:nil cstring, len:int32):void {.cdecl, importc:"sdtx_putr".}
+proc putr*(str:nil cstring, len:int32):void =
     c_putr(str, len)
 
 proc c_getClearedFmtBuffer():Range {.cdecl, importc:"sdtx_get_cleared_fmt_buffer".}
