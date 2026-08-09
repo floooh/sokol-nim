@@ -6,10 +6,10 @@ import sokol/log as slog
 import sokol/app as sapp
 import sokol/gfx as sg
 import sokol/glue as sglue
+import std/syncio # for echo in nimony
 
-var passAction = PassAction(
-  colors: [ ColorAttachmentAction( loadAction: loadActionClear, clearValue: (1, 0, 0, 0)) ]
-)
+var passAction = PassAction()
+passAction.colors[0] = ColorAttachmentAction(loadAction: loadActionClear, clearValue: (1, 0, 0, 0))
 
 proc init() {.cdecl.} =
   sg.setup(sg.Desc(
@@ -23,8 +23,8 @@ proc init() {.cdecl.} =
     else: echo "using untested backend"
 
 proc frame() {.cdecl.} =
-  var g = passAction.colors[0].clearValue.g + 0.01
-  passAction.colors[0].clearValue.g = if g > 1.0: 0.0 else: g
+  var g = passAction.colors[0].clearValue.g + 0.01f
+  passAction.colors[0].clearValue.g = if g > 1.0f: 0.0f else: g
   beginPass(Pass(action: passAction, swapchain: sglue.swapchain()))
   endPass()
   commit()
@@ -39,6 +39,6 @@ sapp.run(sapp.Desc(
   windowTitle: "clear.nim",
   width: 400,
   height: 300,
-  icon: IconDesc(sokol_default: true),
+  icon: IconDesc(sokolDefault: true),
   logger: sapp.Logger(fn: slog.fn)
 ))
