@@ -25,20 +25,21 @@ proc init() {.cdecl.} =
   ))
 
   # clear to a blue-ish color
-  passAction.colors[0] = ColorAttachmentAction( loadAction: loadActionClear, clearValue: (0.5, 0.5, 1.0, 1.0))
+  var ca = ColorAttachmentAction(loadAction: loadActionClear, storeAction: storeActionStore, clearValue: Color(r: 0.5f32, g: 0.5f32, b: 1.0f32, a: 1.0f32))
+  passAction.colors[0] = ca
 
   # a 2D triangle and quad in one vertex buffer and one index buffer
   const vertices = [
     # triangle vertices
-    Vertex(x:  0.0,  y: 0.55,  r: 1.0, g: 0.0, b: 0.0),
-    Vertex(x:  0.25, y: 0.05,  r: 0.0, g: 1.0, b: 0.0),
-    Vertex(x: -0.25, y: 0.05,  r: 0.0, g: 0.0, b: 1.0),
+    Vertex(x:  0.0'f32,  y: 0.55'f32,  r: 1.0'f32, g: 0.0'f32, b: 0.0'f32),
+    Vertex(x:  0.25'f32, y: 0.05'f32,  r: 0.0'f32, g: 1.0'f32, b: 0.0'f32),
+    Vertex(x: -0.25'f32, y: 0.05'f32,  r: 0.0'f32, g: 0.0'f32, b: 1.0'f32),
 
     # quad vertices
-    Vertex(x: -0.25, y: -0.05,  r: 0.0, g: 0.0, b: 1.0),
-    Vertex(x:  0.25, y: -0.05,  r: 0.0, g: 1.0, b: 0.0),
-    Vertex(x:  0.25, y: -0.55,  r: 1.0, g: 0.0, b: 0.0),
-    Vertex(x: -0.25, y: -0.55,  r: 1.0, g: 1.0, b: 0.0)
+    Vertex(x: -0.25'f32, y: -0.05'f32,  r: 0.0'f32, g: 0.0'f32, b: 1.0'f32),
+    Vertex(x:  0.25'f32, y: -0.05'f32,  r: 0.0'f32, g: 1.0'f32, b: 0.0'f32),
+    Vertex(x:  0.25'f32, y: -0.55'f32,  r: 1.0'f32, g: 0.0'f32, b: 0.0'f32),
+    Vertex(x: -0.25'f32, y: -0.55'f32,  r: 1.0'f32, g: 1.0'f32, b: 0.0'f32)
   ]
   const indices = [
     # triangle indices
@@ -55,14 +56,14 @@ proc init() {.cdecl.} =
   ))
 
   # shader and pipeline object
+  var attrs = default(array[0..15, VertexAttrState])
+  attrs[0] = VertexAttrState(format: vertexFormatFloat2)
+  attrs[1] = VertexAttrState(format: vertexFormatFloat3)
   pip = sg.makePipeline(PipelineDesc(
     shader: sg.makeShader(shd.bufferoffsetsShaderDesc(sg.queryBackend())),
     indexType: indexTypeUint16,
     layout: VertexLayoutState(
-      attrs: [
-        VertexAttrState(format: vertexFormatFloat2),
-        VertexAttrState(format: vertexFormatFloat3)
-      ]
+      attrs: attrs
     )
   ))
 
@@ -75,8 +76,8 @@ proc frame() {.cdecl.} =
   sg.applyBindings(bindings)
   sg.draw(0, 3, 1)
   #render the quad
-  bindings.vertexBufferOffsets[0] = 3 * sizeof(Vertex)
-  bindings.indexBufferOffset = 3 * sizeof(uint16)
+  bindings.vertexBufferOffsets[0] = (3 * sizeof(Vertex)).int32
+  bindings.indexBufferOffset = (3 * sizeof(uint16)).int32
   sg.applyBindings(bindings)
   sg.draw(0, 6, 1)
   sg.endPass()
@@ -92,6 +93,6 @@ sapp.run(sapp.Desc(
   width: 800,
   height: 600,
   windowTitle: "bufferoffsets.nim",
-  icon: IconDesc(sokol_default: true),
+  icon: IconDesc(sokolDefault: true),
   logger: sapp.Logger(fn: slog.fn),
 ))
