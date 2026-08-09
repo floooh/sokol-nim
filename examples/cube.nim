@@ -16,12 +16,11 @@ var
   rx: float32 = 0
   ry: float32 = 0
 
-const
-  passAction = PassAction(
-    colors:[
-      ColorAttachmentAction(loadAction: loadActionClear, clearValue: (0.5, 0.5, 0.5, 1))
-    ]
-  )
+let
+  passAction = block:
+    var tmp = PassAction()
+    tmp.colors[0] = ColorAttachmentAction(loadAction: loadActionClear, clearValue: (0.5, 0.5, 0.5, 1))
+    tmp
 
 proc init() {.cdecl.} =
   sg.setup(sg.Desc(
@@ -78,26 +77,23 @@ proc init() {.cdecl.} =
     data: sg.Range(addr: indices.addr, size: indices.sizeof)
   ))
 
-  pip = sg.makePipeline(PipelineDesc(
-    shader: sg.makeShader(shd.cubeShaderDesc(sg.queryBackend())),
-    layout: VertexLayoutState(
-      buffers: [
-        VertexBufferLayoutState(stride: 28),
-      ],
-      attrs: [
-        VertexAttrState(bufferIndex: 0, offset: 0,  format: vertexFormatFloat3),
-        VertexAttrState(bufferIndex: 0, offset: 12, format: vertexFormatFloat4),
-      ],
-    ),
-    indexType: indexTypeUint16,
-    cullMode: cullModeBack,
-    depth: DepthState(
-      compare: compareFuncLessEqual,
-      writeEnabled: true,
+  pip = sg.makePipeline:
+    var desc = PipelineDesc(
+      shader: sg.makeShader(shd.cubeShaderDesc(sg.queryBackend())),
+      indexType: indexTypeUint16,
+      cullMode: cullModeBack,
+      depth: DepthState(
+        compare: compareFuncLessEqual,
+        writeEnabled: true,
+      )
     )
-  ))
+    desc.layout.buffers[0] = VertexBufferLayoutState(stride: 28)
+    desc.layout.attrs[0] = VertexAttrState(bufferIndex: 0, offset: 0,  format: vertexFormatFloat3)
+    desc.layout.attrs[1] = VertexAttrState(bufferIndex: 0, offset: 12, format: vertexFormatFloat4)
+    desc
 
-  bindings = Bindings(vertexBuffers: [vbuf], indexBuffer: ibuf)
+  bindings = Bindings(indexBuffer: ibuf)
+  bindings.vertexBuffers[0] = vbuf
 
 proc computeVsParams(): shd.VsParams =
   let proj = persp(60.0f, sapp.widthf()/sapp.heightf(), 0.01f, 10.0f)
@@ -108,14 +104,14 @@ proc computeVsParams(): shd.VsParams =
   result = VsParams(mvp: proj * view * model)
 
 proc frame() {.cdecl.} =
-  let dt = sapp.frameDuration() * 60f
+  let dt = float32(sapp.frameDuration() * 60f)
   rx += 1f * dt
   ry += 2f * dt
   let vsParams = computeVsParams()
   sg.beginPass(Pass(action: passAction, swapchain: sglue.swapchain()))
   sg.applyPipeline(pip)
   sg.applyBindings(bindings)
-  sg.applyUniforms(shd.ubVsParams, sg.Range(addr: vsParams.addr, size: vsParams.sizeof))
+  sg.applyUniforms(shd.ubVsParams.int32, sg.Range(addr: vsParams.addr, size: vsParams.sizeof.int32))
   sg.draw(0, 36, 1)
   sg.endPass()
   sg.commit()
@@ -131,6 +127,6 @@ sapp.run(sapp.Desc(
   width: 800,
   height: 600,
   sampleCount: 4,
-  icon: IconDesc(sokol_default: true),
+  icon: IconDesc(sokolDefault: true),
   logger: sapp.Logger(fn: slog.fn),
 ))
