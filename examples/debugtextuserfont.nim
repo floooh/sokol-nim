@@ -11,12 +11,12 @@ import sokol/glue as sglue
 type Rgb = object
   r, g, b: uint8
 
+let passAction = block:
+  var p = PassAction()
+  p.colors[0]= ColorAttachmentAction(loadAction: loadActionClear, clearValue: (0, 0.125, 0.25, 1))
+  p
+
 const
-  passAction = PassAction(
-    colors: [
-      ColorAttachmentAction(loadAction: loadActionClear, clearValue: (0, 0.125, 0.25, 1))
-    ]
-  )
   colorPalette = [
     Rgb(r:0xf4, g:0x43, b:0x36),
     Rgb(r:0xe9, g:0x1e, b:0x63),
@@ -35,12 +35,11 @@ const
     Rgb(r:0xff, g:0x98, b:0x00),
     Rgb(r:0xff, g:0x57, b:0x22)
   ]
-
-# Font data extracted Colorfrom Atari 400 ROM at address 0xE000,
-# and reshuffled to maColorp to ASCII. Each character is 8 bytes,
-# 1 bit per pixel in aColorn 8x8 matrix.
-# (apparently arrays can't be forward declared in Nim?)
-const userFont = [
+  # Font data extracted Colorfrom Atari 400 ROM at address 0xE000,
+  # and reshuffled to maColorp to ASCII. Each character is 8 bytes,
+  # 1 bit per pixel in aColorn 8x8 matrix.
+  # (apparently arrays can't be forward declared in Nim?)
+  userFont = [
     0x00'u8, 0x00, 0x0, 0x00, 0x00, 0x00, 0x00, 0x00, # 20
     0x00, 0x18, 0x18, 0x18, 0x18, 0x00, 0x18, 0x00, # 21
     0x00, 0x66, 0x66, 0x66, 0x00, 0x00, 0x00, 0x00, # 22
@@ -170,6 +169,7 @@ const userFont = [
     0x00, 0x18, 0x30, 0x7E, 0x30, 0x18, 0x00, 0x00, # 9E
     0x00, 0x18, 0x0C, 0x7E, 0x0C, 0x18, 0x00, 0x00, # 9F
   ]
+
 proc init() {.cdecl.} =
   sg.setup(sg.Desc(
     environment: sglue.environment(),
@@ -179,16 +179,16 @@ proc init() {.cdecl.} =
   # setup sokol-debugtext with the user font as the only font,
   # NOTE that the user font only provides pixel data for the
   # characters 0x20 to 0x9F inclusive
-  sdtx.setup(sdtx.Desc(
-    fonts: [
-      sdtx.FontDesc(
-        data: sdtx.Range(addr: userFont.addr, size: userFont.sizeof),
-        firstChar: 0x20,
-        lastChar: 0x9F
-      )
-    ],
-    logger: sdtx.Logger(fn: slog.fn),
-  ))
+  sdtx.setup:
+    var desc = sdtx.Desc(
+      logger: sdtx.Logger(fn: slog.fn),
+    )
+    desc.fonts[0] = sdtx.FontDesc(
+      data: sdtx.Range(addr: userFont.addr, size: userFont.sizeof),
+      firstChar: 0x20,
+      lastChar: 0x9F
+    )
+    desc
 
 proc frame() {.cdecl.} =
   sdtx.canvas(sapp.widthf() * 0.25, sapp.heightf() * 0.25)
@@ -220,6 +220,6 @@ sapp.run(sapp.Desc(
   width: 800,
   height: 600,
   windowTitle: "debugtextuserfont.nim",
-  icon: IconDesc(sokol_default: true),
+  icon: IconDesc(sokolDefault: true),
   logger: sapp.Logger(fn: slog.fn),
 ))
