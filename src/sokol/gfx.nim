@@ -186,6 +186,7 @@ type
   ResourceState* {.size:sizeof(int32).} = enum
     resourceStateInitial,
     resourceStateAlloc,
+    resourceStateUnsealed,
     resourceStateValid,
     resourceStateFailed,
     resourceStateInvalid,
@@ -523,6 +524,7 @@ type BufferUsage* = object
   immutable*:bool
   dynamicUpdate*:bool
   streamUpdate*:bool
+  writeUnsealed*:bool
 
 type BufferDesc* = object
   startCanary:uint32
@@ -550,6 +552,7 @@ type ImageUsage* = object
   immutable*:bool
   dynamicUpdate*:bool
   streamUpdate*:bool
+  writeUnsealed*:bool
 
 type
   ViewType* {.size:sizeof(int32).} = enum
@@ -566,6 +569,42 @@ type ImageData* = object
 
 converter toImageDatamipLevels*[N:static[int]](items: array[N, Range]): array[16, Range] {.requires: N<=16.} =
   for index,item in items.pairs: result[index]=item
+
+type ImageExtent* = object
+  width*:int32
+  height*:int32
+  numSlices*:int32
+
+type ImageLocation* = object
+  image*:Image
+  mipLevel*:int32
+  x*:int32
+  y*:int32
+  slice*:int32
+
+type WriteImageSource* = object
+  data*:Range
+  offset*:int
+  bytesPerRow*:int32
+  bytesPerSlice*:int32
+
+type WriteImageDesc* = object
+  src*:WriteImageSource
+  dst*:ImageLocation
+  size*:ImageExtent
+
+type BufferLocation* = object
+  buffer*:Buffer
+  offset*:int
+
+type WriteBufferSource* = object
+  data*:Range
+  offset*:int
+
+type WriteBufferDesc* = object
+  src*:WriteBufferSource
+  dst*:BufferLocation
+  size*:int
 
 type ImageDesc* = object
   startCanary:uint32
@@ -866,6 +905,10 @@ type TraceHooks* = object
   updateBuffer*:proc(a1:Buffer, a2:ptr Range, a3:nil pointer) {.cdecl.}
   updateImage*:proc(a1:Image, a2:ptr ImageData, a3:nil pointer) {.cdecl.}
   appendBuffer*:proc(a1:Buffer, a2:ptr Range, a3:int32, a4:nil pointer) {.cdecl.}
+  writeBufferUnsealed*:proc(a1:ptr WriteBufferDesc, a2:nil pointer) {.cdecl.}
+  writeImageUnsealed*:proc(a1:ptr WriteImageDesc, a2:nil pointer) {.cdecl.}
+  sealBuffer*:proc(a1:Buffer, a2:nil pointer) {.cdecl.}
+  sealImage*:proc(a1:Image, a2:nil pointer) {.cdecl.}
   beginPass*:proc(a1:ptr Pass, a2:nil pointer) {.cdecl.}
   applyViewport*:proc(a1:int32, a2:int32, a3:int32, a4:int32, a5:bool, a6:nil pointer) {.cdecl.}
   applyScissorRect*:proc(a1:int32, a2:int32, a3:int32, a4:int32, a5:bool, a6:nil pointer) {.cdecl.}
@@ -1124,6 +1167,10 @@ type FrameStats* = object
   numUpdateBuffer*:uint32
   numAppendBuffer*:uint32
   numUpdateImage*:uint32
+  numWriteBufferUnsealed*:uint32
+  numWriteImageUnsealed*:uint32
+  numSealBuffer*:uint32
+  numSealImage*:uint32
   sizeApplyUniforms*:uint32
   sizeUpdateBuffer*:uint32
   sizeAppendBuffer*:uint32
@@ -1245,6 +1292,7 @@ type
     logitemVulkanStagingAllocateMemoryFailed,
     logitemVulkanStagingBindBufferMemoryFailed,
     logitemVulkanStagingStreamBufferOverflow,
+    logitemVulkanStagingImageRowPitchGreaterStagingBuffer,
     logitemVulkanCreateSharedBufferFailed,
     logitemVulkanAllocateSharedBufferMemoryFailed,
     logitemVulkanBindSharedBufferMemoryFailed,
@@ -1308,6 +1356,10 @@ type
     logitemBeginpassTooManyResolveAttachments,
     logitemBeginpassAttachmentsAlive,
     logitemDrawWithoutBindings,
+    logitemWriteBufferUnsealedBufferAlive,
+    logitemWriteImageUnsealedImageAlive,
+    logitemSealBufferAlive,
+    logitemSealImageAlive,
     logitemShaderdescTooManyVertexstageTextures,
     logitemShaderdescTooManyFragmentstageTextures,
     logitemShaderdescTooManyComputestageTextures,
@@ -1322,6 +1374,7 @@ type
     logitemShaderdescTooManyComputestageTexturesamplerpairs,
     logitemValidateBufferdescCanary,
     logitemValidateBufferdescImmutableDynamicStream,
+    logitemValidateBufferdescUnsealedVsImmutable,
     logitemValidateBufferdescSeparateBufferTypes,
     logitemValidateBufferdescExpectNonzeroSize,
     logitemValidateBufferdescExpectMatchingDataSize,
@@ -1334,6 +1387,8 @@ type
     logitemValidateImagedataDataSize,
     logitemValidateImagedescCanary,
     logitemValidateImagedescImmutableDynamicStream,
+    logitemValidateImagedescUnsealedVsImmutable,
+    logitemValidateImagedescUnsealedVsAttachment,
     logitemValidateImagedescAttachmentColorDepthStencil,
     logitemValidateImagedescImagetype2dNumslices,
     logitemValidateImagedescImagetypeCubeNumslices,
@@ -1354,9 +1409,12 @@ type
     logitemValidateImagedescAttachmentMsaa3dImage,
     logitemValidateImagedescAttachmentMsaaCubeImage,
     logitemValidateImagedescAttachmentMsaaArrayImage,
+    logitemValidateImagedescStorageimageExpectImmutable,
+    logitemValidateImagedescStorageimageExpectNoData,
     logitemValidateImagedescStorageimagePixelformat,
     logitemValidateImagedescStorageimageExpectNoMsaa,
     logitemValidateImagedescInjectedNoData,
+    logitemValidateImagedescUnsealedNoData,
     logitemValidateImagedescDynamicNoData,
     logitemValidateImagedescCompressedImmutable,
     logitemValidateSamplerdescCanary,
@@ -1432,7 +1490,8 @@ type
     logitemValidateViewdescUniqueViewtype,
     logitemValidateViewdescAnyViewtype,
     logitemValidateViewdescResourceAlive,
-    logitemValidateViewdescResourceFailed,
+    logitemValidateViewdescResourceValid,
+    logitemValidateViewdescImageValidUnsealed,
     logitemValidateViewdescStoragebufferOffsetVsBufferSize,
     logitemValidateViewdescStoragebufferOffsetMultiple256,
     logitemValidateViewdescStoragebufferUsage,
@@ -1627,6 +1686,32 @@ type
     logitemValidateAppendbufUpdate,
     logitemValidateUpdimgUsage,
     logitemValidateUpdimgOnce,
+    logitemValidateWritebufferunsealedUsage,
+    logitemValidateWritebufferunsealedResourcestate,
+    logitemValidateWritebufferunsealedSrcDataPointer,
+    logitemValidateWritebufferunsealedSrcDataSize,
+    logitemValidateWritebufferunsealedSize,
+    logitemValidateWritebufferunsealedWriteOverflow,
+    logitemValidateWritebufferunsealedReadOverflow,
+    logitemValidateWriteimageunsealedUsage,
+    logitemValidateWriteimageunsealedResourcestate,
+    logitemValidateWriteimageunsealedSrcDataPointer,
+    logitemValidateWriteimageunsealedSrcDataSize,
+    logitemValidateWriteimageunsealedBytesperrow,
+    logitemValidateWriteimageunsealedBytesperslice,
+    logitemValidateWriteimageunsealedMiplevel,
+    logitemValidateWriteimageunsealedWidth,
+    logitemValidateWriteimageunsealedHeight,
+    logitemValidateWriteimageunsealedNumslices,
+    logitemValidateWriteimageunsealedReadOverflow,
+    logitemValidateWriteimageunsealedDstXRange,
+    logitemValidateWriteimageunsealedDstYRange,
+    logitemValidateWriteimageunsealedDstSliceRange,
+    logitemValidateWriteimageunsealedWriteWidthOverflow,
+    logitemValidateWriteimageunsealedWriteHeightOverflow,
+    logitemValidateWriteimageunsealedWriteNumslicesOverflow,
+    logitemValidateSealbufferResourcestate,
+    logitemValidateSealimageResourcestate,
     logitemValidationFailed,
 
 type EnvironmentDefaults* = object
@@ -1792,26 +1877,6 @@ proc c_destroyView(view:View):void {.cdecl, importc:"sg_destroy_view".}
 proc destroyView*(view:View):void =
     c_destroyView(view)
 
-proc c_updateBuffer(buf:Buffer, data:ptr Range):void {.cdecl, importc:"sg_update_buffer".}
-proc updateBuffer*(buf:Buffer, data:Range):void =
-    c_updateBuffer(buf, addr(data))
-
-proc c_updateImage(img:Image, data:ptr ImageData):void {.cdecl, importc:"sg_update_image".}
-proc updateImage*(img:Image, data:ImageData):void =
-    c_updateImage(img, addr(data))
-
-proc c_appendBuffer(buf:Buffer, data:ptr Range):int32 {.cdecl, importc:"sg_append_buffer".}
-proc appendBuffer*(buf:Buffer, data:Range):int32 =
-    c_appendBuffer(buf, addr(data))
-
-proc c_queryBufferOverflow(buf:Buffer):bool {.cdecl, importc:"sg_query_buffer_overflow".}
-proc queryBufferOverflow*(buf:Buffer):bool =
-    c_queryBufferOverflow(buf)
-
-proc c_queryBufferWillOverflow(buf:Buffer, size:int):bool {.cdecl, importc:"sg_query_buffer_will_overflow".}
-proc queryBufferWillOverflow*(buf:Buffer, size:int):bool =
-    c_queryBufferWillOverflow(buf, size)
-
 proc c_beginPass(pass:ptr Pass):void {.cdecl, importc:"sg_begin_pass".}
 proc beginPass*(pass:Pass):void =
     c_beginPass(addr(pass))
@@ -1863,6 +1928,42 @@ proc endPass*():void =
 proc c_commit():void {.cdecl, importc:"sg_commit".}
 proc commit*():void =
     c_commit()
+
+proc c_writeBufferUnsealed(desc:ptr WriteBufferDesc):void {.cdecl, importc:"sg_write_buffer_unsealed".}
+proc writeBufferUnsealed*(desc:WriteBufferDesc):void =
+    c_writeBufferUnsealed(addr(desc))
+
+proc c_writeImageUnsealed(desc:ptr WriteImageDesc):void {.cdecl, importc:"sg_write_image_unsealed".}
+proc writeImageUnsealed*(desc:WriteImageDesc):void =
+    c_writeImageUnsealed(addr(desc))
+
+proc c_sealBuffer(buf:Buffer):void {.cdecl, importc:"sg_seal_buffer".}
+proc sealBuffer*(buf:Buffer):void =
+    c_sealBuffer(buf)
+
+proc c_sealImage(img:Image):void {.cdecl, importc:"sg_seal_image".}
+proc sealImage*(img:Image):void =
+    c_sealImage(img)
+
+proc c_updateBuffer(buf:Buffer, data:ptr Range):void {.cdecl, importc:"sg_update_buffer".}
+proc updateBuffer*(buf:Buffer, data:Range):void =
+    c_updateBuffer(buf, addr(data))
+
+proc c_updateImage(img:Image, data:ptr ImageData):void {.cdecl, importc:"sg_update_image".}
+proc updateImage*(img:Image, data:ImageData):void =
+    c_updateImage(img, addr(data))
+
+proc c_appendBuffer(buf:Buffer, data:ptr Range):int32 {.cdecl, importc:"sg_append_buffer".}
+proc appendBuffer*(buf:Buffer, data:Range):int32 =
+    c_appendBuffer(buf, addr(data))
+
+proc c_queryBufferOverflow(buf:Buffer):bool {.cdecl, importc:"sg_query_buffer_overflow".}
+proc queryBufferOverflow*(buf:Buffer):bool =
+    c_queryBufferOverflow(buf)
+
+proc c_queryBufferWillOverflow(buf:Buffer, size:int):bool {.cdecl, importc:"sg_query_buffer_will_overflow".}
+proc queryBufferWillOverflow*(buf:Buffer, size:int):bool =
+    c_queryBufferWillOverflow(buf, size)
 
 proc c_queryDesc():Desc {.cdecl, importc:"sg_query_desc".}
 proc queryDesc*():Desc =
