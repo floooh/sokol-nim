@@ -65,30 +65,28 @@ proc init() {.cdecl.} =
 
   # shader and pipeline object
   # NOTE how the vertex components are pulled from different buffer bind slots
-  pip = sg.makePipeline(PipelineDesc(
-    shader: sg.makeShader(shd.noninterleavedShaderDesc(sg.queryBackend())),
-    layout: VertexLayoutState(
-      attrs: [
-        VertexAttrState(format: vertexFormatFloat3, bufferIndex: 0),
-        VertexAttrState(format: vertexFormatFloat4, bufferIndex: 1),
-      ]
-    ),
-    indexType: indexTypeUint16,
-    cullMode: cullModeBack,
-    depth: DepthState(
-      compare: compareFuncLessEqual,
-      writeEnabled: true,
-    ),
-  ))
+  pip = sg.makePipeline:
+    var ppd = PipelineDesc(
+      shader: sg.makeShader(shd.noninterleavedShaderDesc(sg.queryBackend())),
+      indexType: indexTypeUint16,
+      cullMode: cullModeBack,
+      depth: DepthState(
+        compare: compareFuncLessEqual,
+        writeEnabled: true,
+      ),
+    )
+    ppd.layout.attrs[0] = VertexAttrState(format: vertexFormatFloat3, bufferIndex: 0)
+    ppd.layout.attrs[1] = VertexAttrState(format: vertexFormatFloat4, bufferIndex: 1)
+    ppd
 
   # fill the resource bindings, note how the same vertex
   # buffer is bound to the first two slots, and the vertex-buffer-offsets
   # are used to point to the position- and color-components.
-  bindings = Bindings(
-    vertexBuffers: [ vbuf, vbuf ],
-    vertexBufferOffsets: [ 0'i32, 24 * 3 * sizeof(float32)],
-    indexBuffer: ibuf,
-  )
+  bindings = Bindings(indexBuffer: ibuf)
+  bindings.vertexBuffers[0] = vbuf
+  bindings.vertexBuffers[1] = vbuf
+  bindings.vertexBufferOffsets[0] = 0'i32
+  bindings.vertexBufferOffsets[1] = 24'i32 * 3'i32 * int32(sizeof(float32))
 
 proc computeVsParams(): shd.VsParams =
   let proj = persp(60.0f, sapp.widthf()/sapp.heightf(), 0.01f, 10.0f)
@@ -99,14 +97,14 @@ proc computeVsParams(): shd.VsParams =
   result = VsParams(mvp: proj * view * model)
 
 proc frame() {.cdecl.} =
-  let dt = sapp.frameDuration() * 60f
-  rx += 1f * dt
-  ry += 2f * dt
+  let dt = float32(sapp.frameDuration()) * 60.0f
+  rx += 1.0f * dt
+  ry += 2.0f * dt
   let vsParams = computeVsParams()
   sg.beginPass(Pass(action: passAction, swapchain: sglue.swapchain()))
   sg.applyPipeline(pip)
   sg.applyBindings(bindings)
-  sg.applyUniforms(shd.ubVsParams, sg.Range(addr: vsParams.addr, size: vsParams.sizeof))
+  sg.applyUniforms(shd.ubVsParams.int32, sg.Range(addr: vsParams.addr, size: vsParams.sizeof))
   sg.draw(0, 36, 1)
   sg.endPass()
   sg.commit()
@@ -122,6 +120,6 @@ sapp.run(sapp.Desc(
   height: 600,
   sampleCount: 4,
   windowTitle: "noninterleaved.nim",
-  icon: IconDesc(sokol_default: true),
+  icon: IconDesc(sokolDefault: true),
   logger: sapp.Logger(fn: slog.fn),
 ))
