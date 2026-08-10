@@ -13,9 +13,9 @@ import math/mat4
 import shaders/offscreen as shd
 
 const
-  offscreenSampleCount = 1
-  offscreenWidth = 256
-  offscreenHeight = 256
+  offscreenSampleCount: int32 = 1
+  offscreenWidth: int32 = 256
+  offscreenHeight: int32 = 256
 
 var
   offscreenPass: Pass
@@ -34,14 +34,10 @@ proc init() {.cdecl.} =
   ))
 
   # default pass action: clear to blue-ish
-  displayPassAction = PassAction(
-    colors: [ ColorAttachmentAction( loadAction: loadActionClear, clearValue: (0.25, 0.45, 0.65, 1 )) ]
-  )
+  displayPassAction.colors[0] = ColorAttachmentAction( loadAction: loadActionClear, clearValue: (0.25f, 0.45f, 0.65f, 1.0f) )
 
   # offscreen pass action: clear to grey
-  offscreenPass.action = PassAction(
-    colors: [ ColorAttachmentAction( loadAction: loadActionClear, clearValue: (0.25, 0.25, 0.25, 1 )) ]
-  )
+  offscreenPass.action.colors[0] = ColorAttachmentAction( loadAction: loadActionClear, clearValue: (0.25f, 0.25f, 0.25f, 1.0f) )
 
   # setup the color- and depth-stencil-attachment images and views
   let colorImg = sg.makeImage(sg.ImageDesc(
@@ -80,9 +76,9 @@ proc init() {.cdecl.} =
     vertices: BufferState(buffer: sshape.Range(addr: vertices.addr, size: vertices.sizeof)),
     indices: BufferState(buffer: sshape.Range(addr: indices.addr, size: indices.sizeof))
   )
-  sshape.buildTorus(shp.addr, Torus(radius:0.5, ringRadius:0.3, sides:20, rings:36))
+  sshape.buildTorus(shp.addr, Torus(radius:0.5f, ringRadius:0.3f, sides:20, rings:36))
   donut = sshape.elementRange(shp)
-  sshape.buildSphere(shp.addr, Sphere(radius:0.5, slices: 72, stacks: 40))
+  sshape.buildSphere(shp.addr, Sphere(radius:0.5f, slices: 72, stacks: 40))
   sphere = sshape.elementRange(shp)
 
   let vbuf = sg.makeBuffer(sshape.vertexBufferDesc(shp))
@@ -93,46 +89,40 @@ proc init() {.cdecl.} =
   displayBindings.indexBuffer = ibuf
 
   # pipeline object for offscreen-rendered donut, don't need vertex coords here
-  offscreenPip = sg.makePipeline(PipelineDesc(
-    shader: sg.makeShader(offscreenShaderDesc(sg.queryBackend())),
-    layout: VertexLayoutState(
-      buffers: [ sshape.vertexBufferLayoutState(shp) ],
-      attrs: [
-        sshape.positionVertexAttrState(shp),
-        sshape.normalVertexAttrState(shp)
-      ]
-    ),
-    indexType: indexTypeUint16,
-    cullMode: cullModeBack,
-    sampleCount: offscreenSampleCount,
-    depth: DepthState(
-      pixelFormat: pixelFormatDepth,
-      compare: compareFuncLessEqual,
-      writeEnabled: true
-    ),
-    colors: [
-      ColorTargetState(pixelFormat: pixelFormatRgba8)
-    ]
-  ))
+  offscreenPip = sg.makePipeline:
+    var opd = PipelineDesc(
+      shader: sg.makeShader(offscreenShaderDesc(sg.queryBackend())),
+      indexType: indexTypeUint16,
+      cullMode: cullModeBack,
+      sampleCount: offscreenSampleCount,
+      depth: DepthState(
+        pixelFormat: pixelFormatDepth,
+        compare: compareFuncLessEqual,
+        writeEnabled: true
+      )
+    )
+    opd.layout.buffers[0] = sshape.vertexBufferLayoutState(shp)
+    opd.layout.attrs[0] = sshape.positionVertexAttrState(shp)
+    opd.layout.attrs[1] = sshape.normalVertexAttrState(shp)
+    opd.colors[0] = ColorTargetState(pixelFormat: pixelFormatRgba8)
+    opd
 
   # ...and another pipeline object for the default pass
-  displayPip = sg.makePipeline(PipelineDesc(
-    shader: sg.makeShader(defaultShaderDesc(sg.queryBackend())),
-    layout: VertexLayoutState(
-      buffers: [ sshape.vertexBufferLayoutState(shp) ],
-      attrs: [
-        sshape.positionVertexAttrState(shp),
-        sshape.normalVertexAttrState(shp),
-        sshape.texcoordVertexAttrState(shp)
-      ]
-    ),
-    indexType: indexTypeUint16,
-    cullMode: cullModeBack,
-    depth: DepthState(
-      compare: compareFuncLessEqual,
-      writeEnabled: true,
+  displayPip = sg.makePipeline:
+    var dpd = PipelineDesc(
+      shader: sg.makeShader(defaultShaderDesc(sg.queryBackend())),
+      indexType: indexTypeUint16,
+      cullMode: cullModeBack,
+      depth: DepthState(
+        compare: compareFuncLessEqual,
+        writeEnabled: true,
+      )
     )
-  ))
+    dpd.layout.buffers[0] = sshape.vertexBufferLayoutState(shp)
+    dpd.layout.attrs[0] = sshape.positionVertexAttrState(shp)
+    dpd.layout.attrs[1] = sshape.normalVertexAttrState(shp)
+    dpd.layout.attrs[2] = sshape.texcoordVertexAttrState(shp)
+    dpd
 
   # a sampler object for sampling the render target as texture
   displayBindings.samplers[smpSmp] = sg.makeSampler(SamplerDesc(
@@ -144,18 +134,18 @@ proc init() {.cdecl.} =
 
 # a helper function to computer model-view-projection matrix
 proc computeMVP(rx: float32, ry: float32, aspect: float32, eyeDist: float32): mat4.Mat4 =
-  let proj = persp(45, aspect, 0.01, 10)
-  let view = lookat(vec3(0, 0, eyeDist), vec3.zero(), vec3.up())
+  let proj = persp(45.0f, aspect, 0.01f, 10.0f)
+  let view = lookat(vec3(0.0f, 0.0f, eyeDist), vec3.zero(), vec3.up())
   let viewProj = proj * view
-  let rxm = rotate(rx, vec3(1, 0, 0))
-  let rym = rotate(ry, vec3(0, 1, 0))
+  let rxm = rotate(rx, vec3(1.0f, 0.0f, 0.0f))
+  let rym = rotate(ry, vec3(0.0f, 1.0f, 0.0f))
   let model = rym * rxm
   result = viewProj * model
 
 proc frame() {.cdecl.} =
-  let t: float32 = sapp.frameDuration() * 60
-  rx += 1f * t
-  ry += 2f * t
+  let t: float32 = sapp.frameDuration().float32 * 60.0f
+  rx += 1.0f * t
+  ry += 2.0f * t
 
   # the offscreen pass, rendering an rotating, untextured donut into a render target image
   let offscreenVsParams = shd.VsParams(
@@ -164,7 +154,7 @@ proc frame() {.cdecl.} =
   sg.beginPass(offscreenPass)
   sg.applyPipeline(offscreenPip)
   sg.applyBindings(offscreenBindings)
-  sg.applyUniforms(shd.ubVsParams, sg.Range(addr: offscreenVsParams.addr, size: offscreenVsParams.sizeof))
+  sg.applyUniforms(shd.ubVsParams.int32, sg.Range(addr: offscreenVsParams.addr, size: offscreenVsParams.sizeof))
   sg.draw(donut.baseElement, donut.numElements, 1)
   sg.endPass()
 
@@ -176,7 +166,7 @@ proc frame() {.cdecl.} =
   sg.beginPass(Pass(action: displayPassAction, swapchain: sglue.swapchain()))
   sg.applyPipeline(displayPip)
   sg.applyBindings(displayBindings)
-  sg.applyUniforms(shd.ubVsParams, sg.Range(addr: defaultVsParams.addr, size: offscreenVsParams.sizeof))
+  sg.applyUniforms(shd.ubVsParams.int32, sg.Range(addr: defaultVsParams.addr, size: offscreenVsParams.sizeof))
   sg.draw(sphere.baseElement, sphere.numElements, 1)
   sg.endPass()
   sg.commit()
@@ -192,6 +182,6 @@ sapp.run(sapp.Desc(
   height: 600,
   sampleCount: 4,
   windowTitle: "offscreen.nim",
-  icon: IconDesc(sokol_default: true),
+  icon: IconDesc(sokolDefault: true),
   logger: sapp.Logger(fn: slog.fn),
 ))
