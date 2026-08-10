@@ -11,16 +11,10 @@ import math/mat4
 import shaders/texcube as shd
 
 var
+  passAction: PassAction
   rx, ry: float32
   pip: Pipeline
   bindings: Bindings
-
-const
-  passAction = PassAction(
-    colors: [
-      ColorAttachmentAction( loadAction: loadActionClear, clearValue: (0.25, 0.5, 0.75, 1.0))
-    ]
-  )
 
 type Vertex = object
   x, y, z: float32
@@ -32,6 +26,9 @@ proc init() {.cdecl.} =
     environment: sglue.environment(),
     logger: sg.Logger(fn: slog.fn),
   ))
+
+  # Initialize passAction
+  passAction.colors[0] = ColorAttachmentAction(loadAction: loadActionClear, clearValue: (0.25f, 0.5f, 0.75f, 1.0f))
 
   #[
     Cube vertex buffer with packed vertex formats for color and texture coords.
@@ -91,15 +88,14 @@ proc init() {.cdecl.} =
     0xFFFFFFFF'u32, 0xFF000000'u32, 0xFFFFFFFF'u32, 0xFF000000'u32,
     0xFF000000'u32, 0xFFFFFFFF'u32, 0xFF000000'u32, 0xFFFFFFFF'u32,
   ]
+  var imgDesc = sg.ImageDesc(
+    width: 4,
+    height: 4
+  )
+  imgDesc.data.mipLevels[0] = sg.Range(addr: pixels.addr, size: pixels.sizeof)
   bindings.views[shd.viewTex] = sg.makeView(ViewDesc(
     texture: TextureViewDesc(
-      image: sg.makeImage(sg.ImageDesc(
-        width: 4,
-        height: 4,
-        data: ImageData(
-          mipLevels: [ sg.Range(addr: pixels.addr, size: pixels.sizeof) ]
-        )
-      ))
+      image: sg.makeImage(imgDesc)
     )
   ))
 
@@ -107,25 +103,23 @@ proc init() {.cdecl.} =
   bindings.samplers[shd.smpSmp] = sg.makeSampler(sg.SamplerDesc(
     minFilter: filterNearest,
     magFilter: filterNearest,
-  ));
+  ))
 
   # shader and pipeline object
-  pip = sg.makePipeline(PipelineDesc(
-    shader: sg.makeShader(texcubeShaderDesc(sg.queryBackend())),
-    layout: VertexLayoutState(
-      attrs: [
-        VertexAttrState(format: vertexFormatFloat3),    # pos
-        VertexAttrState(format: vertexFormatUbyte4n),   # color0
-        VertexAttrState(format: vertexFormatShort2n)    # texcoord0
-      ]
-    ),
-    indexType: indexTypeUint16,
-    cullMode: cullModeBack,
-    depth: DepthState(
+  pip = sg.makePipeline:
+    var pd = PipelineDesc(
+      shader: sg.makeShader(texcubeShaderDesc(sg.queryBackend()))
+    )
+    pd.layout.attrs[0] = VertexAttrState(format: vertexFormatFloat3)    # pos
+    pd.layout.attrs[1] = VertexAttrState(format: vertexFormatUbyte4n)   # color0
+    pd.layout.attrs[2] = VertexAttrState(format: vertexFormatShort2n)    # texcoord0
+    pd.indexType = indexTypeUint16
+    pd.cullMode = cullModeBack
+    pd.depth = DepthState(
       compare: compareFuncLessEqual,
       writeEnabled: true
     )
-  ))
+    pd
 
 proc computeVsParams(): shd.VsParams =
   let proj = persp(60.0f, sapp.widthf()/sapp.heightf(), 0.01f, 10.0f)
@@ -136,14 +130,14 @@ proc computeVsParams(): shd.VsParams =
   result = VsParams(mvp: proj * view * model)
 
 proc frame() {.cdecl.} =
-  let dt = sapp.frameDuration() * 60f
-  rx += 1f * dt
-  ry += 2f * dt
+  let dt = (sapp.frameDuration() * 60.0).float32
+  rx += 1.0f * dt
+  ry += 2.0f * dt
   let vsParams = computeVsParams()
   sg.beginPass(Pass(action: passAction, swapchain: sglue.swapchain()))
   sg.applyPipeline(pip)
   sg.applyBindings(bindings)
-  sg.applyUniforms(shd.ubVsParams, sg.Range(addr: vsParams.addr, size: vsParams.sizeof))
+  sg.applyUniforms(shd.ubVsParams.int32, sg.Range(addr: vsParams.addr, size: vsParams.sizeof))
   sg.draw(0, 36, 1)
   sg.endPass()
   sg.commit()
@@ -159,6 +153,6 @@ sapp.run(sapp.Desc(
   width: 800,
   height: 600,
   sampleCount: 4,
-  icon: IconDesc(sokol_default: true),
+  icon: IconDesc(sokolDefault: true),
   logger: sapp.Logger(fn: slog.fn),
 ))
