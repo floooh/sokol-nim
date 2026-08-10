@@ -208,12 +208,12 @@ type
 
 type
   ImageSampleType* {.size:sizeof(int32).} = enum
-    imagesampletypeDefault,
-    imagesampletypeFloat,
-    imagesampletypeDepth,
-    imagesampletypeSint,
-    imagesampletypeUint,
-    imagesampletypeUnfilterableFloat,
+    imageSampleTypeDefault,
+    imageSampleTypeFloat,
+    imageSampleTypeDepth,
+    imageSampleTypeSint,
+    imageSampleTypeUint,
+    imageSampleTypeUnfilterableFloat,
 
 type
   SamplerType* {.size:sizeof(int32).} = enum
@@ -403,13 +403,13 @@ type
     loadActionDefault,
     loadActionClear,
     loadActionLoad,
-    loadActionDontcare,
+    loadActionDontCare,
 
 type
   StoreAction* {.size:sizeof(int32).} = enum
     storeActionDefault,
     storeActionStore,
-    storeActionDontcare,
+    storeActionDontCare,
 
 type ColorAttachmentAction* = object
   loadAction*:LoadAction
