@@ -17,7 +17,7 @@ type Vertex = object
   x, y, z, b: float32
 
 const
-  offscreenSampleCount = 4
+  offscreenSampleCount = 4i32
   numMrts: int = 3
 
 var
@@ -100,11 +100,9 @@ proc init() {.cdecl.} =
   defaultPassAction.stencil.loadAction = loadActionDontCare
 
   # pass action for offscreen pass (clear to some background color)
-  offscreenPass.action.colors = [
-    ColorAttachmentAction(loadAction: loadActionClear, clearValue: (0.25, 0, 0, 1)),
-    ColorAttachmentAction(loadAction: loadActionClear, clearValue: (0, 0.25, 0, 1)),
-    ColorAttachmentAction(loadAction: loadActionClear, clearValue: (0, 0, 0.25, 1))
-  ]
+  offscreenPass.action.colors[0] = ColorAttachmentAction(loadAction: loadActionClear, clearValue: (0.25, 0, 0, 1))
+  offscreenPass.action.colors[1] = ColorAttachmentAction(loadAction: loadActionClear, clearValue: (0, 0.25, 0, 1))
+  offscreenPass.action.colors[2] = ColorAttachmentAction(loadAction: loadActionClear, clearValue: (0, 0, 0.25, 1))
 
   # a cube vertex buffer
   const cubeVertices = [
@@ -153,25 +151,23 @@ proc init() {.cdecl.} =
   ))
 
   # shader and pipeline for offscreen-renderer cube
-  offscreenPip = sg.makePipeline(PipelineDesc(
-    shader: sg.makeShader(offscreenShaderDesc(sg.queryBackend())),
-    layout: VertexLayoutState(
-      buffers: [ VertexBufferLayoutState(stride: sizeof(Vertex).int32) ],
-      attrs: [
-        VertexAttrState(offset: offsetOf(Vertex,x).int32, format: vertexFormatFloat3),
-        VertexAttrState(offset: offsetOf(Vertex,b).int32, format: vertexFormatFloat)
-      ]
-    ),
-    indexType: indexTypeUint16,
-    cullMode: cullModeBack,
-    sampleCount: offscreenSampleCount,
-    depth: DepthState(
-      pixelFormat: pixelFormatDepth,
-      compare: compareFuncLessEqual,
-      writeEnabled: true,
-    ),
-    colorCount: 3
-  ))
+  offscreenPip = sg.makePipeline:
+    var pd = PipelineDesc(
+      shader: sg.makeShader(offscreenShaderDesc(sg.queryBackend())),
+      indexType: indexTypeUint16,
+      cullMode: cullModeBack,
+      sampleCount: offscreenSampleCount,
+      depth: DepthState(
+        pixelFormat: pixelFormatDepth,
+        compare: compareFuncLessEqual,
+        writeEnabled: true,
+      ),
+      colorCount: 3
+    )
+    pd.layout.buffers[0] = VertexBufferLayoutState(stride: sizeof(Vertex).int32)
+    pd.layout.attrs[0] = VertexAttrState(offset: 0, format: vertexFormatFloat3)
+    pd.layout.attrs[1] = VertexAttrState(offset: 12, format: vertexFormatFloat)
+    pd
 
   # a vertex buffer to create a fullscreen rectangle
   const quadVertices = [ 0.0f, 0.0f,  1.0f, 0.0f,  0.0f, 1.0f,  1.0f, 1.0f ]
@@ -192,26 +188,22 @@ proc init() {.cdecl.} =
   dbgBindings.samplers[smpSmp] = smp
 
   # shader and pipeline to compose 3 offscreen render targets into default framebuffer
-  displayPip = sg.makePipeline(PipelineDesc(
-    shader: sg.makeShader(fsqShaderDesc(sg.queryBackend())),
-    layout: VertexLayoutState(
-      attrs: [
-        VertexAttrState(format: vertexFormatFloat2)
-      ]
-    ),
-    primitiveType: primitiveTypeTriangleStrip,
-  ))
+  displayPip = sg.makePipeline:
+    var dpd = PipelineDesc(
+      shader: sg.makeShader(fsqShaderDesc(sg.queryBackend())),
+      primitiveType: primitiveTypeTriangleStrip,
+    )
+    dpd.layout.attrs[0] = VertexAttrState(format: vertexFormatFloat2)
+    dpd
 
   # shader and pipeline to render debug-visualization quads
-  dbgPip = sg.makePipeline(PipelineDesc(
-    shader: sg.makeShader(dbgShaderDesc(sg.queryBackend())),
-    layout: VertexLayoutState(
-      attrs: [
-        VertexAttrState(format: vertexFormatFloat2)
-      ]
-    ),
-    primitiveType: primitiveTypeTriangleStrip,
-  ))
+  dbgPip = sg.makePipeline:
+    var dbgpd = PipelineDesc(
+      shader: sg.makeShader(dbgShaderDesc(sg.queryBackend())),
+      primitiveType: primitiveTypeTriangleStrip,
+    )
+    dbgpd.layout.attrs[0] = VertexAttrState(format: vertexFormatFloat2)
+    dbgpd
 
 proc frame() {.cdecl.} =
   let t = sapp.frameDuration().float32 * 60
@@ -219,7 +211,7 @@ proc frame() {.cdecl.} =
   ry += 2f * t
 
   # view-projection matrix
-  let proj = persp(60, sapp.widthf()/sapp.heightf(), 0.01, 10)
+  let proj = persp(60.0f, sapp.widthf()/sapp.heightf(), 0.01f, 10.0f)
   let view = lookat(vec3(0, 1.5, 6), vec3.zero(), vec3.up())
   let viewProj = proj * view
 
@@ -227,14 +219,14 @@ proc frame() {.cdecl.} =
   let rxm = rotate(rx, vec3(1, 0, 0))
   let rym = rotate(ry, vec3(0, 1, 0))
   let model = rxm * rym
-  let offscreenParams = OffscreenParams(mvp: view_proj * model)
-  let fsqParams = FsqParams(offset: vec2(math.sin(rx*0.01)*0.1, math.sin(ry*0.01)*0.1))
+  let offscreenParams = OffscreenParams(mvp: viewProj * model)
+  let fsqParams = FsqParams(offset: vec2(math.sin(rx*0.01f)*0.1f, math.sin(ry*0.01f)*0.1f))
 
   # render cube into MRT offscreen render targets
   sg.beginPass(offscreenPass)
   sg.applyPipeline(offscreenPip)
   sg.applyBindings(offscreenBindings)
-  sg.applyUniforms(shd.ubOffscreenParams, sg.Range(addr: offscreenParams.addr, size: offscreenParams.sizeof))
+  sg.applyUniforms(shd.ubOffscreenParams.int32, sg.Range(addr: offscreenParams.addr, size: offscreenParams.sizeof))
   sg.draw(0, 36, 1)
   sg.endPass()
 
@@ -242,7 +234,7 @@ proc frame() {.cdecl.} =
   sg.beginPass(Pass(action: defaultPassAction, swapchain: sglue.swapchain()))
   sg.applyPipeline(displayPip)
   sg.applyBindings(displayBindings)
-  sg.applyUniforms(shd.ubFsqParams, sg.Range(addr: fsqParams.addr, size: fsqParams.sizeof))
+  sg.applyUniforms(shd.ubFsqParams.int32, sg.Range(addr: fsqParams.addr, size: fsqParams.sizeof))
   sg.draw(0, 4, 1)
   sg.applyPipeline(dbgPip)
   for i in 0..<3:
@@ -270,6 +262,6 @@ sapp.run(sapp.Desc(
   height: 600,
   sampleCount: 4,
   windowTitle: "mrt.nim",
-  icon: IconDesc(sokol_default: true),
+  icon: IconDesc(sokolDefault: true),
   logger: sapp.Logger(fn: slog.fn),
 ))
