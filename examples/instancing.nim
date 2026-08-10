@@ -17,9 +17,9 @@ const
   numParticlesEmittedPerFrame = 10
 
 var
-  passAction: PassAction
-  pip: Pipeline
-  bindings: Bindings
+  passAction = PassAction()
+  pip = Pipeline()
+  bindings = Bindings()
   ry: float32
   curNumParticles: int
   pos: array[maxParticles, Vec3]
@@ -32,9 +32,7 @@ proc init() {.cdecl.} =
   ))
 
   # a pass action for the default render pass (clears to black)
-  passAction = PassAction(
-    colors: [ ColorAttachmentAction( loadAction: loadActionClear, clearValue: (0, 0, 0, 1)) ]
-  )
+  passAction.colors[0] = ColorAttachmentAction( loadAction: loadActionClear, clearValue: (0, 0, 0, 1))
 
   # a vertex buffer for the static geometry, goes into vertex buffer bind slot 0
   const r = 0.05f
@@ -68,27 +66,23 @@ proc init() {.cdecl.} =
   ))
 
   # shader and pipeline object
-  pip = sg.makePipeline(PipelineDesc(
+  pip = sg.makePipeline:
+    var pd = PipelineDesc(
     shader: sg.makeShader(instancingShaderDesc(sg.queryBackend())),
-    layout: VertexLayoutState(
-      # vertex buffer at slot 1 must step per instance
-      buffers: [
-        VertexBufferLayoutState(),
-        VertexBufferLayoutState( stepFunc: vertexStepPerInstance )
-      ],
-      attrs: [
-        VertexAttrState(format: vertexFormatFloat3, bufferIndex: 0),  # pos
-        VertexAttrState(format: vertexFormatFloat4, bufferIndex: 0),  # color0
-        VertexAttrState(format: vertexFormatFloat3, bufferIndex: 1),  # inst_pos
-      ]
-    ),
     indexType: indexTypeUint16,
     cullMode: cullModeBack,
     depth: DepthState(
       compare: compareFuncLessEqual,
       writeEnabled: true,
-    )
-  ))
+    ))
+
+    # vertex buffer at slot 1 must step per instance
+    pd.layout.buffers[0] = VertexBufferLayoutState()
+    pd.layout.buffers[1] = VertexBufferLayoutState( stepFunc: vertexStepPerInstance )
+    pd.layout.attrs[0] = VertexAttrState(format: vertexFormatFloat3, bufferIndex: 0)  # pos
+    pd.layout.attrs[1] =   VertexAttrState(format: vertexFormatFloat4, bufferIndex: 0)  # color0
+    pd.layout.attrs[2] =   VertexAttrState(format: vertexFormatFloat3, bufferIndex: 1)  # inst_pos
+    pd
 
 proc frame() {.cdecl.} =
   let frameTime = sapp.frameDuration().float32
@@ -114,7 +108,7 @@ proc frame() {.cdecl.} =
     if pos[i].y < -2f:
       pos[i].y = -1.8f
       vel[i].y = -vel[i].y
-      vel[i] = vel[i] * 0.8
+      vel[i] = vel[i] * 0.8f
 
   # update instance data
   # FIXME: this is awkward, we'd need a slice-to-Range converter
@@ -124,7 +118,7 @@ proc frame() {.cdecl.} =
   ))
 
   # model-view-projection data
-  let proj = persp(60, sapp.widthf() / sapp.heightf(), 0.01, 50.0)
+  let proj = persp(60, sapp.widthf() / sapp.heightf(), 0.01f, 50.0f)
   let view = lookat(vec3(0, 1.5, 12), vec3.zero(), vec3.up())
   ry += 60 * frameTime
   let model = rotate(ry, vec3.up())
@@ -134,7 +128,7 @@ proc frame() {.cdecl.} =
   sg.beginPass(Pass(action: passAction, swapchain: sglue.swapchain()))
   sg.applyPipeline(pip)
   sg.applyBindings(bindings)
-  sg.applyUniforms(shd.ubVsParams, sg.Range(addr: vsParams.addr, size: vsParams.sizeof))
+  sg.applyUniforms(shd.ubVsParams.int32, sg.Range(addr: vsParams.addr, size: vsParams.sizeof))
   sg.draw(0, 24, curNumParticles.int32)
   sg.endPass()
   sg.commit()
@@ -150,6 +144,6 @@ sapp.run(sapp.Desc(
   height: 600,
   sampleCount: 4,
   windowTitle: "instancing.nim",
-  icon: IconDesc(sokol_default: true),
+  icon: IconDesc(sokolDefault: true),
   logger: sapp.Logger(fn: slog.fn),
 ))
