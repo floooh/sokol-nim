@@ -13,7 +13,7 @@ import shaders/instancingcompute as shd
 
 const
   maxParticles = 512 * 1024
-  numParticlesEmittedPerFrame = 10
+  numParticlesEmittedPerFrame: int32 = 10
 
 var
   numParticles: int32
@@ -24,7 +24,7 @@ var
   displayBindings: Bindings
   displayPassAction: PassAction
 
-proc init() {.cdecl} =
+proc init() {.cdecl.} =
   sg.setup(sg.Desc(
     environment: sglue.environment(),
     logger: sg.Logger(fn: slog.fn),
@@ -32,14 +32,10 @@ proc init() {.cdecl} =
 
   # if compute shaders not supported, clear to red and early-out
   if not sg.queryFeatures().compute:
-    displayPassAction = PassAction(
-      colors: [ ColorAttachmentAction( loadAction: loadActionClear, clearValue: (1, 0, 0, 1)) ]
-    )
+    displayPassAction.colors[0] = ColorAttachmentAction( loadAction: loadActionClear, clearValue: (1, 0, 0, 1))
 
   # regular clear color
-  displayPassAction = PassAction(
-    colors: [ ColorAttachmentAction( loadAction: loadActionClear, clearValue: (0, 0.1, 0.2, 1)) ]
-  )
+  displayPassAction.colors[0] = ColorAttachmentAction( loadAction: loadActionClear, clearValue: (0, 0.1, 0.2, 1))
 
   # a buffer and storage-buffer-view for the particle state
   let sbuf = sg.makeBuffer(BufferDesc(
@@ -87,22 +83,20 @@ proc init() {.cdecl} =
 
   # shader and pipeline for rendering the particles, this uses
   # the compute-updated storage buffer to provide the particle positions
-  displayPipeline = sg.makePipeline(PipelineDesc(
-    shader: sg.makeShader(displayShaderDesc(sg.queryBackend())),
-    layout: VertexLayoutState(
-      attrs: [
-        VertexAttrState(format: vertexFormatFloat3),  # pos
-        VertexAttrState(format: vertexFormatFloat4),  # color0
-      ],
-    ),
-    indexType: indexTypeUint16,
-    cullMode: cullModeBack,
-    depth: DepthState(
-      compare: compareFuncLessEqual,
-      writeEnabled: true,
-    ),
-    label: "render-pipeline",
-  ))
+  displayPipeline = sg.makePipeline:
+    var pd = PipelineDesc(
+      shader: sg.makeShader(displayShaderDesc(sg.queryBackend())),
+      indexType: indexTypeUint16,
+      cullMode: cullModeBack,
+      depth: DepthState(
+        compare: compareFuncLessEqual,
+        writeEnabled: true,
+      ),
+      label: "render-pipeline",
+    )
+    pd.layout.attrs[0] = VertexAttrState(format: vertexFormatFloat3)  # pos
+    pd.layout.attrs[1] = VertexAttrState(format: vertexFormatFloat4)  # color0
+    pd
 
   # one-time init of particle velocities via compute shader
   let pip = sg.makePipeline(PipelineDesc(
@@ -112,7 +106,7 @@ proc init() {.cdecl} =
   sg.beginPass(Pass(compute: true))
   sg.applyPipeline(pip)
   sg.applyBindings(computeBindings)
-  sg.dispatch((maxParticles / 64).int32, 1, 1)
+  sg.dispatch(((maxParticles.int32 div 64)), 1, 1)
   sg.endPass()
   sg.destroyPipeline(pip)
 
@@ -122,39 +116,39 @@ proc drawFallback() =
   sg.commit()
 
 proc computeVsParams(): VsParams =
-  let proj = persp(60, sapp.widthf() / sapp.heightf(), 0.01, 50.0)
-  let view = lookat(vec3(0, 1.5, 12), vec3.zero(), vec3.up())
+  let proj = persp(60.0f, sapp.widthf() / sapp.heightf(), 0.01f, 50.0f)
+  let view = lookat(vec3(0.0f, 1.5f, 12.0f), vec3.zero(), vec3.up())
   let model = rotate(ry, vec3.up())
   return VsParams(mvp: proj * view * model)
 
-proc frame() {.cdecl} =
+proc frame() {.cdecl.} =
   if not sg.queryFeatures().compute:
     drawFallback()
     return
 
-  numParticles += numParticlesEmittedPerFrame;
-  if numParticles > maxParticles:
-    numParticles = maxParticles
-  let dt: float32 = sapp.frameDuration()
+  numParticles += numParticlesEmittedPerFrame
+  if numParticles > maxParticles.int32:
+    numParticles = maxParticles.int32
+  let dt: float32 = float32(sapp.frameDuration())
 
   # compute pass to update particle positions
-  let csParams = CsParams(dt: dt, num_particles: num_particles)
+  let csParams = CsParams(dt: dt, num_particles: numParticles)
   sg.beginPass(Pass(compute: true, label: "compute-pass"))
   sg.applyPipeline(computePipeline)
   sg.applyBindings(computeBindings)
-  sg.applyUniforms(ubCsParams, sg.Range(addr: csParams.addr, size: csParams.sizeof))
-  sg.dispatch(((numParticles + 63) / 64).int32, 1, 1)
+  sg.applyUniforms(ubCsParams.int32, sg.Range(addr: csParams.addr, size: csParams.sizeof))
+  sg.dispatch(((numParticles + 63i32) div 64i32), 1, 1)
   sg.endPass()
 
   # shader and pipeline for rendering the particles, this uses the
   # compute-updated storage buffer to provide the particle positions
-  ry += 60.0 * dt
+  ry += 60.0f * dt
   let vsParams = computeVsParams()
   sg.beginPass(Pass(action: displayPassAction, swapchain: sglue.swapchain(), label: "render-pass"))
   sg.applyPipeline(displayPipeline)
   sg.applyBindings(displayBindings)
-  sg.applyUniforms(ubVsParams, sg.Range(addr: vsParams.addr, size: vsParams.sizeof))
-  sg.draw(0, 24, num_particles)
+  sg.applyUniforms(ubVsParams.int32, sg.Range(addr: vsParams.addr, size: vsParams.sizeof))
+  sg.draw(0, 24, numParticles)
   sg.endPass()
   sg.commit()
 
@@ -169,6 +163,6 @@ sapp.run(sapp.Desc(
   height: 600,
   sampleCount: 4,
   windowTitle: "instancingcompute.nim",
-  icon: IconDesc(sokol_default: true),
+  icon: IconDesc(sokolDefault: true),
   logger: sapp.Logger(fn: slog.fn),
 ))
