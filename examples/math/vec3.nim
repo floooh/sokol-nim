@@ -1,4 +1,4 @@
-import math
+import std/math
 
 type Vec3* = object
   x*: float32

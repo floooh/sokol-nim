@@ -9,9 +9,11 @@ import sokol/gl as sgl
 import sokol/glue as sglue
 import std/math
 
-const passAction = PassAction(
-  colors: [ColorAttachmentAction(loadAction: loadActionClear, clearValue: (0.1f, 0.1f, 0.2f, 1f))]
-)
+let passAction = block:
+  var t = PassAction()
+  t.colors[0]= ColorAttachmentAction(loadAction: loadActionClear, clearValue: (0.1f, 0.1f, 0.2f, 1f))
+  t
+
 
 var
   ballX, ballY: float32
@@ -39,11 +41,11 @@ proc drawCheckerboardSphere(x, y, radius, rotZ, rotX: float32) =
   sgl.rotate(sgl.asRadians(rotX), 1, 0, 0)   # Y-axis spin (top/bottom)
   sgl.beginQuads()
   for lat in 0..<bands:
-    let t1 = PI * (lat.float32 / bands.float32) - PI/2f
-    let t2 = PI * ((lat + 1).float32 / bands.float32) - PI/2f
+    let t1 = PI.float32() * (lat.float32 / bands.float32) - PI.float32()/2f
+    let t2 = PI.float32() * ((lat + 1).float32 / bands.float32) - PI.float32()/2f
     for lon in 0..<segs:
-      let p1 = 2f * PI * (lon.float32 / segs.float32)
-      let p2 = 2f * PI * ((lon + 1).float32 / segs.float32)
+      let p1 = 2f * PI.float32() * (lon.float32 / segs.float32)
+      let p2 = 2f * PI.float32() * ((lon + 1).float32 / segs.float32)
       let isRed = ((lat + lon) mod 2) == 0
       let (r, g, b) = if isRed: (0.9f, 0.1f, 0.1f) else: (1f, 1f, 1f)
       sgl.c3f(r, g, b)
@@ -55,7 +57,7 @@ proc drawCheckerboardSphere(x, y, radius, rotZ, rotX: float32) =
   sgl.popMatrix()
 
 proc frame() {.cdecl.} =
-  let dt = sapp.frameDuration()
+  let dt = sapp.frameDuration().float32
   const gravity = 800f
 
   # Apply gravity
@@ -85,8 +87,8 @@ proc frame() {.cdecl.} =
     ballVx = -abs(ballVx)
 
   # Update rotation based on movement
-  rotZ += ballVx * dt * 0.3f    # Rotate with horizontal movement
-  rotX += ballVy * dt * 0.2f    # Y-axis spin with vertical movement
+  rotZ += ballVx * dt * 0.3f32    # Rotate with horizontal movement
+  rotX += ballVy * dt * 0.2f32    # Y-axis spin with vertical movement
 
   winW = sapp.widthf()
   winH = sapp.heightf()
@@ -117,5 +119,5 @@ proc cleanup() {.cdecl.} =
 sapp.run(sapp.Desc(
   initCb: init, frameCb: frame, cleanupCb: cleanup,
   width: 800, height: 600, windowTitle: "Amiga Boing! Ball",
-  icon: IconDesc(sokol_default: true), logger: sapp.Logger(fn: slog.fn)
+  icon: IconDesc(sokolDefault: true), logger: sapp.Logger(fn: slog.fn)
 ))

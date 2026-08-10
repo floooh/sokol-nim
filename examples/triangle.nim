@@ -30,15 +30,13 @@ proc init() {.cdecl.} =
   ))
 
   # create shader and pipeline object
-  pip = sg.makePipeline(PipelineDesc(
-    shader: sg.makeShader(shd.triangleShaderDesc(sg.queryBackend())),
-    layout: VertexLayoutState(
-      attrs: [
-        VertexAttrState(format: vertexFormatFloat3),
-        VertexAttrState(format: vertexFormatFloat4)
-      ]
+  pip = sg.makePipeline:
+    var pd = PipelineDesc(
+      shader: sg.makeShader(shd.triangleShaderDesc(sg.queryBackend()))
     )
-  ))
+    pd.layout.attrs[0] = VertexAttrState(format: vertexFormatFloat3)
+    pd.layout.attrs[1] = VertexAttrState(format: vertexFormatFloat4)
+    pd
 
 proc frame() {.cdecl.} =
   # default PassAction clears to grey
@@ -58,7 +56,7 @@ sapp.run(sapp.Desc(
   cleanupCb: cleanup,
   width: 640,
   height: 480,
-  window_title: "triangle.nim",
-  icon: IconDesc(sokol_default: true),
+  windowTitle: "triangle.nim",
+  icon: IconDesc(sokolDefault: true),
   logger: sapp.Logger(fn: slog.fn),
 ))

@@ -27,17 +27,9 @@ proc init() {.cdecl.} =
 
   # if storage buffers are not supported on this backend, just render a red screen
   if not sg.queryFeatures().compute:
-    passAction = sg.PassAction(
-      colors: [
-        ColorAttachmentAction(loadAction: loadActionClear, clearValue: (1, 0, 0, 1))
-      ]
-    )
+    passAction.colors[0] = ColorAttachmentAction(loadAction: loadActionClear, clearValue: (1.0f, 0.0f, 0.0f, 1.0f))
   else:
-    passAction = sg.PassAction(
-      colors: [
-        ColorAttachmentAction(loadAction: loadActionClear, clearValue: (0.75, 0.5, 0.25, 1 ))
-      ]
-    )
+    passAction.colors[0] = ColorAttachmentAction(loadAction: loadActionClear, clearValue: (0.75f, 0.5f, 0.25f, 1.0f))
 
   # a buffer with cube vertex data using the code-generated SSBO struct
   # (looks a bit awkward in Nim, but that way the data is properly padded and aligned)
@@ -112,16 +104,16 @@ proc computeVsParams(): shd.VsParams =
   result = VsParams(mvp: proj * view * model)
 
 proc frame() {.cdecl.} =
-  let dt = sapp.frameDuration() * 60f
-  rx += 1f * dt
-  ry += 2f * dt
+  let dt = (sapp.frameDuration() * 60.0).float32
+  rx += 1.0f * dt
+  ry += 2.0f * dt
   let vsParams = computeVsParams();
 
   sg.beginPass(Pass(action: passAction, swapchain: sglue.swapchain()))
   if sg.queryFeatures().compute:
     sg.applyPipeline(pip)
     sg.applyBindings(bindings)
-    sg.applyUniforms(shd.ubVsParams, sg.Range(addr: vsParams.addr, size: vsParams.sizeof))
+    sg.applyUniforms(shd.ubVsParams.int32, sg.Range(addr: vsParams.addr, size: vsParams.sizeof))
     sg.draw(0, 36, 1)
   sg.endPass()
   sg.commit()
@@ -137,6 +129,6 @@ sapp.run(sapp.Desc(
   width: 800,
   height: 600,
   sampleCount: 4,
-  icon: IconDesc(sokol_default: true),
+  icon: IconDesc(sokolDefault: true),
   logger: sapp.Logger(fn: slog.fn)
 ))
