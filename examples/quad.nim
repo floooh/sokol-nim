@@ -39,19 +39,17 @@ proc init() {.cdecl.} =
   ))
 
   # a shader and pipeline object
-  pip = sg.makePipeline(PipelineDesc(
-    shader: sg.makeShader(shd.quadShaderDesc(sg.queryBackend())),
-    layout: VertexLayoutState(
-      attrs: [
-        VertexAttrState(format: vertexFormatFloat3),
-        VertexAttrState(format: vertexFormatFloat4)
-      ],
-    ),
-    indexType: indexTypeUint16
-  ))
+  pip = sg.makePipeline:
+    var pd = PipelineDesc(
+      shader: sg.makeShader(shd.quadShaderDesc(sg.queryBackend())),
+      indexType: indexTypeUint16
+    )
+    pd.layout.attrs[0] = VertexAttrState(format: vertexFormatFloat3)
+    pd.layout.attrs[1] = VertexAttrState(format: vertexFormatFloat4)
+    pd
 
   # pass action for clearing to black
-  passAction.colors[0] = ColorAttachmentAction( loadAction: loadActionClear, clearValue: (0f, 0f, 0f, 1f))
+  passAction.colors[0] = ColorAttachmentAction(loadAction: loadActionClear, clearValue: (0.0f, 0.0f, 0.0f, 1.0f))
 
 proc frame() {.cdecl.} =
   sg.beginPass(Pass(action: passAction, swapchain: sglue.swapchain()))
@@ -70,7 +68,7 @@ sapp.run(sapp.Desc(
   cleanupCb: cleanup,
   width: 640,
   height: 480,
-  window_title: "quad.nim",
-  icon: IconDesc(sokol_default: true),
+  windowTitle: "quad.nim",
+  icon: IconDesc(sokolDefault: true),
   logger: sapp.Logger(fn: slog.fn),
 ))
