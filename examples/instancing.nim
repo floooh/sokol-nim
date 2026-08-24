@@ -62,7 +62,7 @@ proc init() {.cdecl.} =
   # empty, dynamic instance-data vertex buffer, goes into vertex-buffer-slot 1
   bindings.vertexBuffers[1] = sg.makeBuffer(BufferDesc(
     size: maxParticles * sizeof(Vec3),
-    usage: BufferUsage(streamUpdate: true),
+    usage: BufferUsage(writeTransient: true),
   ))
 
   # shader and pipeline object
@@ -111,10 +111,10 @@ proc frame() {.cdecl.} =
       vel[i] = vel[i] * 0.8f
 
   # update instance data
-  # FIXME: this is awkward, we'd need a slice-to-Range converter
-  sg.updateBuffer(bindings.vertexBuffers[1], sg.Range(
-    addr: pos.addr,
-    size: (curNumParticles * Vec3.sizeof)
+  sg.writeBufferTransient(WriteBufferDesc(
+    dst: BufferLocation(buffer: bindings.vertexBuffers[1]),
+    src: WriteBufferSource(data: sg.Range(addr: pos.addr, size: pos.sizeof)),
+    size: curNumParticles * Vec3.sizeof,
   ))
 
   # model-view-projection data
