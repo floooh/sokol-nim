@@ -962,18 +962,18 @@ type SlotInfo* = object
 
 type BufferInfo* = object
   slot*:SlotInfo
+  numSlots*:int32
+  activeSlot*:int32
   updateFrameIndex*:uint32
   appendFrameIndex*:uint32
   appendPos*:int32
   appendOverflow*:bool
-  numSlots*:int32
-  activeSlot*:int32
 
 type ImageInfo* = object
   slot*:SlotInfo
-  updFrameIndex*:uint32
   numSlots*:int32
   activeSlot*:int32
+  updFrameIndex*:uint32
 
 type SamplerInfo* = object
   slot*:SlotInfo
@@ -1296,7 +1296,7 @@ type
     logitemVulkanStagingCreateBufferFailed,
     logitemVulkanStagingAllocateMemoryFailed,
     logitemVulkanStagingBindBufferMemoryFailed,
-    logitemVulkanStagingStreamBufferOverflow,
+    logitemVulkanStagingTransientBufferOverflow,
     logitemVulkanStagingImageRowPitchGreaterStagingBuffer,
     logitemVulkanCreateSharedBufferFailed,
     logitemVulkanAllocateSharedBufferMemoryFailed,
@@ -1394,8 +1394,10 @@ type
     logitemValidateImagedataDataSize,
     logitemValidateImagedescCanary,
     logitemValidateImagedescImmutableVsWritable,
-    logitemValidateImagedescUnsealedVsImmutable,
-    logitemValidateImagedescUnsealedVsAttachment,
+    logitemValidateImagedescWriteUnsealedVsImmutable,
+    logitemValidateImagedescWriteUnsealedVsAttachment,
+    logitemValidateImagedescWriteTransientVsAttachment,
+    logitemValidateImagedescDynamicUpdateVsAttachment,
     logitemValidateImagedescAttachmentColorDepthStencil,
     logitemValidateImagedescImagetype2dNumslices,
     logitemValidateImagedescImagetypeCubeNumslices,
@@ -1785,7 +1787,7 @@ type WgpuDesc* = object
 
 type VulkanDesc* = object
   copyStagingBufferSize*:int32
-  streamStagingBufferSize*:int32
+  transientStagingBufferSize*:int32
   descriptorBufferSize*:int32
 
 type Desc* = object
