@@ -522,9 +522,9 @@ type BufferUsage* = object
   indexBuffer*:bool
   storageBuffer*:bool
   immutable*:bool
-  dynamicUpdate*:bool
-  streamUpdate*:bool
   writeUnsealed*:bool
+  writeTransient*:bool
+  dynamicUpdate*:bool
 
 type BufferDesc* = object
   startCanary:uint32
@@ -550,9 +550,9 @@ type ImageUsage* = object
   resolveAttachment*:bool
   depthStencilAttachment*:bool
   immutable*:bool
-  dynamicUpdate*:bool
-  streamUpdate*:bool
   writeUnsealed*:bool
+  writeTransient*:bool
+  dynamicUpdate*:bool
 
 type
   ViewType* {.size:sizeof(int32).} = enum
@@ -905,6 +905,8 @@ type TraceHooks* = object
   updateBuffer*:proc(a1:Buffer, a2:ptr Range, a3:nil pointer) {.cdecl.}
   updateImage*:proc(a1:Image, a2:ptr ImageData, a3:nil pointer) {.cdecl.}
   appendBuffer*:proc(a1:Buffer, a2:ptr Range, a3:int32, a4:nil pointer) {.cdecl.}
+  writeBufferTransient*:proc(a1:ptr WriteBufferDesc, a2:nil pointer) {.cdecl.}
+  writeImageTransient*:proc(a1:ptr WriteImageDesc, a2:nil pointer) {.cdecl.}
   writeBufferUnsealed*:proc(a1:ptr WriteBufferDesc, a2:nil pointer) {.cdecl.}
   writeImageUnsealed*:proc(a1:ptr WriteImageDesc, a2:nil pointer) {.cdecl.}
   sealBuffer*:proc(a1:Buffer, a2:nil pointer) {.cdecl.}
@@ -1167,6 +1169,8 @@ type FrameStats* = object
   numUpdateBuffer*:uint32
   numAppendBuffer*:uint32
   numUpdateImage*:uint32
+  numWriteBufferTransient*:uint32
+  numWriteImageTransient*:uint32
   numWriteBufferUnsealed*:uint32
   numWriteImageUnsealed*:uint32
   numSealBuffer*:uint32
@@ -1246,6 +1250,7 @@ type
     logitemD3d11MapForUpdateBufferFailed,
     logitemD3d11MapForAppendBufferFailed,
     logitemD3d11MapForUpdateImageFailed,
+    logitemD3d11MapForWriteBufferTransientFailed,
     logitemMetalCreateBufferFailed,
     logitemMetalTextureFormatNotSupported,
     logitemMetalCreateTextureFailed,
@@ -1356,6 +1361,8 @@ type
     logitemBeginpassTooManyResolveAttachments,
     logitemBeginpassAttachmentsAlive,
     logitemDrawWithoutBindings,
+    logitemWriteBufferTransientBufferAlive,
+    logitemWriteImageTransientImageAlive,
     logitemWriteBufferUnsealedBufferAlive,
     logitemWriteImageUnsealedImageAlive,
     logitemSealBufferAlive,
@@ -1373,7 +1380,7 @@ type
     logitemShaderdescTooManyFragmentstageTexturesamplerpairs,
     logitemShaderdescTooManyComputestageTexturesamplerpairs,
     logitemValidateBufferdescCanary,
-    logitemValidateBufferdescImmutableDynamicStream,
+    logitemValidateBufferdescImmutableVsWritable,
     logitemValidateBufferdescUnsealedVsImmutable,
     logitemValidateBufferdescSeparateBufferTypes,
     logitemValidateBufferdescExpectNonzeroSize,
@@ -1386,7 +1393,7 @@ type
     logitemValidateImagedataNodata,
     logitemValidateImagedataDataSize,
     logitemValidateImagedescCanary,
-    logitemValidateImagedescImmutableDynamicStream,
+    logitemValidateImagedescImmutableVsWritable,
     logitemValidateImagedescUnsealedVsImmutable,
     logitemValidateImagedescUnsealedVsAttachment,
     logitemValidateImagedescAttachmentColorDepthStencil,
@@ -1414,8 +1421,7 @@ type
     logitemValidateImagedescStorageimagePixelformat,
     logitemValidateImagedescStorageimageExpectNoMsaa,
     logitemValidateImagedescInjectedNoData,
-    logitemValidateImagedescUnsealedNoData,
-    logitemValidateImagedescDynamicNoData,
+    logitemValidateImagedescWritableNoData,
     logitemValidateImagedescCompressedImmutable,
     logitemValidateSamplerdescCanary,
     logitemValidateSamplerdescAnistropicRequiresLinearFiltering,
@@ -1621,11 +1627,13 @@ type
     logitemValidateAbndVbufAlive,
     logitemValidateAbndVbufUsage,
     logitemValidateAbndVbufOverflow,
+    logitemValidateAbndVbufWriteTransient,
     logitemValidateAbndExpectedNoIbuf,
     logitemValidateAbndExpectedIbuf,
     logitemValidateAbndIbufAlive,
     logitemValidateAbndIbufUsage,
     logitemValidateAbndIbufOverflow,
+    logitemValidateAbndIbufWriteTransient,
     logitemValidateAbndExpectedViewBinding,
     logitemValidateAbndViewAlive,
     logitemValidateAbndExpectTexview,
@@ -1636,10 +1644,13 @@ type
     logitemValidateAbndTexviewExpectedNonMultisampledImage,
     logitemValidateAbndTexviewExpectedFilterableImage,
     logitemValidateAbndTexviewExpectedDepthImage,
+    logitemValidateAbndTexviewImageWriteTransient,
     logitemValidateAbndSbviewReadwriteImmutable,
+    logitemValidateAbndSbviewBufferWriteTransient,
     logitemValidateAbndSimgviewComputePassExpected,
     logitemValidateAbndSimgviewImagetypeMismatch,
     logitemValidateAbndSimgviewAccessformat,
+    logitemValidateAbndSimgviewImageWriteTransient,
     logitemValidateAbndExpectedSamplerBinding,
     logitemValidateAbndUnexpectedSamplerCompareNever,
     logitemValidateAbndExpectedSamplerCompareNever,
@@ -1688,28 +1699,33 @@ type
     logitemValidateUpdimgOnce,
     logitemValidateWritebufferunsealedUsage,
     logitemValidateWritebufferunsealedResourcestate,
-    logitemValidateWritebufferunsealedSrcDataPointer,
-    logitemValidateWritebufferunsealedSrcDataSize,
-    logitemValidateWritebufferunsealedSize,
-    logitemValidateWritebufferunsealedWriteOverflow,
-    logitemValidateWritebufferunsealedReadOverflow,
+    logitemValidateWritebuffertransientUsage,
+    logitemValidateWritebuffertransientWriteBeforeBind,
+    logitemValidateWritebuffertransientDstOffsetAlignment,
+    logitemValidateWritebufferSrcDataPointer,
+    logitemValidateWritebufferSrcDataSize,
+    logitemValidateWritebufferSize,
+    logitemValidateWritebufferWriteOverflow,
+    logitemValidateWritebufferReadOverflow,
     logitemValidateWriteimageunsealedUsage,
     logitemValidateWriteimageunsealedResourcestate,
-    logitemValidateWriteimageunsealedSrcDataPointer,
-    logitemValidateWriteimageunsealedSrcDataSize,
-    logitemValidateWriteimageunsealedBytesperrow,
-    logitemValidateWriteimageunsealedBytesperslice,
-    logitemValidateWriteimageunsealedMiplevel,
-    logitemValidateWriteimageunsealedWidth,
-    logitemValidateWriteimageunsealedHeight,
-    logitemValidateWriteimageunsealedNumslices,
-    logitemValidateWriteimageunsealedReadOverflow,
-    logitemValidateWriteimageunsealedDstXRange,
-    logitemValidateWriteimageunsealedDstYRange,
-    logitemValidateWriteimageunsealedDstSliceRange,
-    logitemValidateWriteimageunsealedWriteWidthOverflow,
-    logitemValidateWriteimageunsealedWriteHeightOverflow,
-    logitemValidateWriteimageunsealedWriteNumslicesOverflow,
+    logitemValidateWriteimagetransientUsage,
+    logitemValidateWriteimagetransientWriteBeforeBind,
+    logitemValidateWriteimageSrcDataPointer,
+    logitemValidateWriteimageSrcDataSize,
+    logitemValidateWriteimageBytesperrow,
+    logitemValidateWriteimageBytesperslice,
+    logitemValidateWriteimageMiplevel,
+    logitemValidateWriteimageWidth,
+    logitemValidateWriteimageHeight,
+    logitemValidateWriteimageNumslices,
+    logitemValidateWriteimageReadOverflow,
+    logitemValidateWriteimageDstXRange,
+    logitemValidateWriteimageDstYRange,
+    logitemValidateWriteimageDstSliceRange,
+    logitemValidateWriteimageWriteWidthOverflow,
+    logitemValidateWriteimageWriteHeightOverflow,
+    logitemValidateWriteimageWriteNumslicesOverflow,
     logitemValidateSealbufferResourcestate,
     logitemValidateSealimageResourcestate,
     logitemValidationFailed,
@@ -1928,6 +1944,14 @@ proc endPass*():void =
 proc c_commit():void {.cdecl, importc:"sg_commit".}
 proc commit*():void =
     c_commit()
+
+proc c_writeBufferTransient(desc:ptr WriteBufferDesc):void {.cdecl, importc:"sg_write_buffer_transient".}
+proc writeBufferTransient*(desc:WriteBufferDesc):void =
+    c_writeBufferTransient(addr(desc))
+
+proc c_writeImageTransient(desc:ptr WriteImageDesc):void {.cdecl, importc:"sg_write_image_transient".}
+proc writeImageTransient*(desc:WriteImageDesc):void =
+    c_writeImageTransient(addr(desc))
 
 proc c_writeBufferUnsealed(desc:ptr WriteBufferDesc):void {.cdecl, importc:"sg_write_buffer_unsealed".}
 proc writeBufferUnsealed*(desc:WriteBufferDesc):void =
