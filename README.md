@@ -108,3 +108,42 @@ when defined(emscripten):
 
 If you're using `sokol` as dependency in your project you can just do `nimble build -d:release -d:emscripten` and serve
 your template file using any HTTP server.
+
+## Dear ImGui integration
+
+> _The section below is LLM-generated._
+
+sokol-nim ships bindings for `sokol_imgui.h`, `sokol_gfx_imgui.h` and
+`sokol_app_imgui.h` as the Nim modules `sokol/imgui`, `sokol/gfximgui` and
+`sokol/appimgui`. Because these headers depend on Dear ImGui (a C++ library),
+sokol-nim does **not** compile the C stubs for you — the generator skips the
+usual `{.compile: ...}` pragma for these three modules.
+
+To use them, vendor [dcimgui](https://github.com/floooh/dcimgui) (an all-in-one
+Dear ImGui + `cimgui.h` C-API drop) into your project and add compile pragmas
+for the sokol stub and the dcimgui sources. Example for the regular flavour
+(swap `src` for `src-docking` to get the docking flavour):
+
+```nim
+{.passC: "-I path/to/dcimgui/src -std=c11".}
+{.passL: "-lc++".}   # or -lstdc++ on Linux
+{.compile: "path/to/dcimgui/src/cimgui.cpp".}
+{.compile: "path/to/dcimgui/src/cimgui_internal.cpp".}
+{.compile: "path/to/dcimgui/src/imgui.cpp".}
+{.compile: "path/to/dcimgui/src/imgui_draw.cpp".}
+{.compile: "path/to/dcimgui/src/imgui_tables.cpp".}
+{.compile: "path/to/dcimgui/src/imgui_widgets.cpp".}
+{.compile: "path/to/dcimgui/src/imgui_demo.cpp".}
+{.compile: "path/to/sokol-nim/src/sokol/c/sokol_imgui.c".}
+```
+
+(`import sokol/imgui` already applies `-DIMPL` globally via `{.passC.}`,
+which is what turns on `SOKOL_IMGUI_IMPL` inside the stub. The
+platform-specific backend define (`-DSOKOL_METAL`, `-DSOKOL_D3D11`, ...)
+is applied globally by `import sokol/gfx`, so the imgui stub picks the
+same renderer as sokol-gfx automatically. `sokol_gfx` / `sokol_app`
+implementations are not re-emitted because the stub only pulls in their
+headers as declarations.)
+
+Then `import sokol/imgui` and use `simgui.setup(...)` as normal. Same shape
+for `sokol_gfx_imgui.h` and `sokol_app_imgui.h`.
