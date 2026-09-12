@@ -16,13 +16,7 @@ import app
 type
   LogItem* {.size:sizeof(int32).} = enum
     logitemOk,
-    logitemMallocFailed,
     logitemBufferOverflow,
-
-type Allocator* = object
-  allocFn*:proc(a1:int, a2:nil pointer):nil pointer {.cdecl.}
-  freeFn*:proc(a1:nil pointer, a2:nil pointer) {.cdecl.}
-  userData*:nil pointer
 
 type Logger* = object
   fn*:proc(a1:nil cstring, a2:uint32, a3:uint32, a4:nil cstring, a5:uint32, a6:nil cstring, a7:nil pointer) {.cdecl.}
@@ -39,7 +33,6 @@ type Desc* = object
   disableSetMouseCursor*:bool
   disableWindowsResizeFromEdges*:bool
   writeAlphaChannel*:bool
-  allocator*:Allocator
   logger*:Logger
 
 type FrameDesc* = object
