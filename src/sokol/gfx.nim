@@ -1494,6 +1494,7 @@ type
     logitemValidatePipelinedescDualSourceBlendingNotSupported,
     logitemValidatePipelinedescDepthFormatNoneButDepthWriteEnabled,
     logitemValidatePipelinedescDepthFormatNoneCompareFuncMismatch,
+    logitemValidatePipelinedescColorCount,
     logitemValidateViewdescCanary,
     logitemValidateViewdescUniqueViewtype,
     logitemValidateViewdescAnyViewtype,
