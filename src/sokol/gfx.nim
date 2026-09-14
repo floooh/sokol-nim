@@ -1269,6 +1269,7 @@ type
     logitemMetalCreateRpsFailed,
     logitemMetalCreateRpsOutput,
     logitemMetalCreateDssFailed,
+    logitemMetalCreateTextureviewFailed,
     logitemWgpuBindgroupsPoolExhausted,
     logitemWgpuBindgroupscacheSizeGreaterOne,
     logitemWgpuBindgroupscacheSizePow2,
