@@ -164,6 +164,8 @@ type Features* = object
   drawBaseInstance*:bool
   dualSourceBlending*:bool
   vertexformatInt10N2*:bool
+  copyBufferToImageRelaxedBufferType*:bool
+  copyBufferToImageRelaxedBytesPerRow*:bool
   glTextureViews*:bool
 
 type Limits* = object
@@ -495,6 +497,12 @@ type Pass* = object
   label*:nil cstring
   endCanary:uint32
 
+type
+  PassState* {.size:sizeof(int32).} = enum
+    passstateNone,
+    passstateRender,
+    passstateCompute,
+
 type Bindings* = object
   startCanary:uint32
   vertexBuffers*:array[8, Buffer]
@@ -521,10 +529,12 @@ type BufferUsage* = object
   vertexBuffer*:bool
   indexBuffer*:bool
   storageBuffer*:bool
-  immutable*:bool
+  stagingBuffer*:bool
+  stagingIndexBuffer*:bool
   writeUnsealed*:bool
   writeTransient*:bool
-  dynamicUpdate*:bool
+  copySrc*:bool
+  copyDst*:bool
 
 type BufferDesc* = object
   startCanary:uint32
@@ -532,27 +542,22 @@ type BufferDesc* = object
   usage*:BufferUsage
   data*:Range
   label*:nil cstring
-  glBuffers*:array[2, uint32]
-  mtlBuffers*:array[2, nil pointer]
+  glBuffer*:uint32
+  mtlBuffer*:nil pointer
   d3d11Buffer*:nil pointer
   wgpuBuffer*:nil pointer
   endCanary:uint32
-
-converter toBufferDescglBuffers*[N:static[int]](items: array[N, uint32]): array[2, uint32] {.requires: N<=2.} =
-  for index,item in items.pairs: result[index]=item
-
-converter toBufferDescmtlBuffers*[N:static[int]](items: array[N, nil pointer]): array[2, nil pointer] {.requires: N<=2.} =
-  for index,item in items.pairs: result[index]=item
 
 type ImageUsage* = object
   storageImage*:bool
   colorAttachment*:bool
   resolveAttachment*:bool
   depthStencilAttachment*:bool
-  immutable*:bool
   writeUnsealed*:bool
   writeTransient*:bool
-  dynamicUpdate*:bool
+  copySrc*:bool
+  copyDst*:bool
+  immutable*:bool
 
 type
   ViewType* {.size:sizeof(int32).} = enum
@@ -597,6 +602,12 @@ type BufferLocation* = object
   buffer*:Buffer
   offset*:int
 
+type BufferImageLocation* = object
+  buffer*:Buffer
+  offset*:int
+  bytesPerRow*:int32
+  bytesPerSlice*:int32
+
 type WriteBufferSource* = object
   data*:Range
   offset*:int
@@ -605,6 +616,16 @@ type WriteBufferDesc* = object
   src*:WriteBufferSource
   dst*:BufferLocation
   size*:int
+
+type CopyBufferToBufferDesc* = object
+  src*:BufferLocation
+  dst*:BufferLocation
+  size*:int
+
+type CopyBufferToImageDesc* = object
+  src*:BufferImageLocation
+  dst*:ImageLocation
+  size*:ImageExtent
 
 type ImageDesc* = object
   startCanary:uint32
@@ -618,18 +639,12 @@ type ImageDesc* = object
   sampleCount*:int32
   data*:ImageData
   label*:nil cstring
-  glTextures*:array[2, uint32]
+  glTexture*:uint32
   glTextureTarget*:uint32
-  mtlTextures*:array[2, nil pointer]
+  mtlTexture*:nil pointer
   d3d11Texture*:nil pointer
   wgpuTexture*:nil pointer
   endCanary:uint32
-
-converter toImageDescglTextures*[N:static[int]](items: array[N, uint32]): array[2, uint32] {.requires: N<=2.} =
-  for index,item in items.pairs: result[index]=item
-
-converter toImageDescmtlTextures*[N:static[int]](items: array[N, nil pointer]): array[2, nil pointer] {.requires: N<=2.} =
-  for index,item in items.pairs: result[index]=item
 
 type SamplerDesc* = object
   startCanary:uint32
@@ -902,15 +917,14 @@ type TraceHooks* = object
   destroyShader*:proc(a1:Shader, a2:nil pointer) {.cdecl.}
   destroyPipeline*:proc(a1:Pipeline, a2:nil pointer) {.cdecl.}
   destroyView*:proc(a1:View, a2:nil pointer) {.cdecl.}
-  updateBuffer*:proc(a1:Buffer, a2:ptr Range, a3:nil pointer) {.cdecl.}
-  updateImage*:proc(a1:Image, a2:ptr ImageData, a3:nil pointer) {.cdecl.}
-  appendBuffer*:proc(a1:Buffer, a2:ptr Range, a3:int32, a4:nil pointer) {.cdecl.}
   writeBufferTransient*:proc(a1:ptr WriteBufferDesc, a2:nil pointer) {.cdecl.}
   writeImageTransient*:proc(a1:ptr WriteImageDesc, a2:nil pointer) {.cdecl.}
   writeBufferUnsealed*:proc(a1:ptr WriteBufferDesc, a2:nil pointer) {.cdecl.}
   writeImageUnsealed*:proc(a1:ptr WriteImageDesc, a2:nil pointer) {.cdecl.}
   sealBuffer*:proc(a1:Buffer, a2:nil pointer) {.cdecl.}
   sealImage*:proc(a1:Image, a2:nil pointer) {.cdecl.}
+  copyBufferToBuffer*:proc(a1:ptr CopyBufferToBufferDesc, a2:nil pointer) {.cdecl.}
+  copyBufferToImage*:proc(a1:ptr CopyBufferToImageDesc, a2:nil pointer) {.cdecl.}
   beginPass*:proc(a1:ptr Pass, a2:nil pointer) {.cdecl.}
   applyViewport*:proc(a1:int32, a2:int32, a3:int32, a4:int32, a5:bool, a6:nil pointer) {.cdecl.}
   applyScissorRect*:proc(a1:int32, a2:int32, a3:int32, a4:int32, a5:bool, a6:nil pointer) {.cdecl.}
@@ -964,16 +978,11 @@ type BufferInfo* = object
   slot*:SlotInfo
   numSlots*:int32
   activeSlot*:int32
-  updateFrameIndex*:uint32
-  appendFrameIndex*:uint32
-  appendPos*:int32
-  appendOverflow*:bool
 
 type ImageInfo* = object
   slot*:SlotInfo
   numSlots*:int32
   activeSlot*:int32
-  updFrameIndex*:uint32
 
 type SamplerInfo* = object
   slot*:SlotInfo
@@ -1166,19 +1175,17 @@ type FrameStats* = object
   numDraw*:uint32
   numDrawEx*:uint32
   numDispatch*:uint32
-  numUpdateBuffer*:uint32
-  numAppendBuffer*:uint32
-  numUpdateImage*:uint32
   numWriteBufferTransient*:uint32
   numWriteImageTransient*:uint32
   numWriteBufferUnsealed*:uint32
   numWriteImageUnsealed*:uint32
   numSealBuffer*:uint32
   numSealImage*:uint32
+  numCopyBufferToBuffer*:uint32
+  numCopyBufferToImage*:uint32
   sizeApplyUniforms*:uint32
-  sizeUpdateBuffer*:uint32
-  sizeAppendBuffer*:uint32
-  sizeUpdateImage*:uint32
+  sizeCopyBufferToBuffer*:uint32
+  sizeCopyBufferToImage*:uint32
   buffers*:FrameResourceStats
   images*:FrameResourceStats
   samplers*:FrameResourceStats
@@ -1216,6 +1223,7 @@ type
     logitemGlFramebufferStatusUnsupported,
     logitemGlFramebufferStatusIncompleteMultisample,
     logitemGlFramebufferStatusUnknown,
+    logitemGlApplePixelUnpackOffsetBug,
     logitemD3d11FeatureLevel0Detected,
     logitemD3d11CreateBufferFailed,
     logitemD3d11CreateBufferSrvFailed,
@@ -1247,9 +1255,6 @@ type
     logitemD3d11CreateRtvFailed,
     logitemD3d11CreateDsvFailed,
     logitemD3d11CreateUavFailed,
-    logitemD3d11MapForUpdateBufferFailed,
-    logitemD3d11MapForAppendBufferFailed,
-    logitemD3d11MapForUpdateImageFailed,
     logitemD3d11MapForWriteBufferTransientFailed,
     logitemMetalCreateBufferFailed,
     logitemMetalTextureFormatNotSupported,
@@ -1363,11 +1368,23 @@ type
     logitemBeginpassAttachmentsAlive,
     logitemDrawWithoutBindings,
     logitemWriteBufferTransientBufferAlive,
+    logitemWriteBufferTransientBufferValid,
     logitemWriteImageTransientImageAlive,
+    logitemWriteImageTransientImageValid,
     logitemWriteBufferUnsealedBufferAlive,
+    logitemWriteBufferUnsealedBufferUnsealed,
     logitemWriteImageUnsealedImageAlive,
+    logitemWriteImageUnsealedImageUnsealed,
     logitemSealBufferAlive,
     logitemSealImageAlive,
+    logitemCopyBufferToBufferSrcAlive,
+    logitemCopyBufferToBufferDstAlive,
+    logitemCopyBufferToBufferSrcValid,
+    logitemCopyBufferToBufferDstValid,
+    logitemCopyBufferToImageSrcAlive,
+    logitemCopyBufferToImageDstAlive,
+    logitemCopyBufferToImageSrcValid,
+    logitemCopyBufferToImageDstValid,
     logitemShaderdescTooManyVertexstageTextures,
     logitemShaderdescTooManyFragmentstageTextures,
     logitemShaderdescTooManyComputestageTextures,
@@ -1381,13 +1398,25 @@ type
     logitemShaderdescTooManyFragmentstageTexturesamplerpairs,
     logitemShaderdescTooManyComputestageTexturesamplerpairs,
     logitemValidateBufferdescCanary,
-    logitemValidateBufferdescImmutableVsWritable,
-    logitemValidateBufferdescUnsealedVsImmutable,
-    logitemValidateBufferdescSeparateBufferTypes,
     logitemValidateBufferdescExpectNonzeroSize,
+    logitemValidateBufferdescStagingVsVertexbuffer,
+    logitemValidateBufferdescStagingVsIndexbuffer,
+    logitemValidateBufferdescStagingVsStoragebuffer,
+    logitemValidateBufferdescStagingVsInjected,
+    logitemValidateBufferdescStagingVsCopydst,
+    logitemValidateBufferdescStagingVsInitialdata,
+    logitemValidateBufferdescStagingCopysrc,
+    logitemValidateBufferdescSeparateBufferTypes,
+    logitemValidateBufferdescWriteunsealedVsWritetransient,
+    logitemValidateBufferdescWriteunsealedVsCopydst,
+    logitemValidateBufferdescWriteunsealedVsStaging,
+    logitemValidateBufferdescWriteunsealedVsInitialdata,
+    logitemValidateBufferdescWritetransientVsCopydst,
+    logitemValidateBufferdescWritetransientVsInitialdata,
+    logitemValidateBufferdescWritetransientVsInjected,
+    logitemValidateBufferdescCopydstVsInitialdata,
     logitemValidateBufferdescExpectMatchingDataSize,
     logitemValidateBufferdescExpectZeroDataSize,
-    logitemValidateBufferdescExpectNoData,
     logitemValidateBufferdescExpectData,
     logitemValidateBufferdescStoragebufferSupported,
     logitemValidateBufferdescStoragebufferSizeMultiple4,
@@ -1395,10 +1424,11 @@ type
     logitemValidateImagedataDataSize,
     logitemValidateImagedescCanary,
     logitemValidateImagedescImmutableVsWritable,
-    logitemValidateImagedescWriteUnsealedVsImmutable,
-    logitemValidateImagedescWriteUnsealedVsAttachment,
-    logitemValidateImagedescWriteTransientVsAttachment,
-    logitemValidateImagedescDynamicUpdateVsAttachment,
+    logitemValidateImagedescWriteunsealedVsImmutable,
+    logitemValidateImagedescWriteunsealedVsAttachment,
+    logitemValidateImagedescWritetransientVsAttachment,
+    logitemValidateImagedescWritetransientVsInjected,
+    logitemValidateImagedescCopydstVsAttachment,
     logitemValidateImagedescAttachmentColorDepthStencil,
     logitemValidateImagedescImagetype2dNumslices,
     logitemValidateImagedescImagetypeCubeNumslices,
@@ -1425,7 +1455,6 @@ type
     logitemValidateImagedescStorageimageExpectNoMsaa,
     logitemValidateImagedescInjectedNoData,
     logitemValidateImagedescWritableNoData,
-    logitemValidateImagedescCompressedImmutable,
     logitemValidateSamplerdescCanary,
     logitemValidateSamplerdescAnistropicRequiresLinearFiltering,
     logitemValidateShaderdescCanary,
@@ -1630,23 +1659,21 @@ type
     logitemValidateAbndExpectedVbuf,
     logitemValidateAbndVbufAlive,
     logitemValidateAbndVbufUsage,
-    logitemValidateAbndVbufOverflow,
     logitemValidateAbndExpectedNoIbuf,
     logitemValidateAbndExpectedIbuf,
     logitemValidateAbndIbufAlive,
     logitemValidateAbndIbufUsage,
-    logitemValidateAbndIbufOverflow,
     logitemValidateAbndExpectedViewBinding,
     logitemValidateAbndViewAlive,
     logitemValidateAbndExpectTexview,
     logitemValidateAbndExpectSbview,
+    logitemValidateAbndSbviewReadwriteVsWritetransient,
     logitemValidateAbndExpectSimgview,
     logitemValidateAbndTexviewImagetypeMismatch,
     logitemValidateAbndTexviewExpectedMultisampledImage,
     logitemValidateAbndTexviewExpectedNonMultisampledImage,
     logitemValidateAbndTexviewExpectedFilterableImage,
     logitemValidateAbndTexviewExpectedDepthImage,
-    logitemValidateAbndSbviewReadwriteImmutable,
     logitemValidateAbndSimgviewComputePassExpected,
     logitemValidateAbndSimgviewImagetypeMismatch,
     logitemValidateAbndSimgviewAccessformat,
@@ -1691,19 +1718,10 @@ type
     logitemValidateDispatchRequiredBindingsOrUniformsMissing,
     logitemValidateDispatchWriteBufferTransientMissing,
     logitemValidateDispatchWriteImageTransientMissing,
-    logitemValidateUpdatebufUsage,
-    logitemValidateUpdatebufSize,
-    logitemValidateUpdatebufOnce,
-    logitemValidateUpdatebufAppend,
-    logitemValidateAppendbufUsage,
-    logitemValidateAppendbufSize,
-    logitemValidateAppendbufUpdate,
-    logitemValidateUpdimgUsage,
-    logitemValidateUpdimgOnce,
     logitemValidateWritebufferunsealedUsage,
-    logitemValidateWritebufferunsealedResourcestate,
     logitemValidateWritebuffertransientUsage,
     logitemValidateWritebuffertransientWriteBeforeBind,
+    logitemValidateWritebuffertransientWriteBeforeCopy,
     logitemValidateWritebuffertransientDstOffsetAlignment,
     logitemValidateWritebufferSrcDataPointer,
     logitemValidateWritebufferSrcDataSize,
@@ -1711,13 +1729,14 @@ type
     logitemValidateWritebufferWriteOverflow,
     logitemValidateWritebufferReadOverflow,
     logitemValidateWriteimageunsealedUsage,
-    logitemValidateWriteimageunsealedResourcestate,
     logitemValidateWriteimagetransientUsage,
     logitemValidateWriteimagetransientWriteBeforeBind,
     logitemValidateWriteimageSrcDataPointer,
     logitemValidateWriteimageSrcDataSize,
     logitemValidateWriteimageBytesperrow,
     logitemValidateWriteimageBytesperslice,
+    logitemValidateWriteimageBytesperrowTooSmall,
+    logitemValidateWriteimageBytespersliceTooSmall,
     logitemValidateWriteimageMiplevel,
     logitemValidateWriteimageWidth,
     logitemValidateWriteimageHeight,
@@ -1729,8 +1748,49 @@ type
     logitemValidateWriteimageWriteWidthOverflow,
     logitemValidateWriteimageWriteHeightOverflow,
     logitemValidateWriteimageWriteNumslicesOverflow,
+    logitemValidateWriteimageDstXAlignment,
+    logitemValidateWriteimageDstYAlignment,
+    logitemValidateWriteimageWidthMultiple,
+    logitemValidateWriteimageHeightMultiple,
     logitemValidateSealbufferResourcestate,
     logitemValidateSealimageResourcestate,
+    logitemValidateCopybuffertobufferInsidePass,
+    logitemValidateCopybuffertobufferSrcVsDstBuffer,
+    logitemValidateCopybuffertobufferCopySrc,
+    logitemValidateCopybuffertobufferCopyDst,
+    logitemValidateCopybuffertobufferZeroSize,
+    logitemValidateCopybuffertobufferSrcOffsetAlignment,
+    logitemValidateCopybuffertobufferDstOffsetAlignment,
+    logitemValidateCopybuffertobufferSrcOverflow,
+    logitemValidateCopybuffertobufferDstOverflow,
+    logitemValidateCopybuffertobufferWebgl2IndexBuffer,
+    logitemValidateCopybuffertoimageWebgl2IndexBuffer,
+    logitemValidateCopybuffertoimageBytesperrowTooSmall,
+    logitemValidateCopybuffertoimageBytespersliceTooSmall,
+    logitemValidateCopybuffertoimageSrcStagingIndexBuffer,
+    logitemValidateCopybuffertoimageSrcStagingBuffer,
+    logitemValidateCopybuffertoimageInsidePass,
+    logitemValidateCopybuffertoimageCopySrc,
+    logitemValidateCopybuffertoimageCopyDst,
+    logitemValidateCopybuffertoimageSrcOffsetAlignment,
+    logitemValidateCopybuffertoimageBytesperrowMultipleBlocksize,
+    logitemValidateCopybuffertoimageBytesperrowMultiple256,
+    logitemValidateCopybuffertoimageBytesperslice,
+    logitemValidateCopybuffertoimageSrcOverflow,
+    logitemValidateCopybuffertoimageDstMiplevel,
+    logitemValidateCopybuffertoimageDstWidth,
+    logitemValidateCopybuffertoimageDstHeight,
+    logitemValidateCopybuffertoimageDstWidthMultiple,
+    logitemValidateCopybuffertoimageDstHeightMultiple,
+    logitemValidateCopybuffertoimageDstNumslices,
+    logitemValidateCopybuffertoimageDstXRange,
+    logitemValidateCopybuffertoimageDstYRange,
+    logitemValidateCopybuffertoimageDstXAlignment,
+    logitemValidateCopybuffertoimageDstYAlignment,
+    logitemValidateCopybuffertoimageDstSliceRange,
+    logitemValidateCopybuffertoimageDstWidthOverflow,
+    logitemValidateCopybuffertoimageDstHeightOverflow,
+    logitemValidateCopybuffertoimageDstNumslicesOverflow,
     logitemValidationFailed,
 
 type EnvironmentDefaults* = object
@@ -1972,25 +2032,13 @@ proc c_sealImage(img:Image):void {.cdecl, importc:"sg_seal_image".}
 proc sealImage*(img:Image):void =
     c_sealImage(img)
 
-proc c_updateBuffer(buf:Buffer, data:ptr Range):void {.cdecl, importc:"sg_update_buffer".}
-proc updateBuffer*(buf:Buffer, data:Range):void =
-    c_updateBuffer(buf, addr(data))
+proc c_copyBufferToBuffer(desc:ptr CopyBufferToBufferDesc):void {.cdecl, importc:"sg_copy_buffer_to_buffer".}
+proc copyBufferToBuffer*(desc:CopyBufferToBufferDesc):void =
+    c_copyBufferToBuffer(addr(desc))
 
-proc c_updateImage(img:Image, data:ptr ImageData):void {.cdecl, importc:"sg_update_image".}
-proc updateImage*(img:Image, data:ImageData):void =
-    c_updateImage(img, addr(data))
-
-proc c_appendBuffer(buf:Buffer, data:ptr Range):int32 {.cdecl, importc:"sg_append_buffer".}
-proc appendBuffer*(buf:Buffer, data:Range):int32 =
-    c_appendBuffer(buf, addr(data))
-
-proc c_queryBufferOverflow(buf:Buffer):bool {.cdecl, importc:"sg_query_buffer_overflow".}
-proc queryBufferOverflow*(buf:Buffer):bool =
-    c_queryBufferOverflow(buf)
-
-proc c_queryBufferWillOverflow(buf:Buffer, size:int):bool {.cdecl, importc:"sg_query_buffer_will_overflow".}
-proc queryBufferWillOverflow*(buf:Buffer, size:int):bool =
-    c_queryBufferWillOverflow(buf, size)
+proc c_copyBufferToImage(desc:ptr CopyBufferToImageDesc):void {.cdecl, importc:"sg_copy_buffer_to_image".}
+proc copyBufferToImage*(desc:CopyBufferToImageDesc):void =
+    c_copyBufferToImage(addr(desc))
 
 proc c_queryDesc():Desc {.cdecl, importc:"sg_query_desc".}
 proc queryDesc*():Desc =
@@ -2019,6 +2067,10 @@ proc queryRowPitch*(fmt:PixelFormat, width:int32, rowAlignBytes:int32):int32 =
 proc c_querySurfacePitch(fmt:PixelFormat, width:int32, height:int32, rowAlignBytes:int32):int32 {.cdecl, importc:"sg_query_surface_pitch".}
 proc querySurfacePitch*(fmt:PixelFormat, width:int32, height:int32, rowAlignBytes:int32):int32 =
     c_querySurfacePitch(fmt, width, height, rowAlignBytes)
+
+proc c_queryPassState():PassState {.cdecl, importc:"sg_query_pass_state".}
+proc queryPassState*():PassState =
+    c_queryPassState()
 
 proc c_queryBufferState(buf:Buffer):ResourceState {.cdecl, importc:"sg_query_buffer_state".}
 proc queryBufferState*(buf:Buffer):ResourceState =

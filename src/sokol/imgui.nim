@@ -17,6 +17,10 @@ type
   LogItem* {.size:sizeof(int32).} = enum
     logitemOk,
     logitemBufferOverflow,
+    logitemNewFrameNotCalledBeforeFlush,
+    logitemFlushCalledInSokolgfxPass,
+    logitemFlushNotCalledBeforeDraw,
+    logitemDrawCalledOutsideSokolgfxRenderPass,
 
 type Logger* = object
   fn*:proc(a1:nil cstring, a2:uint32, a3:uint32, a4:nil cstring, a5:uint32, a6:nil cstring, a7:nil pointer) {.cdecl.}
@@ -53,9 +57,13 @@ proc c_newFrame(desc:ptr FrameDesc):void {.cdecl, importc:"simgui_new_frame".}
 proc newFrame*(desc:FrameDesc):void =
     c_newFrame(addr(desc))
 
-proc c_render():void {.cdecl, importc:"simgui_render".}
-proc render*():void =
-    c_render()
+proc c_flush():void {.cdecl, importc:"simgui_flush".}
+proc flush*():void =
+    c_flush()
+
+proc c_draw():void {.cdecl, importc:"simgui_draw".}
+proc draw*():void =
+    c_draw()
 
 proc c_imtextureid(texView:gfx.View):uint64 {.cdecl, importc:"simgui_imtextureid".}
 proc imtextureid*(texView:gfx.View):uint64 =
