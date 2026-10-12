@@ -1040,6 +1040,7 @@ type FrameStatsD3d11Bindings* = object
   numCsSetShaderResources*:uint32
   numCsSetSamplers*:uint32
   numCsSetUnorderedAccessViews*:uint32
+  numOmSetRtsAndUavs*:uint32
 
 type FrameStatsD3d11Uniforms* = object
   numUpdateSubresource*:uint32
@@ -1479,6 +1480,7 @@ type
     logitemValidateShaderdescUniformblockSizeMismatch,
     logitemValidateShaderdescUniformblockArrayCount,
     logitemValidateShaderdescUniformblockStd140ArrayType,
+    logitemValidateShaderdescViewStoragebufferVertexshaderReadwrite,
     logitemValidateShaderdescViewStoragebufferMetalBufferSlotCollision,
     logitemValidateShaderdescViewStoragebufferHlslRegisterTCollision,
     logitemValidateShaderdescViewStoragebufferHlslRegisterUCollision,
@@ -1520,6 +1522,8 @@ type
     logitemValidatePipelinedescLayoutStride4,
     logitemValidatePipelinedescAttrSemantics,
     logitemValidatePipelinedescShaderReadonlyStoragebuffers,
+    logitemValidatePipelinedescShaderHlslRegisterUVsColorCount,
+    logitemValidatePipelinedescShaderHlslRegisterULimit,
     logitemValidatePipelinedescBlendopMinmaxRequiresBlendfactorOne,
     logitemValidatePipelinedescDualSourceBlendingNotSupported,
     logitemValidatePipelinedescDepthFormatNoneButDepthWriteEnabled,
@@ -1659,15 +1663,19 @@ type
     logitemValidateAbndExpectedVbuf,
     logitemValidateAbndVbufAlive,
     logitemValidateAbndVbufUsage,
+    logitemValidateAbndVbufVsSbviewReadwrite,
     logitemValidateAbndExpectedNoIbuf,
     logitemValidateAbndExpectedIbuf,
     logitemValidateAbndIbufAlive,
     logitemValidateAbndIbufUsage,
+    logitemValidateAbndIbufVsSbviewReadwrite,
     logitemValidateAbndExpectedViewBinding,
     logitemValidateAbndViewAlive,
     logitemValidateAbndExpectTexview,
     logitemValidateAbndExpectSbview,
     logitemValidateAbndSbviewReadwriteVsWritetransient,
+    logitemValidateAbndSbviewReadonlyVsReadwrite,
+    logitemValidateAbndSbviewReadwriteVsRead,
     logitemValidateAbndExpectSimgview,
     logitemValidateAbndTexviewImagetypeMismatch,
     logitemValidateAbndTexviewExpectedMultisampledImage,
