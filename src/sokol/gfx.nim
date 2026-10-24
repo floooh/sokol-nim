@@ -166,6 +166,7 @@ type Features* = object
   vertexformatInt10N2*:bool
   copyBufferToImageRelaxedBufferType*:bool
   copyBufferToImageRelaxedBytesPerRow*:bool
+  copyImageToImageRelaxed*:bool
   glTextureViews*:bool
 
 type Limits* = object
@@ -557,7 +558,6 @@ type ImageUsage* = object
   writeTransient*:bool
   copySrc*:bool
   copyDst*:bool
-  immutable*:bool
 
 type
   ViewType* {.size:sizeof(int32).} = enum
@@ -568,12 +568,6 @@ type
     viewtypeColorattachment,
     viewtypeResolveattachment,
     viewtypeDepthstencilattachment,
-
-type ImageData* = object
-  mipLevels*:array[16, Range]
-
-converter toImageDatamipLevels*[N:static[int]](items: array[N, Range]): array[16, Range] {.requires: N<=16.} =
-  for index,item in items.pairs: result[index]=item
 
 type ImageExtent* = object
   width*:int32
@@ -627,6 +621,11 @@ type CopyBufferToImageDesc* = object
   dst*:ImageLocation
   size*:ImageExtent
 
+type CopyImageToImageDesc* = object
+  src*:ImageLocation
+  dst*:ImageLocation
+  size*:ImageExtent
+
 type ImageDesc* = object
   startCanary:uint32
   `type`*:ImageType
@@ -637,7 +636,7 @@ type ImageDesc* = object
   numMipmaps*:int32
   pixelFormat*:PixelFormat
   sampleCount*:int32
-  data*:ImageData
+  data*:Range
   label*:nil cstring
   glTexture*:uint32
   glTextureTarget*:uint32
@@ -925,6 +924,7 @@ type TraceHooks* = object
   sealImage*:proc(a1:Image, a2:nil pointer) {.cdecl.}
   copyBufferToBuffer*:proc(a1:ptr CopyBufferToBufferDesc, a2:nil pointer) {.cdecl.}
   copyBufferToImage*:proc(a1:ptr CopyBufferToImageDesc, a2:nil pointer) {.cdecl.}
+  copyImageToImage*:proc(a1:ptr CopyImageToImageDesc, a2:nil pointer) {.cdecl.}
   beginPass*:proc(a1:ptr Pass, a2:nil pointer) {.cdecl.}
   applyViewport*:proc(a1:int32, a2:int32, a3:int32, a4:int32, a5:bool, a6:nil pointer) {.cdecl.}
   applyScissorRect*:proc(a1:int32, a2:int32, a3:int32, a4:int32, a5:bool, a6:nil pointer) {.cdecl.}
@@ -1140,6 +1140,7 @@ type FrameStatsVk* = object
   numDeleteQueueCollected*:uint32
   numCmdCopyBuffer*:uint32
   numCmdCopyBufferToImage*:uint32
+  numCmdCopyImage*:uint32
   numCmdSetDescriptorBufferOffsets*:uint32
   sizeDescriptorBufferWrites*:uint32
 
@@ -1184,9 +1185,11 @@ type FrameStats* = object
   numSealImage*:uint32
   numCopyBufferToBuffer*:uint32
   numCopyBufferToImage*:uint32
+  numCopyImageToImage*:uint32
   sizeApplyUniforms*:uint32
   sizeCopyBufferToBuffer*:uint32
   sizeCopyBufferToImage*:uint32
+  sizeCopyImageToImage*:uint32
   buffers*:FrameResourceStats
   images*:FrameResourceStats
   samplers*:FrameResourceStats
@@ -1386,6 +1389,10 @@ type
     logitemCopyBufferToImageDstAlive,
     logitemCopyBufferToImageSrcValid,
     logitemCopyBufferToImageDstValid,
+    logitemCopyImageToImageSrcAlive,
+    logitemCopyImageToImageDstAlive,
+    logitemCopyImageToImageSrcValid,
+    logitemCopyImageToImageDstValid,
     logitemShaderdescTooManyVertexstageTextures,
     logitemShaderdescTooManyFragmentstageTextures,
     logitemShaderdescTooManyComputestageTextures,
@@ -1421,41 +1428,47 @@ type
     logitemValidateBufferdescExpectData,
     logitemValidateBufferdescStoragebufferSupported,
     logitemValidateBufferdescStoragebufferSizeMultiple4,
-    logitemValidateImagedataNodata,
-    logitemValidateImagedataDataSize,
+    logitemValidateImagedescDataSize,
     logitemValidateImagedescCanary,
-    logitemValidateImagedescImmutableVsWritable,
-    logitemValidateImagedescWriteunsealedVsImmutable,
-    logitemValidateImagedescWriteunsealedVsAttachment,
-    logitemValidateImagedescWritetransientVsAttachment,
+    logitemValidateImagedescAnyAttachmentVsCopydst,
+    logitemValidateImagedescAnyAttachmentVsInitialdata,
+    logitemValidateImagedescAnyAttachmentVsWritetransient,
+    logitemValidateImagedescAnyAttachmentVsWriteunsealed,
+    logitemValidateImagedescColorAttachmentPixelformat,
+    logitemValidateImagedescColorAttachmentVsDepthstencilAttachment,
+    logitemValidateImagedescResolveAttachmentExpectNoMsaa,
+    logitemValidateImagedescResolveAttachmentVsDepthstencilAttachment,
+    logitemValidateImagedescCopydstVsInitialdata,
+    logitemValidateImagedescDepthformat3dImage,
+    logitemValidateImagedescDepthformatAttachmentOrCopydst,
+    logitemValidateImagedescDepthstencilAttachmentPixelformat,
+    logitemValidateImagedescDepthstencilAttachmentVsStorageimage,
+    logitemValidateImagedescStorageimageVsInitialdata,
+    logitemValidateImagedescStorageimageVsWritetransient,
+    logitemValidateImagedescWritetransientVsCopydst,
+    logitemValidateImagedescWritetransientVsInitialdata,
     logitemValidateImagedescWritetransientVsInjected,
-    logitemValidateImagedescCopydstVsAttachment,
-    logitemValidateImagedescAttachmentColorDepthStencil,
+    logitemValidateImagedescWriteunsealedVsCopydst,
+    logitemValidateImagedescWriteunsealedVsInitialdata,
+    logitemValidateImagedescWriteunsealedVsWritetransient,
+    logitemValidateImagedescInitialDataRequired,
+    logitemValidateImagedescInjectedExpectNoData,
+    logitemValidateImagedescNoDataButSizeSet,
     logitemValidateImagedescImagetype2dNumslices,
     logitemValidateImagedescImagetypeCubeNumslices,
     logitemValidateImagedescImagetypeArrayNumslices,
     logitemValidateImagedescImagetype3dNumslices,
-    logitemValidateImagedescNumslices,
     logitemValidateImagedescWidth,
     logitemValidateImagedescHeight,
-    logitemValidateImagedescNonrtPixelformat,
     logitemValidateImagedescMsaaButNoAttachment,
-    logitemValidateImagedescDepth3dImage,
-    logitemValidateImagedescAttachmentExpectImmutable,
-    logitemValidateImagedescAttachmentExpectNoData,
     logitemValidateImagedescAttachmentPixelformat,
-    logitemValidateImagedescAttachmentResolveExpectNoMsaa,
     logitemValidateImagedescAttachmentNoMsaaSupport,
     logitemValidateImagedescAttachmentMsaaNumMipmaps,
     logitemValidateImagedescAttachmentMsaa3dImage,
     logitemValidateImagedescAttachmentMsaaCubeImage,
     logitemValidateImagedescAttachmentMsaaArrayImage,
-    logitemValidateImagedescStorageimageExpectImmutable,
-    logitemValidateImagedescStorageimageExpectNoData,
     logitemValidateImagedescStorageimagePixelformat,
     logitemValidateImagedescStorageimageExpectNoMsaa,
-    logitemValidateImagedescInjectedNoData,
-    logitemValidateImagedescWritableNoData,
     logitemValidateSamplerdescCanary,
     logitemValidateSamplerdescAnistropicRequiresLinearFiltering,
     logitemValidateShaderdescCanary,
@@ -1619,7 +1632,6 @@ type
     logitemValidateBeginpassResolveattachmentviewImageAlive,
     logitemValidateBeginpassResolveattachmentviewImageValid,
     logitemValidateBeginpassResolveattachmentviewSizes,
-    logitemValidateBeginpassDepthstencilattachmentviewsContinuous,
     logitemValidateBeginpassDepthstencilattachmentviewAlive,
     logitemValidateBeginpassDepthstencilattachmentviewValid,
     logitemValidateBeginpassDepthstencilattachmentviewType,
@@ -1723,7 +1735,6 @@ type
     logitemValidateDispatchNumgroupsx,
     logitemValidateDispatchNumgroupsy,
     logitemValidateDispatchNumgroupsz,
-    logitemValidateDispatchRequiredBindingsOrUniformsMissing,
     logitemValidateDispatchWriteBufferTransientMissing,
     logitemValidateDispatchWriteImageTransientMissing,
     logitemValidateWritebufferunsealedUsage,
@@ -1739,6 +1750,7 @@ type
     logitemValidateWriteimageunsealedUsage,
     logitemValidateWriteimagetransientUsage,
     logitemValidateWriteimagetransientWriteBeforeBind,
+    logitemValidateWriteimagetransientWriteBeforeCopy,
     logitemValidateWriteimageSrcDataPointer,
     logitemValidateWriteimageSrcDataSize,
     logitemValidateWriteimageBytesperrow,
@@ -1772,6 +1784,7 @@ type
     logitemValidateCopybuffertobufferSrcOverflow,
     logitemValidateCopybuffertobufferDstOverflow,
     logitemValidateCopybuffertobufferWebgl2IndexBuffer,
+    logitemValidateCopybuffertoimageDepthFormatNotAllowed,
     logitemValidateCopybuffertoimageWebgl2IndexBuffer,
     logitemValidateCopybuffertoimageBytesperrowTooSmall,
     logitemValidateCopybuffertoimageBytespersliceTooSmall,
@@ -1799,6 +1812,45 @@ type
     logitemValidateCopybuffertoimageDstWidthOverflow,
     logitemValidateCopybuffertoimageDstHeightOverflow,
     logitemValidateCopybuffertoimageDstNumslicesOverflow,
+    logitemValidateCopyimagetoimageSrcVsDstImage,
+    logitemValidateCopyimagetoimageInsidePass,
+    logitemValidateCopyimagetoimageCopySrc,
+    logitemValidateCopyimagetoimageCopyDst,
+    logitemValidateCopyimagetoimage3dVsOther,
+    logitemValidateCopyimagetoimageSrcVsDstFormat,
+    logitemValidateCopyimagetoimageSrcVsDstSampleCount,
+    logitemValidateCopyimagetoimageRenderable,
+    logitemValidateCopyimagetoimageMsaa,
+    logitemValidateCopyimagetoimageWholeMiplevel,
+    logitemValidateCopyimagetoimageSrcVsDstSize,
+    logitemValidateCopyimagetoimageSrcMiplevel,
+    logitemValidateCopyimagetoimageSrcWidth,
+    logitemValidateCopyimagetoimageSrcHeight,
+    logitemValidateCopyimagetoimageDstMiplevel,
+    logitemValidateCopyimagetoimageDstWidth,
+    logitemValidateCopyimagetoimageDstHeight,
+    logitemValidateCopyimagetoimageSrcWidthMultiple,
+    logitemValidateCopyimagetoimageSrcHeightMultiple,
+    logitemValidateCopyimagetoimageDstWidthMultiple,
+    logitemValidateCopyimagetoimageDstHeightMultiple,
+    logitemValidateCopyimagetoimageSrcNumslices,
+    logitemValidateCopyimagetoimageDstNumslices,
+    logitemValidateCopyimagetoimageSrcXRange,
+    logitemValidateCopyimagetoimageDstXRange,
+    logitemValidateCopyimagetoimageSrcYRange,
+    logitemValidateCopyimagetoimageDstYRange,
+    logitemValidateCopyimagetoimageSrcXAlignment,
+    logitemValidateCopyimagetoimageDstXAlignment,
+    logitemValidateCopyimagetoimageSrcYAlignment,
+    logitemValidateCopyimagetoimageDstYAlignment,
+    logitemValidateCopyimagetoimageSrcSliceRange,
+    logitemValidateCopyimagetoimageDstSliceRange,
+    logitemValidateCopyimagetoimageSrcWidthOverflow,
+    logitemValidateCopyimagetoimageDstWidthOverflow,
+    logitemValidateCopyimagetoimageSrcHeightOverflow,
+    logitemValidateCopyimagetoimageDstHeightOverflow,
+    logitemValidateCopyimagetoimageSrcNumslicesOverflow,
+    logitemValidateCopyimagetoimageDstNumslicesOverflow,
     logitemValidationFailed,
 
 type EnvironmentDefaults* = object
@@ -2047,6 +2099,10 @@ proc copyBufferToBuffer*(desc:CopyBufferToBufferDesc):void =
 proc c_copyBufferToImage(desc:ptr CopyBufferToImageDesc):void {.cdecl, importc:"sg_copy_buffer_to_image".}
 proc copyBufferToImage*(desc:CopyBufferToImageDesc):void =
     c_copyBufferToImage(addr(desc))
+
+proc c_copyImageToImage(desc:ptr CopyImageToImageDesc):void {.cdecl, importc:"sg_copy_image_to_image".}
+proc copyImageToImage*(desc:CopyImageToImageDesc):void =
+    c_copyImageToImage(addr(desc))
 
 proc c_queryDesc():Desc {.cdecl, importc:"sg_query_desc".}
 proc queryDesc*():Desc =

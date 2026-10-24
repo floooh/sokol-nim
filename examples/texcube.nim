@@ -88,14 +88,13 @@ proc init() {.cdecl.} =
     0xFFFFFFFF'u32, 0xFF000000'u32, 0xFFFFFFFF'u32, 0xFF000000'u32,
     0xFF000000'u32, 0xFFFFFFFF'u32, 0xFF000000'u32, 0xFFFFFFFF'u32,
   ]
-  var imgDesc = sg.ImageDesc(
-    width: 4,
-    height: 4
-  )
-  imgDesc.data.mipLevels[0] = sg.Range(addr: pixels.addr, size: pixels.sizeof)
   bindings.views[shd.viewTex] = sg.makeView(ViewDesc(
     texture: TextureViewDesc(
-      image: sg.makeImage(imgDesc)
+      image: sg.makeImage(sg.ImageDesc(
+        width: 4,
+        height: 4,
+        data: sg.Range(addr: pixels.addr, size: pixels.sizeof),
+      ))
     )
   ))
 
