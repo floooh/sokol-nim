@@ -38,16 +38,12 @@ proc init() {.cdecl.} =
     0xFFFFFFFF'u32, 0xFF000000'u32, 0xFFFFFFFF'u32, 0xFF000000'u32,
     0xFF000000'u32, 0xFFFFFFFF'u32, 0xFF000000'u32, 0xFFFFFFFF'u32,
   ]
-  var mipLevels: array[16, sg.Range] = default(array[16, sg.Range])
-  mipLevels[0] = sg.Range(addr: pixels.addr, size: pixels.sizeof)
   texView = sg.makeView(sg.ViewDesc(
     texture: sg.TextureViewDesc(
       image: sg.makeImage(sg.ImageDesc(
         width: imgWidth.int32,
         height: imgHeight.int32,
-        data: sg.ImageData(
-          mipLevels: mipLevels
-        )
+        data: sg.Range(addr: pixels.addr, size: pixels.sizeof),
       ))
     )
   ))
