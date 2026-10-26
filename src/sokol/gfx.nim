@@ -39,7 +39,6 @@ const
   maxColorAttachments* = 8
   maxUniformblockMembers* = 16
   maxVertexAttributes* = 16
-  maxMipmaps* = 16
   maxVertexbufferBindslots* = 8
   maxUniformblockBindslots* = 8
   maxViewBindslots* = 32
@@ -166,7 +165,7 @@ type Features* = object
   vertexformatInt10N2*:bool
   copyBufferToImageRelaxedBufferType*:bool
   copyBufferToImageRelaxedBytesPerRow*:bool
-  copyImageToImageRelaxed*:bool
+  copyImageToImageRelaxedPixelFormat*:bool
   glTextureViews*:bool
 
 type Limits* = object
@@ -1042,9 +1041,6 @@ type FrameStatsD3d11Bindings* = object
   numCsSetUnorderedAccessViews*:uint32
   numOmSetRtsAndUavs*:uint32
 
-type FrameStatsD3d11Uniforms* = object
-  numUpdateSubresource*:uint32
-
 type FrameStatsD3d11Draw* = object
   numDrawIndexedInstanced*:uint32
   numDrawIndexed*:uint32
@@ -1055,8 +1051,9 @@ type FrameStatsD3d11* = object
   pass*:FrameStatsD3d11Pass
   pipeline*:FrameStatsD3d11Pipeline
   bindings*:FrameStatsD3d11Bindings
-  uniforms*:FrameStatsD3d11Uniforms
   draw*:FrameStatsD3d11Draw
+  numUpdateSubresource*:uint32
+  numCopySubresourceRegion*:uint32
   numMap*:uint32
   numUnmap*:uint32
 
@@ -1443,7 +1440,6 @@ type
     logitemValidateImagedescDepthformatAttachmentOrCopydst,
     logitemValidateImagedescDepthstencilAttachmentPixelformat,
     logitemValidateImagedescDepthstencilAttachmentVsStorageimage,
-    logitemValidateImagedescStorageimageVsInitialdata,
     logitemValidateImagedescStorageimageVsWritetransient,
     logitemValidateImagedescWritetransientVsCopydst,
     logitemValidateImagedescWritetransientVsInitialdata,
@@ -1460,8 +1456,10 @@ type
     logitemValidateImagedescImagetype3dNumslices,
     logitemValidateImagedescWidth,
     logitemValidateImagedescHeight,
+    logitemValidateImagedescNumMipmaps,
     logitemValidateImagedescMsaaButNoAttachment,
     logitemValidateImagedescAttachmentPixelformat,
+    logitemValidateImagedescAttachmentMsaaVsCopy,
     logitemValidateImagedescAttachmentNoMsaaSupport,
     logitemValidateImagedescAttachmentMsaaNumMipmaps,
     logitemValidateImagedescAttachmentMsaa3dImage,
@@ -1566,10 +1564,6 @@ type
     logitemValidateViewdescTextureCubemapSlices,
     logitemValidateViewdescTextureArraySlices,
     logitemValidateViewdescTexture3dSlices,
-    logitemValidateViewdescStorageimagePixelformat,
-    logitemValidateViewdescColorattachmentPixelformat,
-    logitemValidateViewdescDepthstencilattachmentPixelformat,
-    logitemValidateViewdescResolveattachmentSamplecount,
     logitemValidateBeginpassCanary,
     logitemValidateBeginpassComputepassExpectNoAttachments,
     logitemValidateBeginpassSwapchainExpectWidth,
@@ -1784,6 +1778,7 @@ type
     logitemValidateCopybuffertobufferSrcOverflow,
     logitemValidateCopybuffertobufferDstOverflow,
     logitemValidateCopybuffertobufferWebgl2IndexBuffer,
+    logitemValidateCopybuffertobufferSrcTransientMissing,
     logitemValidateCopybuffertoimageDepthFormatNotAllowed,
     logitemValidateCopybuffertoimageWebgl2IndexBuffer,
     logitemValidateCopybuffertoimageBytesperrowTooSmall,
@@ -1812,13 +1807,13 @@ type
     logitemValidateCopybuffertoimageDstWidthOverflow,
     logitemValidateCopybuffertoimageDstHeightOverflow,
     logitemValidateCopybuffertoimageDstNumslicesOverflow,
+    logitemValidateCopybuffertoimageSrcTransientMissing,
     logitemValidateCopyimagetoimageSrcVsDstImage,
     logitemValidateCopyimagetoimageInsidePass,
     logitemValidateCopyimagetoimageCopySrc,
     logitemValidateCopyimagetoimageCopyDst,
     logitemValidateCopyimagetoimage3dVsOther,
     logitemValidateCopyimagetoimageSrcVsDstFormat,
-    logitemValidateCopyimagetoimageSrcVsDstSampleCount,
     logitemValidateCopyimagetoimageRenderable,
     logitemValidateCopyimagetoimageMsaa,
     logitemValidateCopyimagetoimageWholeMiplevel,
@@ -1851,6 +1846,7 @@ type
     logitemValidateCopyimagetoimageDstHeightOverflow,
     logitemValidateCopyimagetoimageSrcNumslicesOverflow,
     logitemValidateCopyimagetoimageDstNumslicesOverflow,
+    logitemValidateCopyimagetoimageSrcTransientMissing,
     logitemValidationFailed,
 
 type EnvironmentDefaults* = object
