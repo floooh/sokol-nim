@@ -22,6 +22,10 @@ type
     logitemAlsaSndPcmHwParamsSetRateNearFailed,
     logitemAlsaSndPcmHwParamsFailed,
     logitemAlsaPthreadCreateFailed,
+    logitemPulseaudioInvalidSampleSpec,
+    logitemPulseaudioSimpleNewFailed,
+    logitemPulseaudioSimpleWriteFailed,
+    logitemPulseaudioPthreadCreateFailed,
     logitemWasapiCreateEventFailed,
     logitemWasapiCreateDeviceEnumeratorFailed,
     logitemWasapiGetDefaultAudioEndpointFailed,
@@ -132,7 +136,7 @@ elif defined macosx:
   {.passL:"-framework AudioToolbox".}
 elif defined linux:
   when not defined emscripten:
-    {.passL:"-lasound -lm -lpthread".}
+    {.passL:"-lpulse-simple -lpulse -lm -lpthread".}
 else:
   error("unsupported platform")
 
