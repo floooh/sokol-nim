@@ -43,6 +43,7 @@ type
     eventTypeQuitRequested,
     eventTypeClipboardPasted,
     eventTypeFilesDropped,
+    eventTypeAndroidBack,
 
 type
   Keycode* {.size:sizeof(int32).} = enum
