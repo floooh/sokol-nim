@@ -42,7 +42,7 @@ const
   maxVertexbufferBindslots* = 8
   maxUniformblockBindslots* = 8
   maxViewBindslots* = 32
-  maxSamplerBindslots* = 12
+  maxSamplerBindslots* = 14
   maxTextureSamplerPairs* = 32
   maxPortableColorAttachments* = 4
   maxPortableTextureBindingsPerStage* = 16
@@ -504,14 +504,12 @@ type
     passstateCompute,
 
 type Bindings* = object
-  startCanary:uint32
   vertexBuffers*:array[8, Buffer]
   vertexBufferOffsets*:array[8, int32]
   indexBuffer*:Buffer
   indexBufferOffset*:int32
   views*:array[32, View]
-  samplers*:array[12, Sampler]
-  endCanary:uint32
+  samplers*:array[14, Sampler]
 
 converter toBindingsvertexBuffers*[N:static[int]](items: array[N, Buffer]): array[8, Buffer] {.requires: N<=8.} =
   for index,item in items.pairs: result[index]=item
@@ -522,7 +520,7 @@ converter toBindingsvertexBufferOffsets*[N:static[int]](items: array[N, int32]):
 converter toBindingsviews*[N:static[int]](items: array[N, View]): array[32, View] {.requires: N<=32.} =
   for index,item in items.pairs: result[index]=item
 
-converter toBindingssamplers*[N:static[int]](items: array[N, Sampler]): array[12, Sampler] {.requires: N<=12.} =
+converter toBindingssamplers*[N:static[int]](items: array[N, Sampler]): array[14, Sampler] {.requires: N<=14.} =
   for index,item in items.pairs: result[index]=item
 
 type BufferUsage* = object
@@ -772,7 +770,7 @@ type ShaderDesc* = object
   attrs*:array[16, ShaderVertexAttr]
   uniformBlocks*:array[8, ShaderUniformBlock]
   views*:array[32, ShaderView]
-  samplers*:array[12, ShaderSampler]
+  samplers*:array[14, ShaderSampler]
   textureSamplerPairs*:array[32, ShaderTextureSamplerPair]
   mtlThreadsPerThreadgroup*:MtlShaderThreadsPerThreadgroup
   label*:nil cstring
@@ -787,7 +785,7 @@ converter toShaderDescuniformBlocks*[N:static[int]](items: array[N, ShaderUnifor
 converter toShaderDescviews*[N:static[int]](items: array[N, ShaderView]): array[32, ShaderView] {.requires: N<=32.} =
   for index,item in items.pairs: result[index]=item
 
-converter toShaderDescsamplers*[N:static[int]](items: array[N, ShaderSampler]): array[12, ShaderSampler] {.requires: N<=12.} =
+converter toShaderDescsamplers*[N:static[int]](items: array[N, ShaderSampler]): array[14, ShaderSampler] {.requires: N<=14.} =
   for index,item in items.pairs: result[index]=item
 
 converter toShaderDesctextureSamplerPairs*[N:static[int]](items: array[N, ShaderTextureSamplerPair]): array[32, ShaderTextureSamplerPair] {.requires: N<=32.} =

@@ -66,13 +66,13 @@ type RenderDesc* = object
   useNearestFilter*:bool
   pip*:gfx.Pipeline
   views*:array[32, gfx.View]
-  samplers*:array[12, gfx.Sampler]
+  samplers*:array[14, gfx.Sampler]
   uniforms*:array[8, gfx.Range]
 
 converter toRenderDescviews*[N:static[int]](items: array[N, gfx.View]): array[32, gfx.View] {.requires: N<=32.} =
   for index,item in items.pairs: result[index]=item
 
-converter toRenderDescsamplers*[N:static[int]](items: array[N, gfx.Sampler]): array[12, gfx.Sampler] {.requires: N<=12.} =
+converter toRenderDescsamplers*[N:static[int]](items: array[N, gfx.Sampler]): array[14, gfx.Sampler] {.requires: N<=14.} =
   for index,item in items.pairs: result[index]=item
 
 converter toRenderDescuniforms*[N:static[int]](items: array[N, gfx.Range]): array[8, gfx.Range] {.requires: N<=8.} =
