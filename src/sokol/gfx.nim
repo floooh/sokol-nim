@@ -161,6 +161,8 @@ type Features* = object
   separateBufferTypes*:bool
   drawBaseVertex*:bool
   drawBaseInstance*:bool
+  drawIndirectBaseInstance*:bool
+  drawIndirectIndexBufferOffset*:bool
   dualSourceBlending*:bool
   vertexformatInt10N2*:bool
   copyBufferToImageRelaxedBufferType*:bool
@@ -527,6 +529,7 @@ type BufferUsage* = object
   vertexBuffer*:bool
   indexBuffer*:bool
   storageBuffer*:bool
+  indirectBuffer*:bool
   stagingBuffer*:bool
   stagingIndexBuffer*:bool
   writeUnsealed*:bool
@@ -898,6 +901,24 @@ type ViewDesc* = object
   label*:nil cstring
   endCanary:uint32
 
+type DrawIndirectArgs* = object
+  numElements*:uint32
+  numInstances*:uint32
+  baseElement*:uint32
+  baseInstance*:uint32
+
+type DrawIndirectIndexedArgs* = object
+  numElements*:uint32
+  numInstances*:uint32
+  baseElement*:uint32
+  baseVertex*:int32
+  baseInstance*:uint32
+
+type DispatchIndirectArgs* = object
+  numGroupsX*:uint32
+  numGroupsY*:uint32
+  numGroupsZ*:uint32
+
 type TraceHooks* = object
   userData*:nil pointer
   resetStateCache*:proc(a1:nil pointer) {.cdecl.}
@@ -930,7 +951,9 @@ type TraceHooks* = object
   applyUniforms*:proc(a1:int32, a2:ptr Range, a3:nil pointer) {.cdecl.}
   draw*:proc(a1:int32, a2:int32, a3:int32, a4:nil pointer) {.cdecl.}
   drawEx*:proc(a1:int32, a2:int32, a3:int32, a4:int32, a5:int32, a6:nil pointer) {.cdecl.}
+  drawIndirect*:proc(a1:Buffer, a2:int32, a3:nil pointer) {.cdecl.}
   dispatch*:proc(a1:int32, a2:int32, a3:int32, a4:nil pointer) {.cdecl.}
+  dispatchIndirect*:proc(a1:Buffer, a2:int32, a3:nil pointer) {.cdecl.}
   endPass*:proc(a1:nil pointer) {.cdecl.}
   commit*:proc(a1:nil pointer) {.cdecl.}
   allocBuffer*:proc(a1:Buffer, a2:nil pointer) {.cdecl.}
@@ -1044,12 +1067,19 @@ type FrameStatsD3d11Draw* = object
   numDrawIndexed*:uint32
   numDrawInstanced*:uint32
   numDraw*:uint32
+  numDrawIndexedInstancedIndirect*:uint32
+  numDrawInstancedIndirect*:uint32
+
+type FrameStatsD3d11Dispatch* = object
+  numDispatch*:uint32
+  numDispatchIndirect*:uint32
 
 type FrameStatsD3d11* = object
   pass*:FrameStatsD3d11Pass
   pipeline*:FrameStatsD3d11Pipeline
   bindings*:FrameStatsD3d11Bindings
   draw*:FrameStatsD3d11Draw
+  dispatch*:FrameStatsD3d11Dispatch
   numUpdateSubresource*:uint32
   numCopySubresourceRegion*:uint32
   numMap*:uint32
@@ -1171,7 +1201,9 @@ type FrameStats* = object
   numApplyUniforms*:uint32
   numDraw*:uint32
   numDrawEx*:uint32
+  numDrawIndirect*:uint32
   numDispatch*:uint32
+  numDispatchIndirect*:uint32
   numWriteBufferTransient*:uint32
   numWriteImageTransient*:uint32
   numWriteBufferUnsealed*:uint32
@@ -1388,6 +1420,8 @@ type
     logitemCopyImageToImageDstAlive,
     logitemCopyImageToImageSrcValid,
     logitemCopyImageToImageDstValid,
+    logitemDrawIndirectBufferAlive,
+    logitemDispatchIndirectBufferAlive,
     logitemShaderdescTooManyVertexstageTextures,
     logitemShaderdescTooManyFragmentstageTextures,
     logitemShaderdescTooManyComputestageTextures,
@@ -1405,6 +1439,7 @@ type
     logitemValidateBufferdescStagingVsVertexbuffer,
     logitemValidateBufferdescStagingVsIndexbuffer,
     logitemValidateBufferdescStagingVsStoragebuffer,
+    logitemValidateBufferdescStagingVsIndirectbuffer,
     logitemValidateBufferdescStagingVsInjected,
     logitemValidateBufferdescStagingVsCopydst,
     logitemValidateBufferdescStagingVsInitialdata,
@@ -1421,6 +1456,8 @@ type
     logitemValidateBufferdescExpectData,
     logitemValidateBufferdescStoragebufferSupported,
     logitemValidateBufferdescStoragebufferSizeMultiple4,
+    logitemValidateBufferdescIndirectbufferSupported,
+    logitemValidateBufferdescIndirectbufferSizeMultiple4,
     logitemValidateImagedescDataSize,
     logitemValidateImagedescCanary,
     logitemValidateImagedescAnyAttachmentVsCopydst,
@@ -1721,16 +1758,37 @@ type
     logitemValidateDrawRequiredBindingsOrUniformsMissing,
     logitemValidateDrawWriteBufferTransientMissing,
     logitemValidateDrawWriteImageTransientMissing,
+    logitemValidateDrawIndirectRenderpassExpected,
+    logitemValidateDrawIndirectBufferUsage,
+    logitemValidateDrawIndirectOffsetRange,
+    logitemValidateDrawIndirectOffsetMultiple4,
+    logitemValidateDrawIndirectIndexBufferOffset,
+    logitemValidateDrawIndirectRequiredBindingsOrUniformsMissing,
+    logitemValidateDrawIndirectWriteBufferTransientMissing,
+    logitemValidateDrawIndirectWriteImageTransientMissing,
+    logitemValidateDrawIndirectBufferWriteBufferTransientMissing,
+    logitemValidateDrawIndirectBufferVsSbviewReadwrite,
     logitemValidateDispatchComputepassExpected,
     logitemValidateDispatchNumgroupsx,
     logitemValidateDispatchNumgroupsy,
     logitemValidateDispatchNumgroupsz,
+    logitemValidateDispatchRequiredBindingsOrUniformsMissing,
     logitemValidateDispatchWriteBufferTransientMissing,
     logitemValidateDispatchWriteImageTransientMissing,
+    logitemValidateDispatchIndirectComputepassExpected,
+    logitemValidateDispatchIndirectBufferUsage,
+    logitemValidateDispatchIndirectOffsetRange,
+    logitemValidateDispatchIndirectOffsetMultiple4,
+    logitemValidateDispatchIndirectRequiredBindingsOrUniformsMissing,
+    logitemValidateDispatchIndirectWriteBufferTransientMissing,
+    logitemValidateDispatchIndirectWriteImageTransientMissing,
+    logitemValidateDispatchIndirectBufferWriteBufferTransientMissing,
+    logitemValidateDispatchIndirectBufferVsSbviewReadwrite,
     logitemValidateWritebufferunsealedUsage,
     logitemValidateWritebuffertransientUsage,
     logitemValidateWritebuffertransientWriteBeforeBind,
     logitemValidateWritebuffertransientWriteBeforeCopy,
+    logitemValidateWritebuffertransientWriteBeforeIndirect,
     logitemValidateWritebuffertransientDstOffsetAlignment,
     logitemValidateWritebufferSrcDataPointer,
     logitemValidateWritebufferSrcDataSize,
@@ -2048,9 +2106,17 @@ proc c_drawEx(baseElement:int32, numElements:int32, numInstances:int32, baseVert
 proc drawEx*(baseElement:int32, numElements:int32, numInstances:int32, baseVertex:int32, baseInstance:int32):void =
     c_drawEx(baseElement, numElements, numInstances, baseVertex, baseInstance)
 
+proc c_drawIndirect(buf:Buffer, offset:int32):void {.cdecl, importc:"sg_draw_indirect".}
+proc drawIndirect*(buf:Buffer, offset:int32):void =
+    c_drawIndirect(buf, offset)
+
 proc c_dispatch(numGroupsX:int32, numGroupsY:int32, numGroupsZ:int32):void {.cdecl, importc:"sg_dispatch".}
 proc dispatch*(numGroupsX:int32, numGroupsY:int32, numGroupsZ:int32):void =
     c_dispatch(numGroupsX, numGroupsY, numGroupsZ)
+
+proc c_dispatchIndirect(buf:Buffer, offset:int32):void {.cdecl, importc:"sg_dispatch_indirect".}
+proc dispatchIndirect*(buf:Buffer, offset:int32):void =
+    c_dispatchIndirect(buf, offset)
 
 proc c_endPass():void {.cdecl, importc:"sg_end_pass".}
 proc endPass*():void =

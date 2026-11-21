@@ -119,9 +119,17 @@ proc c_drawEx(cb:Cmdbuf, baseElement:int32, numElements:int32, numInstances:int3
 proc drawEx*(cb:Cmdbuf, baseElement:int32, numElements:int32, numInstances:int32, baseVertex:int32, baseInstance:int32):void =
     c_drawEx(cb, baseElement, numElements, numInstances, baseVertex, baseInstance)
 
+proc c_drawIndirect(cb:Cmdbuf, buf:gfx.Buffer, offset:int32):void {.cdecl, importc:"scb_draw_indirect".}
+proc drawIndirect*(cb:Cmdbuf, buf:gfx.Buffer, offset:int32):void =
+    c_drawIndirect(cb, buf, offset)
+
 proc c_dispatch(cb:Cmdbuf, numGroupsX:int32, numGroupsY:int32, numGroupsZ:int32):void {.cdecl, importc:"scb_dispatch".}
 proc dispatch*(cb:Cmdbuf, numGroupsX:int32, numGroupsY:int32, numGroupsZ:int32):void =
     c_dispatch(cb, numGroupsX, numGroupsY, numGroupsZ)
+
+proc c_dispatchIndirect(cb:Cmdbuf, buf:gfx.Buffer, offset:int32):void {.cdecl, importc:"scb_dispatch_indirect".}
+proc dispatchIndirect*(cb:Cmdbuf, buf:gfx.Buffer, offset:int32):void =
+    c_dispatchIndirect(cb, buf, offset)
 
 proc c_queryCmdbufState(cb:Cmdbuf):ResourceState {.cdecl, importc:"scb_query_cmdbuf_state".}
 proc queryCmdbufState*(cb:Cmdbuf):ResourceState =
